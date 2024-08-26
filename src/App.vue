@@ -5,7 +5,9 @@
 <!--  <admin-vue></admin-vue>-->
 <!--  <main-grid></main-grid>-->
 <!--  <Grip-Test></Grip-Test>-->
+<!--<Home></Home>-->
 <router-view name="app"></router-view>
+
 
 <!-- <TinyMceEdit></TinyMceEdit> -->
 

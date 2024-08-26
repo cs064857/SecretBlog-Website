@@ -3,10 +3,17 @@ import FlexBoxTest from '../views/FlexBoxTest.vue'
 import MainGrid from '../components/MainGrid.vue'
 import Home from '../views/Home.vue'
 import AdminVue from "../components/AdminVue.vue";
-
+import Article from "../components/Article.vue";
 const router = createRouter({
     history: createWebHistory(),
     routes: [
+        {//文章展示頁面
+            name:'Article',
+            path:'/Article/:article_id',
+            components:{
+                app:Article
+            }
+        },
         {
             name: 'AdminVueName',
             path: '/AdminVue',

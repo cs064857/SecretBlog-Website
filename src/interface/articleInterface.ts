@@ -1,5 +1,5 @@
 export interface ArticleInter{
-    id:bigint
+    id:string
     title:string
     content:string
     user:bigint

@@ -6,7 +6,7 @@
     <h1>新聞1111</h1>
     <button @click="getNews1">2222</button>
   </div>
-  <div v-html="lastContent" style="background-color: #d7e6c8">
+  <div v-html="lastContent" style="border: black 3px solid;padding: 1% 1%;width: 100%;height: 100%;background-color: #d7e6c8;box-shadow: 0px 0px 30px">
 
   </div>
 </template>
