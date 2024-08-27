@@ -53,6 +53,7 @@
                   </el-icon>
                   <span>Navigator Three</span>
                 </el-menu-item>
+
                 <el-menu-item index="TinyMceEdit">
                   <el-icon>
                     <setting/>
@@ -60,13 +61,22 @@
                   <span>編輯器</span>
 
                 </el-menu-item>
+
+                <el-menu-item index="TreeCategories">
+                  <el-icon>
+                    <setting/>
+                  </el-icon>
+                  <span>分類系統</span>
+
+                </el-menu-item>
+
               </el-menu>
             </el-col>
           </el-row>
         </el-aside>
         <el-container>
           <el-main style="padding: 0;min-height: 90%;min-width: 100%;" >
-            <router-view  name="MainRouter"></router-view>
+            <router-view  name="AdminVueRouter"></router-view>
 
             <!--            <div class="grid-item">-->
             <!--              <el-button class="b1" type="primary" round>新增</el-button>-->

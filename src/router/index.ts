@@ -4,6 +4,7 @@ import MainGrid from '../components/MainGrid.vue'
 import Home from '../views/Home.vue'
 import AdminVue from "../components/AdminVue.vue";
 import Article from "../components/Article.vue";
+import TreeCategories from "../components/TreeCategories.vue";
 const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -14,7 +15,7 @@ const router = createRouter({
                 app:Article
             }
         },
-        {
+        {//後臺系統
             name: 'AdminVueName',
             path: '/AdminVue',
             children: [
@@ -22,29 +23,37 @@ const router = createRouter({
                     name: 'TinyMceEdit',
                     path: '/AdminVue/TinyMceEdit',
                     components: {
-                        MainRouter: import('../components/TinyMceEdit.vue')
+                        AdminVueRouter: import('../components/TinyMceEdit.vue')
                     }
                 },
                 {
                     name: 'FlexBoxTest',
                     path: '/AdminVue/FlexBoxTest',
                     components: {
-                        MainRouter: FlexBoxTest,
+                        AdminVueRouter: FlexBoxTest,
                     }
                 },
                 {
                     name: 'MainGrid',
                     path: '/AdminVue/MainGrid',
                     components: {
-                        MainRouter: MainGrid,
+                        AdminVueRouter: MainGrid,
                     }
                 },
+                {
+                    name:'TreeCategories',
+                    path:'/AdminVue/TreeCategories',
+                    components:{
+                        AdminVueRouter: TreeCategories
+                    }
+                }
             ],
             components: {
                 app: AdminVue
             }
 
         },
+        
         {
             name: "Home",
             path: '/',
