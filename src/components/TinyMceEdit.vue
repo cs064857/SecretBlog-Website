@@ -76,7 +76,7 @@
 }
 </style>
 
-<script setup>
+<script lang="ts" setup>
 import { computed, reactive, watch, ref, nextTick, onMounted } from "vue"; //全屏
 
 import tinymce from "tinymce/tinymce";
@@ -115,6 +115,8 @@ import "tinymce-i18n/langs7/zh_TW.js"
 
 // 處理送出至資料庫中
 import http from '../utils/httpRequest';
+import {ElMessage} from "element-plus";
+import {R} from "../interface/R.js";
 const inputTitle = ref('')
 
 const handleInput = function () {
@@ -131,8 +133,13 @@ const handleInput = function () {
     url: http.adornUrl('/article/save'),
     method: 'post',
     data: http.adornData(save.value, false)
-  }).then(({ data }) => {
-    alert("發送請求成功")
+  }).then(({data}:{ data: R }) => {
+    console.log("data",data)
+    if(data.code==200){
+      ElMessage.success("文章發布成功")
+    }else {
+      ElMessage.error("文章發布失敗")
+    }
   });
 }// 處理送出至資料庫中
 

@@ -1,178 +1,140 @@
 <script setup lang="ts">
-import {reactive, ref} from 'vue'
+import {onMounted, reactive, ref} from 'vue'
 import type Node from 'element-plus/es/components/tree/src/model/node'
+import http from '../utils/httpRequest'
+import {ElMessage} from "element-plus";
+import {ConfirmDelete} from '../hooks/useMessageBox.ts'
 
 interface Tree {
   id: number
   label: string
   children?: Tree[]
 }
+
 let id = 1000
 
- const append = (data: Tree) => {
+const append = (data: Tree) => {
   dialogFormVisible.value = true
-  selectedData.value=data
+  selectedData.value = data//當前選種節點的數據
 }
 
 // 對話框
-let selectedData = ref<Tree | null>(null);//當前選中的節點
+let selectedData = ref<Tree | null>(null);//當前選中的節點數據
 let dialogFormVisible = ref<boolean>(false)
 const formLabelWidth = '140px'
 
+//表單中輸入的數據
 const form = reactive({
-  name: '',
-  region: '',
+  categoryName: '',
 })
-const handleDialogData = function (){
-  if(selectedData.value!=null){
-    console.log("selectedData.value:",selectedData.value)
-    dialogFormVisible.value=false
+const handleDialogData = function () {
+  if (selectedData.value != null) {
+    console.log("selectedData.value:", selectedData.value)
+    dialogFormVisible.value = false
+    console.log("form.name:", form.categoryName)
     //執行新增分類
-    const newChild = { id: id++, label: 'testtest', children: [] }
-    if (!selectedData.value.children) {
-      selectedData.value.children = []
-    }
-    selectedData.value.children.push(newChild)
-    dataSource.value = [...dataSource.value]
+    http({
+      url: http.adornUrl('/article/category/save'),
+      method: 'post',
+      //參數1為當前選種節點分類的id,參數2為欲添加輸入的分類名稱
+      data: http.adornData({parentId: selectedData.value.id, categoryName: form.categoryName}, false)
+    }).then(({data}) => {
+      if (data.code == 200) {
+        ElMessage.success("添加分類數據成功")
+        getCategoryList()
 
+      } else {
+        //elementPlus的Message消息提示組件
+        ElMessage.error("獲取分類數據失敗")
+      }
+
+    });
+
+    // const newChild = { id: id++, label: 'testtest', children: [] }
+    // if (!selectedData.value.children) {
+    //   selectedData.value.children = []
+    // }
+    // selectedData.value.children.push(newChild)
+    // dataSource.value = [...dataSource.value]
   }
-
-
 }
 // 對話框/
-
-const remove = (node: Node, data: Tree) => {
-  const parent = node.parent
-  const children: Tree[] = parent.data.children || parent.data
-  const index = children.findIndex((d) => d.id === data.id)
-  children.splice(index, 1)
-  dataSource.value = [...dataSource.value]
-}
-
-const renderContent = (
-    h,
-    {
-      node,
-      data,
-      store,
-    }: {
-      node: Node
-      data: Tree
-      store: Node['store']
+// 從後端獲取分類數據
+const getCategoryList = function () {
+  http({
+    url: http.adornUrl('/article/category/list'),
+    method: 'get',
+    params: http.adornParams({})
+  }).then(({data}) => {
+    if (data.code == 200) {
+      console.log("data", data)
+      dataSource.value = data.data
+    } else {
+      ElMessage.error("獲取分類數據錯誤");
     }
-) => {
-  return h(
-      'span',
-      {
-        class: 'custom-tree-node',
-      },
-      h('span', null, node.label),
-      h(
-          'span',
-          null,
-          h(
-              'a',
-              {
-                onClick: () => append(data),
-              },
-              'Append '
-          ),
-          h(
-              'a',
-              {
-                style: 'margin-left: 8px',
-                onClick: () => remove(node, data),
-              },
-              'Delete'
-          )
-      )
-  )
+  })
 }
 
-const dataSource = ref<Tree[]>([
-  {
-    id: 1,
-    label: 'Level one 1',
-    children: [
-      {
-        id: 4,
-        label: 'Level two 1-1',
-        children: [
-          {
-            id: 9,
-            label: 'Level three 1-1-1',
-          },
-          {
-            id: 10,
-            label: 'Level three 1-1-2',
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: 2,
-    label: 'Level one 2',
-    children: [
-      {
-        id: 5,
-        label: 'Level two 2-1',
-      },
-      {
-        id: 6,
-        label: 'Level two 2-2',
-      },
-    ],
-  },
-  {
-    id: 3,
-    label: 'Level one 3',
-    children: [
-      {
-        id: 7,
-        label: 'Level two 3-1',
-      },
-      {
-        id: 8,
-        label: 'Level two 3-2',
-      },
-    ],
-  },
-])
+onMounted(() => {
+  getCategoryList()//從後端獲取分類數據
+
+})
+// 從後端獲取分類數據
+// 移除分類
+const remove = (node: Node, data: Tree) => {
+  console.log("node:", node)
+  console.log("data:", data)
+  ConfirmDelete("是否刪除該分類數據")
+      .then(() => {
+        http({
+          //將該分類的id發送給後端執行刪除
+          url: http.adornUrl(`/article/category/delete/${data.id}`),
+          method: 'post',
+          // data: http.adornData(data.id, false)
+        }).then(({data}) => {
+          if(data.code==200){
+            ElMessage.success("刪除數據成功")
+            getCategoryList()
+          }else {
+            ElMessage.error("刪除數據錯誤")
+          }
+        });
+      })
+      .catch(()=>{
+        ElMessage.error("已取消")
+      })
+}
+// 移除分類/
+// 拖曳節點
+const handleDrag=function (before,after,inner){
+  console.log("before:",before)
+  console.log("after:",after)
+  console.log("inner:",inner)
+}
+// 拖曳節點/
+const dataSource = ref<Tree[]>([]);
 </script>
 
 <template>
   <div class="AdminVue-TreeCategories">
-
-    <div class="custom-tree-container">
-      <p>Using render-content</p>
-      <el-tree
-          style="max-width: 600px"
-          :data="dataSource"
-          show-checkbox
-          node-key="id"
-          default-expand-all
-          :expand-on-click-node="false"
-          :render-content="renderContent"
-      />
-    </div>
-
     <div class="custom-tree-container">
       <p>Using scoped slot</p>
       <el-tree
           style="max-width: 600px"
           :data="dataSource"
           show-checkbox
+          @node-drop="handleDrag"
           node-key="id"
           default-expand-all
+          draggable
           :expand-on-click-node="false"
       >
         <template #default="{ node, data }">
         <span class="custom-tree-node">
           <span>{{ node.label }}</span>
           <span>
-            <a @click="append(data)"> Append </a>
-            <a style="margin-left: 8px" @click="remove(node, data)"> Delete </a>
+            <a style="padding-left: 10px" @click="append(data)"> Append </a>
+            <a v-if="node.childNodes.length==0" style="padding-left: 10px" @click="remove(node, data)"> Delete </a>
           </span>
         </span>
 
@@ -183,17 +145,17 @@ const dataSource = ref<Tree[]>([
 
   </div>
 
-  <el-dialog v-model="dialogFormVisible" title="Shipping address" width="500">
+  <el-dialog v-model="dialogFormVisible" title="新增分類" width="500">
     <el-form :model="form">
-      <el-form-item label="Promotion name" :label-width="formLabelWidth">
-        <el-input v-model="form.name" autocomplete="off" />
+      <el-form-item label="分類名稱" :label-width="formLabelWidth">
+        <el-input v-model="form.categoryName" autocomplete="off"/>
       </el-form-item>
-      <el-form-item label="Zones" :label-width="formLabelWidth">
-        <el-select v-model="form.region" placeholder="Please select a zone">
-          <el-option label="Zone No.1" value="shanghai" />
-          <el-option label="Zone No.2" value="beijing" />
-        </el-select>
-      </el-form-item>
+      <!--      <el-form-item label="Zones" :label-width="formLabelWidth">-->
+      <!--        <el-select v-model="form.region" placeholder="Please select a zone">-->
+      <!--          <el-option label="Zone No.1" value="shanghai" />-->
+      <!--          <el-option label="Zone No.2" value="beijing" />-->
+      <!--        </el-select>-->
+      <!--      </el-form-item>-->
     </el-form>
     <template #footer>
       <div class="dialog-footer">
@@ -219,10 +181,11 @@ const dataSource = ref<Tree[]>([
   height: 100%;
   width: auto;
 }
-.AdminVue-TreeCategories{
+
+.AdminVue-TreeCategories {
   display: flex;
   justify-content: space-between;
-background-color: #d7e6c8;
+  background-color: #d7e6c8;
   width: 100%;
   height: 100%;
 }

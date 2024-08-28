@@ -89,57 +89,57 @@ const handleDelete = (index: number, row: User) => {
 const tableData: User[] = [
   {
     date: '2016-05-03',
-    name: '1111',
+    categoryName: '1111',
     address: 'No. 189, Grove St, Los Angeles',
   },
   {
     date: '2016-05-02',
-    name: 'John',
+    categoryName: 'John',
     address: 'No. 189, Grove St, Los Angeles',
   },
   {
     date: '2016-05-04',
-    name: 'Morgan',
+    categoryName: 'Morgan',
     address: 'No. 189, Grove St, Los Angeles',
   },
   {
     date: '2016-05-01',
-    name: 'Jessy',
+    categoryName: 'Jessy',
     address: 'No. 189, Grove St, Los Angeles',
   },
   {
     date: '2016-05-01',
-    name: 'Jessy',
+    categoryName: 'Jessy',
     address: 'No. 189, Grove St, Los Angeles',
   },
   {
     date: '2016-05-01',
-    name: 'Jessy',
+    categoryName: 'Jessy',
     address: 'No. 189, Grove St, Los Angeles',
   },
   {
     date: '2016-05-01',
-    name: 'Jessy',
+    categoryName: 'Jessy',
     address: 'No. 189, Grove St, Los Angeles',
   },
   {
     date: '2016-05-01',
-    name: 'Jessy',
+    categoryName: 'Jessy',
     address: 'No. 189, Grove St, Los Angeles',
   },
   {
     date: '2016-05-01',
-    name: 'Jessy',
+    categoryName: 'Jessy',
     address: 'No. 189, Grove St, Los Angeles',
   },
   {
     date: '2016-05-01',
-    name: 'Jessy',
+    categoryName: 'Jessy',
     address: 'No. 189, Grove St, Los Angeles',
   },
   {
     date: '2016-05-01',
-    name: '66666',
+    categoryName: '66666',
     address: 'No. 189, Grove St, Los Angeles',
   },
 ]

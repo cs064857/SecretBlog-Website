@@ -15,7 +15,7 @@
     <div class="home-main">
       <div class="home-left-article"></div>
 
-      <div class="home-article-list">
+      <div class="home-article-list" ref="containerRef">
 
         <div v-for="(article,articleIndex) in limitArticleList" :key="article.id" class="home-article">
 
@@ -33,7 +33,13 @@
 
       </div>
 
-      <div class="home-right-article"></div>
+        <el-affix position="top"  target=".home-main"  :offset="0" z-index="1200">
+<!--          <el-affix position="bottom" target=".home-main" style="margin-top: 50%;"  :offset="800" z-index="1200">-->
+        <div class="home-right-article"></div>
+        </el-affix>
+
+
+
     </div>
     <!--    <div class="home-footer">home-footer</div>-->
   </div>
@@ -51,6 +57,7 @@ import {useRouter, useRoute} from 'vue-router'
 import http from '../utils/httpRequest'
 import {ArticleInter, Articles} from "../interface/articleInterface.ts";
 import {Management, Menu, User} from "@element-plus/icons-vue";
+import {R} from "../interface/R.ts";
 
 interface tagsButton {
   title: string
@@ -81,6 +88,8 @@ const limitArticleList:any=computed(()=>{
   console.log("articleList:",articleList)
   if(articleList.value !=null){
     return articleList.value.slice((currentPage.value-1)*pageSize.value,limitItems.value)////默認顯示10個項目,根據limitItems變化而改變,而limitItems與頁數掛勾
+    // const t1=articleList.value.slice((currentPage.value-1)*pageSize.value,limitItems.value)////默認顯示10個項目,根據limitItems變化而改變,而limitItems與頁數掛勾
+    // console.log("t1:",t1)
   }
 })
 //分頁
@@ -92,12 +101,12 @@ onMounted(() => {
       url: http.adornUrl('/article/list'),
       method: 'get',
       params: http.adornParams({})
-    }).then(({data}: { data: any }) => {
+    }).then(({data}: { data: R }) => {
       // alert("請求文章列表成功")
-      articleList.value = data
-      totalItems=data.length
+      articleList.value = data.data
+      totalItems=data.data.length
       console.log("totalItems:",totalItems)
-      // console.log("articleList.value",articleList.value)
+      console.log("articleList.value",articleList.value)
     })
   }
 })
@@ -106,30 +115,30 @@ onMounted(() => {
 const handleGoBackend = function () {//進入後台管理系統
   router.push('/AdminVue')
 }
-const testRoute = function () {
-  router.push('/Home/News1Test')
-}
+// const testRoute = function () {
+//   router.push('/Home/News1Test')
+// }
 
-const buttons = ref<typeof tagsButtons>([
-  {
-    title: "首頁",
-    route: "/",
-  },
-  {
-    title: "新聞1",
-    route: "/Home/News1Test",
-  },
-  {
-    title: "關於",
-    route: "/Home/News2Test",
-  },
-  {
-    article_id: "1828018170493947905",
-    title: "新聞2",
-    route: "/Article",
-    name: "Article"
-  }
-])
+// const buttons = ref<typeof tagsButtons>([
+//   {
+//     title: "首頁",
+//     route: "/",
+//   },
+//   {
+//     title: "新聞1",
+//     route: "/Home/News1Test",
+//   },
+//   {
+//     title: "關於",
+//     route: "/Home/News2Test",
+//   },
+//   {
+//     article_id: "1828018170493947905",
+//     title: "新聞2",
+//     route: "/Article",
+//     name: "Article"
+//   }
+// ])
 </script>
 
 
