@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import {onMounted, reactive, ref} from 'vue'
+import {isRef, onMounted, reactive, ref} from 'vue'
 import type Node from 'element-plus/es/components/tree/src/model/node'
 import http from '../utils/httpRequest'
 import {ElMessage} from "element-plus";
 import {ConfirmDelete} from '../hooks/useMessageBox.ts'
+import {debounce,throttle} from "../utils/debounce.ts";
 
 interface Tree {
   id: number
@@ -110,8 +111,53 @@ const handleDrag=function (before,after,inner){
   console.log("before:",before)
   console.log("after:",after)
   console.log("inner:",inner)
+  let beforeId = before.key
+  let afterParentId = ref<number>()
+  let afterLevel = (-1);
+  //如果是拖曳至該父類下的子節點前後即為"after" or "before",則after(放置位置)的數據會是該子節點
+  if(inner=="before" || inner=="after"){
+    //將拖曳前的父類改成拖曳後位置的父類
+      before.parent=after.parent
+
+      before.level=after.level
+    afterLevel=after?.level ?? -1
+      console.log("before.level",before.level)
+      console.log("after.level",after.level)
+    console.log("refAfterLevel",afterLevel)
+
+
+    afterParentId=after.parent.data.id ?? 0 //如果 after.data.id 存在，使用它，否則parentId為0
+    console.log("after.parent.data.id:",after.parent.data.id)
+  }else if(inner=="inner"){//"inner"代表是直接往該父類節點上放置,則after(放置位置)的數據會是該父節點
+    before.parent=after.data
+    // parentId=after.data.id
+    afterParentId = after.data.id ?? 0 // 如果 after.data.id 存在，使用它，否則parentId為0
+    console.log("after.data.id:",after.data.id)
+  }
+  console.log("beforeId:",beforeId)
+  console.log("parentId:",afterParentId)
+
+
+  http({
+      url: http.adornUrl(`/article/category/update/${beforeId}/${afterParentId}/${afterLevel}`),
+      method: 'post',
+  }).then(({data}) => {
+    alert("完成")
+    getCategoryList()
+  });
 }
 // 拖曳節點/
+// 判斷節點是否可被放置
+const handleAllowDrop=function (draggingNode, dropNode, type){
+  if(draggingNode.parent.key == dropNode.parent.key){//拖曳前後若是同個父類的話(代表在同個父類中只是換個排序位置)禁止托跩
+    // console.log("draggingNode.parent.key",draggingNode.parent.key)
+    // console.log("dropNode.parent.key",dropNode.parent.key)
+    return false;
+  }else {
+    return true;
+  }
+}
+// 判斷節點是否可被放置
 const dataSource = ref<Tree[]>([]);
 </script>
 
@@ -127,6 +173,7 @@ const dataSource = ref<Tree[]>([]);
           node-key="id"
           default-expand-all
           draggable
+          :allow-drop="handleAllowDrop"
           :expand-on-click-node="false"
       >
         <template #default="{ node, data }">
