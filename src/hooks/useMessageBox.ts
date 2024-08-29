@@ -1,4 +1,4 @@
-import {ElMessage, ElMessageBox} from 'element-plus'
+import {ElMessageBox} from 'element-plus'
 
 //確認是否
 export const ConfirmDelete = (msg:string):Promise<void> => {

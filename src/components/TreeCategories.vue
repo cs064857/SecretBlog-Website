@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import {isRef, onMounted, reactive, ref} from 'vue'
+import {onMounted, reactive, ref} from 'vue'
 import type Node from 'element-plus/es/components/tree/src/model/node'
 import http from '../utils/httpRequest'
 import {ElMessage} from "element-plus";
 import {ConfirmDelete} from '../hooks/useMessageBox.ts'
-import {debounce,throttle} from "../utils/debounce.ts";
-
+import {useTreeCategoryStore} from '../pinia/useTreeCategoryStore.ts'
 interface Tree {
   id: number
   label: string
@@ -63,7 +62,10 @@ const getCategoryList = function () {
   }).then(({data}) => {
     if (data.code == 200) {
       console.log("data", data)
+      //將數據放入樹形控件數據源中展示
       dataSource.value = data.data
+      //將數據放入pinia中保存,讓編輯器中的選擇器TreeSelect調用
+      useTreeCategoryStore().setTreeData(data.data)
     } else {
       ElMessage.error("獲取分類數據錯誤");
     }
@@ -74,6 +76,9 @@ onMounted(() => {
   getCategoryList()//從後端獲取分類數據
 
 })
+
+
+
 // 從後端獲取分類數據
 // 移除分類
 const remove = (node: Node, data: Tree) => {
@@ -214,8 +219,8 @@ const dataSource = ref<Tree[]>([]);
         <span class="custom-tree-node">
           <span>{{ node.label }}</span>
           <span>
-            <a style="padding-left: 10px" @click="append(data)"> Append </a>
-            <a v-if="node.childNodes.length==0" style="padding-left: 10px" @click="remove(node, data)"> Delete </a>
+            <a style="padding-left: 10px;color:#409eff" @click="append(data)"> Append </a>
+            <a v-if="node.childNodes.length==0" style="padding-left: 10px ;color:#f56c6c" @click="remove(node, data)"> Delete </a>
           </span>
         </span>
 

@@ -3,9 +3,18 @@
     <div id="inputHeader">
 
       <span class="noto-sans-tc"
-        style="font-size: 18px;font-family: 'Noto Sans TC', sans-serif;padding-left: 1%;padding-top: 1%;">標題</span>
+        style="font-size: 18px;width: 60px;font-family: 'Noto Sans TC', sans-serif;padding-left: 1%;padding-top: 1%;">標題</span>
       <el-input v-model="inputTitle" style="width: 240px;margin: 2% 2% 2% 0.2%;padding-top: 1%;" placeholder="請輸入標題" />
 
+      <el-tree-select
+          v-model="selectValue"
+          :data="treeSelectData"
+          @change="handleChange"
+          :render-after-expand="false"
+          style="width: 240px;margin: 2% 2% 2% 0.2%;padding-top: 1%;"
+          value-key="id"
+      />
+      <el-divider />
 
     </div>
     <div id="inputContent">
@@ -117,18 +126,36 @@ import "tinymce-i18n/langs7/zh_TW.js"
 import http from '../utils/httpRequest';
 import {ElMessage} from "element-plus";
 import {R} from "../interface/R.js";
+import {useTreeCategoryStore} from "../pinia/useTreeCategoryStore.ts"
 const inputTitle = ref('')
+
+// 選擇器
+const TreeCategoryStore= useTreeCategoryStore()
+const treeSelectData = TreeCategoryStore.getTreeData
+console.log("treeSelectData:",treeSelectData)
+
+const selectValue = ref()//選中項綁定的分類
+
+// 選擇器/
+const selectCategoryId=ref<number>()
+const handleChange = function (value:number){
+  //得到樹形選擇器中該分類的ID
+  selectCategoryId.value=value
+  console.log("handleChange.value",value)
+}
 
 const handleInput = function () {
   const save = ref(
     {
       title: inputTitle.value,
-      content: handleGetContent()
-    }
-
+      content: handleGetContent(),
+      categoryId:selectCategoryId.value
+    },
   )
+  console.log("selectValue2:",selectValue)
 
   console.log("save:", save)
+
   http({
     url: http.adornUrl('/article/save'),
     method: 'post',
@@ -141,6 +168,7 @@ const handleInput = function () {
       ElMessage.error("文章發布失敗")
     }
   });
+
 }// 處理送出至資料庫中
 
 
