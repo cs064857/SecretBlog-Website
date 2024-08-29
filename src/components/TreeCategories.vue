@@ -50,13 +50,7 @@ const handleDialogData = function () {
       }
 
     });
-
-    // const newChild = { id: id++, label: 'testtest', children: [] }
-    // if (!selectedData.value.children) {
-    //   selectedData.value.children = []
-    // }
-    // selectedData.value.children.push(newChild)
-    // dataSource.value = [...dataSource.value]
+    form.categoryName=''//清除表單數據
   }
 }
 // 對話框/
@@ -135,7 +129,7 @@ const handleDrag=function (before,after,inner){
     console.log("after.data.id:",after.data.id)
   }
   console.log("beforeId:",beforeId)
-  console.log("parentId:",afterParentId)
+  console.log("afterParentId:",afterParentId)
 
 
   http({
@@ -157,12 +151,41 @@ const handleAllowDrop=function (draggingNode, dropNode, type){
     return true;
   }
 }
-// 判斷節點是否可被放置
+// 判斷節點是否可被放置/
+
 // 開關托拽功能
 const draggable=ref<boolean>(false);
 // 開關托拽功能/
 
+// 新增一級分類
+const dialogFormVisibleAddLevelOne = ref<boolean>(false)
+  //點擊新增按鈕後開啟對話框
+const handleAddLevelOneCategory=function (){
+  dialogFormVisibleAddLevelOne.value=true
+}
+  //點擊送出後
+const handleDialogAddLevelOne=function () {
+
+  http({
+    url: http.adornUrl('/article/category/save'),
+    method: 'post',
+    data: http.adornData({parentId: 0, categoryName: form.categoryName, categoryLevel: 1}, false)
+  }).then(({data}) => {
+    if (data.code == 200) {
+      ElMessage.success("新增分類數據成功")
+      getCategoryList()
+    } else {
+      ElMessage.error("新增分類數據錯誤");
+    }
+    dialogFormVisibleAddLevelOne.value=false
+    getCategoryList()
+  });
+}
+// 新增一級分類/
+
+// 樹形控件數據源
 const dataSource = ref<Tree[]>([]);
+// 樹形控件數據源/
 </script>
 
 <template>
@@ -174,6 +197,8 @@ const dataSource = ref<Tree[]>([]);
           active-text="開啟拖曳"
           inactive-text="關閉拖曳"
       />
+      <br>
+      <el-button style="width: 40%;height: auto" @click="handleAddLevelOneCategory" type="primary" round>新增一級分類</el-button>
       <el-tree
           style="max-width: 600px"
           :data="dataSource"
@@ -206,17 +231,27 @@ const dataSource = ref<Tree[]>([]);
       <el-form-item label="分類名稱" :label-width="formLabelWidth">
         <el-input v-model="form.categoryName" autocomplete="off"/>
       </el-form-item>
-      <!--      <el-form-item label="Zones" :label-width="formLabelWidth">-->
-      <!--        <el-select v-model="form.region" placeholder="Please select a zone">-->
-      <!--          <el-option label="Zone No.1" value="shanghai" />-->
-      <!--          <el-option label="Zone No.2" value="beijing" />-->
-      <!--        </el-select>-->
-      <!--      </el-form-item>-->
     </el-form>
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="dialogFormVisible = false">Cancel</el-button>
         <el-button type="primary" @click="handleDialogData">
+          送出
+        </el-button>
+      </div>
+    </template>
+  </el-dialog>
+
+  <el-dialog v-model="dialogFormVisibleAddLevelOne" title="新增分類" width="500">
+    <el-form :model="form">
+      <el-form-item label="分類名稱" :label-width="formLabelWidth">
+        <el-input v-model="form.categoryName" autocomplete="off"/>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="dialogFormVisibleAddLevelOne = false">Cancel</el-button>
+        <el-button type="primary" @click="handleDialogAddLevelOne">
           送出
         </el-button>
       </div>
