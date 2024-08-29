@@ -158,13 +158,22 @@ const handleAllowDrop=function (draggingNode, dropNode, type){
   }
 }
 // 判斷節點是否可被放置
+// 開關托拽功能
+const draggable=ref<boolean>(false);
+// 開關托拽功能/
+
 const dataSource = ref<Tree[]>([]);
 </script>
 
 <template>
   <div class="AdminVue-TreeCategories">
     <div class="custom-tree-container">
-      <p>Using scoped slot</p>
+      <el-switch
+          v-model="draggable"
+          class="mb-2"
+          active-text="開啟拖曳"
+          inactive-text="關閉拖曳"
+      />
       <el-tree
           style="max-width: 600px"
           :data="dataSource"
@@ -172,7 +181,7 @@ const dataSource = ref<Tree[]>([]);
           @node-drop="handleDrag"
           node-key="id"
           default-expand-all
-          draggable
+          :draggable="draggable"
           :allow-drop="handleAllowDrop"
           :expand-on-click-node="false"
       >
