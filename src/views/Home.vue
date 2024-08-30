@@ -13,18 +13,21 @@
 
     </div>
     <div class="home-main">
-      <div class="home-left-article"></div>
+      <el-affix style="background-color: #646cff;width: 100%;height: 50px" target=".home-main" :offset="77">
+        <div class="home-article-navigation"><span  style="font-size: 20px;font-family: 'Noto Sans TC',sans-serif">標籤1</span></div>
+      </el-affix>
+      <div class="home-left-article">
+
+      </div>
 
       <div class="home-article-list" ref="containerRef">
 
         <div v-for="(article,articleIndex) in limitArticleList" :key="article.id" class="home-article">
-
           <div class="article-title">
             <router-link :to="{name:'Article',params:{article_id:article.id}}"><p>{{ article.title }}</p></router-link>
           </div>
           <div v-html="article.content" class="article-content"></div>
           <div class="article-info"></div>
-
         </div>
 
         <div class="home-article-footer">
@@ -33,7 +36,7 @@
 
       </div>
 
-        <el-affix position="top"  target=".home-main"  :offset="0" z-index="1200">
+        <el-affix style="height: 1vh" position="top"  target=".home-main"  :offset="50" >
 <!--          <el-affix position="bottom" target=".home-main" style="margin-top: 50%;"  :offset="800" z-index="1200">-->
         <div class="home-right-article"></div>
         </el-affix>
@@ -58,6 +61,8 @@ import http from '../utils/httpRequest'
 import {ArticleInter, Articles} from "../interface/articleInterface.ts";
 import {Management, Menu, User} from "@element-plus/icons-vue";
 import {R} from "../interface/R.ts";
+import {useTreeCategoryStore} from "../pinia/useTreeCategoryStore.ts";
+import {ElMessage} from "element-plus";
 
 interface tagsButton {
   title: string
@@ -139,6 +144,25 @@ const handleGoBackend = function () {//進入後台管理系統
 //     name: "Article"
 //   }
 // ])
+// 分類
+const getCategoryList = function () {
+  http({
+    url: http.adornUrl('/article/category/list'),
+    method: 'get',
+    params: http.adornParams({})
+  }).then(({data}) => {
+    if (data.code == 200) {
+
+    } else {
+      ElMessage.error("獲取分類數據錯誤");
+    }
+  })
+}
+onMounted(() => {
+  getCategoryList()//從後端獲取分類數據
+
+})
+// 分類/
 </script>
 
 

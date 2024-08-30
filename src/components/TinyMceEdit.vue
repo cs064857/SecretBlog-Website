@@ -1,17 +1,15 @@
 <template>
   <div class="main-editarticle">
     <div id="inputHeader">
-
-      <span class="noto-sans-tc"
-        style="font-size: 18px;width: 60px;font-family: 'Noto Sans TC', sans-serif;padding-left: 1%;padding-top: 1%;">標題</span>
+      <span class="noto-sans-tc" style="font-size: 18px;max-width: 4vh;min-width: 4vh;font-family: 'Noto Sans TC', sans-serif;padding-left: 1%;padding-top: 1%;">標題</span>
       <el-input v-model="inputTitle" style="width: 240px;margin: 2% 2% 2% 0.2%;padding-top: 1%;" placeholder="請輸入標題" />
-
+      <span class="noto-sans-tc" style="font-size: 18px;max-width: 8vh;min-width: 8vh;font-family: 'Noto Sans TC', sans-serif;padding-left: 1%;padding-top: 1%;">文章分類</span>
       <el-tree-select
           v-model="selectValue"
           :data="treeSelectData"
           @change="handleChange"
           :render-after-expand="false"
-          style="width: 240px;margin: 2% 2% 2% 0.2%;padding-top: 1%;"
+          style="max-width: 20vh;min-width: 20vh;margin: 2% 2% 2% 0.2%;padding-top: 1%;"
           value-key="id"
       />
       <el-divider />
