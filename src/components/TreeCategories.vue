@@ -56,7 +56,7 @@ const handleDialogData = function () {
 // 從後端獲取分類數據
 const getCategoryList = function () {
   http({
-    url: http.adornUrl('/article/category/list'),
+    url: http.adornUrl('/article/category/tree/list'),
     method: 'get',
     params: http.adornParams({})
   }).then(({data}) => {

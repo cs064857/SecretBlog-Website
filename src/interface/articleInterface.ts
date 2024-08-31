@@ -3,7 +3,7 @@ export interface ArticleInter{
     title:string
     content:string
     user:bigint
-    category_id:bigint
+    categoryId:bigint
     tag_id:bigint
     is_show:number
     create_time:Date

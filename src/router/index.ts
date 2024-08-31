@@ -56,28 +56,26 @@ const router = createRouter({
 
         {
             name: "Home",
-            path: '/',
-
+            path: '/Home/:categoryId?',
             components: {
                 app: Home
             },
             children: [
-                {
-                    path: '/Home/News1Test',
-                    components: {
-                        HomeRouter: import('../views/News1Test.vue')
-                    }
 
-                },
-                {
-                    path: '/Home/News2Test',
-                    components: {
-                        HomeRouter: FlexBoxTest
-                    }
-                },
+                // {
+                //     path: '/Home/News2Test',
+                //     components: {
+                //         HomeRouter: FlexBoxTest
+                //     }
+                // },
             ]
 
         },
+        {
+            //重定向,將/轉為/Home並訪問到首頁
+            path:'/',
+            redirect:'/Home'
+        }
     ]
 })
 export default router
