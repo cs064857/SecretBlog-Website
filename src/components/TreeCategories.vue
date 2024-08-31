@@ -5,13 +5,12 @@ import http from '../utils/httpRequest'
 import {ElMessage} from "element-plus";
 import {ConfirmDelete} from '../hooks/useMessageBox.ts'
 import {useTreeCategoryStore} from '../pinia/useTreeCategoryStore.ts'
+import {R} from "../interface/R.ts";
 interface Tree {
   id: number
   label: string
   children?: Tree[]
 }
-
-let id = 1000
 
 const append = (data: Tree) => {
   dialogFormVisible.value = true
@@ -80,6 +79,38 @@ onMounted(() => {
 
 
 // 從後端獲取分類數據
+// 編輯分類
+  // 編輯修改按鈕及功能/
+const handleEdit = function (node, data) {
+  console.log("node:",node)
+  form.categoryName = node.label;// 將node的categoryName回顯給表單模型
+  selectedData.value = node
+  dialogFormVisibleEditLevelOne.value = true
+}
+  // 編輯修改按鈕及功能
+const dialogFormVisibleEditLevelOne = ref<boolean>(false)
+const handleDialogEditLevelOne = function () {
+  // console.log("form", form);
+  http({
+    url: http.adornUrl(`/article/category/${selectedData.value.data.id}`),
+    method: 'put',
+    data: http.adornData(form.categoryName, false)
+  }).then(({ data }:{data:R}) => {
+    if (data.code == 200) {
+      ElMessage.success("修改分類數據成功")
+      getCategoryList()
+    } else {
+      ElMessage.error("修改分類數據錯誤");
+    }
+    dialogFormVisibleEditLevelOne.value = false
+  });
+  form.categoryName=''//清空表單輸入數據
+  selectedData.value=''//清空選中的節點數據
+}
+  // 編輯修改按鈕及功能/
+
+
+// 編輯分類/
 // 移除分類
 const remove = (node: Node, data: Tree) => {
   console.log("node:", node)
@@ -203,7 +234,7 @@ const dataSource = ref<Tree[]>([]);
           inactive-text="關閉拖曳"
       />
       <br>
-      <el-button style="width: 40%;height: auto" @click="handleAddLevelOneCategory" type="primary" round>新增一級分類</el-button>
+      <el-button style="max-width: 11vh;min-width: 11vh;height: auto" @click="handleAddLevelOneCategory" type="primary" round>新增一級分類</el-button>
       <el-tree
           style="max-width: 600px"
           :data="dataSource"
@@ -221,6 +252,7 @@ const dataSource = ref<Tree[]>([]);
           <span>
             <a style="padding-left: 10px;color:#409eff" @click="append(data)"> Append </a>
             <a v-if="node.childNodes.length==0" style="padding-left: 10px ;color:#f56c6c" @click="remove(node, data)"> Delete </a>
+            <a style="padding-left: 10px;color:#67C23A;" @click="handleEdit(node, data)"> Edit </a>
           </span>
         </span>
 
@@ -231,7 +263,7 @@ const dataSource = ref<Tree[]>([]);
 
   </div>
 
-  <el-dialog v-model="dialogFormVisible" title="新增分類" width="500">
+  <el-dialog v-model="dialogFormVisible" title="新增分類1" width="500">
     <el-form :model="form">
       <el-form-item label="分類名稱" :label-width="formLabelWidth">
         <el-input v-model="form.categoryName" autocomplete="off"/>
@@ -247,7 +279,7 @@ const dataSource = ref<Tree[]>([]);
     </template>
   </el-dialog>
 
-  <el-dialog v-model="dialogFormVisibleAddLevelOne" title="新增分類" width="500">
+  <el-dialog v-model="dialogFormVisibleAddLevelOne" title="新增分類2" width="500">
     <el-form :model="form">
       <el-form-item label="分類名稱" :label-width="formLabelWidth">
         <el-input v-model="form.categoryName" autocomplete="off"/>
@@ -262,6 +294,24 @@ const dataSource = ref<Tree[]>([]);
       </div>
     </template>
   </el-dialog>
+
+  <!-- 編輯修改按鈕及功能/ -->
+  <el-dialog v-model="dialogFormVisibleEditLevelOne" title="編輯修改分類" width="500">
+    <el-form :model="form">
+      <el-form-item label="分類名稱" :label-width="formLabelWidth">
+        <el-input v-model="form.categoryName" autocomplete="off"/>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="dialogFormVisibleEditLevelOne = false">Cancel</el-button>
+        <el-button type="primary" @click="handleDialogEditLevelOne">
+          送出
+        </el-button>
+      </div>
+    </template>
+  </el-dialog>
+  <!-- 編輯修改按鈕及功能/ -->
 
 </template>
 
