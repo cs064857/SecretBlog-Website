@@ -13,6 +13,7 @@ interface Tree {
 }
 
 const append = (data: Tree) => {
+  formActions.value="append"
   dialogFormVisible.value = true
   selectedData.value = data//當前選種節點的數據
 }
@@ -20,36 +21,55 @@ const append = (data: Tree) => {
 // 對話框
 let selectedData = ref<Tree | null>(null);//當前選中的節點數據
 let dialogFormVisible = ref<boolean>(false)
+let formActions = ref<string>('')
 const formLabelWidth = '140px'
 
 //表單中輸入的數據
 const form = reactive({
   categoryName: '',
 })
-const handleDialogData = function () {
-  if (selectedData.value != null) {
-    console.log("selectedData.value:", selectedData.value)
-    dialogFormVisible.value = false
-    console.log("form.name:", form.categoryName)
-    //執行新增分類
+const handleDialogConfirm = function () {
+  dialogFormVisible.value=false
+  if(formActions.value == 'handleDialogAddLevelOne'){
     http({
       url: http.adornUrl('/article/category/save'),
       method: 'post',
-      //參數1為當前選種節點分類的id,參數2為欲添加輸入的分類名稱
-      data: http.adornData({parentId: selectedData.value.id, categoryName: form.categoryName}, false)
+      data: http.adornData({parentId: 0, categoryName: form.categoryName, categoryLevel: 1}, false)
     }).then(({data}) => {
       if (data.code == 200) {
-        ElMessage.success("添加分類數據成功")
+        ElMessage.success("新增分類數據成功")
         getCategoryList()
-
       } else {
-        //elementPlus的Message消息提示組件
-        ElMessage.error("獲取分類數據失敗")
+        ElMessage.error("新增分類數據錯誤");
       }
-
+      getCategoryList()
     });
-    form.categoryName=''//清除表單數據
+  }else if(formActions.value == 'append'){
+    if (selectedData.value != null) {
+      console.log("selectedData.value:", selectedData.value)
+      console.log("form.name:", form.categoryName)
+      //執行新增分類
+      http({
+        url: http.adornUrl('/article/category/save'),
+        method: 'post',
+        //參數1為當前選種節點分類的id,參數2為欲添加輸入的分類名稱
+        data: http.adornData({parentId: selectedData.value.id, categoryName: form.categoryName}, false)
+      }).then(({data}) => {
+        if (data.code == 200) {
+          ElMessage.success("添加分類數據成功")
+          getCategoryList()
+        } else {
+          //elementPlus的Message消息提示組件
+          ElMessage.error("獲取分類數據失敗")
+        }
+
+      });
+      // form.categoryName=''//清除表單數據
+
+    }
   }
+  form.categoryName=''//清除表單數據
+  formActions.value=''//清除表單動作
 }
 // 對話框/
 // 從後端獲取分類數據
@@ -194,28 +214,11 @@ const draggable=ref<boolean>(false);
 // 開關托拽功能/
 
 // 新增一級分類
-const dialogFormVisibleAddLevelOne = ref<boolean>(false)
   //點擊新增按鈕後開啟對話框
 const handleAddLevelOneCategory=function (){
-  dialogFormVisibleAddLevelOne.value=true
-}
-  //點擊送出後
-const handleDialogAddLevelOne=function () {
+  formActions.value="handleDialogAddLevelOne"
+  dialogFormVisible.value=true
 
-  http({
-    url: http.adornUrl('/article/category/save'),
-    method: 'post',
-    data: http.adornData({parentId: 0, categoryName: form.categoryName, categoryLevel: 1}, false)
-  }).then(({data}) => {
-    if (data.code == 200) {
-      ElMessage.success("新增分類數據成功")
-      getCategoryList()
-    } else {
-      ElMessage.error("新增分類數據錯誤");
-    }
-    dialogFormVisibleAddLevelOne.value=false
-    getCategoryList()
-  });
 }
 // 新增一級分類/
 
@@ -251,8 +254,8 @@ const dataSource = ref<Tree[]>([]);
           <span>{{ node.label }}</span>
           <span>
             <a style="padding-left: 10px;color:#409eff" @click="append(data)"> Append </a>
-            <a v-if="node.childNodes.length==0" style="padding-left: 10px ;color:#f56c6c" @click="remove(node, data)"> Delete </a>
             <a style="padding-left: 10px;color:#67C23A;" @click="handleEdit(node, data)"> Edit </a>
+            <a v-if="node.childNodes.length==0" style="padding-left: 10px ;color:#f56c6c" @click="remove(node, data)"> Delete </a>
           </span>
         </span>
 
@@ -263,7 +266,7 @@ const dataSource = ref<Tree[]>([]);
 
   </div>
 
-  <el-dialog v-model="dialogFormVisible" title="新增分類1" width="500">
+  <el-dialog v-model="dialogFormVisible" title="新增分類" width="500">
     <el-form :model="form">
       <el-form-item label="分類名稱" :label-width="formLabelWidth">
         <el-input v-model="form.categoryName" autocomplete="off"/>
@@ -272,23 +275,7 @@ const dataSource = ref<Tree[]>([]);
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="dialogFormVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="handleDialogData">
-          送出
-        </el-button>
-      </div>
-    </template>
-  </el-dialog>
-
-  <el-dialog v-model="dialogFormVisibleAddLevelOne" title="新增分類2" width="500">
-    <el-form :model="form">
-      <el-form-item label="分類名稱" :label-width="formLabelWidth">
-        <el-input v-model="form.categoryName" autocomplete="off"/>
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button @click="dialogFormVisibleAddLevelOne = false">Cancel</el-button>
-        <el-button type="primary" @click="handleDialogAddLevelOne">
+        <el-button type="primary" @click="handleDialogConfirm">
           送出
         </el-button>
       </div>
