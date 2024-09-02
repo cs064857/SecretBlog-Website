@@ -6,6 +6,7 @@ import {ElMessage} from "element-plus";
 import {ConfirmDelete} from '../hooks/useMessageBox.ts'
 import {useTreeCategoryStore} from '../pinia/useTreeCategoryStore.ts'
 import {R} from "../interface/R.ts";
+
 interface Tree {
   id: number
   label: string
@@ -13,7 +14,7 @@ interface Tree {
 }
 
 const append = (data: Tree) => {
-  formActions.value="append"
+  formActions.value = "append"
   dialogFormVisible.value = true
   selectedData.value = data//當前選種節點的數據
 }
@@ -29,8 +30,8 @@ const form = reactive({
   categoryName: '',
 })
 const handleDialogConfirm = function () {
-  dialogFormVisible.value=false
-  if(formActions.value == 'handleDialogAddLevelOne'){
+  dialogFormVisible.value = false
+  if (formActions.value == 'handleDialogAddLevelOne') {
     http({
       url: http.adornUrl('/article/category/save'),
       method: 'post',
@@ -44,7 +45,7 @@ const handleDialogConfirm = function () {
       }
       getCategoryList()
     });
-  }else if(formActions.value == 'append'){
+  } else if (formActions.value == 'append') {
     if (selectedData.value != null) {
       console.log("selectedData.value:", selectedData.value)
       console.log("form.name:", form.categoryName)
@@ -68,8 +69,8 @@ const handleDialogConfirm = function () {
 
     }
   }
-  form.categoryName=''//清除表單數據
-  formActions.value=''//清除表單動作
+  form.categoryName = ''//清除表單數據
+  formActions.value = ''//清除表單動作
 }
 // 對話框/
 // 從後端獲取分類數據
@@ -97,17 +98,16 @@ onMounted(() => {
 })
 
 
-
 // 從後端獲取分類數據
 // 編輯分類
-  // 編輯修改按鈕及功能/
+// 編輯修改按鈕及功能/
 const handleEdit = function (node, data) {
-  console.log("node:",node)
+  console.log("node:", node)
   form.categoryName = node.label;// 將node的categoryName回顯給表單模型
   selectedData.value = node
   dialogFormVisibleEditLevelOne.value = true
 }
-  // 編輯修改按鈕及功能
+// 編輯修改按鈕及功能
 const dialogFormVisibleEditLevelOne = ref<boolean>(false)
 const handleDialogEditLevelOne = function () {
   // console.log("form", form);
@@ -115,7 +115,7 @@ const handleDialogEditLevelOne = function () {
     url: http.adornUrl(`/article/category/${selectedData.value.data.id}`),
     method: 'put',
     data: http.adornData(form.categoryName, false)
-  }).then(({ data }:{data:R}) => {
+  }).then(({data}: { data: R }) => {
     if (data.code == 200) {
       ElMessage.success("修改分類數據成功")
       getCategoryList()
@@ -124,10 +124,10 @@ const handleDialogEditLevelOne = function () {
     }
     dialogFormVisibleEditLevelOne.value = false
   });
-  form.categoryName=''//清空表單輸入數據
-  selectedData.value=''//清空選中的節點數據
+  form.categoryName = ''//清空表單輸入數據
+  selectedData.value = ''//清空選中的節點數據
 }
-  // 編輯修改按鈕及功能/
+// 編輯修改按鈕及功能/
 
 
 // 編輯分類/
@@ -143,81 +143,105 @@ const remove = (node: Node, data: Tree) => {
           method: 'post',
           // data: http.adornData(data.id, false)
         }).then(({data}) => {
-          if(data.code==200){
+          if (data.code == 200) {
             ElMessage.success("刪除數據成功")
             getCategoryList()
-          }else {
+          } else {
             ElMessage.error("刪除數據錯誤")
           }
         });
       })
-      .catch(()=>{
+      .catch(() => {
         ElMessage.error("已取消")
       })
 }
 // 移除分類/
 // 拖曳節點
-const handleDrag=function (before,after,inner){
-  console.log("before:",before)
-  console.log("after:",after)
-  console.log("inner:",inner)
+const handleDrag = function (before, after, inner) {
+  console.log("before:", before)
+  console.log("after:", after)
+  console.log("inner:", inner)
   let beforeId = before.key
   let afterParentId = ref<number>()
   let afterLevel = (-1);
   //如果是拖曳至該父類下的子節點前後即為"after" or "before",則after(放置位置)的數據會是該子節點
-  if(inner=="before" || inner=="after"){
+  if (inner == "before" || inner == "after") {
     //將拖曳前的父類改成拖曳後位置的父類
-      before.parent=after.parent
+    before.parent = after.parent
 
-      before.level=after.level
-    afterLevel=after?.level ?? -1
-      console.log("before.level",before.level)
-      console.log("after.level",after.level)
-    console.log("refAfterLevel",afterLevel)
+    before.level = after.level
+    afterLevel = after?.level ?? -1
+    console.log("before.level", before.level)
+    console.log("after.level", after.level)
+    console.log("refAfterLevel", afterLevel)
 
 
-    afterParentId=after.parent.data.id ?? 0 //如果 after.data.id 存在，使用它，否則parentId為0
-    console.log("after.parent.data.id:",after.parent.data.id)
-  }else if(inner=="inner"){//"inner"代表是直接往該父類節點上放置,則after(放置位置)的數據會是該父節點
-    before.parent=after.data
+    afterParentId = after.parent.data.id ?? 0 //如果 after.data.id 存在，使用它，否則parentId為0
+    console.log("after.parent.data.id:", after.parent.data.id)
+  } else if (inner == "inner") {//"inner"代表是直接往該父類節點上放置,則after(放置位置)的數據會是該父節點
+    before.parent = after.data
     // parentId=after.data.id
     afterParentId = after.data.id ?? 0 // 如果 after.data.id 存在，使用它，否則parentId為0
-    console.log("after.data.id:",after.data.id)
+    console.log("after.data.id:", after.data.id)
   }
-  console.log("beforeId:",beforeId)
-  console.log("afterParentId:",afterParentId)
+  console.log("beforeId:", beforeId)
+  console.log("afterParentId:", afterParentId)
 
 
   http({
-      url: http.adornUrl(`/article/category/update/${beforeId}/${afterParentId}/${afterLevel}`),
-      method: 'post',
+    url: http.adornUrl(`/article/category/update/${beforeId}/${afterParentId}/${afterLevel}`),
+    method: 'post',
   }).then(({data}) => {
-    alert("完成")
+    if(data.code==200){//若請求成功
+      ElMessage.success("拖曳文章分類成功")
+    }else {
+      ElMessage.error("拖曳文章分類失敗")
+    }
     getCategoryList()
   });
 }
 // 拖曳節點/
 // 判斷節點是否可被放置
-const handleAllowDrop=function (draggingNode, dropNode, type){
-  if(draggingNode.parent.key == dropNode.parent.key){//拖曳前後若是同個父類的話(代表在同個父類中只是換個排序位置)禁止托跩
-    // console.log("draggingNode.parent.key",draggingNode.parent.key)
-    // console.log("dropNode.parent.key",dropNode.parent.key)
-    return false;
-  }else {
-    return true;
-  }
+const handleAllowDrop = function (draggingNode, dropNode, type) {
+  // console.log("draggingNode",draggingNode)
+  // console.log("dropNode",dropNode)
+  // console.log("draggingNode.parent.key",draggingNode.parent.key)
+  // console.log("dropNode.parent.key",dropNode.parent.key)
+
+  if (draggingNode.parent.key === dropNode.parent.key) return false; // 若是拖曳在同個父節點下則禁止拖曳(禁止僅是換個排序)
+
+  if (draggingNode.level === 1 && draggingNode.childNodes.length>0) return false; // 如果被拖拽節點在1級且有子節點，則不允許拖拽(禁止節點level超過2個)
+  if (dropNode.level >= 2 && type === "inner") return false;//(禁止節點level超過2個)
+  if (dropNode.level >= 3 && ["after", "before"].includes(type)) return false;//(禁止節點level超過2個)
+
+
+  return true;
+
+
+  // if(draggingNode.parent.key == dropNode.parent.key){ //拖曳前後若是同個父類的話(代表在同個父類中只是換個排序位置)禁止托跩
+  //   return false;
+  // }else if (dropNode.level>=2 && type=="inner"||(dropNode.level>=3 &&(type=="after"||type=="before"))){//拖曳到2級或以上的節點內禁止放置
+  //   return false;
+  // }
+  // else if(draggingNode.level==1&&draggingNode.childNodes!=null){
+  //   return false
+  // }
+  // else {
+  //   return true;
+  // }
+
 }
 // 判斷節點是否可被放置/
 
 // 開關托拽功能
-const draggable=ref<boolean>(false);
+const draggable = ref<boolean>(false);
 // 開關托拽功能/
 
 // 新增一級分類
-  //點擊新增按鈕後開啟對話框
-const handleAddLevelOneCategory=function (){
-  formActions.value="handleDialogAddLevelOne"
-  dialogFormVisible.value=true
+//點擊新增按鈕後開啟對話框
+const handleAddLevelOneCategory = function () {
+  formActions.value = "handleDialogAddLevelOne"
+  dialogFormVisible.value = true
 
 }
 // 新增一級分類/
@@ -237,7 +261,9 @@ const dataSource = ref<Tree[]>([]);
           inactive-text="關閉拖曳"
       />
       <br>
-      <el-button style="max-width: 11vh;min-width: 11vh;height: auto" @click="handleAddLevelOneCategory" type="primary" round>新增一級分類</el-button>
+      <el-button style="max-width: 11vh;min-width: 11vh;height: auto" @click="handleAddLevelOneCategory" type="primary"
+                 round>新增一級分類
+      </el-button>
       <el-tree
           style="max-width: 600px"
           :data="dataSource"
@@ -253,7 +279,7 @@ const dataSource = ref<Tree[]>([]);
         <span class="custom-tree-node">
           <span>{{ node.label }}</span>
           <span>
-            <a style="padding-left: 10px;color:#409eff" @click="append(data)"> Append </a>
+            <a v-if="node.level<2" style="padding-left: 10px;color:#409eff" @click="append(data)"> Append </a>
             <a style="padding-left: 10px;color:#67C23A;" @click="handleEdit(node, data)"> Edit </a>
             <a v-if="node.childNodes.length==0" style="padding-left: 10px ;color:#f56c6c" @click="remove(node, data)"> Delete </a>
           </span>
@@ -265,7 +291,7 @@ const dataSource = ref<Tree[]>([]);
     </div>
 
   </div>
-
+  <!-- 新增分類表單 -->
   <el-dialog v-model="dialogFormVisible" title="新增分類" width="500">
     <el-form :model="form">
       <el-form-item label="分類名稱" :label-width="formLabelWidth">

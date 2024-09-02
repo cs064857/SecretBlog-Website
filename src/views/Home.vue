@@ -19,93 +19,20 @@
         <div class="home-article-navigation"><span
             style="font-size: 20px;font-family: 'Noto Sans TC',sans-serif">標籤1</span></div>
       </el-affix>
-      <div class="home-left-article">
+      <div class="home-left-navbar">
+<!--   左側菜單使用el-menu       -->
+<!--          <el-menu :default-active="1" class="el-menu-vertical-demo" @select="handleSelect">-->
+<!--            <menu-item v-for="item in categoryList" :key="item.id" :item="item" />-->
+<!--          </el-menu>-->
 
-
-
-          <el-menu :default-active="1" class="el-menu-vertical-demo" @select="handleSelect">
-            <menu-item v-for="item in categoryList" :key="item.id" :item="item" />
-          </el-menu>
-
-
-
-<!--                <h5 class="mb-2">Custom colors</h5>-->
-<!--        <el-menu-->
-<!--            active-text-color=""-->
-<!--            background-color=""-->
-<!--            class="el-menu-vertical-demo"-->
-<!--            default-active="Home"-->
-<!--            text-color=""-->
-<!--            @open="handleOpen"-->
-<!--            @close="handleClose"-->
-<!--        >-->
-
-<!--          <el-menu-item index="Home">-->
-<!--            <el-icon>-->
-<!--              <HomeFilled/>-->
-<!--            </el-icon>-->
-<!--            <span>首頁</span>-->
-<!--          </el-menu-item>-->
-
-<!--          <el-sub-menu index="1">-->
-<!--            <template #title>-->
-<!--              <el-icon>-->
-<!--                <location/>-->
-<!--              </el-icon>-->
-<!--              <span>Navigator One</span>-->
-<!--            </template>-->
-<!--            <el-menu-item-group title="Group One">-->
-<!--              <el-menu-item index="1-1">item one</el-menu-item>-->
-<!--              <el-menu-item index="1-2">item two</el-menu-item>-->
-<!--            </el-menu-item-group>-->
-<!--            <el-menu-item-group title="Group Two">-->
-<!--              <el-menu-item index="1-3">item three</el-menu-item>-->
-<!--            </el-menu-item-group>-->
-<!--            <el-sub-menu index="1-4">-->
-<!--              <template #title>item four</template>-->
-<!--              <el-menu-item index="1-4-1">item one</el-menu-item>-->
-<!--            </el-sub-menu>-->
-<!--          </el-sub-menu>-->
-<!--        </el-menu>-->
-
-<!--          <el-sub-menu v-for="category in categoryList"  :index="category.id">-->
-<!--            <template #title>-->
-<!--              <el-icon>-->
-<!--                <location/>-->
-<!--              </el-icon>-->
-<!--              <span>Navigator One</span>-->
-<!--            </template>-->
-<!--            <el-menu-item-group title="Group One">-->
-<!--              <el-menu-item index="1-1">item one</el-menu-item>-->
-<!--              <el-menu-item index="1-2">item two</el-menu-item>-->
-<!--            </el-menu-item-group>-->
-<!--            <el-menu-item-group title="Group Two">-->
-<!--              <el-menu-item index="1-3">item three</el-menu-item>-->
-<!--            </el-menu-item-group>-->
-<!--            <el-sub-menu index="1-4">-->
-<!--              <template #title>item four</template>-->
-<!--              <el-menu-item index="1-4-1">item one</el-menu-item>-->
-<!--            </el-sub-menu>-->
-<!--          </el-sub-menu>-->
-
-
-          <!--          <el-menu-item index="2">-->
-          <!--            <el-icon><icon-menu /></el-icon>-->
-          <!--            <span>Navigator Two</span>-->
-          <!--          </el-menu-item>-->
-          <!--          -->
-          <!--          <el-menu-item index="3" disabled>-->
-          <!--            <el-icon><document /></el-icon>-->
-          <!--            <span>Navigator Three</span>-->
-          <!--          </el-menu-item>-->
-
+        <HomeLeftNavbar :categoryList="categoryList"></HomeLeftNavbar>
 
       </div>
 
       <div class="home-article-list" ref="containerRef">
 
 
-        <div v-for="(article,articleIndex) in limitArticleList" :key="article.id" class="home-article">
+        <div v-for="article in limitArticleList" :key="article.id" class="home-article">
           <div class="article-title">
             <router-link :to="{name:'Article',params:{article_id:article.id}}"><p>{{ article.title }}</p></router-link>
           </div>
@@ -158,6 +85,14 @@ interface tagsButton {
 const tagsButtons: tagsButton[] = [];
 const router = useRouter()
 const route = useRoute()
+// 左側left-article分類導航列
+// const handleCategoryRouterLink=function (children){
+//   console.log("分類ID:",children.id)
+//   router.push({name: "Home",params: {categoryId:children.id}})
+//   // router.push('/Home/' + children.id)
+// }
+// 左側left-article分類導航列/
+
 // 分頁
 let totalItems = ref<number>()
 const pageSize = ref(10)//每條顯示條目個數,默認為10
@@ -175,10 +110,7 @@ const handlePageSizeChange = function (PageSize: string) {
 
 
 const limitArticleList: any = computed(() => {
-  console.log("articleList:", articleList)
   if (articleList.value != null) {
-    let limitarticleList = articleList.value.slice((currentPage.value - 1) * pageSize.value, limitItems.value)////默認顯示10個項目,根據limitItems變化而改變,而limitItems與頁數掛勾
-
     //將路由中取的的Params page轉為bigint
     let categoryId: bigint;
     if (typeof route.params.categoryId === 'string') {
@@ -190,17 +122,19 @@ const limitArticleList: any = computed(() => {
     }
     // console.log("轉換後categoryId",categoryId)
     if (categoryId) {//若有指定文章分類的話
-      console.log("執行文章分類過濾...")
-      // for (let i = 0; i < limitarticleList.length; i++) {
-      //   console.log("文章分類ID:"+i+":"+limitarticleList[i].categoryId)
-      // }
-      limitarticleList = limitarticleList.filter((article) => article.categoryId == categoryId)//根據URL中的Param參數,過濾出參數中指定分類的所有文章
+      console.log("根據分類ID進行文章列表過濾...")
+      const limitarticleList=articleList.value.filter((article) => article.categoryId == categoryId)//根據URL中的Param參數,過濾出參數中指定分類的所有文章
+      console.log("文章根據分類ID:"+categoryId+",過濾後的List:", limitarticleList)
       totalItems = limitarticleList.length
+      console.log("根據分類ID過濾後的總文章數量totalItems:", totalItems)
+      //執行分頁
+      const PageArticleList = limitarticleList.slice((currentPage.value - 1) * pageSize.value, limitItems.value)////默認顯示10個項目,根據limitItems變化而改變,而limitItems與頁數掛勾
+      return PageArticleList;
+    }else {//若未指定文章分類的話列出所有文章列表
+      //執行分頁
+      const PageArticleList = articleList.value.slice((currentPage.value - 1) * pageSize.value, limitItems.value)////默認顯示10個項目,根據limitItems變化而改變,而limitItems與頁數掛勾
+      return PageArticleList
     }
-    console.log("文章根據分類ID過濾後的List", limitarticleList)
-    return limitarticleList;
-    // const t1=articleList.value.slice((currentPage.value-1)*pageSize.value,limitItems.value)////默認顯示10個項目,根據limitItems變化而改變,而limitItems與頁數掛勾
-    // console.log("t1:",t1)
   }
 })
 //分頁
@@ -218,8 +152,8 @@ onMounted(() => {
       // alert("請求文章列表成功")
       articleList.value = data.data//要展示的所有文章列表資料
       totalItems = data.data.length//所有文章的總數量
-      console.log("totalItems:", totalItems)
-      console.log("articleList.value", articleList.value)
+      console.log("從後端接收到的總文章數量totalItems:", totalItems)
+      console.log("從後端接收到的總文章列表articleList:", articleList.value)
     })
   }
 })
@@ -284,7 +218,9 @@ import {
   HomeFilled,
 } from '@element-plus/icons-vue'
 import {TreeCategoryNode} from '../interface/treeCategoryInterface'
-import MenuItem from '../components/MenuItem.vue'// 導入遞規組件
+import MenuItem from '../components/MenuItem.vue'
+import HomeLeftNavbar from "../components/HomeLeftNavbar.vue";
+// 導入遞規組件
 
 
 let categoryList = ref()
