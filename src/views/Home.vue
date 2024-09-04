@@ -4,7 +4,7 @@
 
       <div class="home-header-navigation">
         <el-image src="https://element-plus.org/images/element-plus-logo.svg"
-                  style="position: absolute;right: 83%;width: auto;height: 75%">11
+                  style="position: absolute;right: 83%;width: auto;height: 75%">
         </el-image>
         <!--        <el-button style="height: 6vh;width: 6vh" @click="handleGoCategory" type="primary" :icon="Menu"/>-->
         <!--        <el-button style="height: 6vh;width: 6vh" @click="handleGoUser" type="primary" :icon="User"/>-->
@@ -14,20 +14,23 @@
       </div>
 
     </div>
-    <div class="home-main">
-      <el-affix style="background-color: #646cff;width: 100%;height: 50px" target=".home-main" :offset="77">
-        <div class="home-article-navigation"><span
-            style="font-size: 20px;font-family: 'Noto Sans TC',sans-serif">標籤1</span></div>
-      </el-affix>
-      <div class="home-left-navbar">
-<!--   左側菜單使用el-menu       -->
-<!--          <el-menu :default-active="1" class="el-menu-vertical-demo" @select="handleSelect">-->
-<!--            <menu-item v-for="item in categoryList" :key="item.id" :item="item" />-->
-<!--          </el-menu>-->
 
-        <HomeLeftNavbar :categoryList="categoryList"></HomeLeftNavbar>
+
+    <div class="home-main">
+
+<!--      <el-affix style="background-color: #646cff;width: 100%;height: 50px" target=".home-main" :offset="77">-->
+<!--        <div class="home-article-navigation"><span-->
+<!--            style="font-size: 20px;font-family: 'Noto Sans TC',sans-serif">標籤1</span></div>-->
+<!--      </el-affix>-->
+
+
+      <div class="fixed-home-left-navbar">
+        <div class="home-left-navbar">
+          <HomeLeftNavbar></HomeLeftNavbar>
+        </div>
 
       </div>
+
 
       <div class="home-article-list" ref="containerRef">
 
@@ -44,6 +47,7 @@
 
 
     </div>
+
     <!--    <div class="home-footer">home-footer</div>-->
   </div>
 
@@ -104,36 +108,15 @@ const handleGoBackend = function () {//進入後台管理系統
 //     name: "Article"
 //   }
 // ])
-// 樹形分類數據
-const getTreeCategoryList = function () {
-  http({
-    url: http.adornUrl('/article/category/tree/list'),
-    method: 'get',
-    params: http.adornParams({})
-  }).then(({data}) => {
-    if (data.code == 200) {
-      // categoryList=data.data
-      categoryList.value=data.data
-      console.log("categoryList.value",categoryList.value)
-      // console.log("從後端獲取樹型分類數據:",categoryList)
-    } else {
-      ElMessage.error("獲取分類數據錯誤");
-    }
-  })
-}
-onMounted(() => {
 
-  getTreeCategoryList()//從後端獲取分類數據
-
-})
 
 // left-main中導航列模塊
 import HomeLeftNavbar from "../components/HomeLeftNavbar.vue";
 // home-article-list文章列表模塊
 import HomeArticleList from "../components/HomeArticleList.vue";
 
-let categoryList = ref()
-// let categoryList=ref<TreeCategoryNode | undefined>()
+
+
 
 
 </script>
