@@ -11,12 +11,12 @@ const ArticleContent = ref('')
 
 const router =useRouter()
 const route =useRoute()
-const {article_id}=route.params
+const {articleId}=route.params
 
 //使用後端JSON
 // onMounted(()=>{
 //   http({
-//     url: http.adornUrl(`/article/get/${article_id}`),
+//     url: http.adornUrl(`/article/get/${articleId}`),
 //     method: 'get',
 //     params: http.adornParams({})
 //   }).then(({data}) => {
@@ -41,7 +41,7 @@ const {article_id}=route.params
 //後端使用泛型
 onMounted(()=>{
   http({
-    url: http.adornUrl(`/article/get/${article_id}`),
+    url: http.adornUrl(`/article/articles/${articleId}`),
     method: 'get',
     params: http.adornParams({})
   }).then(({data}:{data:R}) => {
@@ -64,12 +64,15 @@ onMounted(()=>{
 </script>
 
 <template>
-  <div>
-    <h1>{{article_id}}</h1>
-    <div v-html="ArticleContent" style="border: black 3px solid;padding: 1% 1%;width: 100%;height: 100%;background-color: #d7e6c8;box-shadow: 0px 0px 30px">
 
-    </div>
-  </div>
+  <div style="background-color: #d7e6c8;width: 100%;height: 100%" ></div>
+
+<!--  <div>-->
+<!--    <h1>{{articleId}}</h1>-->
+<!--    <div v-html="ArticleContent" style="border: black 3px solid;padding: 1% 1%;width: 100%;height: 100%;background-color: #d7e6c8;box-shadow: 0px 0px 30px">-->
+
+<!--    </div>-->
+<!--  </div>-->
 
 </template>
 

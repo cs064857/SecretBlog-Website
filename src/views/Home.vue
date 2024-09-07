@@ -10,7 +10,6 @@
         <!--        <el-button style="height: 6vh;width: 6vh" @click="handleGoUser" type="primary" :icon="User"/>-->
         <el-button style="height: 6vh;width: 6vh" @click="handleGoBackend" type="primary" :icon="Management"/>
 
-
       </div>
 
     </div>
@@ -72,7 +71,7 @@ interface tagsButton {
   title: string
   route: string
   name: string
-  article_id: string
+  articleId: string
 }
 
 const tagsButtons: tagsButton[] = [];
@@ -102,7 +101,7 @@ const handleGoBackend = function () {//進入後台管理系統
 //     route: "/Home/News2Test",
 //   },
 //   {
-//     article_id: "1828018170493947905",
+//     articleId: "1828018170493947905",
 //     title: "新聞2",
 //     route: "/Article",
 //     name: "Article"

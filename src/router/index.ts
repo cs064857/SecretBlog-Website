@@ -10,7 +10,7 @@ const router = createRouter({
     routes: [
         {//文章展示頁面
             name:'Article',
-            path:'/Article/:article_id',
+            path:'/Article/:articleId',
             components:{
                 app:Article
             }
@@ -78,4 +78,26 @@ const router = createRouter({
         }
     ]
 })
+//全局路由守衛
+router.beforeEach((to, from, next) => {
+    //判斷路由地址中是否包含:page
+    const pageValue = to.query?.page;
+    // const hasPageParam = to.matched.some(route=>route.path.includes(':page'));
+    //若路由地址包含:Page、沒有Page值、categoryId有值的話
+    if(!pageValue && !to.params.page && to.params.categoryId){
+        console.log("頁碼不存在")
+        next({
+            name:to.name,
+            params:{
+                ...to.params, //保留其他原本的params參數
+            },
+            // query: to.query//保留其他query參數
+            query: {
+                page: 1, //默認頁碼為1
+            }
+        });
+    }else {
+        next();//正常導航
+    }
+});
 export default router
