@@ -1,5 +1,6 @@
 <template>
   <div class="main-editarticle">
+
     <div id="inputHeader">
       <span class="noto-sans-tc" style="font-size: 18px;max-width: 4vh;min-width: 4vh;font-family: 'Noto Sans TC', sans-serif;padding-left: 1%;padding-top: 1%;">標題</span>
       <el-input v-model="inputTitle" style="width: 240px;margin: 2% 2% 2% 0.2%;padding-top: 1%;" placeholder="請輸入標題" />
@@ -15,12 +16,16 @@
       <el-divider />
 
     </div>
+
     <div id="inputContent">
-      <editor v-model="myValue" :init="init" :enabled="enabled" :id="tinymceId"></editor>
+      <editor style="overflow: scroll" v-model="myValue" :init="init" :enabled="enabled" :id="tinymceId"></editor>
     </div>
+
     <div id="inputFooter">
-      <button @click="handleInput">送出</button>
+      <el-button type="primary" round @click="handleInput" style="position: relative;bottom: 1vh">送出</el-button>
+<!--      <button @click="handleInput">送出</button>-->
     </div>
+
   </div>
 
 
@@ -57,34 +62,42 @@
   align-items: center;
   justify-content: start;
   width: 100%;
-  height: 10%;
+  height: 7vh;
 
   border-radius: 30px 30px 0px 0px;
   background-color: bisque;
+
+
 }
 
 #inputContent {
   width: 100%;
-  height: 90%;
-}
+  height: 68vh;
 
+}
+#inputFooter{
+  height: 3vh;
+}
 .main-editarticle {
 
   // background-color: chocolate;
   margin: 1%;
   width: 90%;
-  height: 93%;
+  //min-height: 740px;
+  //max-height: 740px;
   display: flex;
-  justify-content: start;
+  justify-content: flex-end;
   align-items: center;
   flex-direction: column;
   border-radius: 30px;
   box-shadow: 0px 0px 20px;
+
 }
 </style>
 
 <script lang="ts" setup>
 import { computed, reactive, watch, ref, nextTick, onMounted } from "vue"; //全屏
+
 
 import tinymce from "tinymce/tinymce";
 // import "tinymce/skins/content/default/content.css";
@@ -262,7 +275,7 @@ const init = reactive({
   toolbar_mode: "wrap", // 工具欄模式 floating / sliding / scrolling / wrap
   // 默認樣式
   content_style:
-    "body { font-family:Helvetica,Arial,sans-serif; font-size:16px }p {margin:3px; line-height:24px;}",
+    "body { font-family:Helvetica,Arial,sans-serif; font-size:16px;}p {margin:3px; line-height:24px;}",
   image_advtab: true,
   importcss_append: true,
   paste_webkit_styles: "all",
@@ -277,7 +290,9 @@ const init = reactive({
   autoresize_bottom_margin: 20,
   // autoresize_overflow_padding: 16,
   min_height: props.minHeight,
-  content_css: "/tinymce/skins/content/default/content.css", //以css文件方式自定義可編輯區域的css樣式，css文件需自己創建並引入
+  // content_css: "/tinymce/skins/content/default/content.css", //以css文件方式自定義可編輯區域的css樣式，css文件需自己創建並引入
+
+  content_css: "/src/assets/css/content.css", //以css文件方式自定義可編輯區域的css樣式，css文件需自己創建並引入
   // setup: function (editor) {
   // },
   //圖片上傳  -實列 具體請根據官網補充-

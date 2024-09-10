@@ -2,15 +2,8 @@
   <div class="home-container">
     <div class="home-header">
 
-      <div class="home-header-navigation">
-        <el-image src="https://element-plus.org/images/element-plus-logo.svg"
-                  style="position: absolute;right: 83%;width: auto;height: 75%">
-        </el-image>
-        <!--        <el-button style="height: 6vh;width: 6vh" @click="handleGoCategory" type="primary" :icon="Menu"/>-->
-        <!--        <el-button style="height: 6vh;width: 6vh" @click="handleGoUser" type="primary" :icon="User"/>-->
-        <el-button style="height: 6vh;width: 6vh" @click="handleGoBackend" type="primary" :icon="Management"/>
+      <HomeHeaderNavigation></HomeHeaderNavigation>
 
-      </div>
 
     </div>
 
@@ -62,7 +55,7 @@ import {computed, onMounted, ref, toRefs} from 'vue';
 import {useRouter, useRoute} from 'vue-router'
 import http from '../utils/httpRequest'
 import {ArticleInter, Articles} from "../interface/articleInterface.ts";
-import {Management, Menu, User} from "@element-plus/icons-vue";
+import { Menu, User} from "@element-plus/icons-vue";
 import {R} from "../interface/R.ts";
 import {useTreeCategoryStore} from "../pinia/useTreeCategoryStore.ts";
 import {ElMessage} from "element-plus";
@@ -80,9 +73,7 @@ const route = useRoute()
 
 
 
-const handleGoBackend = function () {//進入後台管理系統
-  router.push('/AdminVue')
-}
+
 // const testRoute = function () {
 //   router.push('/Home/News1Test')
 // }
@@ -113,6 +104,8 @@ const handleGoBackend = function () {//進入後台管理系統
 import HomeLeftNavbar from "../components/HomeLeftNavbar.vue";
 // home-article-list文章列表模塊
 import HomeArticleList from "../components/HomeArticleList.vue";
+//home-header-navigation Home首頁最上方導航列模塊
+import HomeHeaderNavigation from "../components/HomeHeaderNavigation.vue";
 
 
 

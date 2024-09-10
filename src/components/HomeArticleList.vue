@@ -137,7 +137,8 @@ onMounted(() => {
     <div class="article-title">
       <router-link :to="{name:'Article',params:{articleId:article.id}}"><p>{{ article.title }}</p></router-link>
     </div>
-    <div v-html="article.content" class="article-content"></div>
+    <div class="article-content"></div>
+<!--    <div v-html="article.content" class="article-content"></div>-->
     <div class="article-info"></div>
   </div>
 
@@ -149,5 +150,82 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.article-title p {
+  max-height: 20%;
+  min-height: 20%;
 
+  font-size: 20px;
+  margin-top: 0;
+  position: relative;
+  top: 6px;
+
+}
+
+.article-title {
+  max-height: 5vh;
+  min-height: 5vh;
+  padding: 0 0 18px 10px;
+
+  background-color: #2dc26b;
+  width: 100%;
+  border-radius: 25px 25px 0 0;
+  overflow: hidden; /* 隱藏溢出內容 */
+
+  text-wrap: wrap;
+}
+.home-article {
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  /*border: 3px solid mediumpurple;*/
+  /*border-radius: 30px 30px 30px 30px;*/
+  /*box-shadow: deeppink 0 0 5px;*/
+  /*background-color: white;*/
+  margin: 2% 5% 2% 5%;
+  /*width: 60%;*/
+  /*max-height: 100vh;*/
+  /*min-height: auto;*/
+  height: auto;
+
+
+  /*position: relative; !* 設置相對定位 *!*/
+}
+.article-content {
+  /*height: 70vh;*/
+  max-height: 20vh;
+  min-height: 20vh;
+
+  padding: 0 0 18px 10px;
+  background-color: #9a6e3a;
+  width: 100%;
+
+  /*border-radius: 0 0 0 0;*/
+  overflow: hidden; /* 隱藏溢出內容 */
+
+  text-wrap: wrap;
+}
+.article-info {
+  /*height: 15vh;*/
+  max-height: 3vh;
+  min-height: 3vh;
+
+  padding: 0 0 18px 10px;
+  background-color: #8a8f97;
+  width: 100%;
+  border-radius: 0 0 20px 20px;
+  overflow: hidden; /* 隱藏溢出內容 */
+
+  text-wrap: wrap;
+}
+.home-article-footer {
+  grid-column: 1 / -1; /* 橫跨整個行 */
+  display: flex;
+  justify-content: center;
+  align-self: center;
+  background-color: darkred;
+  width: 100%;
+  height: 100%;
+
+
+}
 </style>

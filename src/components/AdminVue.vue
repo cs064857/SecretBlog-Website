@@ -7,7 +7,7 @@
       <el-container>
         <el-aside style="width: 200px">
           <!--   NavMenu導航菜單     -->
-          <el-row style="height: 100%">
+          <el-row style="min-height: 100%;max-height: 100%">
             <el-col :span="12" style="height: 100%">
 <!--              <h5 class="mb-2">導航菜單</h5>-->
               <el-menu
@@ -75,14 +75,15 @@
           </el-row>
         </el-aside>
         <el-container>
-          <el-main style="padding: 0;min-height: 90%;min-width: 100%;" >
+<!--          <el-main style="padding: 0;max-height: 90%;min-height: 85%;min-width: 100%;overflow: auto;" >-->
+          <el-main style="padding: 0;max-height: 100%;min-height: 100%;min-width: 100%;overflow: auto;" >
             <router-view  name="AdminVueRouter"></router-view>
 
             <!--            <div class="grid-item">-->
             <!--              <el-button class="b1" type="primary" round>新增</el-button>-->
             <!--            </div>-->
           </el-main>
-          <el-footer style="background: #1b192d;min-height: 10%;">Footer</el-footer>
+<!--          <el-footer style="background: #1b192d;min-height: 10%;max-height: 10%">Footer</el-footer>-->
         </el-container>
       </el-container>
     </el-container>
@@ -122,13 +123,14 @@ const handleSelect =function (index:string){
 
 
 .common-layout{
-
+  overflow: clip;
   position: absolute;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
-  height: 100%;
+  min-height: 100%;
+  max-height: 100%;
   width: 100%;
 }
 
