@@ -291,8 +291,8 @@ const init = reactive({
   // autoresize_overflow_padding: 16,
   min_height: props.minHeight,
   // content_css: "/tinymce/skins/content/default/content.css", //以css文件方式自定義可編輯區域的css樣式，css文件需自己創建並引入
-
   content_css: "/src/assets/css/content.css", //以css文件方式自定義可編輯區域的css樣式，css文件需自己創建並引入
+
   // setup: function (editor) {
   // },
   //圖片上傳  -實列 具體請根據官網補充-

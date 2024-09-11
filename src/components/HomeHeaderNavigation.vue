@@ -30,8 +30,9 @@ const handleGoBackend = function () {//進入後台管理系統
   height: 8vh;
 
   width:auto;
-  position:absolute;
-  right:83%;
+  /*position:absolute;*/
+  position:relative;
+  right:78%;
 }
 
 .home-header-navigation {

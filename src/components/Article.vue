@@ -1,11 +1,11 @@
 <template>
-  <div class="article-container">
+  <div ref="scrollContainer" class="article-container">
 
 
     <HomeHeaderNavigation ref="headerRef"></HomeHeaderNavigation>
 
 
-    <div ref="scrollContainer" class="article-main">
+    <div class="article-main">
 
       <div class="article-content-list" ref="articleContentListRef">
         <div class="Box1">
@@ -27,11 +27,11 @@
 
         <div class="Box2">
 
-          <div ref="Box4Ref" class="Box4">
-            <el-anchor :offset="70" @change="handleChange">
+          <div class="Box4">
+            <el-anchor ref="anchorRef" :offset="70" @change="handleChange">
 
               <el-anchor-link v-for="item in articleAnchorData" :key="item.id" :href="'#'+item.id">
-                {{item.title}}
+                {{ item.title }}
               </el-anchor-link>
 
             </el-anchor>
@@ -39,6 +39,9 @@
 
         </div>
 
+<!--        <div class="Box5">-->
+<!--          5-->
+<!--        </div>-->
 
 
       </div>
@@ -48,7 +51,11 @@
 </template>
 
 <style scoped>
-
+/*.Box5{*/
+/*  background-color: #213547;*/
+/*  width: 100px;*/
+/*  height: 100px;*/
+/*}*/
 
 .article-header {
   border: black 3px solid;
@@ -92,7 +99,7 @@
   background-color: darksalmon;
   width: 100%;
   height: 100%;
-
+  overflow: auto;
 }
 
 .Box3 {
@@ -130,7 +137,7 @@
   /*overflow: auto;*/
 
   /*position: relative;*/
-  overflow: visible;
+
 }
 
 .article-content-list {
@@ -142,10 +149,10 @@
   width: 90%;
 
   /*重要*/
-  min-height: 100%;
+  min-height: 92vh;
 
   max-height: none;
-  height: auto;
+
   /*height: auto;*/
 
 
@@ -194,7 +201,7 @@ import http from '../utils/httpRequest'
 import {ArticleInter, Articles} from "../interface/articleInterface.ts";
 import {nextTick, onMounted, onUnmounted, ref} from "vue";
 import {useRouter, useRoute} from "vue-router";
-import {ElMessage} from "element-plus";
+import {ElAnchor, ElMessage} from "element-plus";
 import {R} from "../interface/R.ts";
 
 const Article = ref<ArticleInter | null>(null);
@@ -207,31 +214,35 @@ const {articleId} = route.params
 
 //獲得article-content的高度
 
-const articleContentRef=ref<HTMLElement|null>(null)
+const articleContentRef = ref<HTMLElement | null>(null)
+let articleContentObserver: MutationObserver
+onMounted(() => {
 
-onMounted(()=>{
-
-  const observer = new MutationObserver((mutations) => {
+  articleContentObserver = new MutationObserver((mutations) => {
     const articleContentHeight = articleContentRef.value?.offsetHeight;
     console.log("articleContentRef", articleContentRef.value);
+
+
     console.log("articleContentHeight:", articleContentHeight);
     if (articleContentHeight && articleContentHeight > 0) {
       if (articleContentHeight && articleContentListRef.value) {
-        articleContentListRef.value.style.height = `${articleContentHeight}px`;
+        articleContentListRef.value.style.height = `${articleContentHeight + 150}px`;
       }
-      observer.disconnect(); // 停止觀察
+      articleContentObserver.disconnect(); // 停止觀察
     }
   });
 
   if (articleContentRef.value) {
-    observer.observe(articleContentRef.value, {
+    articleContentObserver.observe(articleContentRef.value, {
       childList: true,
       subtree: true,
       characterData: true
     });
   }
 })
-
+onUnmounted(() => {
+  articleContentObserver.disconnect()
+})
 
 //獲得article-content的高度/
 
@@ -239,56 +250,91 @@ onMounted(()=>{
 //控制右方導航列類似sticky功能
 
 const scrollContainer = ref<HTMLElement | null>(null);
-const Box4Ref=ref<HTMLElement|null>(null)
+const anchorRef = ref<InstanceType<typeof ElAnchor> | null>(null);
+
+
+
+const handleScroll = () => {
+  const currentScrollDistance = scrollContainer.value?.scrollTop || 0;
+  console.log("目前滾動距離:", currentScrollDistance + "px")
+  const threshold: number = 250;
+
+  if (anchorRef.value) {
+    if (currentScrollDistance > threshold) {  // 若超越臨界點
+      console.log("超越臨界點...")
+      if (anchorRef.value) {
+        anchorRef.value.$el.style.position = 'fixed';
+        anchorRef.value.$el.style.left = '81.4%';
+        anchorRef.value.$el.style.top = initialStyles.top;
+        // anchorRef.value.$el.style.width = '15.5%';
+        anchorRef.value.$el.style.width = initialStyles.width;
+      }
+
+    } else {  // 回到臨界點時復原
+      if (anchorRef.value) {
+        anchorRef.value.$el.style.position = initialStyles.position;
+        anchorRef.value.$el.style.left = initialStyles.left;
+        anchorRef.value.$el.style.top = initialStyles.top;
+        anchorRef.value.$el.style.width = initialStyles.width;
+        anchorRef.value.$el.style.height = initialStyles.height;
+      }
+
+    }
+  }
+}
+
+// 在組件掛載後保存 Box4 的初始樣式
+let anchorObserver: MutationObserver;
 
 let initialStyles = {
   position: '',
-  left: '',
+  left:'',
   top: '',
   width: '',
   height: ''
 };
 
-const handleScroll = () => {
-  const currentScrollDistance = scrollContainer.value?.scrollTop || 0;
-  const threshold: number = 150;
+onMounted(() => {
+  nextTick(() => {
+    if (anchorRef.value) {
+      console.log('Successfully obtained anchorRef', anchorRef.value.$el.style);
+      anchorObserver = new MutationObserver(() => {
+        if (anchorRef.value) {
+          const computedStyles = window.getComputedStyle(anchorRef.value.$el); // Fetch the computed styles
+          initialStyles = {
+            position: computedStyles.position,
+            left:computedStyles.left,
+            top: computedStyles.top,
+            width: computedStyles.width,
+            height: computedStyles.height
+          };
+          console.log("原anchorRef(右方導航列)初始樣式", initialStyles)
 
-  if (Box4Ref.value) {
-    if (currentScrollDistance > threshold) {  // 若超越臨界點
-      console.log("超越臨界點...")
-      Box4Ref.value.style.position = 'fixed';
-      Box4Ref.value.style.left = '78.5%';
-      // Box4Ref.value.style.left = '1507px';
-      Box4Ref.value.style.top = '77px';
-      Box4Ref.value.style.width = '15.5%';
-      Box4Ref.value.style.height = '281.75px';
-    } else {  // 回到臨界點時復原
-      Box4Ref.value.style.position = initialStyles.position;
-      Box4Ref.value.style.left = initialStyles.left;
-      Box4Ref.value.style.top = initialStyles.top;
-      Box4Ref.value.style.width = initialStyles.width;
-      Box4Ref.value.style.height = initialStyles.height;
+          if (scrollContainer.value) {//開啟滾動條監聽
+            scrollContainer.value.addEventListener('scroll', handleScroll);
+          }
+
+          if (initialStyles) {
+            anchorObserver.disconnect();
+          }
+        }
+      });
+
+      anchorObserver.observe(anchorRef.value.$el, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+      });
+    } else {
+      console.error('Failed to retrieve anchorRef');
     }
-  }
-};
+  });
 
 
-onMounted(() => {// 在組件掛載後保存 Box4 的初始樣式
-  if (Box4Ref.value) {
-    initialStyles = {
-      position: Box4Ref.value.style.position,
-      left: Box4Ref.value.style.left,
-      top: Box4Ref.value.style.top,
-      width: Box4Ref.value.style.width,
-      height: Box4Ref.value.style.height
-    };
-  }
-
-  if (scrollContainer.value) {
-    scrollContainer.value.addEventListener('scroll', handleScroll);
-  }
 });
-
+onUnmounted(() => {
+  anchorObserver.disconnect()
+})
 
 onUnmounted(() => {// 在組件卸載後移除滾動事件監聽器
   if (scrollContainer.value) {
@@ -297,7 +343,6 @@ onUnmounted(() => {// 在組件卸載後移除滾動事件監聽器
 });
 
 //控制右方導航列類似sticky功能/
-
 
 
 // 獲得HTMLElement ref高度與寬度
@@ -409,29 +454,30 @@ onMounted(() => {
       Article.value = data.data
       if (Article.value != null) {
         ArticleContent.value = Article.value.content
-        console.log("ArticleContent.value:",ArticleContent.value)
+        console.log("ArticleContent.value:", ArticleContent.value)
         //將文章錨點及該標題放入右側導航列中
-          const anchorIdRegex = new RegExp(/id="([^"]*)"/g);
-          // const anchorIdRegex = new RegExp(/id="(\w*)"/g);
-          const anchorId = ArticleContent.value.matchAll(anchorIdRegex);
-          const anchorTitleRegex = new RegExp(/<\/a>([^<]*)/g)
-          const anchorTitle = ArticleContent.value.matchAll(anchorTitleRegex);
-          if(anchorId && anchorTitle){
-            let anchorIdIterator = anchorId.next();
-            let anchorTitleIterator = anchorTitle.next();
+        const anchorIdRegex = new RegExp(/a id="([^"]*)"/g);
+        // const anchorIdRegex = new RegExp(/id="(\w*)"/g);
+        const anchorId = ArticleContent.value.matchAll(anchorIdRegex);
+        // const anchorTitleRegex = new RegExp(/<\/a>([^<]*)/g)
+        const anchorTitleRegex = new RegExp(/"><\/a>([^<]*)/g)
+        const anchorTitle = ArticleContent.value.matchAll(anchorTitleRegex);
+        if (anchorId && anchorTitle) {
+          let anchorIdIterator = anchorId.next();
+          let anchorTitleIterator = anchorTitle.next();
 
-            while ((!anchorIdIterator.done && !anchorTitleIterator.done)){
-              const association = {id:anchorIdIterator.value[1],title:anchorTitleIterator.value[1]}
-              articleAnchorData.value.push(association)
-              anchorIdIterator= anchorId.next()
-              anchorTitleIterator= anchorTitle.next();
-            }
-
-            console.log("anchorId",anchorId)
-            console.log("anchorTitle",anchorTitle)
-            console.log("articleAnchorData.value",articleAnchorData.value)
+          while ((!anchorIdIterator.done && !anchorTitleIterator.done)) {
+            const association = {id: anchorIdIterator.value[1], title: anchorTitleIterator.value[1]}
+            articleAnchorData.value.push(association)
+            anchorIdIterator = anchorId.next()
+            anchorTitleIterator = anchorTitle.next();
           }
+
+          console.log("anchorId", anchorId)
+          console.log("anchorTitle", anchorTitle)
+          console.log("articleAnchorData.value", articleAnchorData.value)
         }
+      }
       console.log("Header height:", HeaderHeight.value);
     } else {
       //elementPlus的Message消息提示組件
