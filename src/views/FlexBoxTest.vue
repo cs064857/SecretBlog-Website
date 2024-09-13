@@ -5,24 +5,39 @@
 
     <div class="FlexInnerLayer" id="FlexInnerInput" style="height: 10%;background: #213547"><!-- FlexInnerLayer1   -->
 
-      <el-input v-model="SearchKey" clearable style="margin-left: 30px;width: 240px" placeholder="Please input" />
+      <el-button  type="primary" round style="margin-left: 20px" @click="dialogVisible=true">新增</el-button>
+
+
+      <el-dialog
+          v-model="dialogVisible"
+          title="Tips"
+          width="500"
+          :before-close="handleClose"
+      >
+        <FormUser @dialogVisible="handleCloseDialog"></FormUser>
+      </el-dialog>
+
+
+
+      <el-input v-model="SearchKey" clearable style="margin-left: 30px;width: 240px" placeholder="Please input"/>
       <div class="block">
         <el-date-picker style="margin-left: 30px" v-model="dateValue" type="daterange" start-placeholder="開始日期"
-          end-placeholder="結束日期" format="YYYY-MM-DD" date-format="YYYY/MM/DD" value-format="YYYY-MM-DD" />
+                        end-placeholder="結束日期" format="YYYY-MM-DD" date-format="YYYY/MM/DD"
+                        value-format="YYYY-MM-DD"/>
       </div>
       <el-button type="success" round style="margin-left: 20px" v-on:click="handleSearch">搜尋</el-button>
     </div><!-- /FlexInnerLayer1   -->
 
 
-    <div class="FlexInnerLayer" style="height: 80%"><!-- FlexInnerLayer2   -->
+    <div class="FlexInnerLayer" id="FlexInnerLayerMain" ><!-- FlexInnerLayer2   -->
       <!--  表格   -->
       <el-table :data="resultData"
-        style="width: 100%;height: 100% ; border-top: 1px solid #888888;border-bottom: 1px solid #888888">
-        <el-table-column type="selection" width="40" />
-        <el-table-column label="索引" :index="indexCount" type="index" width="60px" align="center" />
-        <el-table-column label="Date" prop="date" />
-        <el-table-column label="Name" prop="name" />
-        <el-table-column label="Address" prop="address" />
+                style="width: 100%;height: 100% ; border-top: 1px solid #888888;border-bottom: 1px solid #888888">
+        <el-table-column type="selection" width="40"/>
+        <el-table-column label="索引" :index="indexCount" type="index" width="60px" align="center"/>
+        <el-table-column label="Date" prop="date"/>
+        <el-table-column label="Name" prop="name"/>
+        <el-table-column label="Address" prop="address"/>
 
         <el-table-column align="right">
           <!--          <template #header>-->
@@ -32,48 +47,126 @@
             <el-button size="small" @click="handleEdit(scope.$index, scope.row)">
               Edit
             </el-button>
-            <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">
-              Delete
-            </el-button>
+
+            <el-popconfirm
+                width="220"
+                :icon="InfoFilled"
+                icon-color="#626AEF"
+                title="Are you sure to delete this?"
+                @cancel="onCancel"
+                @confirm="handleDelete(scope.$index, scope.row)"
+            >
+              <template #reference>
+                <el-button size="small" type="danger" >
+                  Delete
+                </el-button>
+              </template>
+              <template #actions="{ confirm, cancel }">
+                <el-button size="small" @click="cancel">No!</el-button>
+                <el-button
+                    type="danger"
+                    size="small"
+                    :disabled="!clicked"
+                    @click="confirm"
+                >
+                  Yes?
+                </el-button>
+              </template>
+            </el-popconfirm>
+
+
           </template>
         </el-table-column>
 
       </el-table><!--  /表格    -->
 
+
     </div><!-- /FlexInnerLayer2   -->
 
 
-    <div class="FlexInnerLayer" style="height: 10%;background: #ffffff"><!-- FlexInnerLayer3   -->
+    <div class="FlexInnerLayer" id="FlexInnerLayerFooter"><!-- FlexInnerLayer3   -->
 
       <div class="demo-pagination-block"> <!--  分頁    -->
         <div class="demonstration"></div>
         <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :page-sizes="[10, 50, 100]"
-          :size="'large'" :disabled="disabled" :background="background" layout="total, sizes, prev, pager, next, jumper"
-          :total="dataTotal" @size-change="handleSizeChange" @current-change="handleCurrentChange" />
+                       :size="'large'" :disabled="disabled" :background="background"
+                       layout="total, sizes, prev, pager, next, jumper"
+                       :total="dataTotal" @size-change="handleSizeChange" @current-change="handleCurrentChange"/>
       </div><!--  /分頁    -->
 
     </div><!-- FlexInnerLayer3   -->
 
   </div><!-- /FlexOuterLayer -->
 
+
+
 </template>
 
 <script setup lang="ts">
+//對話框
+
+import { ElMessageBox } from 'element-plus'
+
+const dialogVisible = ref(false)
+
+const handleClose = (done: () => void) => {
+  ElMessageBox.confirm('Are you sure to close this dialog?')
+      .then(() => {
+        done()
+      })
+      .catch(() => {
+        // catch error
+      })
+}
+
+const handleCloseDialog=function (){
+  dialogVisible.value = false
+}
+//對話框/
+
+
+
 // 表格
-import { type User } from '../types'
+// import {User,Users} from '../interface/userInterface.ts'
 import useInputTable from '../hooks/useInputTable'
 
-const handleEdit = (index: number, row: User) => {
-  console.log(index, row)
-}
-const handleDelete = (index: number, row: User) => {
+const handleEdit = (index: number, row: any) => {
   console.log(index, row)
 }
 
+//表格中項目刪除按鈕
+import { ref } from 'vue'
+import { InfoFilled } from '@element-plus/icons-vue'
+import {ElMessage} from "element-plus";
+import http from "../utils/httpRequest"
+import FormUser from "../components/FormUser.vue";
+const handleDelete = (index: number, row: any) => {
 
+  // http({
+  //     url: http.adornUrl('/article/articles'),
+  //     method: 'post',
+  //     data: http.adornData(row, false)
+  // }).then(({data}) => {
+  //
+  // if(data.code==200){
+  //         ElMessage.success("");
+  //     }else{
+  //         ElMessage.error("");
+  //     }
+  // });
 
+  console.log(index, row)
+}
 
-const tableData: User[] = [
+const clicked = ref(false)
+function onCancel() {
+  console.log("取消")
+  clicked.value = true
+}
+
+//表格中項目刪除按鈕/
+
+const tableData: any = [
   {
     date: '2016-05-03',
     categoryName: '1111',
@@ -129,6 +222,57 @@ const tableData: User[] = [
     categoryName: '66666',
     address: 'No. 189, Grove St, Los Angeles',
   },
+  {
+    date: '2016-05-01',
+    categoryName: '66666',
+    address: 'No. 189, Grove St, Los Angeles',
+  },
+  {
+    date: '2016-05-01',
+    categoryName: '66666',
+    address: 'No. 189, Grove St, Los Angeles',
+  },
+  {
+    date: '2016-05-01',
+    categoryName: '66666',
+    address: 'No. 189, Grove St, Los Angeles',
+  },
+  {
+    date: '2016-05-01',
+    categoryName: '66666',
+    address: 'No. 189, Grove St, Los Angeles',
+  },
+  {
+    date: '2016-05-01',
+    categoryName: '66666',
+    address: 'No. 189, Grove St, Los Angeles',
+  },
+  {
+    date: '2016-05-01',
+    categoryName: '66666',
+    address: 'No. 189, Grove St, Los Angeles',
+  },
+  {
+    date: '2016-05-01',
+    categoryName: '66666',
+    address: 'No. 189, Grove St, Los Angeles',
+  },
+  {
+    date: '2016-05-01',
+    categoryName: '66666',
+    address: 'No. 189, Grove St, Los Angeles',
+  },
+  {
+    date: '2016-05-01',
+    categoryName: '66666',
+    address: 'No. 189, Grove St, Los Angeles',
+  },
+  {
+    date: '2016-05-01',
+    categoryName: '66666',
+    address: 'No. 189, Grove St, Los Angeles',
+  },
+
 ]
 
 const {
@@ -146,7 +290,8 @@ const {
   //輸入框搜尋
   SearchKey,
   handleSearch,
-  dateValue } = useInputTable(tableData)
+  dateValue
+} = useInputTable(tableData)
 
 </script>
 
@@ -169,6 +314,7 @@ const {
   /*align-items: flex-start;*/
   background: #ffffff;
   width: 100%;
+
   /*transform: translateY(-10px); /* 向上移動表格 */
 }
 
@@ -181,8 +327,20 @@ const {
 
 /*輸入框*/
 #FlexInnerInput {
+  min-height: 9vh;
+  max-height: 9vh;
   justify-content: left;
 }
 
 /*輸入框*/
+
+#FlexInnerLayerFooter {
+  min-height: 10%;
+  max-height: 10%;
+  background: #ffffff
+}
+#FlexInnerLayerMain{
+  min-height: 74vh;
+  max-height: 74vh;
+}
 </style>

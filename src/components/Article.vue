@@ -39,23 +39,85 @@
 
         </div>
 
-<!--        <div class="Box5">-->
-<!--          5-->
-<!--        </div>-->
-
-
       </div>
 
     </div>
+
+    <div class="article-footer">
+      <div class="article-comment">
+
+        <div class="article-comment-input">
+          <el-input
+              v-model="textarea1"
+              style="width: 100%;font-size: 18px"
+              :rows="8"
+              maxlength="480"
+              resize="none"
+              type="textarea"
+              placeholder="輸入評論..."
+          />
+        </div>
+
+        <div class="article-comment-button">
+          <el-button @click="handleCommitComment" size="large" type="primary" round>發表評論</el-button>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 </template>
 
 <style scoped>
-/*.Box5{*/
-/*  background-color: #213547;*/
-/*  width: 100px;*/
-/*  height: 100px;*/
-/*}*/
+.article-comment-button {
+  background-color: #0d9393;
+  min-width: 90%;
+  max-width: 90%;
+  /*flex: 0.5;*/
+  max-height: 18%;
+  min-height: 18%;
+
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+
+.article-comment-input {
+  background-color: #98710e;
+  min-width: 90%;
+  max-width: 90%;
+  /*flex: 1;*/
+  max-height: 82%;
+  min-height: 82%;
+}
+
+.article-comment {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: right;
+  align-content: start;
+  /*transform: translate(50%);*/
+  background-color: darkslateblue;
+
+  min-width: 71.5%;
+  max-width: 71.5%;
+  max-height: 80%;
+  min-height: 80%;
+}
+
+.article-footer {
+  display: flex;
+
+  /* 新增 Flexbox */
+  justify-content: center; /* 水平居中 */
+
+  position: relative;
+  left: 5%;
+  background-color: #213547;
+  width: 90%;
+  height: 35%;
+}
+
 
 .article-header {
   border: black 3px solid;
@@ -96,7 +158,7 @@
 }
 
 .article-container {
-  background-color: darksalmon;
+  background-color: #d57656;
   width: 100%;
   height: 100%;
   overflow: auto;
@@ -133,7 +195,7 @@
 
   display: flex;
   justify-content: center;
-  /*align-items: center;*/
+  /*align-content: center;*/
   /*overflow: auto;*/
 
   /*position: relative;*/
@@ -203,7 +265,7 @@ import {nextTick, onMounted, onUnmounted, ref} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {ElAnchor, ElMessage} from "element-plus";
 import {R} from "../interface/R.ts";
-
+import { debounce } from 'throttle-debounce';
 const Article = ref<ArticleInter | null>(null);
 const ArticleContent = ref('')
 
@@ -212,37 +274,93 @@ const route = useRoute()
 const {articleId} = route.params
 
 
-//獲得article-content的高度
+//評論
 
-const articleContentRef = ref<HTMLElement | null>(null)
-let articleContentObserver: MutationObserver
-onMounted(() => {
-
-  articleContentObserver = new MutationObserver((mutations) => {
-    const articleContentHeight = articleContentRef.value?.offsetHeight;
-    console.log("articleContentRef", articleContentRef.value);
+const textarea1 = ref()
 
 
-    console.log("articleContentHeight:", articleContentHeight);
-    if (articleContentHeight && articleContentHeight > 0) {
-      if (articleContentHeight && articleContentListRef.value) {
-        articleContentListRef.value.style.height = `${articleContentHeight + 150}px`;
-      }
-      articleContentObserver.disconnect(); // 停止觀察
+const handleCommitComment=function (){
+  const artInfo={
+    comment:textarea1.value,
+    userId: 1111,
+    articleId:articleId,
+  }
+  http({
+    url: http.adornUrl('/article/artInfo'),
+    method: 'post',
+    data: http.adornData(artInfo, false)
+  }).then(({data}:{data:any}) => {
+    if (data.code == 200) {
+      ElMessage.success("成功發送評論");
+    } else {
+      ElMessage.error("提交評論失敗");
     }
   });
+}
 
-  if (articleContentRef.value) {
-    articleContentObserver.observe(articleContentRef.value, {
-      childList: true,
-      subtree: true,
-      characterData: true
-    });
-  }
-})
-onUnmounted(() => {
-  articleContentObserver.disconnect()
-})
+
+//評論/
+
+//獲得article-content的高度
+
+// const articleContentRef = ref<HTMLElement | null>(null)
+// let articleContentRefObserver: ResizeObserver
+
+// onMounted(() => {
+  // debounce(5000,()=>{
+  //   if (!articleContentRef.value) return
+  //   articleContentRefObserver = new ResizeObserver(entries => {
+  //     for (let entry of entries) {
+  //       const articleContentHeight = entry.contentRect.height
+  //       console.log("articleContentHeight:", articleContentHeight)
+  //
+  //       if (articleContentHeight > 0 && articleContentListRef.value) {
+  //         articleContentListRef.value.style.height = `${articleContentHeight + 150}px`
+  //       }
+  //     }
+  //   })
+  //
+  //   articleContentRefObserver.observe(articleContentRef.value)
+  // })
+
+// })
+
+// onUnmounted(() => {
+//   if (articleContentRefObserver) {
+//     articleContentRefObserver.disconnect()
+//   }
+// })
+
+// const articleContentRef = ref<HTMLElement | null>(null)
+// let articleContentObserver: MutationObserver
+// onMounted(() => {
+//
+//   articleContentObserver = new MutationObserver((mutations) => {
+//     const articleContentHeight = articleContentRef.value?.offsetHeight;
+//     console.log("articleContentRef", articleContentRef.value);
+//
+//
+//     console.log("articleContentHeight:", articleContentHeight);
+//     if (articleContentHeight && articleContentHeight > 0) {
+//       if (articleContentHeight && articleContentListRef.value) {
+//         articleContentListRef.value.style.height = `${articleContentHeight + 150}px`;
+//       }
+//       // articleContentObserver.disconnect(); // 停止觀察
+//     }
+//   });
+//
+//   if (articleContentRef.value) {
+//     articleContentObserver.observe(articleContentRef.value, {
+//       childList: true,
+//       subtree: true,
+//       characterData: true,
+//       attributes: true // 增加對屬性變化的監控
+//     });
+//   }
+// })
+// onUnmounted(() => {
+//   articleContentObserver.disconnect()
+// })
 
 //獲得article-content的高度/
 
@@ -251,7 +369,6 @@ onUnmounted(() => {
 
 const scrollContainer = ref<HTMLElement | null>(null);
 const anchorRef = ref<InstanceType<typeof ElAnchor> | null>(null);
-
 
 
 const handleScroll = () => {
@@ -288,7 +405,7 @@ let anchorObserver: MutationObserver;
 
 let initialStyles = {
   position: '',
-  left:'',
+  left: '',
   top: '',
   width: '',
   height: ''
@@ -303,7 +420,7 @@ onMounted(() => {
           const computedStyles = window.getComputedStyle(anchorRef.value.$el); // Fetch the computed styles
           initialStyles = {
             position: computedStyles.position,
-            left:computedStyles.left,
+            left: computedStyles.left,
             top: computedStyles.top,
             width: computedStyles.width,
             height: computedStyles.height
@@ -365,54 +482,54 @@ onUnmounted(() => {// 在組件卸載後移除滾動事件監聽器
 
 //設定article-content-list的margin-top為HomeHeaderNavigation組件的高度
 // 獲得VUE組件的 ref高度與寬度
-const headerRef = ref<InstanceType<typeof HomeHeaderNavigation> | null>(null);
-const HeaderWidth = ref(0);
-const HeaderHeight = ref(0);
-const updateHeaderSize = () => {
-  if (headerRef.value) {
-    // console.log("headerRef.value.$el:", headerRef.value.$el)
-    HeaderWidth.value = headerRef.value.$el.offsetWidth
-    HeaderHeight.value = headerRef.value.$el.offsetHeight
-    // console.log("Header width:", HeaderWidth.value);
-    // console.log("Header height:", HeaderHeight.value);
-  }
-}
-// 獲得VUE組件的 ref高度與寬度/
-
-let resizeObserver: ResizeObserver | null = null;
-onMounted(() => {
-  // 初始更新尺寸
-  updateHeaderSize();
-  // updateArticleContentList();
-  // 设置 ResizeObserver
-  if (headerRef.value && headerRef.value.$el) {
-    resizeObserver = new ResizeObserver(() => {
-      updateHeaderSize();
-      // updateArticleContentList();
-    });
-    resizeObserver.observe(headerRef.value.$el);//監視headerRef的值,若發生變化則觸發callback中的回調函數
-  }
-});
-
-onUnmounted(() => {
-  // 清理 ResizeObserver
-  if (resizeObserver) {
-    resizeObserver.disconnect();
-  }
-});
-
-
-const articleContentListRef = ref<InstanceType<typeof HTMLElement>>()
-
-const updateArticleContentList = function () {
-  console.log("articleContentListRef:", articleContentListRef)
-  if (articleContentListRef.value) {
-    // articleContentListRef.value.style.marginTop='50px'
-    const marginTop: string = HeaderHeight.value * 2.9 + ""
-    articleContentListRef.value.style.marginTop = marginTop + "px"
-    console.log("成功設置article-content-list的margin-top為:", marginTop)
-  }
-}
+// const headerRef = ref<InstanceType<typeof HomeHeaderNavigation> | null>(null);
+// const HeaderWidth = ref(0);
+// const HeaderHeight = ref(0);
+// const updateHeaderSize = () => {
+//   if (headerRef.value) {
+//     // console.log("headerRef.value.$el:", headerRef.value.$el)
+//     HeaderWidth.value = headerRef.value.$el.offsetWidth
+//     HeaderHeight.value = headerRef.value.$el.offsetHeight
+//     // console.log("Header width:", HeaderWidth.value);
+//     // console.log("Header height:", HeaderHeight.value);
+//   }
+// }
+// // 獲得VUE組件的 ref高度與寬度/
+//
+// let resizeObserver: ResizeObserver | null = null;
+// onMounted(() => {
+//   // 初始更新尺寸
+//   updateHeaderSize();
+//   // updateArticleContentList();
+//   // 设置 ResizeObserver
+//   if (headerRef.value && headerRef.value.$el) {
+//     resizeObserver = new ResizeObserver(() => {
+//       updateHeaderSize();
+//       // updateArticleContentList();
+//     });
+//     resizeObserver.observe(headerRef.value.$el);//監視headerRef的值,若發生變化則觸發callback中的回調函數
+//   }
+// });
+//
+// onUnmounted(() => {
+//   // 清理 ResizeObserver
+//   if (resizeObserver) {
+//     resizeObserver.disconnect();
+//   }
+// });
+//
+//
+// const articleContentListRef = ref<InstanceType<typeof HTMLElement>>()
+//
+// const updateArticleContentList = function () {
+//   console.log("articleContentListRef:", articleContentListRef)
+//   if (articleContentListRef.value) {
+//     // articleContentListRef.value.style.marginTop='50px'
+//     const marginTop: string = HeaderHeight.value * 2.9 + ""
+//     articleContentListRef.value.style.marginTop = marginTop + "px"
+//     console.log("成功設置article-content-list的margin-top為:", marginTop)
+//   }
+// }
 //設定article-content-list的margin-top為HomeHeaderNavigation組件的高度/
 
 
@@ -478,7 +595,7 @@ onMounted(() => {
           console.log("articleAnchorData.value", articleAnchorData.value)
         }
       }
-      console.log("Header height:", HeaderHeight.value);
+      // console.log("Header height:", HeaderHeight.value);
     } else {
       //elementPlus的Message消息提示組件
       ElMessage.error("獲取文章資料失敗")
