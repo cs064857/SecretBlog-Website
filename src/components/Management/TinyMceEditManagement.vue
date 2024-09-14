@@ -34,7 +34,7 @@
 <style lang="scss" scoped>
 // 字體
 
-@import'../assets/font/font.css';
+@import '../../assets/font/font.css';
 
 // @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap');
 // .noto-sans-tc{
@@ -134,10 +134,10 @@ import "tinymce/plugins/fullscreen";
 import "tinymce-i18n/langs7/zh_TW.js"
 
 // 處理送出至資料庫中
-import http from '../utils/httpRequest';
+import http from '../../utils/httpRequest';
 import {ElMessage} from "element-plus";
-import {R} from "../interface/R.js";
-import {useTreeCategoryStore} from "../pinia/useTreeCategoryStore.ts"
+import {R} from "../../interface/R.ts";
+import {useTreeCategoryStore} from "../../pinia/useTreeCategoryStore.ts"
 const inputTitle = ref('')
 
 // 選擇器

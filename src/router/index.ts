@@ -1,10 +1,11 @@
 import {createRouter, createWebHistory} from 'vue-router'
-import FlexBoxTest from '../views/FlexBoxTest.vue'
-import MainGrid from '../components/MainGrid.vue'
+import UserManagement from '../components/Management/UserManagement.vue'
+// import MainGrid from '../components/MainGrid.vue'
 import Home from '../views/Home.vue'
 import AdminVue from "../components/AdminVue.vue";
 import Article from "../components/Article.vue";
 import TreeCategories from "../components/TreeCategories.vue";
+import TinyMceEditManagement from "../components/Management/TinyMceEditManagement.vue";
 const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -20,26 +21,26 @@ const router = createRouter({
             path: '/AdminVue',
             children: [
                 {
-                    name: 'TinyMceEdit',
-                    path: '/AdminVue/TinyMceEdit',
+                    name: 'TinyMceEditManagement',
+                    path: '/AdminVue/TinyMceEditManagement',
                     components: {
-                        AdminVueRouter: import('../components/TinyMceEdit.vue')
+                        AdminVueRouter: TinyMceEditManagement,
                     }
                 },
                 {
-                    name: 'FlexBoxTest',
-                    path: '/AdminVue/FlexBoxTest',
+                    name: 'UserManagement',
+                    path: '/AdminVue/UserManagement',
                     components: {
-                        AdminVueRouter: FlexBoxTest,
+                        AdminVueRouter: UserManagement,
                     }
                 },
-                {
-                    name: 'MainGrid',
-                    path: '/AdminVue/MainGrid',
-                    components: {
-                        AdminVueRouter: MainGrid,
-                    }
-                },
+                // {
+                //     name: 'MainGrid',
+                //     path: '/AdminVue/MainGrid',
+                //     components: {
+                //         AdminVueRouter: MainGrid,
+                //     }
+                // },
                 {
                     name:'TreeCategories',
                     path:'/AdminVue/TreeCategories',
@@ -65,7 +66,7 @@ const router = createRouter({
                 // {
                 //     path: '/Home/News2Test',
                 //     components: {
-                //         HomeRouter: FlexBoxTest
+                //         HomeRouter: UserManagement
                 //     }
                 // },
             ]

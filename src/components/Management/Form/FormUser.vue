@@ -1,14 +1,7 @@
 <script setup lang="ts">
-import {
-  AllowedComponentProps, ComponentCustomProps,
-  ComponentInternalInstance,
-  ComponentOptionsBase, nextTick,
-  PropType,
-  reactive,
-  ref,
-  VNodeProps
-} from 'vue';
-import {FormInstance, FormRules} from 'element-plus';
+import {nextTick, onBeforeMount, onMounted, reactive, ref} from 'vue';
+import {ElMessage, FormInstance, FormRules} from 'element-plus';
+import http from "@/utils/httpRequest"
 
 // 定義表單資料接口
 interface Form {
@@ -18,7 +11,7 @@ interface Form {
   checkPassword: string;
   birthday: Date;
   gender: number;
-  role: string;
+  roleId: string;
   email: string;
   address: string;
   phoneNumber: string;
@@ -32,7 +25,7 @@ interface Form {
 //   checkPassword: '',
 //   birthday: new Date(''),
 //   gender: 0,
-//   role: '',
+//   roleId: '',
 //   email: '',
 //   address: '',
 //   phoneNumber: ''
@@ -45,7 +38,7 @@ const form = ref<Form>({
   checkPassword: 'testpassword1',
   birthday: new Date('1970-01-01'),
   gender: 0,
-  role: "Option5",
+  roleId: '',
   email: 'testtestemail@gmail.com',
   address: '秘密',
   phoneNumber: '0900000000'
@@ -62,17 +55,30 @@ const onSubmit = async (formEl: FormInstance | null) => {
   try {
     await formEl.validate();
     console.log('表單提交資料...');
-    emit('dialogVisible', dialogVisible.value);
-    console.log('表單視窗關閉...');
     console.log('表單資料::', form.value);
 
-    cleanFormValue();
+    // const foundOption = options.find(item=>item.label==form.value.roleId);
+    // form.value.roleId=foundOption ? foundOption.value : form.value.roleId
 
+    http({
+      url: http.adornUrl('/user/user'),
+      method: 'post',
+      data: http.adornData(form.value, false)
+    }).then(({data}: { data: any }) => {
+      if (data.code == 200) {
+        ElMessage.success("新增使用者數據成功");
+        emit('dialogVisible', dialogVisible.value);
+        console.log('表單視窗關閉...');
+        //初始化清理表單資料
+        cleanFormValue();
+      } else {
+        ElMessage.error("新增使用者數據失敗");
+      }
+    });
   } catch (error) {
     console.log('表單驗證失敗', error);
   }
 };
-
 
 
 // 取消表單
@@ -92,7 +98,7 @@ const cleanFormValue = () => {
     checkPassword: '',
     birthday: new Date(''),
     gender: 0,
-    role: '',
+    roleId: '',
     email: '',
     address: '',
     phoneNumber: ''
@@ -106,13 +112,50 @@ const cleanFormValue = () => {
 };
 
 // 選項數據
-const options = [
-  {value: 'Option1', label: 'Option1'},
-  {value: 'Option2', label: 'Option2'},
-  {value: 'Option3', label: 'Option3'},
-  {value: 'Option4', label: 'Option4'},
-  {value: 'Option5', label: 'Option5'},
-];
+
+const getOptions=function (){
+  http({
+      url: http.adornUrl('/user/role'),
+      method: 'get',
+      params: http.adornParams({})
+  }).then(({data}) => {
+      if(data.code==200){
+        console.log("Role數據",data.data)
+
+        options.value=data.data.map(item=>({
+          value:item.id,
+          label:item.roleName
+        }));
+        console.log("options",options)
+          ElMessage.success("獲取權限數據成功");
+      }else{
+          ElMessage.error("獲取權限數據失敗");
+      }
+  })
+}
+
+onBeforeMount(()=>{
+  getOptions()
+})
+
+// 定義選項的介面
+interface Option {
+  value: string;
+  label: string;
+}
+
+
+
+const options= ref<Option[] |null>(null);
+// let options:Option[];
+
+// const options = [
+//   {value: '1', label: 'Option1'},
+//   {value: '2', label: 'Option2'},
+//   {value: '3', label: 'Option3'},
+//   {value: '4', label: 'Option4'},
+//   {value: '5', label: 'Option5'},
+// ];
 
 // 表單驗證規則
 
@@ -144,6 +187,7 @@ const validateBirthday = (rule: any, value: Date, callback: any) => {
 // 驗證性別是否被選擇
 const validateGender = (rule: any, value: number, callback: any) => {
   const validGenders = [0, 1, 2]; // 假設 0: 男, 1: 女, 2: 不願透露
+
   if (validGenders.includes(value)) {
     callback();
   } else {
@@ -153,13 +197,20 @@ const validateGender = (rule: any, value: number, callback: any) => {
 
 // 驗證角色是否被選擇
 const validateRole = (rule: any, value: string, callback: any) => {
-  if (isResetting.value==true) {//代表執行的是初始化表單數據,不進行校驗
+  if (isResetting.value == true) {//代表執行的是初始化表單數據,不進行校驗
     callback(); // 跳過驗證
     return;
   }
-  const validRoles = options.map(option => option.value);
-  console.log("value",value)
-  if (validRoles.includes(value)) {
+  const validRoles = options.value.map(option => option.value);
+  // const validRoles = options.map(option => option.value);
+
+  // const some =validRoles.some(item => item==value)
+  const includes = validRoles.includes(value);
+  // console.log("some", some)
+  // console.log("includes", includes)
+  console.log("validRoles", validRoles)
+  console.log("value", value)
+  if (includes) {
     callback();
   } else {
     callback(new Error('請選擇權限'));
@@ -222,7 +273,7 @@ const rules = reactive<FormRules<Form>>({
   gender: [
     {validator: validateGender, trigger: 'change'},
   ],
-  role: [
+  roleId: [
     {validator: validateRole, trigger: 'change'},
   ],
   email: [
@@ -286,9 +337,9 @@ const rules = reactive<FormRules<Form>>({
       <el-input v-model="form.address"/>
     </el-form-item>
 
-    <el-form-item label="權限" prop="role">
+    <el-form-item label="權限" prop="roleId">
       <el-select
-          v-model="form.role"
+          v-model="form.roleId"
           placeholder="Select"
           style="width: 240px"
       >

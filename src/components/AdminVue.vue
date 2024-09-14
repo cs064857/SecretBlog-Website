@@ -31,7 +31,7 @@
                   </template>
                   <el-menu-item-group title="Group One">
                     <el-menu-item index="MainGrid">MainGrip</el-menu-item>
-                    <el-menu-item index="FlexBoxTest" >FlexBoxTest</el-menu-item>
+                    <el-menu-item index="UserManagement" >用戶系統</el-menu-item>
                   </el-menu-item-group>
                   <el-menu-item-group title="Group Two">
                     <el-menu-item index="Home">Home</el-menu-item>
@@ -54,7 +54,7 @@
                   <span>Navigator Three</span>
                 </el-menu-item>
 
-                <el-menu-item index="TinyMceEdit">
+                <el-menu-item index="TinyMceEditManagement">
                   <el-icon>
                     <setting/>
                   </el-icon>
@@ -108,8 +108,8 @@ const handleClose = (key: string, keyPath: string[]) => {
   console.log(key, keyPath)
 }
 
-// const handleGoTinyMceEditor =function (){ //使用@click綁定於el-menu-item上,點擊觸發此方法並且跳轉路由
-//   router.push({name:'TinyMceEdit'})
+// const handleGoTinyMceEditManagementor =function (){ //使用@click綁定於el-menu-item上,點擊觸發此方法並且跳轉路由
+//   router.push({name:'TinyMceEditManagement'})
 // }
 
 const handleSelect =function (index:string){

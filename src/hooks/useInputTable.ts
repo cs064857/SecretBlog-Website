@@ -1,15 +1,14 @@
 import { ref } from 'vue'
-import { type User } from '../types'
 
-export default function (tableData: User[]) {
+export default function (tableData: any[]) {
     // 分頁
     const currentPage = ref(1)
     const pageSize = ref(10)
     const background = ref(false)
     const disabled = ref(false)
     let dataTotal = ref<Number>(tableData.length)
-    let filteredData = ref<User[]>(tableData)  // 這裡存儲的是過濾後的數據
-    let resultData = ref<User[]>([])
+    let filteredData = ref<any[]>(tableData)  // 這裡存儲的是過濾後的數據
+    let resultData = ref<any[]>([])
     const updatePaginatedData = () => {
         //進行分頁
         const PageStart = (currentPage.value - 1) * pageSize.value

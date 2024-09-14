@@ -1,11 +1,11 @@
 <template>
 
 
-  <div class="FlexOuterLayer"><!-- FlexOuterLayer -->
+  <div class="mgmt-container"><!-- mgmt-container -->
 
-    <div class="FlexInnerLayer" id="FlexInnerInput" style="height: 10%;background: #213547"><!-- FlexInnerLayer1   -->
+    <div class="FlexInnerLayer" id="mgmt-header" style="height: 10%;background: #213547"><!-- mgmt-header   -->
 
-      <el-button  type="primary" round style="margin-left: 20px" @click="dialogVisible=true">新增</el-button>
+      <el-button type="primary" round style="margin-left: 20px" @click="dialogVisible=true">新增</el-button>
 
 
       <el-dialog
@@ -18,7 +18,6 @@
       </el-dialog>
 
 
-
       <el-input v-model="SearchKey" clearable style="margin-left: 30px;width: 240px" placeholder="Please input"/>
       <div class="block">
         <el-date-picker style="margin-left: 30px" v-model="dateValue" type="daterange" start-placeholder="開始日期"
@@ -26,13 +25,13 @@
                         value-format="YYYY-MM-DD"/>
       </div>
       <el-button type="success" round style="margin-left: 20px" v-on:click="handleSearch">搜尋</el-button>
-    </div><!-- /FlexInnerLayer1   -->
+    </div><!-- /mgmt-header   -->
 
 
-    <div class="FlexInnerLayer" id="FlexInnerLayerMain" ><!-- FlexInnerLayer2   -->
-      <!--  表格   -->
-      <el-table :data="resultData"
-                style="width: 100%;height: 100% ; border-top: 1px solid #888888;border-bottom: 1px solid #888888">
+    <div class="FlexInnerLayer" id="mgmt-content"><!--mgmt-content   -->
+
+      <el-table class="mgmt-content-table" :data="resultData"
+      >
         <el-table-column type="selection" width="40"/>
         <el-table-column label="索引" :index="indexCount" type="index" width="60px" align="center"/>
         <el-table-column label="Date" prop="date"/>
@@ -57,7 +56,7 @@
                 @confirm="handleDelete(scope.$index, scope.row)"
             >
               <template #reference>
-                <el-button size="small" type="danger" >
+                <el-button size="small" type="danger">
                   Delete
                 </el-button>
               </template>
@@ -78,26 +77,25 @@
           </template>
         </el-table-column>
 
-      </el-table><!--  /表格    -->
+      </el-table>
 
 
-    </div><!-- /FlexInnerLayer2   -->
+    </div><!--mgmt-content   -->
 
 
-    <div class="FlexInnerLayer" id="FlexInnerLayerFooter"><!-- FlexInnerLayer3   -->
+    <div class="FlexInnerLayer" id="mgmt-footer"><!-- mgmt-footer   -->
 
-      <div class="demo-pagination-block"> <!--  分頁    -->
-        <div class="demonstration"></div>
+      <div class="mgmt-footer-pagination"> <!--  分頁    -->
         <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :page-sizes="[10, 50, 100]"
                        :size="'large'" :disabled="disabled" :background="background"
                        layout="total, sizes, prev, pager, next, jumper"
-                       :total="dataTotal" @size-change="handleSizeChange" @current-change="handleCurrentChange"/>
+                       :total="dataTotal" @size-change="handleSizeChange" @current-change="handleCurrentChange"
+        />
       </div><!--  /分頁    -->
 
-    </div><!-- FlexInnerLayer3   -->
+    </div><!-- mgmt-footer   -->
 
-  </div><!-- /FlexOuterLayer -->
-
+  </div><!-- /mgmt-container -->
 
 
 </template>
@@ -105,12 +103,12 @@
 <script setup lang="ts">
 //對話框
 
-import { ElMessageBox } from 'element-plus'
+import {ElMessageBox} from 'element-plus'
 
 const dialogVisible = ref(false)
 
 const handleClose = (done: () => void) => {
-  ElMessageBox.confirm('Are you sure to close this dialog?')
+  ElMessageBox.confirm('確認是否關閉視窗？')
       .then(() => {
         done()
       })
@@ -119,27 +117,27 @@ const handleClose = (done: () => void) => {
       })
 }
 
-const handleCloseDialog=function (){
+const handleCloseDialog = function () {
   dialogVisible.value = false
 }
 //對話框/
 
 
-
 // 表格
 // import {User,Users} from '../interface/userInterface.ts'
-import useInputTable from '../hooks/useInputTable'
+import useInputTable from '@/hooks/useInputTable.ts'
 
 const handleEdit = (index: number, row: any) => {
   console.log(index, row)
 }
 
 //表格中項目刪除按鈕
-import { ref } from 'vue'
-import { InfoFilled } from '@element-plus/icons-vue'
+import {ref} from 'vue'
+import {InfoFilled} from '@element-plus/icons-vue'
 import {ElMessage} from "element-plus";
-import http from "../utils/httpRequest"
-import FormUser from "../components/FormUser.vue";
+import http from "../../utils/httpRequest"
+import FormUser from "./Form/FormUser.vue";
+
 const handleDelete = (index: number, row: any) => {
 
   // http({
@@ -159,6 +157,7 @@ const handleDelete = (index: number, row: any) => {
 }
 
 const clicked = ref(false)
+
 function onCancel() {
   console.log("取消")
   clicked.value = true
@@ -166,6 +165,21 @@ function onCancel() {
 
 //表格中項目刪除按鈕/
 
+const getTableData=function (){
+  http({
+      url: http.adornUrl(''),
+      method: 'get',
+      params: http.adornParams({})
+  }).then(({data}) => {
+      if(data.code==200){
+          ElMessage.success("獲得使用者表格數據成功");
+      }else{
+          ElMessage.error("獲得使用者表格數據失敗");
+      }
+  })
+}
+
+//表格資料
 const tableData: any = [
   {
     date: '2016-05-03',
@@ -296,7 +310,14 @@ const {
 </script>
 
 <style scoped>
-.FlexOuterLayer {
+.mgmt-content-table {
+  width: 100%;
+  height: 100%;
+  border-top: 1px solid #888888;
+  border-bottom: 1px solid #888888
+}
+
+.mgmt-container {
   background: #646cff;
   display: flex;
   flex-direction: column;
@@ -326,7 +347,7 @@ const {
 /*分頁*/
 
 /*輸入框*/
-#FlexInnerInput {
+#mgmt-header {
   min-height: 9vh;
   max-height: 9vh;
   justify-content: left;
@@ -334,12 +355,13 @@ const {
 
 /*輸入框*/
 
-#FlexInnerLayerFooter {
+#mgmt-footer {
   min-height: 10%;
   max-height: 10%;
   background: #ffffff
 }
-#FlexInnerLayerMain{
+
+#mgmt-content {
   min-height: 74vh;
   max-height: 74vh;
 }

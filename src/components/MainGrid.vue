@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import TinyMceEdit from './TinyMceEdit.vue';
+import TinyMceEditManagement from './Management/TinyMceEditManagement.vue';
 import {ComponentPublicInstance, ref} from 'vue'
 
 
 
-// 定义 TinyMceEdit 组件暴露的方法类型
-interface TinyMceEditMethods {
+// 定义 TinyMceEditManagement 组件暴露的方法类型
+interface TinyMceEditManagementMethods {
   handleSetContent: (content: string) => void;
   handleGetContent: () => string;
 }
-const tinymceRef = ref<ComponentPublicInstance<TinyMceEditMethods> | null>(null);
+const tinymceRef = ref<ComponentPublicInstance<TinyMceEditManagementMethods> | null>(null);
 // 在 setup 函数中定义的方法
 const setContent = () => {
   if (tinymceRef.value) {
@@ -34,9 +34,9 @@ const getContent = () => {
       <div v-html="editorContent" class="header"></div>
       <div class="tag"><span style="font-family: 'Noto Sans TC', sans-serif;" >標題</span></div>
       <div class="main">
-        
+
         <div>
-          <TinyMceEdit ref="tinymceRef"></TinyMceEdit>
+          <TinyMceEditManagement ref="tinymceRef"></TinyMceEditManagement>
         </div>
         <div style="background-color: antiquewhite;">
           <button @click="setContent">Set Content</button>
@@ -80,7 +80,7 @@ const getContent = () => {
 
 .main {
   border: 1px solid #1a1a1a;
-  
+
   grid-area: main;
 }
 

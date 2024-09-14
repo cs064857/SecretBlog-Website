@@ -9,7 +9,7 @@
 <router-view name="app"></router-view>
 
 
-<!-- <TinyMceEdit></TinyMceEdit> -->
+<!-- <TinyMceEditManagement></TinyMceEditManagement> -->
 
 
 </template>
@@ -20,10 +20,10 @@ import MinioUpload from "./components/minioUpload.vue";
 import Main from "./components/AdminVue.vue"
 import MainGrid from "./components/MainGrid.vue";
 import Home from "./views/Home.vue";
-import TinyMceEdit from "./components/TinyMceEdit.vue"
+import TinyMceEditManagement from "./components/Management/TinyMceEditManagement.vue"
 import AdminVue from "./components/AdminVue.vue";
 export default {
-  components:{AdminVue, MainGrid, MinioUpload,Main,Home,TinyMceEdit}
+  components:{AdminVue, MainGrid, MinioUpload,Main,Home,TinyMceEditManagement}
 }
 
 
