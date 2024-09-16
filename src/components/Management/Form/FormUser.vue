@@ -57,7 +57,7 @@ const onSubmit = async (formEl: FormInstance | null) => {
     console.log('表單提交資料...');
     console.log('表單資料::', form.value);
 
-    // const foundOption = options.find(item=>item.label==form.value.roleId);
+    // const foundOption = searchOptions.find(item=>item.label==form.value.roleId);
     // form.value.roleId=foundOption ? foundOption.value : form.value.roleId
 
     http({
@@ -69,6 +69,7 @@ const onSubmit = async (formEl: FormInstance | null) => {
         ElMessage.success("新增使用者數據成功");
         emit('dialogVisible', dialogVisible.value);
         console.log('表單視窗關閉...');
+        window.location.replace(window.location.href);
         //初始化清理表單資料
         cleanFormValue();
       } else {
@@ -147,9 +148,9 @@ interface Option {
 
 
 const options= ref<Option[] |null>(null);
-// let options:Option[];
+// let searchOptions:Option[];
 
-// const options = [
+// const searchOptions = [
 //   {value: '1', label: 'Option1'},
 //   {value: '2', label: 'Option2'},
 //   {value: '3', label: 'Option3'},
@@ -186,7 +187,7 @@ const validateBirthday = (rule: any, value: Date, callback: any) => {
 
 // 驗證性別是否被選擇
 const validateGender = (rule: any, value: number, callback: any) => {
-  const validGenders = [0, 1, 2]; // 假設 0: 男, 1: 女, 2: 不願透露
+  const validGenders = [1, 2, 3]; // 假設 1: 男, 2: 女, 3: 不願透露
 
   if (validGenders.includes(value)) {
     callback();
@@ -202,7 +203,7 @@ const validateRole = (rule: any, value: string, callback: any) => {
     return;
   }
   const validRoles = options.value.map(option => option.value);
-  // const validRoles = options.map(option => option.value);
+  // const validRoles = searchOptions.map(option => option.value);
 
   // const some =validRoles.some(item => item==value)
   const includes = validRoles.includes(value);
@@ -354,9 +355,9 @@ const rules = reactive<FormRules<Form>>({
 
     <el-form-item label="性別" prop="gender">
       <el-radio-group v-model="form.gender">
-        <el-radio :value="0">男</el-radio>
-        <el-radio :value="1">女</el-radio>
-        <el-radio :value="2">不願透露</el-radio>
+        <el-radio :value="1">男</el-radio>
+        <el-radio :value="2">女</el-radio>
+        <el-radio :value="3">不願透露</el-radio>
       </el-radio-group>
     </el-form-item>
 

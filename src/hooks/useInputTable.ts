@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import {ref, watch} from 'vue'
 
 export default function (tableData: any[]) {
     // 分頁
@@ -8,13 +8,20 @@ export default function (tableData: any[]) {
     const disabled = ref(false)
     let dataTotal = ref<Number>(tableData.length)
     let filteredData = ref<any[]>(tableData)  // 這裡存儲的是過濾後的數據
+    console.log("分頁前的數據filteredData.value:",filteredData.value)
     let resultData = ref<any[]>([])
     const updatePaginatedData = () => {
+        if (filteredData.value.length === 0) {
+            console.warn("無分頁數據，filteredData.value 為空");
+            return;
+        }
         //進行分頁
         const PageStart = (currentPage.value - 1) * pageSize.value
         const PageEnd = currentPage.value * pageSize.value
+
         //返回分頁後的數據
         resultData.value = filteredData.value.slice(PageStart, PageEnd);
+        console.log("分頁後的數據resultData.value:",resultData.value)
     }
     //設置索引
     const indexCount = (index: number) => {
@@ -23,6 +30,16 @@ export default function (tableData: any[]) {
     // /設置索引
     //初始化表格數據
     updatePaginatedData()
+
+    watch(() => tableData,
+        (newData) => {
+            filteredData.value = newData;
+            dataTotal.value = newData.length;
+            updatePaginatedData();
+        },
+        { immediate: true } // 確保立即執行一次監聽器
+    );
+
     const handleSizeChange = (val: number) => {
         console.log(`${val} items per page`)
         updatePaginatedData()
