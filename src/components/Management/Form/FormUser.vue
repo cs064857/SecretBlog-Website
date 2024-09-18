@@ -12,7 +12,7 @@ interface Form {
   checkPassword: string;
   birthday: Date;
   gender: string;
-  roleId: string;
+  roleName: string;
   email: string;
   address: string;
   phoneNumber: string;
@@ -27,7 +27,7 @@ interface Form {
 //   checkPassword: '',
 //   birthday: new Date(''),
 //   gender: "",
-//   roleId: '',
+//   roleName: '',
 //   email: '',
 //   address: '',
 //   phoneNumber: ''
@@ -42,7 +42,7 @@ const form = ref<Form>({
   checkPassword: 'testpassword1',
   birthday: new Date('1970-01-01'),
   gender: "male",
-  roleId: '',
+  roleName: '',
   email: 'testtestemail@gmail.com',
   address: '秘密',
   phoneNumber: '0900000000'
@@ -61,8 +61,8 @@ const onSubmit = async (formEl: FormInstance | null) => {
     console.log('表單提交資料...');
     console.log('表單資料::', form.value);
 
-    // const foundOption = searchOptions.find(item=>item.label==form.value.roleId);
-    // form.value.roleId=foundOption ? foundOption.value : form.value.roleId
+    // const foundOption = searchOptions.find(item=>item.label==form.value.roleName);
+    // form.value.roleName=foundOption ? foundOption.value : form.value.roleName
 
     http({
       url: http.adornUrl('/ums/user'),
@@ -104,7 +104,7 @@ const cleanFormValue = () => {
     checkPassword: '',
     birthday: new Date(''),
     gender: "",
-    roleId: '',
+    roleName: '',
     email: '',
     address: '',
     phoneNumber: ''
@@ -300,7 +300,7 @@ const rules = reactive<FormRules<Form>>({
   gender: [
     {validator: validateGender, trigger: 'blur'},
   ],
-  roleId: [
+  roleName: [
     {validator: validateRole, trigger: 'blur'},
   ],
   status:[
@@ -397,9 +397,9 @@ onMounted(()=>{
       <el-input v-model="form.address"/>
     </el-form-item>
 
-    <el-form-item label="權限" prop="roleId">
+    <el-form-item label="權限" prop="roleName">
       <el-select
-          v-model="form.roleId"
+          v-model="form.roleName"
           placeholder="Select"
           style="width: 240px"
       >

@@ -388,13 +388,13 @@ const getTableData=function (){
         // console.log("轉換前使用者表格數據:",tableData.value)
 
         //轉換欄位顯示值
-        tableData.value.forEach(item=>{
-          switch (item.status){
-            case(0):item.status="正常"
-              break
-            case(1):item.status="封禁中"
-              break
-          }
+        // tableData.value.forEach(item=>{
+          // switch (item.status){
+          //   case(0):item.status="正常"
+          //     break
+          //   case(1):item.status="封禁中"
+          //     break
+          // }
         //   switch (item.gender){
         //     case(1):item.gender="男"
         //       break
@@ -403,7 +403,7 @@ const getTableData=function (){
         //     case(3):item.gender="不願透露"
         //       break
         //   }
-        })
+        // })
 
         console.log("tableData.value:",tableData.value)
         // console.log("轉換後使用者表格數據:",tableData.value)
@@ -420,7 +420,7 @@ interface User {
   id:string;
   name: string;             // 姓名
   avatar: string;           // 使用者頭像
-  status: number | string;          // 帳號狀態 (0正常, 1封禁中)
+  status: string;          // 帳號狀態 (0正常, 1封禁中)
 
   // 以下是 UmsUserInfo 的欄位
   accountName: string;      // 帳號名稱
@@ -577,6 +577,7 @@ function handleSearch() {//執行搜尋
   console.log("搜尋總數據源:",tableData.value)
   // console.log("搜尋欄位:"+searchValue.value+",內容:"+SearchKey.value)
 
+
   filteredData.value = tableData.value.filter((data) => {
 
 
@@ -592,18 +593,9 @@ function handleSearch() {//執行搜尋
       console.log("搜尋日期結果:", withinDateRange)
     }
 
-    const matchesSearchKey = SearchKey.value
-        ? data[searchValue.value as string]===(SearchKey.value.toLowerCase())
-        : true;
+    const matchesSearchKey = SearchKey.value ? (data[searchValue.value as string].toLowerCase()===(SearchKey.value.toLowerCase())): true;
+    // const matchesSearchKey = SearchKey.value ? (data[searchValue.value as string].toLowerCase()===(SearchKey.value.toLowerCase()) && data[searchValue.value as string].toLowerCase().includes(SearchKey.value.toLowerCase())) : true;
 
-        // const matchesSearchKey = SearchKey.value ?
-        //     data[fields].toLowerCase().includes(SearchKey.value.toLowerCase())
-        //     : true;
-
-        // const matchesSearchKey = SearchKey.value ?
-        //     data.name.toLowerCase().includes(SearchKey.value.toLowerCase())
-        //     || data.accountName.toLowerCase().includes(SearchKey.value.toLowerCase())
-        //     : true;
         //當上述兩個條件都成立回傳true,代表該行資料會被保留並顯示於前端頁面中
         console.log("本次搜索資料::",data,",搜尋欄位:"+searchValue.value+",內容:"+SearchKey.value,",所有搜尋結果：",withinDateRange && matchesSearchKey)
         // console.log("所有搜尋結果：",withinDateRange && matchesSearchKey)
