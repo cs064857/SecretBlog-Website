@@ -102,10 +102,10 @@ import {ref} from 'vue'
 const router = useRouter()
 
 const handleOpen = (key: string, keyPath: string[]) => {
-  console.log(key, keyPath)
+  // console.log(key, keyPath)
 }
 const handleClose = (key: string, keyPath: string[]) => {
-  console.log(key, keyPath)
+  // console.log(key, keyPath)
 }
 
 // const handleGoTinyMceEditManagementor =function (){ //使用@click綁定於el-menu-item上,點擊觸發此方法並且跳轉路由

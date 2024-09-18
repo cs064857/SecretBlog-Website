@@ -5,29 +5,31 @@
 
     <div class="FlexInnerLayer" id="mgmt-header" style="height: 10%;background: #213547"><!-- mgmt-header   -->
 
-      <el-button type="primary" round style="margin-left: 20px" @click="dialogVisible=true">新增</el-button>
+      <el-button type="primary" round style="margin-left: 20px" @click="handleAdd">新增</el-button>
 
 
       <el-dialog
           v-model="dialogVisible"
-          title="新增"
+          :title="formTitle"
           width="500"
           :before-close="handleClose"
       >
-        <FormUser @dialogVisible="handleCloseDialog"></FormUser>
+        <FormUser :inputFormData="inputFormData" @dialogVisible="handleCloseDialog"></FormUser>
       </el-dialog>
 
-      <el-input v-model="SearchKey" clearable style="margin-left: 30px;width: 480px" placeholder="Please input">
-        <template #prepend>
-          <el-select ref="searchSelectRef" class="search-select" v-model="searchValue" placeholder="Select">
-            <el-option label="使用者頭像" value="1" />
-            <el-option label="Order No." value="2" />
-            <el-option label="Tel" value="3" />
-          </el-select>
-        </template>
-<!--        <template #append>-->
-<!--          <el-button :icon="Search" />-->
+
+      <el-select  ref="searchSelectRef" class="search-select" clearable v-model="searchValue" placeholder="搜索欄位">
+        <el-option v-for="option in elTableColumnsData" :key="option.label" :label="option.label" :value="option.value" />
+      </el-select>
+
+      <el-input v-model="SearchKey" clearable style="margin-left: 30px;max-width: 10vw;min-width: 10vw" placeholder="請輸入搜尋關鍵字">
+
+<!--        <template #prepend>-->
+<!--          <el-select  ref="searchSelectRef" class="search-select" v-model="searchValue" placeholder="Select">-->
+<!--            <el-option v-for="option in elTableColumnsData" :key="option.label" :label="option.label" :value="option.value" />-->
+<!--          </el-select>-->
 <!--        </template>-->
+
       </el-input>
       <div class="block">
         <el-date-picker style="margin-left: 30px" v-model="dateValue" type="daterange" start-placeholder="開始日期"
@@ -35,41 +37,57 @@
                         value-format="YYYY-MM-DD"/>
       </div>
       <el-button type="success" round style="margin-left: 20px" v-on:click="handleSearch">搜尋</el-button>
+      <el-button type="danger" round style="margin-left: 20px" v-on:click="handleBatchDelete">批量刪除</el-button>
     </div><!-- /mgmt-header   -->
 
 
     <div class="FlexInnerLayer" id="mgmt-content"><!--mgmt-content   -->
 
-      <el-table class="mgmt-content-table" :data="resultData"
+      <el-table class="mgmt-content-table" :data="resultData" ref="tableRef"
       >
-        <el-table-column type="selection" width="40"/>
+        <el-table-column type="selection" width="40"  />
 
         <el-table-column label="索引" :index="indexCount" type="index" width="60px" align="center"/>
 
-        <el-table-column label="使用者頭像" prop="avatar"/>
-        <el-table-column label="帳戶狀態" prop="deleted">
-          <template #default="scope">
-            <span v-if="scope.row.deleted==0">正常</span>
-            <span v-else>封禁</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="權限名稱" prop="roleName"/>
-        <el-table-column label="使用者名稱" prop="name"/>
-        <el-table-column class="test-account" label="帳號" prop="accountName"/>
-        <el-table-column label="密碼" prop="password"/>
-        <el-table-column label="信箱" prop="email"/>
-        <el-table-column label="生日" prop="birthday"/>
-        <el-table-column label="性別" prop="gender">
-          <template #default="scope">
-            <span v-if="scope.row.gender==1">男性</span>
-            <span v-else-if="scope.row.gender==2">女性</span>
-            <span v-else>不願透露</span>
 
-          </template>
+        <el-table-column sortable  v-for="item in elTableColumnsData" :key="item.label" :label="item.label" :prop="item.value">
+<!--          <template #default="scope" v-if="item.value === 'status'">-->
+<!--            <span v-if="scope.row.status == 0">正常</span>-->
+<!--            <span v-else>封禁</span>-->
+<!--          </template>-->
+
+<!--          <template #default="scope" v-else-if="item.value === 'gender'">-->
+<!--            <span v-if="scope.row.gender == 1">男性</span>-->
+<!--            <span v-else-if="scope.row.gender == 2">女性</span>-->
+<!--            <span v-else>不願透露</span>-->
+<!--          </template>-->
         </el-table-column>
-        <el-table-column label="手機號碼" prop="phoneNumber"/>
-        <el-table-column label="註冊時間" prop="createTime"/>
-        <el-table-column label="地址" prop="address"/>
+
+
+<!--        <el-table-column label="使用者頭像" prop="avatar"/>-->
+<!--        <el-table-column label="帳戶狀態" prop="status">-->
+<!--          <template #default="scope">-->
+<!--            <span v-if="scope.row.status==0">正常</span>-->
+<!--            <span v-else>封禁</span>-->
+<!--          </template>-->
+<!--        </el-table-column>-->
+<!--        <el-table-column label="權限名稱" prop="roleName"/>-->
+<!--        <el-table-column label="使用者名稱" prop="name"/>-->
+<!--        <el-table-column label="帳號" prop="accountName"/>-->
+<!--        <el-table-column label="密碼" prop="password"/>-->
+<!--        <el-table-column label="信箱" prop="email"/>-->
+<!--        <el-table-column label="生日" prop="birthday"/>-->
+<!--        <el-table-column label="性別" prop="gender">-->
+<!--          <template #default="scope">-->
+<!--            <span v-if="scope.row.gender==1">男性</span>-->
+<!--            <span v-else-if="scope.row.gender==2">女性</span>-->
+<!--            <span v-else>不願透露</span>-->
+
+<!--          </template>-->
+<!--        </el-table-column>-->
+<!--        <el-table-column label="手機號碼" prop="phoneNumber"/>-->
+<!--        <el-table-column label="註冊時間" prop="createTime"/>-->
+<!--        <el-table-column label="地址" prop="address"/>-->
 
         <el-table-column align="right">
           <!--          <template #header>-->
@@ -87,6 +105,7 @@
                 title="確認是否刪除此選項？"
                 @cancel="onCancel"
                 @confirm="handleDelete(scope.$index, scope.row)"
+
             >
               <template #reference>
                 <el-button size="small" type="danger">
@@ -135,9 +154,64 @@
 
 <script setup lang="ts">
 
-const elTableColumnsData=[
+const tableRef = ref()
+
+import {nextTick, onBeforeUpdate, onMounted, onUnmounted, ref, watch, watchEffect} from 'vue'
+import {ElMessage, TableColumnCtx} from "element-plus";
+import http from "../../utils/httpRequest"
+import {ElMessageBox, ElSelect} from 'element-plus'
+
+/**
+ * 表格欄位過濾及排序
+ */
+const handlerFilter = (
+    value: string,
+    row: User,
+    column: TableColumnCtx<User>
+) => {
+  const property = column['property']
+  return row[property] === value
+}
+/**
+ * 表格欄位過濾及排序
+ */
+
+function batchDeleteRequest(userIdList) {//批量刪除
+  http({
+    url: http.adornUrl(`/ums/user/userDetails/${userIdList}`),
+    method: 'delete',
+  }).then(({data}) => {
+    if (data.code == 200) {
+      ElMessage.success("刪除用戶資料數據成功");
+      //重新整理
+      window.location.replace(window.location.href);
+    } else {
+      ElMessage.error("刪除用戶資料數據失敗");
+    }
+  });
+}
+
+//批量刪除
+const handleBatchDelete=function (){
+  const selectionRows:User[] = tableRef.value.getSelectionRows();//索引上選中的資料(數組)
+  const userIdList =selectionRows.map(item=>item.id)
+  console.log("selectionRows",selectionRows)
+  console.log("userIdList",userIdList)
+
+
+
+  batchDeleteRequest(userIdList);
+
+
+}
+
+/**
+ * 表格欄位
+ */
+const elTableColumnsData:{label:String,value:String}[] =[
+  { label: "用戶ID", value: "id" },
   { label: "使用者頭像", value: "avatar" },
-  { label: "帳戶狀態", value: "deleted" },
+  { label: "帳戶狀態", value: "status" },
   { label: "權限名稱", value: "roleName" },
   { label: "使用者名稱", value: "name" },
   { label: "帳號", value: "accountName" },
@@ -149,39 +223,52 @@ const elTableColumnsData=[
   { label: "註冊時間", value: "createTime" },
   { label: "地址", value: "address" }
 ]
+/**
+ * 表格欄位/
+ */
 
-import {nextTick, onBeforeUpdate, onMounted, onUnmounted, ref, watch, watchEffect} from 'vue'
-import {ElMessage} from "element-plus";
-import http from "../../utils/httpRequest"
-import {ElMessageBox, ElSelect} from 'element-plus'
+
+
 /**
  * 設置搜尋前選項條的寬度
  */
-const tC = ref<{label: string, value: string}[]>([]);
 const searchSelectRef = ref<InstanceType<typeof ElSelect> | null>(null)
-onBeforeUpdate(() => {
-  if (searchSelectRef.value) {
+// onBeforeUpdate(() => {
+//   if (searchSelectRef.value) {
+//
+//   const tableColumns = document.querySelector('.el-table__header thead tr')
+//   const headerCells = tableColumns.querySelectorAll('th')
+//   const tableColumnsLabels = Array.from(headerCells).map(cell => {
+//     const cellDiv = cell.querySelector('.cell');
+//     return cellDiv ? cellDiv.textContent?.trim() || '' : '';
+//   }).filter(label => label !== '' && label !== null && label !== "索引"); // 過濾掉空字串和 null 的元素
+//
+//   const ObjValues = Object.keys(resultData.value[0]);
+//   console.log("ObjValues", ObjValues)
+//   //找出數組中所有字串的最大值length
+//   const maxLength = tableColumnsLabels.reduce((max, str) => Math.max(max, str.length), 0);
+//   // console.log("maxLength",maxLength)
+//   // console.log("tableColumns",tableColumns)
+//   // console.log("headerCells",headerCells)
+//   console.log("tableColumnsLabels", tableColumnsLabels)
+//
+//   //設置searchSelectRef寬度為選項中字的length+3,單位為rem
+//   searchSelectRef.value.$el.style.width = `${maxLength + 3}rem`
+// }
+// })
 
-  const tableColumns = document.querySelector('.el-table__header thead tr')
-  const headerCells = tableColumns.querySelectorAll('th')
-  const tableColumnsLabels = Array.from(headerCells).map(cell => {
-    const cellDiv = cell.querySelector('.cell');
-    return cellDiv ? cellDiv.textContent?.trim() || '' : '';
-  }).filter(label => label !== '' && label !== null && label !== "索引"); // 過濾掉空字串和 null 的元素
-
-  const ObjValues = Object.keys(resultData.value[0]);
-  console.log("ObjValues", ObjValues)
-  //找出數組中所有字串的最大值length
-  const maxLength = tableColumnsLabels.reduce((max, str) => Math.max(max, str.length), 0);
-  // console.log("maxLength",maxLength)
-  // console.log("tableColumns",tableColumns)
-  // console.log("headerCells",headerCells)
-  console.log("tableColumnsLabels", tableColumnsLabels)
+onMounted(()=>{
+  const values = elTableColumnsData.values()
+  const arrayValues = Array.from(values)
+  const maxLength = arrayValues.reduce((max, str)=>Math.max(max,str.label.length),0);
 
   //設置searchSelectRef寬度為選項中字的length+3,單位為rem
-  searchSelectRef.value.$el.style.width = `${maxLength + 3}rem`
+  searchSelectRef.value.$el.style.minWidth = `${maxLength + 3}rem`
+  searchSelectRef.value.$el.style.maxWidth = `${maxLength + 3}rem`
+  // console.log("keys",arrayValues)
+  // console.log("values",arrayValues)
+  // console.log("maxLength",maxLength)
 
-}
 })
 /**
  * 設置搜尋前選項寬度 /
@@ -189,37 +276,7 @@ onBeforeUpdate(() => {
 
 
 
-/**
- * 搜尋欄位選單
- */
 
-const searchValue = ref<string[]>(['Option1'])
-const searchOptions = [
-  {
-    value: 'Option1',
-    label: 'Label1',
-  },
-  {
-    value: 'Option2',
-    label: 'Label2',
-  },
-  {
-    value: 'Option3',
-    label: 'Label3',
-  },
-  {
-    value: 'Option4',
-    label: 'Label4',
-  },
-  {
-    value: 'Option5',
-    label: 'Label5',
-  },
-]
-
-/**
- * 搜尋欄位選單
- */
 
 //對話框
 
@@ -247,9 +304,32 @@ const handleCloseDialog = function () {
 // import {User,Users} from '../interface/userInterface.ts'
 import useInputTable from '@/hooks/useInputTable.ts'
 
+
+/**
+ * 新增按鈕、修改按鈕
+ */
+
+const formTitle=ref<string>("")//根據行為(例:新增、修改)決定表單Title
+let inputFormData;//傳遞給表單的資料
+const handleAdd = () => {
+  formTitle.value="新增"
+  dialogVisible.value=true
+}
+
 const handleEdit = (index: number, row: any) => {
+  formTitle.value="編輯"
+  //給表單組件傳遞並回顯選中項資料
+  row.password=''
+  inputFormData=row
+  console.log("給表單組件傳遞並回顯選中項資料:",inputFormData)
+
+  //打開表單視窗
+  dialogVisible.value=true
   console.log(index, row)
 }
+/**
+ * 新增按鈕、修改按鈕/
+ */
 
 //表格中項目刪除按鈕
 
@@ -260,17 +340,20 @@ import FormUser from "./Form/FormUser.vue";
 const handleDelete = (index: number, row: any) => {
 
   // http({
-  //     url: http.adornUrl('/article/articles'),
-  //     method: 'post',
-  //     data: http.adornData(row, false)
+  //     url: http.adornUrl(`/ums/user/userDetails/${row.id}`),
+  //     method: 'delete',
   // }).then(({data}) => {
   //
   // if(data.code==200){
-  //         ElMessage.success("");
+  //         ElMessage.success("刪除用戶資料數據成功");
+  //         //重新整理
+  //         window.location.replace(window.location.href);
   //     }else{
-  //         ElMessage.error("");
+  //         ElMessage.error("刪除用戶資料數據失敗");
   //     }
   // });
+
+  batchDeleteRequest(row.id);
 
   console.log(index, row)
 }
@@ -292,15 +375,39 @@ function onCancel() {
 
 const getTableData=function (){
   return new Promise((resolve, reject)=>{
+
     http({
-      url: http.adornUrl('/user/user/userDetails'),
+      url: http.adornUrl('/ums/user/userDetails'),
       method: 'get',
       params: http.adornParams({})
     }).then(({data}) => {
       if(data.code==200){
+        // console.log("後端原始數據:",data.data)
         tableData.value=data.data
+
+        // console.log("轉換前使用者表格數據:",tableData.value)
+
+        //轉換欄位顯示值
+        tableData.value.forEach(item=>{
+          switch (item.status){
+            case(0):item.status="正常"
+              break
+            case(1):item.status="封禁中"
+              break
+          }
+        //   switch (item.gender){
+        //     case(1):item.gender="男"
+        //       break
+        //     case(2):item.gender="女"
+        //       break
+        //     case(3):item.gender="不願透露"
+        //       break
+        //   }
+        })
+
         console.log("tableData.value:",tableData.value)
-        console.log("使用者表格數據:",data.data)
+        // console.log("轉換後使用者表格數據:",tableData.value)
+
         ElMessage.success("獲得使用者表格數據成功");
       }else{
         ElMessage.error("獲得使用者表格數據失敗");
@@ -310,17 +417,17 @@ const getTableData=function (){
 }
 
 interface User {
-
+  id:string;
   name: string;             // 姓名
   avatar: string;           // 使用者頭像
-  deleted: number;          // 邏輯刪除 (0 未刪除, 1 已刪除)
+  status: number | string;          // 帳號狀態 (0正常, 1封禁中)
 
   // 以下是 UmsUserInfo 的欄位
   accountName: string;      // 帳號名稱
   password: string;         // 密碼
   email: string;            // 信箱地址
   birthday: Date | string;         // 生日 (LocalDate in Java)
-  gender: number;           // 性別 (1 男性, 2 女性, 3 不願透露)
+  gender: number | string;           // 性別 (1 男性, 2 女性, 3 不願透露)
   address: string;          // 居住地址
   phoneNumber: string;      // 手機號碼
   createTime: Date | string;       // 註冊時間 (LocalDateTime in Java)
@@ -335,7 +442,7 @@ interface User {
 //   {
 //     name: "測試1",
 //     avatar: "ppp",
-//     deleted: 0,
+//     status: 0,
 //     accountName: "testtest1",
 //     password: "testpassword1",
 //     email: "testtestemail@gmail.com",
@@ -349,7 +456,7 @@ interface User {
 //   {
 //     name: "測試2",
 //     avatar: null,
-//     deleted: 0,
+//     status: 0,
 //     accountName: "testtest2",
 //     password: "testpassword2",
 //     email: "testtestemail2@gmail.com",
@@ -363,7 +470,7 @@ interface User {
 //   {
 //     name: "秘密不告訴你",
 //     avatar: null,
-//     deleted: 0,
+//     status: 0,
 //     accountName: "secret0000",
 //     password: "secretPassword0000",
 //     email: "secret0000@gmail.com",
@@ -392,16 +499,16 @@ const background = ref(false)
 const disabled = ref(false)
 let dataTotal = ref<Number>(tableData.value.length)
 let filteredData = ref<any[]>(tableData.value)  // 這裡存儲的是過濾後的數據
-console.log("分頁前的數據filteredData.value:",filteredData.value)
+// console.log("分頁前的數據filteredData.value:",filteredData.value)
 let resultData = ref<any[]>([])
 
 
 
 const updatePaginatedData = () => {
-  if (filteredData.value.length === 0) {
-    console.warn("無分頁數據，filteredData.value 為空");
-    return;
-  }
+  // if (filteredData.value.length === 0) {
+  //   console.warn("無分頁數據，filteredData.value 為空");
+  //   return;
+  // }
   //進行分頁
   const PageStart = (currentPage.value - 1) * pageSize.value
   const PageEnd = currentPage.value * pageSize.value
@@ -444,26 +551,66 @@ const handleCurrentChange = (val: number) => {
 // /分頁
 
 
+/**
+ * 搜尋欄位選單
+ */
+
+
+
+// const searchValue = ref<String>('name')//選中的選項,默認為name(使用者名稱)
+const searchValue = ref<String>()//選中的選項
+
+watchEffect(()=>{
+  console.log("搜索選項searchValue:",searchValue.value)
+})
+/**
+ * 搜尋欄位選單/
+ */
+
 
 // 輸入框
 const SearchKey = ref('')
 
 
 function handleSearch() {//執行搜尋
+  console.log("執行搜尋...")
+  console.log("搜尋數據源:",tableData.value)
+  console.log("搜尋欄位:"+searchValue.value+",內容:"+SearchKey.value)
+
+
   filteredData.value = tableData.value.filter((data) => {
-        //若dateValue.value為空則直接回傳true,放行
-        //若dateValue.value不為空,則根據條件判斷,數據中的日期大於開始日期與數據中的日期小於結束日期之間則回傳true放行
-        const withinDateRange = dateValue.value ? new Date(data.birthday) >= new Date(dateValue.value[0]) &&
-            new Date(data.birthday) <= new Date(dateValue.value[1]) : true;
 
-        const matchesSearchKey = SearchKey.value ?
-            data.name.toLowerCase().includes(SearchKey.value.toLowerCase())
-            || data.accountName.toLowerCase().includes(SearchKey.value.toLowerCase())
 
-            : true;
+        // const withinDateRange = dateValue.value ? new Date(data.birthday) >= new Date(dateValue.value[0]) &&
+        //     new Date(data.birthday) <= new Date(dateValue.value[1]) : true;
+    let withinDateRange:boolean = true//若dateValue.value為空則直接回傳true,放行
+    if(dateValue.value) {
+      //若dateValue.value不為空,則根據條件判斷,數據中的日期大於開始日期與數據中的日期小於結束日期之間則回傳true放行
+      console.log("搜尋日期數據:", new Date(data[searchValue.value as string]))
+      console.log("搜尋日期範圍:", new Date(dateValue.value[0]), "至", new Date(dateValue.value[1]), "之間")
+      withinDateRange = dateValue.value ? new Date(data[searchValue.value as string]) >= new Date(dateValue.value[0]) &&
+          new Date(data[searchValue.value as string]) <= new Date(dateValue.value[1]) : true;
+      console.log("搜尋日期結果:", withinDateRange)
+    }
+
+    const matchesSearchKey = SearchKey.value
+        ? data[searchValue.value as string].includes(SearchKey.value.toLowerCase())
+        : true;
+
+        // const matchesSearchKey = SearchKey.value ?
+        //     data[fields].toLowerCase().includes(SearchKey.value.toLowerCase())
+        //     : true;
+
+        // const matchesSearchKey = SearchKey.value ?
+        //     data.name.toLowerCase().includes(SearchKey.value.toLowerCase())
+        //     || data.accountName.toLowerCase().includes(SearchKey.value.toLowerCase())
+        //     : true;
         //當上述兩個條件都成立回傳true,代表該行資料會被保留並顯示於前端頁面中
+        console.log("所有搜尋結果：",withinDateRange && matchesSearchKey)
         return withinDateRange && matchesSearchKey
       }
+
+
   )
   dataTotal.value = filteredData.value.length  // 更新數據總量
   currentPage.value = 1; // 搜尋後回到第一頁
@@ -474,6 +621,9 @@ function handleSearch() {//執行搜尋
 /*日期選擇器*/
 const dateValue = ref<[string, string] | null>(null);// 使用陣列來存儲日期範圍
 /*日期選擇器*/
+
+
+
 
 /**
  * 分頁全程式碼
@@ -499,8 +649,13 @@ const dateValue = ref<[string, string] | null>(null);// 使用陣列來存儲日
 </script>
 
 <style scoped>
+/* 確保選中的選項也是居中的 */
+:deep(.search-select .el-select__wrapper) {
+  text-align: center;
+}
 .search-select{
-  width: 300px;
+  position: relative;
+  margin-left: 1vw;
 }
 
 .mgmt-content-table {

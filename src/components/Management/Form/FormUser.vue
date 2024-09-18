@@ -1,48 +1,52 @@
 <script setup lang="ts">
-import {nextTick, onBeforeMount, onMounted, reactive, ref} from 'vue';
+import {nextTick, onBeforeMount,defineProps, onMounted, reactive, ref} from 'vue';
 import {ElMessage, FormInstance, FormRules} from 'element-plus';
 import http from "@/utils/httpRequest"
 
 // 定義表單資料接口
 interface Form {
+  status:string
   name: string;
   accountName: string;
   password: string;
   checkPassword: string;
   birthday: Date;
-  gender: number;
+  gender: string;
   roleId: string;
   email: string;
   address: string;
   phoneNumber: string;
 }
 
-// // 初始化表單資料
-// const form = ref<Form>({
-//   name: '',
-//   accountName: '',
-//   password: '',
-//   checkPassword: '',
-//   birthday: new Date(''),
-//   gender: 0,
-//   roleId: '',
-//   email: '',
-//   address: '',
-//   phoneNumber: ''
-// });
 // 初始化表單資料
 const form = ref<Form>({
-  name: '測試1',
-  accountName: 'testtest1',
-  password: 'testpassword1',
-  checkPassword: 'testpassword1',
-  birthday: new Date('1970-01-01'),
-  gender: 0,
+  status:"0",
+  name: '',
+  accountName: '',
+  password: '',
+  checkPassword: '',
+  birthday: new Date(''),
+  gender: '',
   roleId: '',
-  email: 'testtestemail@gmail.com',
-  address: '秘密',
-  phoneNumber: '0900000000'
+  email: '',
+  address: '',
+  phoneNumber: ''
 });
+
+// // 初始化表單資料
+// const form = ref<Form>({
+//   status:"0",
+//   name: '測試1',
+//   accountName: 'testtest1',
+//   password: 'testpassword1',
+//   checkPassword: 'testpassword1',
+//   birthday: new Date('1970-01-01'),
+//   gender: '0',
+//   roleId: '',
+//   email: 'testtestemail@gmail.com',
+//   address: '秘密',
+//   phoneNumber: '0900000000'
+// });
 
 // 定義事件
 const emit = defineEmits(['dialogVisible']);
@@ -61,7 +65,7 @@ const onSubmit = async (formEl: FormInstance | null) => {
     // form.value.roleId=foundOption ? foundOption.value : form.value.roleId
 
     http({
-      url: http.adornUrl('/user/user'),
+      url: http.adornUrl('/ums/user'),
       method: 'post',
       data: http.adornData(form.value, false)
     }).then(({data}: { data: any }) => {
@@ -93,12 +97,13 @@ const onCancel = () => {
 const cleanFormValue = () => {
   isResetting.value = true; // 設置標誌，true表示正在重置表單
   form.value = {
+    status:"0",
     name: '',
     accountName: '',
     password: '',
     checkPassword: '',
     birthday: new Date(''),
-    gender: 0,
+    gender: '',
     roleId: '',
     email: '',
     address: '',
@@ -116,7 +121,7 @@ const cleanFormValue = () => {
 
 const getOptions=function (){
   http({
-      url: http.adornUrl('/user/role'),
+      url: http.adornUrl('/ums/role'),
       method: 'get',
       params: http.adornParams({})
   }).then(({data}) => {
@@ -186,11 +191,15 @@ const validateBirthday = (rule: any, value: Date, callback: any) => {
 };
 
 // 驗證性別是否被選擇
-const validateGender = (rule: any, value: number, callback: any) => {
-  const validGenders = [1, 2, 3]; // 假設 1: 男, 2: 女, 3: 不願透露
+const validateGender = (rule: any, value: string, callback: any) => {
+  const validGenders = ["1", "2","3"]; // 假設 1: 男, 2: 女, 3: 不願透露
 
-  if (validGenders.includes(value)) {
-    callback();
+  console.log("選擇的性別:",value)
+
+  const includes = validGenders.includes(value);
+  console.log("性別includes:",includes)
+  if (includes) {
+    callback()
   } else {
     callback(new Error('請選擇性別'));
   }
@@ -202,14 +211,16 @@ const validateRole = (rule: any, value: string, callback: any) => {
     callback(); // 跳過驗證
     return;
   }
+
   const validRoles = options.value.map(option => option.value);
+  console.log("validRoles", validRoles)
   // const validRoles = searchOptions.map(option => option.value);
 
   // const some =validRoles.some(item => item==value)
   const includes = validRoles.includes(value);
   // console.log("some", some)
   // console.log("includes", includes)
-  console.log("validRoles", validRoles)
+
   console.log("value", value)
   if (includes) {
     callback();
@@ -217,6 +228,23 @@ const validateRole = (rule: any, value: string, callback: any) => {
     callback(new Error('請選擇權限'));
   }
 };
+
+const validateStatus = (rule: any, value: string, callback: any) => {
+  console.log("validateStatus.value:",value)
+  if (!value) {
+    callback(new Error('狀態是必填項'));
+  }
+  callback();
+  // else {
+  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  //   if (emailRegex.test(value)) {
+  //     callback();
+  //   } else {
+  //     callback(new Error('請輸入有效的電子郵件'));
+  //   }
+  // }
+};
+
 
 // 驗證電子郵件格式
 const validateEmail = (rule: any, value: string, callback: any) => {
@@ -272,10 +300,13 @@ const rules = reactive<FormRules<Form>>({
     {validator: validateBirthday, trigger: 'blur'},
   ],
   gender: [
-    {validator: validateGender, trigger: 'change'},
+    {validator: validateGender, trigger: 'blur'},
   ],
   roleId: [
-    {validator: validateRole, trigger: 'change'},
+    {validator: validateRole, trigger: 'blur'},
+  ],
+  status:[
+    {validator: validateStatus, trigger: 'blur'}
   ],
   email: [
     {type: 'string', required: true, message: '必填', trigger: 'blur'},
@@ -286,7 +317,35 @@ const rules = reactive<FormRules<Form>>({
     {validator: validatePhoneNumber, trigger: 'blur'},
   ],
 });
+/**
+ * 接收表格(父組件)點擊編輯按鈕時取得該行的數據,並回顯示表單上
+ */
 
+const props =defineProps({
+  inputFormData:{
+        type: Object,
+  }
+})
+onMounted(()=>{
+
+
+  // const props = defineProps({
+  //   inputFormData: {
+  //     type: Object,
+  //     required: false,
+  //     default: () => ({})
+  //   }
+  // });
+
+  const inputFormData =props.inputFormData
+  const ipp = {...inputFormData,isResetting:true }// 設置標誌，true表示正在重置表單
+  console.log("ipp",ipp)
+  form.value=ipp
+  console.log("表單接收到父組件傳遞修改行的資料:",inputFormData)
+})
+/**
+ * 接收表格(父組件)點擊編輯按鈕時取得該行的數據,並回顯示表單上/
+ */
 
 </script>
 
@@ -353,11 +412,18 @@ const rules = reactive<FormRules<Form>>({
       </el-select>
     </el-form-item>
 
+    <el-form-item label="狀態" prop="status">
+      <el-radio-group v-model="form.status">
+        <el-radio :value="'0'">正常</el-radio>
+        <el-radio :value="'1'">封禁</el-radio>
+      </el-radio-group>
+    </el-form-item>
+
     <el-form-item label="性別" prop="gender">
       <el-radio-group v-model="form.gender">
-        <el-radio :value="1">男</el-radio>
-        <el-radio :value="2">女</el-radio>
-        <el-radio :value="3">不願透露</el-radio>
+        <el-radio :value="'1'">男</el-radio>
+        <el-radio :value="'2'">女</el-radio>
+        <el-radio :value="'3'">不願透露</el-radio>
       </el-radio-group>
     </el-form-item>
 

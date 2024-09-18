@@ -60,8 +60,12 @@ export default function (tableData: any[]) {
         filteredData.value = tableData.filter((data) => {
             //若dateValue.value為空則直接回傳true,放行
             //若dateValue.value不為空,則根據條件判斷,數據中的日期大於開始日期與數據中的日期小於結束日期之間則回傳true放行
-            const withinDateRange = dateValue.value ? new Date(data.date) >= new Date(dateValue.value[0]) &&
-                new Date(data.date) <= new Date(dateValue.value[1]) : true;
+            let withinDateRange:boolean = true
+            if(dateValue.value){
+                withinDateRange = dateValue.value ? new Date(data.date) >= new Date(dateValue.value[0]) &&
+                    new Date(data.date) <= new Date(dateValue.value[1]) : true;
+            }
+
 
             const matchesSearchKey = SearchKey.value ? data.name.toLowerCase().includes(SearchKey.value.toLowerCase()) : true;
             //當上述兩個條件都成立回傳true,代表該行資料會被保留並顯示於前端頁面中
