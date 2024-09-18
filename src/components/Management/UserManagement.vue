@@ -574,9 +574,8 @@ const SearchKey = ref('')
 
 function handleSearch() {//執行搜尋
   console.log("執行搜尋...")
-  console.log("搜尋數據源:",tableData.value)
-  console.log("搜尋欄位:"+searchValue.value+",內容:"+SearchKey.value)
-
+  console.log("搜尋總數據源:",tableData.value)
+  // console.log("搜尋欄位:"+searchValue.value+",內容:"+SearchKey.value)
 
   filteredData.value = tableData.value.filter((data) => {
 
@@ -594,7 +593,7 @@ function handleSearch() {//執行搜尋
     }
 
     const matchesSearchKey = SearchKey.value
-        ? data[searchValue.value as string].includes(SearchKey.value.toLowerCase())
+        ? data[searchValue.value as string]===(SearchKey.value.toLowerCase())
         : true;
 
         // const matchesSearchKey = SearchKey.value ?
@@ -606,7 +605,8 @@ function handleSearch() {//執行搜尋
         //     || data.accountName.toLowerCase().includes(SearchKey.value.toLowerCase())
         //     : true;
         //當上述兩個條件都成立回傳true,代表該行資料會被保留並顯示於前端頁面中
-        console.log("所有搜尋結果：",withinDateRange && matchesSearchKey)
+        console.log("本次搜索資料::",data,",搜尋欄位:"+searchValue.value+",內容:"+SearchKey.value,",所有搜尋結果：",withinDateRange && matchesSearchKey)
+        // console.log("所有搜尋結果：",withinDateRange && matchesSearchKey)
         return withinDateRange && matchesSearchKey
       }
 

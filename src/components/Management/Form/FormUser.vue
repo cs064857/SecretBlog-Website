@@ -19,34 +19,34 @@ interface Form {
 }
 
 // 初始化表單資料
-const form = ref<Form>({
-  status:"0",
-  name: '',
-  accountName: '',
-  password: '',
-  checkPassword: '',
-  birthday: new Date(''),
-  gender: '',
-  roleId: '',
-  email: '',
-  address: '',
-  phoneNumber: ''
-});
-
-// // 初始化表單資料
 // const form = ref<Form>({
-//   status:"0",
-//   name: '測試1',
-//   accountName: 'testtest1',
-//   password: 'testpassword1',
-//   checkPassword: 'testpassword1',
-//   birthday: new Date('1970-01-01'),
-//   gender: '0',
+//   status:"",
+//   name: '',
+//   accountName: '',
+//   password: '',
+//   checkPassword: '',
+//   birthday: new Date(''),
+//   gender: "",
 //   roleId: '',
-//   email: 'testtestemail@gmail.com',
-//   address: '秘密',
-//   phoneNumber: '0900000000'
+//   email: '',
+//   address: '',
+//   phoneNumber: ''
 // });
+
+// 初始化表單資料
+const form = ref<Form>({
+  status:"normal",
+  name: '測試1',
+  accountName: 'testtest1',
+  password: 'testpassword1',
+  checkPassword: 'testpassword1',
+  birthday: new Date('1970-01-01'),
+  gender: "male",
+  roleId: '',
+  email: 'testtestemail@gmail.com',
+  address: '秘密',
+  phoneNumber: '0900000000'
+});
 
 // 定義事件
 const emit = defineEmits(['dialogVisible']);
@@ -97,13 +97,13 @@ const onCancel = () => {
 const cleanFormValue = () => {
   isResetting.value = true; // 設置標誌，true表示正在重置表單
   form.value = {
-    status:"0",
+    status:"",
     name: '',
     accountName: '',
     password: '',
     checkPassword: '',
     birthday: new Date(''),
-    gender: '',
+    gender: "",
     roleId: '',
     email: '',
     address: '',
@@ -192,10 +192,8 @@ const validateBirthday = (rule: any, value: Date, callback: any) => {
 
 // 驗證性別是否被選擇
 const validateGender = (rule: any, value: string, callback: any) => {
-  const validGenders = ["1", "2","3"]; // 假設 1: 男, 2: 女, 3: 不願透露
-
+  const validGenders = ["male", "female","other"];
   console.log("選擇的性別:",value)
-
   const includes = validGenders.includes(value);
   console.log("性別includes:",includes)
   if (includes) {
@@ -336,12 +334,14 @@ onMounted(()=>{
   //     default: () => ({})
   //   }
   // });
+  if(props.inputFormData){
+    const inputFormData =props.inputFormData
+    const ipp = {...inputFormData,isResetting:true }// 設置標誌，true表示正在重置表單
+    console.log("ipp",ipp)
+    form.value=ipp
+    console.log("表單接收到父組件傳遞修改行的資料:",inputFormData)
+  }
 
-  const inputFormData =props.inputFormData
-  const ipp = {...inputFormData,isResetting:true }// 設置標誌，true表示正在重置表單
-  console.log("ipp",ipp)
-  form.value=ipp
-  console.log("表單接收到父組件傳遞修改行的資料:",inputFormData)
 })
 /**
  * 接收表格(父組件)點擊編輯按鈕時取得該行的數據,並回顯示表單上/
@@ -414,16 +414,16 @@ onMounted(()=>{
 
     <el-form-item label="狀態" prop="status">
       <el-radio-group v-model="form.status">
-        <el-radio :value="'0'">正常</el-radio>
-        <el-radio :value="'1'">封禁</el-radio>
+        <el-radio :value="'normal'">正常</el-radio>
+        <el-radio :value="'ban'">封禁</el-radio>
       </el-radio-group>
     </el-form-item>
 
     <el-form-item label="性別" prop="gender">
       <el-radio-group v-model="form.gender">
-        <el-radio :value="'1'">男</el-radio>
-        <el-radio :value="'2'">女</el-radio>
-        <el-radio :value="'3'">不願透露</el-radio>
+        <el-radio :value="'male'">男</el-radio>
+        <el-radio :value="'female'">女</el-radio>
+        <el-radio :value="'other'">不願透露</el-radio>
       </el-radio-group>
     </el-form-item>
 
