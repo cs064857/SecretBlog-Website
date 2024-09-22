@@ -71,7 +71,7 @@
 <!--            <span v-else>封禁</span>-->
 <!--          </template>-->
 <!--        </el-table-column>-->
-<!--        <el-table-column label="權限名稱" prop="roleName"/>-->
+<!--        <el-table-column label="權限名稱" prop="roleId"/>-->
 <!--        <el-table-column label="使用者名稱" prop="name"/>-->
 <!--        <el-table-column label="帳號" prop="accountName"/>-->
 <!--        <el-table-column label="密碼" prop="password"/>-->
@@ -156,7 +156,7 @@
 
 const tableRef = ref()
 
-import {nextTick, onBeforeUpdate, onMounted, onUnmounted, ref, watch, watchEffect} from 'vue'
+import {computed, nextTick, onBeforeUpdate, onMounted, onUnmounted, ref, watch, watchEffect} from 'vue'
 import {ElMessage, TableColumnCtx} from "element-plus";
 import http from "../../utils/httpRequest"
 import {ElMessageBox, ElSelect} from 'element-plus'
@@ -209,10 +209,10 @@ const handleBatchDelete=function (){
  * 表格欄位
  */
 const elTableColumnsData:{label:String,value:String}[] =[
-  { label: "用戶ID", value: "id" },
-  { label: "使用者頭像", value: "avatar" },
+  // { label: "用戶ID", value: "id" },
+  // { label: "使用者頭像", value: "avatar" },
   { label: "帳戶狀態", value: "status" },
-  { label: "權限名稱", value: "roleName" },
+  { label: "權限名稱", value: "roleId" },
   { label: "使用者名稱", value: "name" },
   { label: "帳號", value: "accountName" },
   { label: "密碼", value: "password" },
@@ -310,7 +310,7 @@ import useInputTable from '@/hooks/useInputTable.ts'
  */
 
 const formTitle=ref<string>("")//根據行為(例:新增、修改)決定表單Title
-let inputFormData;//傳遞給表單的資料
+const inputFormData=ref('');//傳遞給表單的資料
 const handleAdd = () => {
   formTitle.value="新增"
   dialogVisible.value=true
@@ -319,8 +319,8 @@ const handleAdd = () => {
 const handleEdit = (index: number, row: any) => {
   formTitle.value="編輯"
   //給表單組件傳遞並回顯選中項資料
-  row.password=''
-  inputFormData=row
+  inputFormData.value= {...row,foo:Date.now()}//foo是無意義的數據,只是為了觸發FormUser的watch監聽
+
   console.log("給表單組件傳遞並回顯選中項資料:",inputFormData)
 
   //打開表單視窗
@@ -433,7 +433,7 @@ interface User {
   createTime: Date | string;       // 註冊時間 (LocalDateTime in Java)
 
   // 額外的欄位 (來自 UmsRole)
-  roleName: string;         // 權限名稱
+  roleId: string;         // 權限名稱
 }
 
 
@@ -451,7 +451,7 @@ interface User {
 //     address: "秘密",
 //     phoneNumber: "0900000000",
 //     createTime: "2024-09-14T21:13:40",
-//     roleName: "普通用戶"
+//     roleId: "普通用戶"
 //   },
 //   {
 //     name: "測試2",
@@ -465,7 +465,7 @@ interface User {
 //     address: "秘密2",
 //     phoneNumber: "0911111111",
 //     createTime: "2024-09-15T02:22:01",
-//     roleName: "普通用戶"
+//     roleId: "普通用戶"
 //   },
 //   {
 //     name: "秘密不告訴你",
@@ -479,7 +479,7 @@ interface User {
 //     address: "秘密基地",
 //     phoneNumber: "0916461658",
 //     createTime: "2024-09-15T02:28:59",
-//     roleName: "管理員"
+//     roleId: "管理員"
 //   }
 // ];
 
@@ -577,23 +577,27 @@ function handleSearch() {//執行搜尋
   console.log("搜尋總數據源:",tableData.value)
   // console.log("搜尋欄位:"+searchValue.value+",內容:"+SearchKey.value)
 
-
+  let withinDateRange:boolean = true//若dateValue.value為空則直接回傳true,放行
   filteredData.value = tableData.value.filter((data) => {
 
 
         // const withinDateRange = dateValue.value ? new Date(data.birthday) >= new Date(dateValue.value[0]) &&
         //     new Date(data.birthday) <= new Date(dateValue.value[1]) : true;
-    let withinDateRange:boolean = true//若dateValue.value為空則直接回傳true,放行
+
+
     if(dateValue.value) {
       //若dateValue.value不為空,則根據條件判斷,數據中的日期大於開始日期與數據中的日期小於結束日期之間則回傳true放行
       console.log("搜尋日期數據:", new Date(data[searchValue.value as string]))
       console.log("搜尋日期範圍:", new Date(dateValue.value[0]), "至", new Date(dateValue.value[1]), "之間")
       withinDateRange = dateValue.value ? new Date(data[searchValue.value as string]) >= new Date(dateValue.value[0]) &&
           new Date(data[searchValue.value as string]) <= new Date(dateValue.value[1]) : true;
-      console.log("搜尋日期結果:", withinDateRange)
+      // console.log("搜尋日期結果:", withinDateRange)
     }
 
+    // const matchesSearchKey = SearchKey.value ? (data[searchValue.value as string].toLowerCase()===(SearchKey.value.toLowerCase())): true;
+
     const matchesSearchKey = SearchKey.value ? (data[searchValue.value as string].toLowerCase()===(SearchKey.value.toLowerCase())): true;
+
     // const matchesSearchKey = SearchKey.value ? (data[searchValue.value as string].toLowerCase()===(SearchKey.value.toLowerCase()) && data[searchValue.value as string].toLowerCase().includes(SearchKey.value.toLowerCase())) : true;
 
         //當上述兩個條件都成立回傳true,代表該行資料會被保留並顯示於前端頁面中
@@ -601,9 +605,18 @@ function handleSearch() {//執行搜尋
         // console.log("所有搜尋結果：",withinDateRange && matchesSearchKey)
         return withinDateRange && matchesSearchKey
       }
-
-
   )
+  if(!filteredData.value){
+    filteredData.value = tableData.value.filter((data) => {
+          const matchesSearchKey = SearchKey.value?data[searchValue.value as string].toLowerCase().includes(SearchKey.value.toLowerCase()): true;
+
+          //當上述兩個條件都成立回傳true,代表該行資料會被保留並顯示於前端頁面中
+          // console.log("本次搜索資料::",data,",搜尋欄位:"+searchValue.value+",內容:"+SearchKey.value,",所有搜尋結果：",withinDateRange && matchesSearchKey)
+          // console.log("所有搜尋結果：",withinDateRange && matchesSearchKey)
+          return withinDateRange && matchesSearchKey
+        }
+    )
+  }
   dataTotal.value = filteredData.value.length  // 更新數據總量
   currentPage.value = 1; // 搜尋後回到第一頁
   updatePaginatedData()
@@ -641,6 +654,11 @@ const dateValue = ref<[string, string] | null>(null);// 使用陣列來存儲日
 </script>
 
 <style scoped>
+/* 調整 el-table 欄位之間的間距 */
+:deep(.el-table .el-table__cell) {
+  padding: 5px; /* 根據需求調整間距大小 */
+}
+
 /* 確保選中的選項也是居中的 */
 :deep(.search-select .el-select__wrapper) {
   text-align: center;
@@ -650,11 +668,15 @@ const dateValue = ref<[string, string] | null>(null);// 使用陣列來存儲日
   margin-left: 1vw;
 }
 
+
 .mgmt-content-table {
   width: 100%;
   height: 100%;
   border-top: 1px solid #888888;
-  border-bottom: 1px solid #888888
+  border-bottom: 1px solid #888888;
+
+  word-wrap: break-word; /* 遇到長單詞自動換行 */
+  word-break: break-all; /* 對於所有內容進行換行，防止超出容器 */
 }
 
 .mgmt-container {
