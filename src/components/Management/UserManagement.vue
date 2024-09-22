@@ -22,7 +22,7 @@
         <el-option v-for="option in elTableColumnsData" :key="option.label" :label="option.label" :value="option.value" />
       </el-select>
 
-      <el-input v-model="SearchKey" clearable style="margin-left: 30px;max-width: 10vw;min-width: 10vw" placeholder="請輸入搜尋關鍵字">
+      <el-input v-model="searchKey" clearable style="margin-left: 30px;max-width: 10vw;min-width: 10vw" placeholder="請輸入搜尋關鍵字">
 
 <!--        <template #prepend>-->
 <!--          <el-select  ref="searchSelectRef" class="search-select" v-model="searchValue" placeholder="Select">-->
@@ -308,11 +308,14 @@ import useInputTable from '@/hooks/useInputTable.ts'
 /**
  * 新增按鈕、修改按鈕
  */
-
+import {useactionTypeStore} from '@/pinia/useUserManagementFormStore.ts'
 const formTitle=ref<string>("")//根據行為(例:新增、修改)決定表單Title
 const inputFormData=ref('');//傳遞給表單的資料
+const actionTypeStore = useactionTypeStore();
 const handleAdd = () => {
   formTitle.value="新增"
+  //告訴表單點擊的是新增，並使用新增相關的程式碼
+  actionTypeStore.setactionType("add")
   dialogVisible.value=true
 }
 
@@ -324,6 +327,7 @@ const handleEdit = (index: number, row: any) => {
   console.log("給表單組件傳遞並回顯選中項資料:",inputFormData)
 
   //打開表單視窗
+  actionTypeStore.setactionType("update")
   dialogVisible.value=true
   console.log(index, row)
 }
@@ -569,54 +573,77 @@ watchEffect(()=>{
 
 
 // 輸入框
-const SearchKey = ref('')
+const searchKey = ref('')
 
 
 function handleSearch() {//執行搜尋
-  console.log("執行搜尋...")
-  console.log("搜尋總數據源:",tableData.value)
-  // console.log("搜尋欄位:"+searchValue.value+",內容:"+SearchKey.value)
+  // console.log("執行搜尋...")
+  // console.log("搜尋總數據源:",tableData.value)
+  // console.log("搜尋欄位:"+searchValue.value+",內容:"+searchKey.value+",日期:"+dateValue.value)
 
-  let withinDateRange:boolean = true//若dateValue.value為空則直接回傳true,放行
-  filteredData.value = tableData.value.filter((data) => {
+  if(searchValue.value && (searchKey.value||dateValue.value)) {
+    console.log("存在搜尋欄位或搜尋內容")
+    const getMatchCondition = computed(() => (data: any) => {
+      const withinDateRange = dateValue.value ? new Date(data[searchValue.value as string]) >= new Date(dateValue.value[0]) &&
+              new Date(data[searchValue.value as string]) <= new Date(dateValue.value[1]) : true;
 
-
-        // const withinDateRange = dateValue.value ? new Date(data.birthday) >= new Date(dateValue.value[0]) &&
-        //     new Date(data.birthday) <= new Date(dateValue.value[1]) : true;
-
-
-    if(dateValue.value) {
-      //若dateValue.value不為空,則根據條件判斷,數據中的日期大於開始日期與數據中的日期小於結束日期之間則回傳true放行
-      console.log("搜尋日期數據:", new Date(data[searchValue.value as string]))
-      console.log("搜尋日期範圍:", new Date(dateValue.value[0]), "至", new Date(dateValue.value[1]), "之間")
-      withinDateRange = dateValue.value ? new Date(data[searchValue.value as string]) >= new Date(dateValue.value[0]) &&
-          new Date(data[searchValue.value as string]) <= new Date(dateValue.value[1]) : true;
-      // console.log("搜尋日期結果:", withinDateRange)
+          //可能報錯// console.log("搜尋日期數據:", new Date(data[searchValue.value as string])+",搜尋日期範圍:", new Date(dateValue.value[0]), "至", new Date(dateValue.value[1]), "之間"+"搜尋結果:"+withinDateRange)
+      const matchesSearchKey = searchKey.value?(data[searchValue.value as string].toLowerCase() === (searchKey.value.toLowerCase())):true;
+          // console.log("matchesSearchKey",matchesSearchKey)
+      return withinDateRange && matchesSearchKey;
+    })
+    // console.log("getMatchCondition.value",getMatchCondition.value)
+    filteredData.value = tableData.value.filter(getMatchCondition.value)
+    if (filteredData.value.length === 0 && searchKey.value) {
+      const matchesSearchKeyFuzzy = computed(() => (data: any) => data[searchValue.value as string].toLowerCase().includes(searchKey.value.toLowerCase()));
+      filteredData.value = tableData.value.filter(matchesSearchKeyFuzzy.value);
     }
+  }else {
+    // console.log("沒有搜尋欄位或搜尋內容")
 
-    // const matchesSearchKey = SearchKey.value ? (data[searchValue.value as string].toLowerCase()===(SearchKey.value.toLowerCase())): true;
-
-    const matchesSearchKey = SearchKey.value ? (data[searchValue.value as string].toLowerCase()===(SearchKey.value.toLowerCase())): true;
-
-    // const matchesSearchKey = SearchKey.value ? (data[searchValue.value as string].toLowerCase()===(SearchKey.value.toLowerCase()) && data[searchValue.value as string].toLowerCase().includes(SearchKey.value.toLowerCase())) : true;
-
-        //當上述兩個條件都成立回傳true,代表該行資料會被保留並顯示於前端頁面中
-        console.log("本次搜索資料::",data,",搜尋欄位:"+searchValue.value+",內容:"+SearchKey.value,",所有搜尋結果：",withinDateRange && matchesSearchKey)
-        // console.log("所有搜尋結果：",withinDateRange && matchesSearchKey)
-        return withinDateRange && matchesSearchKey
-      }
-  )
-  if(!filteredData.value){
-    filteredData.value = tableData.value.filter((data) => {
-          const matchesSearchKey = SearchKey.value?data[searchValue.value as string].toLowerCase().includes(SearchKey.value.toLowerCase()): true;
-
-          //當上述兩個條件都成立回傳true,代表該行資料會被保留並顯示於前端頁面中
-          // console.log("本次搜索資料::",data,",搜尋欄位:"+searchValue.value+",內容:"+SearchKey.value,",所有搜尋結果：",withinDateRange && matchesSearchKey)
-          // console.log("所有搜尋結果：",withinDateRange && matchesSearchKey)
-          return withinDateRange && matchesSearchKey
-        }
-    )
+    filteredData.value = tableData.value;
   }
+
+  // let withinDateRange:boolean = true//若dateValue.value為空則直接回傳true,放行
+  // filteredData.value = tableData.value.filter((data) => {
+  //
+  //
+  //       // const withinDateRange = dateValue.value ? new Date(data.birthday) >= new Date(dateValue.value[0]) &&
+  //       //     new Date(data.birthday) <= new Date(dateValue.value[1]) : true;
+  //
+  //   if(dateValue.value) {
+  //     //若dateValue.value不為空,則根據條件判斷,數據中的日期大於開始日期與數據中的日期小於結束日期之間則回傳true放行
+  //     console.log("搜尋日期數據:", new Date(data[searchValue.value as string]))
+  //     console.log("搜尋日期範圍:", new Date(dateValue.value[0]), "至", new Date(dateValue.value[1]), "之間")
+  //     withinDateRange = dateValue.value ? new Date(data[searchValue.value as string]) >= new Date(dateValue.value[0]) &&
+  //         new Date(data[searchValue.value as string]) <= new Date(dateValue.value[1]) : true;
+  //     // console.log("搜尋日期結果:", withinDateRange)
+  //   }
+  //
+  //   // const matchesSearchKey = searchKey.value ? (data[searchValue.value as string].toLowerCase()===(searchKey.value.toLowerCase())): true;
+  //
+  //   const matchesSearchKey = searchKey.value ? (data[searchValue.value as string].toLowerCase()===(searchKey.value.toLowerCase())): true;
+  //
+  //   // const matchesSearchKey = searchKey.value ? (data[searchValue.value as string].toLowerCase()===(searchKey.value.toLowerCase()) && data[searchValue.value as string].toLowerCase().includes(searchKey.value.toLowerCase())) : true;
+  //
+  //       //當上述兩個條件都成立回傳true,代表該行資料會被保留並顯示於前端頁面中
+  //       console.log("本次搜索資料::",data,",搜尋欄位:"+searchValue.value+",內容:"+searchKey.value,",所有搜尋結果：",withinDateRange && matchesSearchKey)
+  //       // console.log("所有搜尋結果：",withinDateRange && matchesSearchKey)
+  //       return withinDateRange && matchesSearchKey
+  //     }
+  // )
+  // if(!filteredData.value){
+  //   filteredData.value = tableData.value.filter((data) => {
+  //         const matchesSearchKey = searchKey.value?data[searchValue.value as string].toLowerCase().includes(searchKey.value.toLowerCase()): true;
+  //
+  //         //當上述兩個條件都成立回傳true,代表該行資料會被保留並顯示於前端頁面中
+  //         // console.log("本次搜索資料::",data,",搜尋欄位:"+searchValue.value+",內容:"+searchKey.value,",所有搜尋結果：",withinDateRange && matchesSearchKey)
+  //         // console.log("所有搜尋結果：",withinDateRange && matchesSearchKey)
+  //         return withinDateRange && matchesSearchKey
+  //       }
+  //   )
+  // }
+
   dataTotal.value = filteredData.value.length  // 更新數據總量
   currentPage.value = 1; // 搜尋後回到第一頁
   updatePaginatedData()
@@ -647,7 +674,7 @@ const dateValue = ref<[string, string] | null>(null);// 使用陣列來存儲日
 //   //設置索引
 //   indexCount,
 //   //輸入框搜尋
-//   SearchKey,
+//   searchKey,
 //   handleSearch,
 //   dateValue
 // } = useInputTable(tableData.value)

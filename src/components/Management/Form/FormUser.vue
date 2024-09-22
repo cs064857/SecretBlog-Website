@@ -373,12 +373,14 @@ const rules = reactive<FormRules<Form>>({
 /**
  * 接收表格(父組件)點擊編輯按鈕時取得該行的數據,並回顯示表單上
  */
-
+import {useactionTypeStore} from '@/pinia/useUserManagementFormStore.ts'
+const actionTypeStore = useactionTypeStore();
 const props =defineProps({
   inputFormData:{
         type: Object,
   }
 })
+
 const handleReceiveParentData=function (){
   console.log("執行handleReceiveParentData()")
   if(props.inputFormData){
@@ -390,7 +392,7 @@ const handleReceiveParentData=function (){
 
 
 
-    actionType.value="update"
+
   }
 }
 
@@ -398,7 +400,7 @@ watch(
     () => props.inputFormData,
     (newValue, oldValue, onCleanup)=>{
       console.log("FormUser接收到UserManagement資料")
-
+      actionType.value=actionTypeStore.getactionType
       handleReceiveParentData();
     },
     { immediate: true,deep:true}
