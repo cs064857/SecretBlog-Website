@@ -56,38 +56,10 @@
 <!--            <span v-else>封禁</span>-->
 <!--          </template>-->
 
-<!--          <template #default="scope" v-else-if="item.value === 'gender'">-->
-<!--            <span v-if="scope.row.gender == 1">男性</span>-->
-<!--            <span v-else-if="scope.row.gender == 2">女性</span>-->
-<!--            <span v-else>不願透露</span>-->
-<!--          </template>-->
         </el-table-column>
 
 
-<!--        <el-table-column label="使用者頭像" prop="avatar"/>-->
-<!--        <el-table-column label="帳戶狀態" prop="status">-->
-<!--          <template #default="scope">-->
-<!--            <span v-if="scope.row.status==0">正常</span>-->
-<!--            <span v-else>封禁</span>-->
-<!--          </template>-->
-<!--        </el-table-column>-->
-<!--        <el-table-column label="權限名稱" prop="roleId"/>-->
-<!--        <el-table-column label="使用者名稱" prop="name"/>-->
-<!--        <el-table-column label="帳號" prop="accountName"/>-->
-<!--        <el-table-column label="密碼" prop="password"/>-->
-<!--        <el-table-column label="信箱" prop="email"/>-->
-<!--        <el-table-column label="生日" prop="birthday"/>-->
-<!--        <el-table-column label="性別" prop="gender">-->
-<!--          <template #default="scope">-->
-<!--            <span v-if="scope.row.gender==1">男性</span>-->
-<!--            <span v-else-if="scope.row.gender==2">女性</span>-->
-<!--            <span v-else>不願透露</span>-->
 
-<!--          </template>-->
-<!--        </el-table-column>-->
-<!--        <el-table-column label="手機號碼" prop="phoneNumber"/>-->
-<!--        <el-table-column label="註冊時間" prop="createTime"/>-->
-<!--        <el-table-column label="地址" prop="address"/>-->
 
         <el-table-column align="right">
           <!--          <template #header>-->
@@ -198,8 +170,6 @@ const handleBatchDelete=function (){
   console.log("selectionRows",selectionRows)
   console.log("userIdList",userIdList)
 
-
-
   batchDeleteRequest(userIdList);
 
 
@@ -233,29 +203,6 @@ const elTableColumnsData:{label:String,value:String}[] =[
  * 設置搜尋前選項條的寬度
  */
 const searchSelectRef = ref<InstanceType<typeof ElSelect> | null>(null)
-// onBeforeUpdate(() => {
-//   if (searchSelectRef.value) {
-//
-//   const tableColumns = document.querySelector('.el-table__header thead tr')
-//   const headerCells = tableColumns.querySelectorAll('th')
-//   const tableColumnsLabels = Array.from(headerCells).map(cell => {
-//     const cellDiv = cell.querySelector('.cell');
-//     return cellDiv ? cellDiv.textContent?.trim() || '' : '';
-//   }).filter(label => label !== '' && label !== null && label !== "索引"); // 過濾掉空字串和 null 的元素
-//
-//   const ObjValues = Object.keys(resultData.value[0]);
-//   console.log("ObjValues", ObjValues)
-//   //找出數組中所有字串的最大值length
-//   const maxLength = tableColumnsLabels.reduce((max, str) => Math.max(max, str.length), 0);
-//   // console.log("maxLength",maxLength)
-//   // console.log("tableColumns",tableColumns)
-//   // console.log("headerCells",headerCells)
-//   console.log("tableColumnsLabels", tableColumnsLabels)
-//
-//   //設置searchSelectRef寬度為選項中字的length+3,單位為rem
-//   searchSelectRef.value.$el.style.width = `${maxLength + 3}rem`
-// }
-// })
 
 onMounted(()=>{
   const values = elTableColumnsData.values()
@@ -275,13 +222,9 @@ onMounted(()=>{
  */
 
 
-
-
-
-//對話框
-
-
-
+/**
+ * 對話框
+ */
 const dialogVisible = ref(false)
 
 const handleClose = (done: () => void) => {
@@ -297,10 +240,14 @@ const handleClose = (done: () => void) => {
 const handleCloseDialog = function () {
   dialogVisible.value = false
 }
-//對話框/
+/**
+ * 對話框/
+ */
 
 
-// 表格
+/**
+ * 表格
+ */
 // import {User,Users} from '../interface/userInterface.ts'
 import useInputTable from '@/hooks/useInputTable.ts'
 
@@ -488,7 +435,9 @@ interface User {
 // ];
 
 const tableData=ref<User[]>([]);
-
+/**
+ * 表格/
+ */
 
 
 
@@ -509,10 +458,6 @@ let resultData = ref<any[]>([])
 
 
 const updatePaginatedData = () => {
-  // if (filteredData.value.length === 0) {
-  //   console.warn("無分頁數據，filteredData.value 為空");
-  //   return;
-  // }
   //進行分頁
   const PageStart = (currentPage.value - 1) * pageSize.value
   const PageEnd = currentPage.value * pageSize.value
@@ -603,46 +548,6 @@ function handleSearch() {//執行搜尋
 
     filteredData.value = tableData.value;
   }
-
-  // let withinDateRange:boolean = true//若dateValue.value為空則直接回傳true,放行
-  // filteredData.value = tableData.value.filter((data) => {
-  //
-  //
-  //       // const withinDateRange = dateValue.value ? new Date(data.birthday) >= new Date(dateValue.value[0]) &&
-  //       //     new Date(data.birthday) <= new Date(dateValue.value[1]) : true;
-  //
-  //   if(dateValue.value) {
-  //     //若dateValue.value不為空,則根據條件判斷,數據中的日期大於開始日期與數據中的日期小於結束日期之間則回傳true放行
-  //     console.log("搜尋日期數據:", new Date(data[searchValue.value as string]))
-  //     console.log("搜尋日期範圍:", new Date(dateValue.value[0]), "至", new Date(dateValue.value[1]), "之間")
-  //     withinDateRange = dateValue.value ? new Date(data[searchValue.value as string]) >= new Date(dateValue.value[0]) &&
-  //         new Date(data[searchValue.value as string]) <= new Date(dateValue.value[1]) : true;
-  //     // console.log("搜尋日期結果:", withinDateRange)
-  //   }
-  //
-  //   // const matchesSearchKey = searchKey.value ? (data[searchValue.value as string].toLowerCase()===(searchKey.value.toLowerCase())): true;
-  //
-  //   const matchesSearchKey = searchKey.value ? (data[searchValue.value as string].toLowerCase()===(searchKey.value.toLowerCase())): true;
-  //
-  //   // const matchesSearchKey = searchKey.value ? (data[searchValue.value as string].toLowerCase()===(searchKey.value.toLowerCase()) && data[searchValue.value as string].toLowerCase().includes(searchKey.value.toLowerCase())) : true;
-  //
-  //       //當上述兩個條件都成立回傳true,代表該行資料會被保留並顯示於前端頁面中
-  //       console.log("本次搜索資料::",data,",搜尋欄位:"+searchValue.value+",內容:"+searchKey.value,",所有搜尋結果：",withinDateRange && matchesSearchKey)
-  //       // console.log("所有搜尋結果：",withinDateRange && matchesSearchKey)
-  //       return withinDateRange && matchesSearchKey
-  //     }
-  // )
-  // if(!filteredData.value){
-  //   filteredData.value = tableData.value.filter((data) => {
-  //         const matchesSearchKey = searchKey.value?data[searchValue.value as string].toLowerCase().includes(searchKey.value.toLowerCase()): true;
-  //
-  //         //當上述兩個條件都成立回傳true,代表該行資料會被保留並顯示於前端頁面中
-  //         // console.log("本次搜索資料::",data,",搜尋欄位:"+searchValue.value+",內容:"+searchKey.value,",所有搜尋結果：",withinDateRange && matchesSearchKey)
-  //         // console.log("所有搜尋結果：",withinDateRange && matchesSearchKey)
-  //         return withinDateRange && matchesSearchKey
-  //       }
-  //   )
-  // }
 
   dataTotal.value = filteredData.value.length  // 更新數據總量
   currentPage.value = 1; // 搜尋後回到第一頁
