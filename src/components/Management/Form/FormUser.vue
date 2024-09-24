@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {nextTick, onBeforeMount, defineProps, onMounted, reactive, ref, watch} from 'vue';
 import {ElMessage, FormInstance, FormRules} from 'element-plus';
-import http from "@/utils/httpRequest"
 
 // 定義表單資料接口
 interface Form {
@@ -95,46 +94,34 @@ const onSubmit = async (formEl: FormInstance | null) => {
 
       // const lastMmodifiedFieldsJson = {...modifiedFieldsJson,id:props.inputFormData.id,userInfoId:props.inputFormData.userInfoId}//加上用戶ID與用戶資訊ID
       // console.log("需修改資料內容:",lastMmodifiedFieldsJson)
-      http({
-          url: http.adornUrl(`/ums/user/userDetails/${props.inputFormData.id}/${props.inputFormData.userInfoId}`),
-          method: 'put',
-          data: http.adornData(modifiedFieldsJson, false)
-      }).then(({data}) => {
 
-      if(data.code==200){
-              ElMessage.success("修改用戶數據成功");
-              emit('dialogVisible', dialogVisible.value);
-              console.log('表單視窗關閉...');
-              window.location.replace(window.location.href);
-          }else{
-              ElMessage.error("修改用戶數據失敗");
-          }
-      });
+      updateUserDataRequest(props,modifiedFieldsJson).then((data:R)=>{
+        if(data.code==200){
+          emit('dialogVisible', dialogVisible.value);
+          console.log('表單視窗關閉...');
+        }
 
+      })
 
     }else if(actionType.value==="add"){
       console.log("新增資料...")
-      http({
-        url: http.adornUrl('/ums/user'),
-        method: 'post',
-        data: http.adornData(form.value, false)
-      }).then(({data}: { data: any }) => {
+      // console.log("form.value",form.value)
+      saveUserDataRequest(form.value).then(({data}:{data:R}) => {
         if (data.code == 200) {
-          ElMessage.success("新增使用者數據成功");
           emit('dialogVisible', dialogVisible.value);
-          console.log('表單視窗關閉...');
+          // console.log('表單視窗關閉...');
           window.location.replace(window.location.href);
           //初始化清理表單資料
           cleanFormValue();
-        } else {
-          ElMessage.error("新增使用者數據失敗");
         }
       });
 
     }
+
   } catch (error) {
     console.log('表單驗證失敗', error);
   }
+
 };
 
 
@@ -175,24 +162,18 @@ const cleanFormValue = () => {
 // 選項數據
 
 const getOptions=function (){
-  http({
-      url: http.adornUrl('/ums/role'),
-      method: 'get',
-      params: http.adornParams({})
-  }).then(({data}) => {
-      if(data.code==200){
-        console.log("Role數據",data.data)
 
+  getOptionsRequest().then((data:R) => {
+    console.log("getOptions",data)
+      if(data.code==200){
         options.value=data.data.map(item=>({
           value:item.id,
           label:item.roleName
         }));
         console.log("options",options)
-          ElMessage.success("獲取權限數據成功");
-      }else{
-          ElMessage.error("獲取權限數據失敗");
       }
   })
+
 }
 
 onBeforeMount(()=>{
@@ -210,114 +191,18 @@ interface Option {
 const options= ref<Option[] |null>(null);
 
 
-// 表單驗證規則
+/**
+ * 表單驗證規則
+ */
+import {
+  validateBirthday,
+  validateCheckPassword,
+  validateEmail,
+  validateGender, validatePhoneNumber,
+  validateRole,
+  validateStatus
+} from "@/hooks/useUserRequest.js"
 
-// 驗證確認密碼
-const validateCheckPassword = (rule: any, value: any, callback: any) => {
-  if (!value) {
-    callback(new Error('請確認密碼'));
-  } else if (value === form.value.password) {
-    callback();
-  } else {
-    callback(new Error('兩次密碼輸入不一致！'));
-  }
-};
-
-// 驗證生日是否為有效日期且不在未來
-const validateBirthday = (rule: any, value: Date, callback: any) => {
-  if (!value) {
-    callback(new Error('生日是必填項'));
-  } else {
-    const today = new Date();
-    if (value > today) {
-      callback(new Error('生日不能是未來的日期'));
-    } else {
-      callback();
-    }
-  }
-};
-
-// 驗證性別是否被選擇
-const validateGender = (rule: any, value: string, callback: any) => {
-  const validGenders = ["male", "female","other"];
-  console.log("選擇的性別:",value)
-  const includes = validGenders.includes(value);
-  console.log("性別includes:",includes)
-  if (includes) {
-    callback()
-  } else {
-    callback(new Error('請選擇性別'));
-  }
-};
-
-// 驗證角色是否被選擇
-const validateRole = (rule: any, value: string, callback: any) => {
-  if (isResetting.value == true) {//代表執行的是初始化表單數據,不進行校驗
-    callback(); // 跳過驗證
-    return;
-  }
-
-  const validRoles = options.value.map(option => option.label);
-  console.log("validRoles", validRoles)
-  // const validRoles = searchOptions.map(option => option.value);
-
-  // const some =validRoles.some(item => item==value)
-  const includes = validRoles.includes(value);
-  // console.log("some", some)
-  // console.log("includes", includes)
-
-  console.log("value", value)
-  if (includes) {
-    callback();
-  } else {
-    callback(new Error('請選擇權限'));
-  }
-};
-
-const validateStatus = (rule: any, value: string, callback: any) => {
-  console.log("validateStatus.value:",value)
-  if (!value) {
-    callback(new Error('狀態是必填項'));
-  }
-  callback();
-  // else {
-  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  //   if (emailRegex.test(value)) {
-  //     callback();
-  //   } else {
-  //     callback(new Error('請輸入有效的電子郵件'));
-  //   }
-  // }
-};
-
-
-// 驗證電子郵件格式
-const validateEmail = (rule: any, value: string, callback: any) => {
-  if (!value) {
-    callback(new Error('電子郵件是必填項'));
-  } else {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (emailRegex.test(value)) {
-      callback();
-    } else {
-      callback(new Error('請輸入有效的電子郵件'));
-    }
-  }
-};
-
-// 驗證手機號碼格式（假設為台灣手機號碼）
-const validatePhoneNumber = (rule: any, value: string, callback: any) => {
-  if (!value) {
-    callback(new Error('手機號碼是必填項'));
-  } else {
-    const phoneRegex = /^09\d{8}$/;
-    if (phoneRegex.test(value)) {
-      callback();
-    } else {
-      callback(new Error('請輸入有效的手機號碼，例如 0912345678'));
-    }
-  }
-};
 
 // 定義表單驗證規則
 const rules = reactive<FormRules<Form>>({
@@ -339,7 +224,8 @@ const rules = reactive<FormRules<Form>>({
   ],
   checkPassword: [
     {type: 'string', required: true, message: '必填', trigger: 'blur'},
-    {validator: validateCheckPassword, trigger: 'blur'},
+    {validator: (rule: any, value: any, callback: any) =>
+          validateCheckPassword(rule, value, callback, form), trigger: 'blur'},
   ],
   birthday: [
     {validator: validateBirthday, trigger: 'blur'},
@@ -348,7 +234,8 @@ const rules = reactive<FormRules<Form>>({
     {validator: validateGender, trigger: 'blur'},
   ],
   roleId: [
-    {validator: validateRole, trigger: 'blur'},
+    {validator: (rule: any, value: string, callback: any)=>
+          validateRole(rule, value, callback,isResetting,options), trigger: 'blur'},
   ],
   status:[
     {validator: validateStatus, trigger: 'blur'}
@@ -363,9 +250,20 @@ const rules = reactive<FormRules<Form>>({
   ],
 });
 /**
+ * 表單驗證規則/
+ */
+
+/**
  * 接收表格(父組件)點擊編輯按鈕時取得該行的數據,並回顯示表單上
  */
 import {useactionTypeStore} from '@/pinia/useUserManagementFormStore.ts'
+import {
+  getOptionsRequest,
+  getTableDataRequest,
+  saveUserDataRequest,
+  updateUserDataRequest
+} from "@/hooks/useUserRequest.ts";
+import {R} from "@/interface/R.ts";
 const actionTypeStore = useactionTypeStore();
 const props =defineProps({
   inputFormData:{

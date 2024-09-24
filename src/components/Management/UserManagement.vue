@@ -130,7 +130,6 @@ const tableRef = ref()
 
 import {computed, nextTick, onBeforeUpdate, onMounted, onUnmounted, ref, watch, watchEffect} from 'vue'
 import {ElMessage, TableColumnCtx} from "element-plus";
-import http from "../../utils/httpRequest"
 import {ElMessageBox, ElSelect} from 'element-plus'
 
 /**
@@ -148,20 +147,7 @@ const handlerFilter = (
  * 表格欄位過濾及排序
  */
 
-function batchDeleteRequest(userIdList) {//批量刪除
-  http({
-    url: http.adornUrl(`/ums/user/userDetails/${userIdList}`),
-    method: 'delete',
-  }).then(({data}) => {
-    if (data.code == 200) {
-      ElMessage.success("刪除用戶資料數據成功");
-      //重新整理
-      window.location.replace(window.location.href);
-    } else {
-      ElMessage.error("刪除用戶資料數據失敗");
-    }
-  });
-}
+import {batchDeleteRequest,getTableDataRequest} from "@/hooks/useUserRequest.js"
 
 //批量刪除
 const handleBatchDelete=function (){
@@ -169,10 +155,7 @@ const handleBatchDelete=function (){
   const userIdList =selectionRows.map(item=>item.id)
   console.log("selectionRows",selectionRows)
   console.log("userIdList",userIdList)
-
   batchDeleteRequest(userIdList);
-
-
 }
 
 /**
@@ -290,20 +273,6 @@ import FormUser from "./Form/FormUser.vue";
 
 const handleDelete = (index: number, row: any) => {
 
-  // http({
-  //     url: http.adornUrl(`/ums/user/userDetails/${row.id}`),
-  //     method: 'delete',
-  // }).then(({data}) => {
-  //
-  // if(data.code==200){
-  //         ElMessage.success("刪除用戶資料數據成功");
-  //         //重新整理
-  //         window.location.replace(window.location.href);
-  //     }else{
-  //         ElMessage.error("刪除用戶資料數據失敗");
-  //     }
-  // });
-
   batchDeleteRequest(row.id);
 
   console.log(index, row)
@@ -324,48 +293,18 @@ function onCancel() {
 
 //表格資料
 
-const getTableData=function (){
-  return new Promise((resolve, reject)=>{
-
-    http({
-      url: http.adornUrl('/ums/user/userDetails'),
-      method: 'get',
-      params: http.adornParams({})
-    }).then(({data}) => {
+const getTableData= async function (){
+    await getTableDataRequest().then((data:any) => {
+      console.log("data:",data)
       if(data.code==200){
         // console.log("後端原始數據:",data.data)
         tableData.value=data.data
-
         // console.log("轉換前使用者表格數據:",tableData.value)
-
-        //轉換欄位顯示值
-        // tableData.value.forEach(item=>{
-          // switch (item.status){
-          //   case(0):item.status="正常"
-          //     break
-          //   case(1):item.status="封禁中"
-          //     break
-          // }
-        //   switch (item.gender){
-        //     case(1):item.gender="男"
-        //       break
-        //     case(2):item.gender="女"
-        //       break
-        //     case(3):item.gender="不願透露"
-        //       break
-        //   }
-        // })
-
         console.log("tableData.value:",tableData.value)
-        // console.log("轉換後使用者表格數據:",tableData.value)
-
-        ElMessage.success("獲得使用者表格數據成功");
-      }else{
-        ElMessage.error("獲得使用者表格數據失敗");
       }
     })
-  })
 }
+
 
 interface User {
   id:string;
@@ -418,20 +357,6 @@ interface User {
 //     createTime: "2024-09-15T02:22:01",
 //     roleId: "普通用戶"
 //   },
-//   {
-//     name: "秘密不告訴你",
-//     avatar: null,
-//     status: 0,
-//     accountName: "secret0000",
-//     password: "secretPassword0000",
-//     email: "secret0000@gmail.com",
-//     birthday: "2024-05-08",
-//     gender: 0,
-//     address: "秘密基地",
-//     phoneNumber: "0916461658",
-//     createTime: "2024-09-15T02:28:59",
-//     roleId: "管理員"
-//   }
 // ];
 
 const tableData=ref<User[]>([]);
@@ -473,10 +398,14 @@ const indexCount = (index: number) => {
 }
 // /設置索引
 //初始化表格數據
-onMounted(async () => {
+onMounted(async ()=>{
   await getTableData();
   updatePaginatedData();
-});
+})
+
+
+
+
 
 watch(() => tableData.value,
     (newData) => {
