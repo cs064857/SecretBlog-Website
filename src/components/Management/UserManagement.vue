@@ -18,14 +18,14 @@
       </el-dialog>
 
 
-      <el-select  ref="searchSelectRef" class="search-select" clearable v-model="searchValue" placeholder="搜索欄位">
+      <el-select ref="searchSelectRef" class="search-select" clearable v-model="searchKey" placeholder="搜索欄位">
         <el-option v-for="option in elTableColumnsData" :key="option.label" :label="option.label" :value="option.value" />
       </el-select>
 
-      <el-input v-model="searchKey" clearable style="margin-left: 30px;max-width: 10vw;min-width: 10vw" placeholder="請輸入搜尋關鍵字">
+      <el-input v-model="searchValue" clearable style="margin-left: 30px;max-width: 10vw;min-width: 10vw" placeholder="請輸入搜尋關鍵字">
 
 <!--        <template #prepend>-->
-<!--          <el-select  ref="searchSelectRef" class="search-select" v-model="searchValue" placeholder="Select">-->
+<!--          <el-select  ref="searchSelectRef" class="search-select" v-model="searchKey" placeholder="Select">-->
 <!--            <el-option v-for="option in elTableColumnsData" :key="option.label" :label="option.label" :value="option.value" />-->
 <!--          </el-select>-->
 <!--        </template>-->
@@ -435,11 +435,11 @@ const handleCurrentChange = (val: number) => {
 
 
 
-// const searchValue = ref<String>('name')//選中的選項,默認為name(使用者名稱)
-const searchValue = ref<String>()//選中的選項
+// const searchKey = ref<String>('name')//選中的選項,默認為name(使用者名稱)
+const searchKey = ref<String>()//選中的選項
 
 watchEffect(()=>{
-  console.log("搜索選項searchValue:",searchValue.value)
+  console.log("搜索選項searchValue:",searchKey.value)
 })
 /**
  * 搜尋欄位選單/
@@ -447,29 +447,29 @@ watchEffect(()=>{
 
 
 // 輸入框
-const searchKey = ref('')
+const searchValue = ref('')
 
 
 function handleSearch() {//執行搜尋
   // console.log("執行搜尋...")
   // console.log("搜尋總數據源:",tableData.value)
-  // console.log("搜尋欄位:"+searchValue.value+",內容:"+searchKey.value+",日期:"+dateValue.value)
+  // console.log("搜尋欄位:"+searchKey.value+",內容:"+searchValue.value+",日期:"+dateValue.value)
 
-  if(searchValue.value && (searchKey.value||dateValue.value)) {
+  if(searchKey.value && (searchValue.value||dateValue.value)) {
     console.log("存在搜尋欄位或搜尋內容")
     const getMatchCondition = computed(() => (data: any) => {
-      const withinDateRange = dateValue.value ? new Date(data[searchValue.value as string]) >= new Date(dateValue.value[0]) &&
-              new Date(data[searchValue.value as string]) <= new Date(dateValue.value[1]) : true;
+      const withinDateRange = dateValue.value ? new Date(data[searchKey.value as string]) >= new Date(dateValue.value[0]) &&
+              new Date(data[searchKey.value as string]) <= new Date(dateValue.value[1]) : true;
 
-          //可能報錯// console.log("搜尋日期數據:", new Date(data[searchValue.value as string])+",搜尋日期範圍:", new Date(dateValue.value[0]), "至", new Date(dateValue.value[1]), "之間"+"搜尋結果:"+withinDateRange)
-      const matchesSearchKey = searchKey.value?(data[searchValue.value as string].toLowerCase() === (searchKey.value.toLowerCase())):true;
+          //可能報錯// console.log("搜尋日期數據:", new Date(data[searchKey.value as string])+",搜尋日期範圍:", new Date(dateValue.value[0]), "至", new Date(dateValue.value[1]), "之間"+"搜尋結果:"+withinDateRange)
+      const matchesSearchKey = searchValue.value?(data[searchKey.value as string].toLowerCase() === (searchValue.value.toLowerCase())):true;
           // console.log("matchesSearchKey",matchesSearchKey)
       return withinDateRange && matchesSearchKey;
     })
     // console.log("getMatchCondition.value",getMatchCondition.value)
     filteredData.value = tableData.value.filter(getMatchCondition.value)
-    if (filteredData.value.length === 0 && searchKey.value) {
-      const matchesSearchKeyFuzzy = computed(() => (data: any) => data[searchValue.value as string].toLowerCase().includes(searchKey.value.toLowerCase()));
+    if (filteredData.value.length === 0 && searchValue.value) {
+      const matchesSearchKeyFuzzy = computed(() => (data: any) => data[searchKey.value as string].toLowerCase().includes(searchValue.value.toLowerCase()));
       filteredData.value = tableData.value.filter(matchesSearchKeyFuzzy.value);
     }
   }else {
@@ -508,7 +508,7 @@ const dateValue = ref<[string, string] | null>(null);// 使用陣列來存儲日
 //   //設置索引
 //   indexCount,
 //   //輸入框搜尋
-//   searchKey,
+//   searchValue,
 //   handleSearch,
 //   dateValue
 // } = useInputTable(tableData.value)
