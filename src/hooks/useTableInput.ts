@@ -46,7 +46,7 @@ export function useSearch(searchKey:Ref<String | null>,searchValue:Ref<String | 
     //     const PageEnd = currentPage.value * pageSize.value
     //
     //     //返回分頁後的數據
-    //     resultData.value = finalData.value.slice(PageStart, PageEnd);
+    //     resultData.value = filteredData.value.slice(PageStart, PageEnd);
     //     console.log("分頁後的數據resultData.value:",resultData.value)
     // }
     //

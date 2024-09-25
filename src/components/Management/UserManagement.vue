@@ -343,23 +343,23 @@ let dataTotalCount = ref<Number>(tableRawData.value.length)
 
 
 
-// let finalData = ref<any[]>(tableRawData.value)  // 這裡存儲的是過濾後的數據
+// let filteredData = ref<any[]>(tableRawData.value)  // 這裡存儲的是過濾後的數據
 
 
-// console.log("分頁前的數據filteredData.value:",finalData.value)
+// console.log("分頁前的數據filteredData.value:",filteredData.value)
 let resultData = ref<any[]>([])
 
 
 
 const updatePaginatedData = () => {
-  dataTotalCount.value = finalData.value.length  // 更新數據總量
+  dataTotalCount.value = filteredData.value.length  // 更新數據總量
 
   //進行分頁
   const PageStart = (currentPage.value - 1) * pageSize.value
   const PageEnd = currentPage.value * pageSize.value
 
   //返回分頁後的數據
-  resultData.value = finalData.value.slice(PageStart, PageEnd);
+  resultData.value = filteredData.value.slice(PageStart, PageEnd);
   console.log("分頁後的數據resultData.value:",resultData.value)
 }
 
@@ -380,7 +380,7 @@ onMounted(async ()=>{
 
 watch(() => tableRawData.value,
     (newData) => {
-      finalData.value = newData;
+      filteredData.value = newData;
       dataTotalCount.value = newData.length;
       updatePaginatedData();
     },
@@ -426,23 +426,22 @@ const searchValue = ref('')
 const searchDateRange = ref<[string, string] | null>(null);// 使用陣列來存儲日期範圍
 /*日期選擇器*/
 
-// const finalData=handleSearch(searchKey,searchValue,searchDateRange,tableRawData,dataTotalCount,currentPage)
-let finalData=ref<any[] |null>();
+// const filteredData=handleSearch(searchKey,searchValue,searchDateRange,tableRawData,dataTotalCount,currentPage)
+let filteredData=ref<any[] |null>();
 const handleSearch=function (){
   // const {filteredDat}= handleSearch(searchKey,searchValue,searchDateRange,tableRawData,dataTotalCount,currentPage)
   /**
    * 參數:搜尋欄位、搜尋值OR日期範圍、原始表格資料
    * return:過濾後的資料
    */
-  const { filteredData,currentPage:currentPage,dataTotalCount:dataTotalCount} = useSearch(
+  const { filteredData:tempFilteredData,currentPage:currentPage,dataTotalCount:dataTotalCount} = useSearch(
       searchKey,
       searchValue,
       searchDateRange,
       tableRawData
   );
-  console.log("handleSearch,filteredData.value",filteredData.value)
-  finalData.value = filteredData.value;
-  console.log("handleSearch,finalData.value",finalData.value)
+  // console.log("handleSearch,filteredData.value",filteredData.value)
+  filteredData = tempFilteredData;
   updatePaginatedData()
 }
 
