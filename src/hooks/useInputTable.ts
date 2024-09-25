@@ -12,7 +12,7 @@ export default function (tableData: any[]) {
     let resultData = ref<any[]>([])
     const updatePaginatedData = () => {
         if (filteredData.value.length === 0) {
-            console.warn("無分頁數據，filteredData.value 為空");
+            console.warn("無分頁數據，finalData.value 為空");
             return;
         }
         //進行分頁

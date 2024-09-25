@@ -32,7 +32,7 @@
 
       </el-input>
       <div class="block">
-        <el-date-picker style="margin-left: 30px" v-model="dateValue" type="daterange" start-placeholder="開始日期"
+        <el-date-picker style="margin-left: 30px" v-model="searchDateRange" type="daterange" start-placeholder="開始日期"
                         end-placeholder="結束日期" format="YYYY-MM-DD" date-format="YYYY/MM/DD"
                         value-format="YYYY-MM-DD"/>
       </div>
@@ -113,7 +113,7 @@
         <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :page-sizes="[10, 50, 100]"
                        :size="'large'" :disabled="disabled" :background="background"
                        layout="total, sizes, prev, pager, next, jumper"
-                       :total="dataTotal" @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                       :total="dataTotalCount" @size-change="handleSizeChange" @current-change="handleCurrentChange"
         />
       </div><!--  /分頁    -->
 
@@ -131,6 +131,8 @@ const tableRef = ref()
 import {computed, nextTick, onBeforeUpdate, onMounted, onUnmounted, ref, watch, watchEffect} from 'vue'
 import {ElMessage, TableColumnCtx} from "element-plus";
 import {ElMessageBox, ElSelect} from 'element-plus'
+import {useSearch} from "@/hooks/useTableInput.ts"
+
 
 /**
  * 表格欄位過濾及排序
@@ -298,9 +300,9 @@ const getTableData= async function (){
       console.log("data:",data)
       if(data.code==200){
         // console.log("後端原始數據:",data.data)
-        tableData.value=data.data
-        // console.log("轉換前使用者表格數據:",tableData.value)
-        console.log("tableData.value:",tableData.value)
+        tableRawData.value=data.data
+        // console.log("轉換前使用者表格數據:",tableRawData.value)
+        console.log("tableRawData.value:",tableRawData.value)
       }
     })
 }
@@ -328,7 +330,7 @@ interface User {
 
 
 
-// const tableData: User[] = [
+// const tableRawData: User[] = [
 //   {
 //     name: "測試1",
 //     avatar: "ppp",
@@ -359,7 +361,7 @@ interface User {
 //   },
 // ];
 
-const tableData=ref<User[]>([]);
+const tableRawData=ref<User[]>([]);
 /**
  * 表格/
  */
@@ -375,20 +377,27 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 const background = ref(false)
 const disabled = ref(false)
-let dataTotal = ref<Number>(tableData.value.length)
-let filteredData = ref<any[]>(tableData.value)  // 這裡存儲的是過濾後的數據
-// console.log("分頁前的數據filteredData.value:",filteredData.value)
+let dataTotalCount = ref<Number>(tableRawData.value.length)
+
+
+
+// let finalData = ref<any[]>(tableRawData.value)  // 這裡存儲的是過濾後的數據
+
+
+// console.log("分頁前的數據filteredData.value:",finalData.value)
 let resultData = ref<any[]>([])
 
 
 
 const updatePaginatedData = () => {
+  dataTotalCount.value = finalData.value.length  // 更新數據總量
+  currentPage.value = 1; // 搜尋後回到第一頁
   //進行分頁
   const PageStart = (currentPage.value - 1) * pageSize.value
   const PageEnd = currentPage.value * pageSize.value
 
   //返回分頁後的數據
-  resultData.value = filteredData.value.slice(PageStart, PageEnd);
+  resultData.value = finalData.value.slice(PageStart, PageEnd);
   console.log("分頁後的數據resultData.value:",resultData.value)
 }
 
@@ -407,10 +416,10 @@ onMounted(async ()=>{
 
 
 
-watch(() => tableData.value,
+watch(() => tableRawData.value,
     (newData) => {
-      filteredData.value = newData;
-      dataTotal.value = newData.length;
+      finalData.value = newData;
+      dataTotalCount.value = newData.length;
       updatePaginatedData();
     },
     { immediate: false, deep: true }
@@ -450,43 +459,60 @@ watchEffect(()=>{
 const searchValue = ref('')
 
 
-function handleSearch() {//執行搜尋
-  // console.log("執行搜尋...")
-  // console.log("搜尋總數據源:",tableData.value)
-  // console.log("搜尋欄位:"+searchKey.value+",內容:"+searchValue.value+",日期:"+dateValue.value)
-
-  if(searchKey.value && (searchValue.value||dateValue.value)) {
-    console.log("存在搜尋欄位或搜尋內容")
-    const getMatchCondition = computed(() => (data: any) => {
-      const withinDateRange = dateValue.value ? new Date(data[searchKey.value as string]) >= new Date(dateValue.value[0]) &&
-              new Date(data[searchKey.value as string]) <= new Date(dateValue.value[1]) : true;
-
-          //可能報錯// console.log("搜尋日期數據:", new Date(data[searchKey.value as string])+",搜尋日期範圍:", new Date(dateValue.value[0]), "至", new Date(dateValue.value[1]), "之間"+"搜尋結果:"+withinDateRange)
-      const matchesSearchKey = searchValue.value?(data[searchKey.value as string].toLowerCase() === (searchValue.value.toLowerCase())):true;
-          // console.log("matchesSearchKey",matchesSearchKey)
-      return withinDateRange && matchesSearchKey;
-    })
-    // console.log("getMatchCondition.value",getMatchCondition.value)
-    filteredData.value = tableData.value.filter(getMatchCondition.value)
-    if (filteredData.value.length === 0 && searchValue.value) {
-      const matchesSearchKeyFuzzy = computed(() => (data: any) => data[searchKey.value as string].toLowerCase().includes(searchValue.value.toLowerCase()));
-      filteredData.value = tableData.value.filter(matchesSearchKeyFuzzy.value);
-    }
-  }else {
-    // console.log("沒有搜尋欄位或搜尋內容")
-
-    filteredData.value = tableData.value;
-  }
-
-  dataTotal.value = filteredData.value.length  // 更新數據總量
-  currentPage.value = 1; // 搜尋後回到第一頁
-  updatePaginatedData()
-}
+// function handleSearch() {//執行搜尋
+//   // console.log("執行搜尋...")
+//   // console.log("搜尋總數據源:",tableRawData.value)
+//   // console.log("搜尋欄位:"+searchKey.value+",內容:"+searchValue.value+",日期:"+searchDateRange.value)
+//
+//   if(searchKey.value && (searchValue.value||searchDateRange.value)) {
+//     console.log("存在搜尋欄位或搜尋內容")
+//     const getMatchCondition = computed(() => (data: any) => {
+//       const withinDateRange = searchDateRange.value ? new Date(data[searchKey.value as string]) >= new Date(searchDateRange.value[0]) &&
+//               new Date(data[searchKey.value as string]) <= new Date(searchDateRange.value[1]) : true;
+//
+//           //可能報錯// console.log("搜尋日期數據:", new Date(data[searchKey.value as string])+",搜尋日期範圍:", new Date(searchDateRange.value[0]), "至", new Date(searchDateRange.value[1]), "之間"+"搜尋結果:"+withinDateRange)
+//       const matchesSearchKey = searchValue.value?(data[searchKey.value as string].toLowerCase() === (searchValue.value.toLowerCase())):true;
+//           // console.log("matchesSearchKey",matchesSearchKey)
+//       return withinDateRange && matchesSearchKey;
+//     })
+//     // console.log("getMatchCondition.value",getMatchCondition.value)
+//     finalData.value = tableRawData.value.filter(getMatchCondition.value)
+//     if (finalData.value.length === 0 && searchValue.value) {
+//       const matchesSearchKeyFuzzy = computed(() => (data: any) => data[searchKey.value as string].toLowerCase().includes(searchValue.value.toLowerCase()));
+//       finalData.value = tableRawData.value.filter(matchesSearchKeyFuzzy.value);
+//     }
+//   }else {
+//     // console.log("沒有搜尋欄位或搜尋內容")
+//
+//     finalData.value = tableRawData.value;
+//   }
+//
+//
+//   updatePaginatedData()
+// }
 
 // /輸入框
 /*日期選擇器*/
-const dateValue = ref<[string, string] | null>(null);// 使用陣列來存儲日期範圍
+const searchDateRange = ref<[string, string] | null>(null);// 使用陣列來存儲日期範圍
 /*日期選擇器*/
+
+// const finalData=handleSearch(searchKey,searchValue,searchDateRange,tableRawData,dataTotalCount,currentPage)
+let finalData=ref<any[] |null>();
+const handleSearch=function (){
+  // const {filteredDat}= handleSearch(searchKey,searchValue,searchDateRange,tableRawData,dataTotalCount,currentPage)
+  const { filteredData,currentPage } = useSearch(
+      searchKey,
+      searchValue,
+      searchDateRange,
+      tableRawData,
+      dataTotalCount,
+      currentPage
+  );
+  console.log("handleSearch,filteredData.value",filteredData.value)
+  finalData.value = filteredData.value;
+  console.log("handleSearch,finalData.value",finalData.value)
+  updatePaginatedData()
+}
 
 
 
@@ -501,7 +527,7 @@ const dateValue = ref<[string, string] | null>(null);// 使用陣列來存儲日
 //   pageSize,
 //   background,
 //   disabled,
-//   dataTotal,
+//   dataTotalCount,
 //   resultData,
 //   handleSizeChange,
 //   handleCurrentChange,
@@ -510,8 +536,8 @@ const dateValue = ref<[string, string] | null>(null);// 使用陣列來存儲日
 //   //輸入框搜尋
 //   searchValue,
 //   handleSearch,
-//   dateValue
-// } = useInputTable(tableData.value)
+//   searchDateRange
+// } = useInputTable(tableRawData.value)
 </script>
 
 <style scoped>
