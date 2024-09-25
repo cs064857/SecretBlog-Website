@@ -1,7 +1,7 @@
 import {computed, ref, Ref} from "vue";
 
 export function useSearch(searchKey:Ref<String | null>,searchValue:Ref<String | null>,searchDateRange:Ref<[string, string] | null>,tableRawData:Ref<any[]>
-                            ,dataTotalCount:Ref<Number>) {//執行搜尋
+                            ) {//執行搜尋
     console.log("執行搜尋...")
     // console.log("搜尋總數據源:",tableRawData.value)
     // console.log("搜尋欄位:"+searchKey.value+",內容:"+searchValue.value+",日期:"+searchDateRange.value)
@@ -31,13 +31,14 @@ export function useSearch(searchKey:Ref<String | null>,searchValue:Ref<String | 
         filteredData.value = tableRawData.value;
     }
 
-    dataTotalCount.value = filteredData.value.length  // 更新數據總量
+    // dataTotalCount.value = filteredData.value.length  // 更新數據總量
+    const dataTotalCount=ref<number>(filteredData.value.length)// 更新數據總量
     // currentPage.value = 1; // 搜尋後回到第一頁
 
     // currentPage:Ref<number>
     const currentPage=ref<number> (1); // 搜尋後回到第一頁
     console.log("回傳...",filteredData)
-    return {filteredData,currentPage}
+    return {filteredData,currentPage,dataTotalCount}
 
     // const updatePaginatedData = () => {
     //     //進行分頁

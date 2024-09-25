@@ -233,9 +233,6 @@ const handleCloseDialog = function () {
 /**
  * 表格
  */
-// import {User,Users} from '../interface/userInterface.ts'
-import useInputTable from '@/hooks/useInputTable.ts'
-
 
 /**
  * 新增按鈕、修改按鈕
@@ -291,8 +288,6 @@ function onCancel() {
 
 
 
-
-
 //表格資料
 
 const getTableData= async function (){
@@ -328,39 +323,6 @@ interface User {
   roleId: string;         // 權限名稱
 }
 
-
-
-// const tableRawData: User[] = [
-//   {
-//     name: "測試1",
-//     avatar: "ppp",
-//     status: 0,
-//     accountName: "testtest1",
-//     password: "testpassword1",
-//     email: "testtestemail@gmail.com",
-//     birthday: "1970-01-01",
-//     gender: 0,
-//     address: "秘密",
-//     phoneNumber: "0900000000",
-//     createTime: "2024-09-14T21:13:40",
-//     roleId: "普通用戶"
-//   },
-//   {
-//     name: "測試2",
-//     avatar: null,
-//     status: 0,
-//     accountName: "testtest2",
-//     password: "testpassword2",
-//     email: "testtestemail2@gmail.com",
-//     birthday: "1979-07-05",
-//     gender: 2,
-//     address: "秘密2",
-//     phoneNumber: "0911111111",
-//     createTime: "2024-09-15T02:22:01",
-//     roleId: "普通用戶"
-//   },
-// ];
-
 const tableRawData=ref<User[]>([]);
 /**
  * 表格/
@@ -391,7 +353,7 @@ let resultData = ref<any[]>([])
 
 const updatePaginatedData = () => {
   dataTotalCount.value = finalData.value.length  // 更新數據總量
-  currentPage.value = 1; // 搜尋後回到第一頁
+
   //進行分頁
   const PageStart = (currentPage.value - 1) * pageSize.value
   const PageEnd = currentPage.value * pageSize.value
@@ -459,38 +421,6 @@ watchEffect(()=>{
 const searchValue = ref('')
 
 
-// function handleSearch() {//執行搜尋
-//   // console.log("執行搜尋...")
-//   // console.log("搜尋總數據源:",tableRawData.value)
-//   // console.log("搜尋欄位:"+searchKey.value+",內容:"+searchValue.value+",日期:"+searchDateRange.value)
-//
-//   if(searchKey.value && (searchValue.value||searchDateRange.value)) {
-//     console.log("存在搜尋欄位或搜尋內容")
-//     const getMatchCondition = computed(() => (data: any) => {
-//       const withinDateRange = searchDateRange.value ? new Date(data[searchKey.value as string]) >= new Date(searchDateRange.value[0]) &&
-//               new Date(data[searchKey.value as string]) <= new Date(searchDateRange.value[1]) : true;
-//
-//           //可能報錯// console.log("搜尋日期數據:", new Date(data[searchKey.value as string])+",搜尋日期範圍:", new Date(searchDateRange.value[0]), "至", new Date(searchDateRange.value[1]), "之間"+"搜尋結果:"+withinDateRange)
-//       const matchesSearchKey = searchValue.value?(data[searchKey.value as string].toLowerCase() === (searchValue.value.toLowerCase())):true;
-//           // console.log("matchesSearchKey",matchesSearchKey)
-//       return withinDateRange && matchesSearchKey;
-//     })
-//     // console.log("getMatchCondition.value",getMatchCondition.value)
-//     finalData.value = tableRawData.value.filter(getMatchCondition.value)
-//     if (finalData.value.length === 0 && searchValue.value) {
-//       const matchesSearchKeyFuzzy = computed(() => (data: any) => data[searchKey.value as string].toLowerCase().includes(searchValue.value.toLowerCase()));
-//       finalData.value = tableRawData.value.filter(matchesSearchKeyFuzzy.value);
-//     }
-//   }else {
-//     // console.log("沒有搜尋欄位或搜尋內容")
-//
-//     finalData.value = tableRawData.value;
-//   }
-//
-//
-//   updatePaginatedData()
-// }
-
 // /輸入框
 /*日期選擇器*/
 const searchDateRange = ref<[string, string] | null>(null);// 使用陣列來存儲日期範圍
@@ -500,13 +430,15 @@ const searchDateRange = ref<[string, string] | null>(null);// 使用陣列來存
 let finalData=ref<any[] |null>();
 const handleSearch=function (){
   // const {filteredDat}= handleSearch(searchKey,searchValue,searchDateRange,tableRawData,dataTotalCount,currentPage)
-  const { filteredData,currentPage } = useSearch(
+  /**
+   * 參數:搜尋欄位、搜尋值OR日期範圍、原始表格資料
+   * return:過濾後的資料
+   */
+  const { filteredData,currentPage:currentPage,dataTotalCount:dataTotalCount} = useSearch(
       searchKey,
       searchValue,
       searchDateRange,
-      tableRawData,
-      dataTotalCount,
-      currentPage
+      tableRawData
   );
   console.log("handleSearch,filteredData.value",filteredData.value)
   finalData.value = filteredData.value;
@@ -521,23 +453,7 @@ const handleSearch=function (){
  * 分頁全程式碼
  */
 
-// const {
-//   //分頁
-//   currentPage,
-//   pageSize,
-//   background,
-//   disabled,
-//   dataTotalCount,
-//   resultData,
-//   handleSizeChange,
-//   handleCurrentChange,
-//   //設置索引
-//   indexCount,
-//   //輸入框搜尋
-//   searchValue,
-//   handleSearch,
-//   searchDateRange
-// } = useInputTable(tableRawData.value)
+
 </script>
 
 <style scoped>
