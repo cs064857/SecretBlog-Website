@@ -134,6 +134,7 @@ import {ElMessageBox, ElSelect} from 'element-plus'
 import {useSearch} from "@/hooks/useTableInput.ts"
 
 let resultData = ref<any[]>([])
+console.log("初始 resultData:", resultData)
 /**
  * 表格欄位過濾及排序
  */
@@ -154,9 +155,9 @@ import {batchDeleteRequest,getTableDataRequest} from "@/hooks/useUserRequest.js"
 //批量刪除
 const handleBatchDelete=function (){
   const selectionRows:User[] = tableRef.value.getSelectionRows();//索引上選中的資料(數組)
+  console.log("選中的資料 selectionRows:", selectionRows)
   const userIdList =selectionRows.map(item=>item.id)
-  console.log("selectionRows",selectionRows)
-  console.log("userIdList",userIdList)
+  console.log("選中的 userIdList:",userIdList)
   batchDeleteRequest(userIdList);
 }
 
@@ -195,6 +196,7 @@ onMounted(()=>{
   const maxLength = arrayValues.reduce((max, str)=>Math.max(max,str.label.length),0);
 
   //設置searchSelectRef寬度為選項中字的length+3,單位為rem
+  console.log("設置搜尋前選項條寬度 maxLength:", maxLength)
   searchSelectRef.value.$el.style.minWidth = `${maxLength + 3}rem`
   searchSelectRef.value.$el.style.maxWidth = `${maxLength + 3}rem`
   // console.log("keys",arrayValues)
@@ -211,10 +213,12 @@ onMounted(()=>{
  * 對話框
  */
 const dialogVisible = ref(false)
+console.log("對話框初始狀態 dialogVisible:", dialogVisible)
 
 const handleClose = (done: () => void) => {
   ElMessageBox.confirm('確認是否關閉視窗？')
       .then(() => {
+        console.log("關閉對話框")
         done()
       })
       .catch(() => {
@@ -223,6 +227,7 @@ const handleClose = (done: () => void) => {
 }
 
 const handleCloseDialog = function () {
+  console.log("關閉對話框 handleCloseDialog")
   dialogVisible.value = false
 }
 /**
@@ -239,10 +244,13 @@ const handleCloseDialog = function () {
  */
 import {useactionTypeStore} from '@/pinia/useUserManagementFormStore.ts'
 const formTitle=ref<string>("")//根據行為(例:新增、修改)決定表單Title
+console.log("初始 formTitle:", formTitle)
 const inputFormData=ref('');//傳遞給表單的資料
+console.log("初始 inputFormData:", inputFormData)
 const actionTypeStore = useactionTypeStore();
 const handleAdd = () => {
   formTitle.value="新增"
+  console.log("觸發 handleAdd，formTitle:", formTitle.value)
   //告訴表單點擊的是新增，並使用新增相關的程式碼
   actionTypeStore.setactionType("add")
   dialogVisible.value=true
@@ -250,15 +258,15 @@ const handleAdd = () => {
 
 const handleEdit = (index: number, row: any) => {
   formTitle.value="編輯"
+  console.log("觸發 handleEdit，formTitle:", formTitle.value)
+  console.log("選中項 index:", index, " row:", row)
   //給表單組件傳遞並回顯選中項資料
   inputFormData.value= {...row,foo:Date.now()}//foo是無意義的數據,只是為了觸發FormUser的watch監聽
-
-  console.log("給表單組件傳遞並回顯選中項資料:",inputFormData)
 
   //打開表單視窗
   actionTypeStore.setactionType("update")
   dialogVisible.value=true
-  console.log(index, row)
+
 }
 /**
  * 新增按鈕、修改按鈕/
@@ -271,16 +279,14 @@ import {InfoFilled, Search} from '@element-plus/icons-vue'
 import FormUser from "./Form/FormUser.vue";
 
 const handleDelete = (index: number, row: any) => {
-
+  console.log("觸發刪除 handleDelete，index:", index, " row:", row)
   batchDeleteRequest(row.id);
-
-  console.log(index, row)
 }
 
 const clicked = ref(false)
 
 function onCancel() {
-  console.log("取消")
+  console.log("取消刪除操作")
   clicked.value = true
 }
 
@@ -291,21 +297,22 @@ function onCancel() {
 //表格資料
 
 const getTableData= async function (){
-    await getTableDataRequest().then((data:any) => {
-      console.log("data:",data)
-      if(data.code==200){
-        // console.log("後端原始數據:",data.data)
-        tableRawData.value=data.data
+  await getTableDataRequest().then((data:any) => {
+    console.log("表格資料請求返回 data:", data)
+    if(data.code==200){
 
-        dataTotalCount.value = tableRawData.value.length;
-        const {resultData:tempresultData} =updatePaginatedData(tableRawData,dataTotalCount,currentPage,pageSize);
-        resultData=tempresultData
-        console.log("更新表格展示值:",tempresultData.value)
+      tableRawData.value=data.data
+      console.log("更新後的 tableRawData:", tableRawData.value)
 
-        // console.log("轉換前使用者表格數據:",tableRawData.value)
-        console.log("tableRawData.value:",tableRawData.value)
-      }
-    })
+      dataTotalCount.value = tableRawData.value.length;
+      console.log("更新後的 dataTotalCount:", dataTotalCount.value)
+      const {resultData:tempresultData} =updatePaginatedData(tableRawData,dataTotalCount,currentPage,pageSize);
+      console.log("更新後的 resultData:", tempresultData.value)
+      resultData=tempresultData
+
+
+    }
+  })
 }
 
 
@@ -330,6 +337,7 @@ interface User {
 }
 
 const tableRawData=ref<User[]>([]);
+
 /**
  * 表格/
  */
@@ -343,14 +351,17 @@ const tableRawData=ref<User[]>([]);
 import {updatePaginatedData, useTablePaginated} from "@/hooks/useTablePaginated.ts";
 let filteredData=ref<any[] |null>();
 const handleCurrentChange = (val: number) => {
-  console.log(`current page: ${val}`,"resultData:")
-  // updatePaginatedData(tableRawData, dataTotalCount, currentPage, pageSize)
+  console.log("分頁當前頁變更 handleCurrentChange，頁數:", val)
+
   const {resultData:tempresult} =CurrentChange(val,tableRawData)
+  console.log("更新後的 resultData:", tempresult.value)
   resultData=tempresult
 }
 const handleSizeChange= (val: number) => {
-  console.log(`current page: ${val}`,"resultData:")
+  console.log("分頁大小變更 handleSizeChange，大小:", val)
+
   const {resultData:tempresult} =SizeChange(val,tableRawData)
+  console.log("更新後的 resultData:", tempresult.value)
   resultData=tempresult
 }
 let {
@@ -365,6 +376,7 @@ let {
 } = useTablePaginated(tableRawData);
 
 onMounted(async ()=>{
+  console.log("組件掛載完成，請求表格資料")
   await getTableData();
 
 })
@@ -397,12 +409,11 @@ onMounted(async ()=>{
 
 
 
-// const searchKey = ref<String>('name')//選中的選項,默認為name(使用者名稱)
+
 const searchKey = ref<String>()//選中的選項
 
-watchEffect(()=>{
-  console.log("搜索選項searchValue:",searchKey.value)
-})
+
+
 /**
  * 搜尋欄位選單/
  */
@@ -412,15 +423,17 @@ watchEffect(()=>{
 const searchValue = ref('')
 
 
+
 // /輸入框
 /*日期選擇器*/
 const searchDateRange = ref<[string, string] | null>(null);// 使用陣列來存儲日期範圍
+
 /*日期選擇器*/
 
 // const filteredData=handleSearch(searchKey,searchValue,searchDateRange,tableRawData,dataTotalCount,currentPage)
 
 const handleSearch=function (){
-  // const {filteredDat}= handleSearch(searchKey,searchValue,searchDateRange,tableRawData,dataTotalCount,currentPage)
+  console.log("觸發搜尋 handleSearch，搜尋欄位:", searchKey.value, " 搜尋值:", searchValue.value, " 日期範圍:", searchDateRange.value)
   /**
    * 參數:搜尋欄位、搜尋值OR日期範圍、原始表格資料
    * return:過濾後的資料
@@ -431,18 +444,16 @@ const handleSearch=function (){
       searchDateRange,
       tableRawData
   );
-  // console.log("handleSearch,filteredData.value",filteredData.value)
   currentPage.value=1//搜尋後回到第一頁
   dataTotalCount.value=tempdataTotalCount.value//搜尋後重新計算總數據
-  console.log("過濾後數據length:",dataTotalCount.value)
+  console.log("搜尋後 dataTotalCount:", dataTotalCount.value)
+
+  // resultData.value = updatePaginatedData(tempFilteredData, dataTotalCount, currentPage, pageSize).resultData.value;
   const {resultData:tempresultData} =updatePaginatedData(tempFilteredData,dataTotalCount,currentPage,pageSize);
-  // const {resultData:tempresultData} =updatePaginatedData(tableRawData,filteredData,dataTotalCount,currentPage,pageSize);
-  console.log("結束搜尋最終值:",tempFilteredData.value)
+  console.log("搜尋後的 resultData:", tempresultData.value)
 
   resultData.value=tempresultData.value
 
-  console.log("搜尋分頁後展示結果:",resultData.value)
-  console.log("搜尋分頁後展示數據總量:",dataTotalCount.value)
 }
 
 
