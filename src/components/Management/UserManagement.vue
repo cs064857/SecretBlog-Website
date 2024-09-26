@@ -133,7 +133,7 @@ import {ElMessage, TableColumnCtx} from "element-plus";
 import {ElMessageBox, ElSelect} from 'element-plus'
 import {useSearch} from "@/hooks/useTableInput.ts"
 
-
+let resultData = ref<any[]>([])
 /**
  * 表格欄位過濾及排序
  */
@@ -296,6 +296,12 @@ const getTableData= async function (){
       if(data.code==200){
         // console.log("後端原始數據:",data.data)
         tableRawData.value=data.data
+
+        dataTotalCount.value = tableRawData.value.length;
+        const {resultData:tempresultData} =updatePaginatedData(tableRawData,dataTotalCount,currentPage,pageSize);
+        resultData=tempresultData
+        console.log("更新表格展示值:",tempresultData.value)
+
         // console.log("轉換前使用者表格數據:",tableRawData.value)
         console.log("tableRawData.value:",tableRawData.value)
       }
@@ -334,126 +340,56 @@ const tableRawData=ref<User[]>([]);
  * 分頁全程式碼
  */
 
-import {useTablePaginated} from "@/hooks/useTablePaginated.ts";
+import {updatePaginatedData, useTablePaginated} from "@/hooks/useTablePaginated.ts";
 let filteredData=ref<any[] |null>();
-const {
+const handleCurrentChange = (val: number) => {
+  console.log(`current page: ${val}`,"resultData:")
+  // updatePaginatedData(tableRawData, dataTotalCount, currentPage, pageSize)
+  const {resultData:tempresult} =CurrentChange(val,tableRawData)
+  resultData=tempresult
+}
+const handleSizeChange= (val: number) => {
+  console.log(`current page: ${val}`,"resultData:")
+  const {resultData:tempresult} =SizeChange(val,tableRawData)
+  resultData=tempresult
+}
+let {
   currentPage,
   pageSize,
   background,
   disabled,
   dataTotalCount,
-  resultData,
-  updatePaginatedData,
   indexCount,
-  handleSizeChange,
-  handleCurrentChange
-} = useTablePaginated(tableRawData, filteredData);
+  SizeChange,
+  CurrentChange
+} = useTablePaginated(tableRawData);
 
 onMounted(async ()=>{
   await getTableData();
+
 })
 
-watch(() => tableRawData.value,
-    (newData) => {
-      filteredData.value = newData;
-      // dataTotalCount.value = newData.length;
-      updatePaginatedData();
-    },
-    { immediate: true, deep: true }
-);
-// watch(()=>filteredData.value,()=>{
-//   console.log("監控到filteredData發生變化...")
-//   const updatePaginatedData = useTablePaginated(tableRawData, filteredData);
-// },{immediate:false,deep:true})
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// 分頁
-// const currentPage = ref(1)
-// const pageSize = ref(10)
-// const background = ref(false)
-// const disabled = ref(false)
-// let dataTotalCount = ref<Number>(tableRawData.value.length)
-//
-//
-//
-// // let filteredData = ref<any[]>(tableRawData.value)  // 這裡存儲的是過濾後的數據
-//
-//
-// // console.log("分頁前的數據filteredData.value:",filteredData.value)
-// let resultData = ref<any[]>([])
-//
-//
-//
-// const updatePaginatedData = () => {
-//   dataTotalCount.value = filteredData.value.length  // 更新數據總量
-//
-//   //進行分頁
-//   const PageStart = (currentPage.value - 1) * pageSize.value
-//   const PageEnd = currentPage.value * pageSize.value
-//
-//   //返回分頁後的數據
-//   resultData.value = filteredData.value.slice(PageStart, PageEnd);
-//   console.log("分頁後的數據resultData.value:",resultData.value)
-// }
-//
-// //設置索引
-// const indexCount = (index: number) => {
-//   return (currentPage.value - 1) * pageSize.value + index + 1;
-// }
-// // /設置索引
-// //初始化表格數據
-// onMounted(async ()=>{
-//   await getTableData();
-//   updatePaginatedData();
-// })
-//
-//
-//
-//
-//
 // watch(() => tableRawData.value,
 //     (newData) => {
 //       filteredData.value = newData;
-//       dataTotalCount.value = newData.length;
-//       updatePaginatedData();
+//
 //     },
-//     { immediate: false, deep: true }
+//     { immediate: true, deep: true }
 // );
-//
-//
-//
-// const handleSizeChange = (val: number) => {
-//   console.log(`${val} items per page`)
-//   updatePaginatedData()
-// }
-// const handleCurrentChange = (val: number) => {
-//   console.log(`current page: ${val}`)
-//   updatePaginatedData()
-// }
-// /分頁
 
+// watch(()=>filteredData.value,()=>{
+//   console.log("監控到filteredData發生變化...")
+//   const {resultData:tempresultData} =updatePaginatedData(tableRawData,filteredData,dataTotalCount,currentPage,pageSize);
+//   resultData=tempresultData
+//   console.log("更新後resultData",resultData.value)
+// },{immediate:false,deep:true})
+
+// watch(()=>resultData.value,()=>{
+//   const {resultData:tempresultData} =updatePaginatedData(tableRawData,dataTotalCount,currentPage,pageSize);
+//   resultData=tempresultData
+//
+//   console.log("更新表格展示值:",tempresultData.value)
+// },{immediate:false,deep:true})
 
 /**
  * 搜尋欄位選單
@@ -489,16 +425,24 @@ const handleSearch=function (){
    * 參數:搜尋欄位、搜尋值OR日期範圍、原始表格資料
    * return:過濾後的資料
    */
-  const { filteredData:tempFilteredData,currentPage:currentPage,dataTotalCount:dataTotalCount} = useSearch(
+  const { filteredData:tempFilteredData,currentPage:currentPage,dataTotalCount:tempdataTotalCount} = useSearch(
       searchKey,
       searchValue,
       searchDateRange,
       tableRawData
   );
   // console.log("handleSearch,filteredData.value",filteredData.value)
-  filteredData = tempFilteredData;
-  updatePaginatedData()
+  currentPage.value=1//搜尋後回到第一頁
+  dataTotalCount.value=tempdataTotalCount.value//搜尋後重新計算總數據
+  console.log("過濾後數據length:",dataTotalCount.value)
+  const {resultData:tempresultData} =updatePaginatedData(tempFilteredData,dataTotalCount,currentPage,pageSize);
+  // const {resultData:tempresultData} =updatePaginatedData(tableRawData,filteredData,dataTotalCount,currentPage,pageSize);
   console.log("結束搜尋最終值:",tempFilteredData.value)
+
+  resultData.value=tempresultData.value
+
+  console.log("搜尋分頁後展示結果:",resultData.value)
+  console.log("搜尋分頁後展示數據總量:",dataTotalCount.value)
 }
 
 

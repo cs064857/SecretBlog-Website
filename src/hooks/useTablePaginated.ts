@@ -1,31 +1,31 @@
-import {onMounted, Ref, ref, watch} from "vue";
+import {Ref, ref} from "vue";
 
-export function useTablePaginated(tableRawData: Ref<any[]> | null, filteredData: Ref<any[]> | null) {
+export function useTablePaginated(tableData: Ref<any[]>) {
+
     const currentPage = ref(1)
     const pageSize = ref(10)
     const background = ref(false)
     const disabled = ref(false)
 
-
-    let dataTotalCount = ref<Number>(tableRawData.value.length)
+    let dataTotalCount = ref<Number>(tableData.value.length)
 // let filteredData = ref<any[]>(tableRawData.value)  // 這裡存儲的是過濾後的數據
 
 
-// console.log("分頁前的數據filteredData.value:",filteredData.value)
-    let resultData = ref<any[]>([])
+console.log("分頁前的數據tableData.value:",tableData.value)
 
 
-    const updatePaginatedData = () => {
-        dataTotalCount.value = filteredData.value.length  // 更新數據總量
 
-        //進行分頁
-        const PageStart = (currentPage.value - 1) * pageSize.value
-        const PageEnd = currentPage.value * pageSize.value
-
-        //返回分頁後的數據
-        resultData.value = filteredData.value.slice(PageStart, PageEnd);
-        console.log("分頁後的數據resultData.value:", resultData.value)
-    }
+    // const updatePaginatedData = () => {
+    //     dataTotalCount.value = filteredData.value.length  // 更新數據總量
+    //
+    //     //進行分頁
+    //     const PageStart = (currentPage.value - 1) * pageSize.value
+    //     const PageEnd = currentPage.value * pageSize.value
+    //
+    //     //返回分頁後的數據
+    //     resultData.value = filteredData.value.slice(PageStart, PageEnd);
+    //     console.log("分頁後的數據resultData.value:", resultData.value)
+    // }
 
 
 //設置索引
@@ -35,13 +35,13 @@ export function useTablePaginated(tableRawData: Ref<any[]> | null, filteredData:
 // /設置索引
 //初始化表格數據
 
-    const handleSizeChange = (val: number) => {
+    const SizeChange = (val: number, table:Ref<any[]>) => {
         console.log(`${val} items per page`)
-        updatePaginatedData()
+        return updatePaginatedData(table, dataTotalCount, currentPage, pageSize)
     }
-    const handleCurrentChange = (val: number) => {
-        console.log(`current page: ${val}`)
-        updatePaginatedData()
+    const CurrentChange = (val: number,table:Ref<any[]>) => {
+        // console.log(`current page: ${val}`,"resultData:")
+        return updatePaginatedData(table, dataTotalCount, currentPage, pageSize)
     }
 
     return {
@@ -50,23 +50,26 @@ export function useTablePaginated(tableRawData: Ref<any[]> | null, filteredData:
         background,
         disabled,
         dataTotalCount,
-        resultData,
-        updatePaginatedData,
         indexCount,
-        handleSizeChange,
-        handleCurrentChange
+        SizeChange,
+        CurrentChange
     }
 }
 
-// export function updatePaginatedData (tableRawData:Ref<any[]> | null,filteredData:Ref<any[]> | null,dataTotalCount:Ref<number>,currentPage:Ref<number>,pageSize:Ref<number>){
-//     let resultData = ref<any[]>([])
-//     dataTotalCount.value = filteredData.value.length  // 更新數據總量
-//
-//     //進行分頁
-//     const PageStart = (currentPage.value - 1) * pageSize.value
-//     const PageEnd = currentPage.value * pageSize.value
-//
-//     //返回分頁後的數據
-//     resultData.value = filteredData.value.slice(PageStart, PageEnd);
-//     console.log("分頁後的數據resultData.value:",resultData.value)
-// }
+export function updatePaginatedData (tableData: Ref<any[]>,dataTotalCount:Ref<Number>,currentPage:Ref<number>,pageSize:Ref<number>){
+    console.log("updatePaginatedData...tableData:",tableData.value,",dataTotalCount:"+dataTotalCount.value,",currentPage:"+currentPage.value,",pageSize:"+pageSize.value)
+    // console.log("updatePaginatedData...tableData:"+tableData.value+
+    //     ",dataTotalCount:"+dataTotalCount.value+",currentPage:"+currentPage.value+",pageSize:"+pageSize.value)
+    let resultData = ref<any[]>([])
+    dataTotalCount.value = tableData.value.length  // 更新數據總量
+    // console.log("點擊第",currentPage,"後的數據總量:",dataTotalCount.value)
+    //進行分頁
+    const PageStart = (currentPage.value - 1) * pageSize.value
+    const PageEnd = currentPage.value * pageSize.value
+
+    //返回分頁後的數據
+    resultData.value = tableData.value.slice(PageStart, PageEnd);
+    console.log("updatePaginatedData結束...resultData.value:",resultData.value,"dataTotalCount:"+dataTotalCount.value)
+    return {resultData}
+
+}
