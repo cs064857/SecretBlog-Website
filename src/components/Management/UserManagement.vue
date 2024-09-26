@@ -334,69 +334,124 @@ const tableRawData=ref<User[]>([]);
  * 分頁全程式碼
  */
 
-// 分頁
-const currentPage = ref(1)
-const pageSize = ref(10)
-const background = ref(false)
-const disabled = ref(false)
-let dataTotalCount = ref<Number>(tableRawData.value.length)
+import {useTablePaginated} from "@/hooks/useTablePaginated.ts";
+let filteredData=ref<any[] |null>();
+const {
+  currentPage,
+  pageSize,
+  background,
+  disabled,
+  dataTotalCount,
+  resultData,
+  updatePaginatedData,
+  indexCount,
+  handleSizeChange,
+  handleCurrentChange
+} = useTablePaginated(tableRawData, filteredData);
 
-
-
-// let filteredData = ref<any[]>(tableRawData.value)  // 這裡存儲的是過濾後的數據
-
-
-// console.log("分頁前的數據filteredData.value:",filteredData.value)
-let resultData = ref<any[]>([])
-
-
-
-const updatePaginatedData = () => {
-  dataTotalCount.value = filteredData.value.length  // 更新數據總量
-
-  //進行分頁
-  const PageStart = (currentPage.value - 1) * pageSize.value
-  const PageEnd = currentPage.value * pageSize.value
-
-  //返回分頁後的數據
-  resultData.value = filteredData.value.slice(PageStart, PageEnd);
-  console.log("分頁後的數據resultData.value:",resultData.value)
-}
-
-//設置索引
-const indexCount = (index: number) => {
-  return (currentPage.value - 1) * pageSize.value + index + 1;
-}
-// /設置索引
-//初始化表格數據
 onMounted(async ()=>{
   await getTableData();
-  updatePaginatedData();
 })
-
-
-
-
 
 watch(() => tableRawData.value,
     (newData) => {
       filteredData.value = newData;
-      dataTotalCount.value = newData.length;
+      // dataTotalCount.value = newData.length;
       updatePaginatedData();
     },
-    { immediate: false, deep: true }
+    { immediate: true, deep: true }
 );
+// watch(()=>filteredData.value,()=>{
+//   console.log("監控到filteredData發生變化...")
+//   const updatePaginatedData = useTablePaginated(tableRawData, filteredData);
+// },{immediate:false,deep:true})
 
 
 
-const handleSizeChange = (val: number) => {
-  console.log(`${val} items per page`)
-  updatePaginatedData()
-}
-const handleCurrentChange = (val: number) => {
-  console.log(`current page: ${val}`)
-  updatePaginatedData()
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// 分頁
+// const currentPage = ref(1)
+// const pageSize = ref(10)
+// const background = ref(false)
+// const disabled = ref(false)
+// let dataTotalCount = ref<Number>(tableRawData.value.length)
+//
+//
+//
+// // let filteredData = ref<any[]>(tableRawData.value)  // 這裡存儲的是過濾後的數據
+//
+//
+// // console.log("分頁前的數據filteredData.value:",filteredData.value)
+// let resultData = ref<any[]>([])
+//
+//
+//
+// const updatePaginatedData = () => {
+//   dataTotalCount.value = filteredData.value.length  // 更新數據總量
+//
+//   //進行分頁
+//   const PageStart = (currentPage.value - 1) * pageSize.value
+//   const PageEnd = currentPage.value * pageSize.value
+//
+//   //返回分頁後的數據
+//   resultData.value = filteredData.value.slice(PageStart, PageEnd);
+//   console.log("分頁後的數據resultData.value:",resultData.value)
+// }
+//
+// //設置索引
+// const indexCount = (index: number) => {
+//   return (currentPage.value - 1) * pageSize.value + index + 1;
+// }
+// // /設置索引
+// //初始化表格數據
+// onMounted(async ()=>{
+//   await getTableData();
+//   updatePaginatedData();
+// })
+//
+//
+//
+//
+//
+// watch(() => tableRawData.value,
+//     (newData) => {
+//       filteredData.value = newData;
+//       dataTotalCount.value = newData.length;
+//       updatePaginatedData();
+//     },
+//     { immediate: false, deep: true }
+// );
+//
+//
+//
+// const handleSizeChange = (val: number) => {
+//   console.log(`${val} items per page`)
+//   updatePaginatedData()
+// }
+// const handleCurrentChange = (val: number) => {
+//   console.log(`current page: ${val}`)
+//   updatePaginatedData()
+// }
 // /分頁
 
 
@@ -427,7 +482,7 @@ const searchDateRange = ref<[string, string] | null>(null);// 使用陣列來存
 /*日期選擇器*/
 
 // const filteredData=handleSearch(searchKey,searchValue,searchDateRange,tableRawData,dataTotalCount,currentPage)
-let filteredData=ref<any[] |null>();
+
 const handleSearch=function (){
   // const {filteredDat}= handleSearch(searchKey,searchValue,searchDateRange,tableRawData,dataTotalCount,currentPage)
   /**
@@ -443,6 +498,7 @@ const handleSearch=function (){
   // console.log("handleSearch,filteredData.value",filteredData.value)
   filteredData = tempFilteredData;
   updatePaginatedData()
+  console.log("結束搜尋最終值:",tempFilteredData.value)
 }
 
 
