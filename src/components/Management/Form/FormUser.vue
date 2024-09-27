@@ -3,8 +3,9 @@ import {nextTick, onBeforeMount, defineProps, onMounted, reactive, ref, watch} f
 import {ElMessage, FormInstance, FormRules} from 'element-plus';
 
 // 定義表單資料接口
-interface Form {
-  status:string
+interface formUserInterface {
+  isResetting?:boolean;
+  status:string;
   name: string;
   accountName: string;
   password: string;
@@ -18,7 +19,7 @@ interface Form {
 }
 
 // 初始化表單資料
-const form = ref<Form>({
+const form = ref<formUserInterface>({
   status:"",
   name: '',
   accountName: '',
@@ -33,7 +34,7 @@ const form = ref<Form>({
 });
 
 // // 初始化表單資料
-// const form = ref<Form>({
+// const form = ref<formUserInterface>({
 //   status:"Normal",
 //   name: '測試1',
 //   accountName: 'testtest1',
@@ -51,7 +52,7 @@ const form = ref<Form>({
 const emit = defineEmits(['dialogVisible']);
 const dialogVisible = ref(false);
 const ruleFormRef = ref<FormInstance | null>(null);
-const isResetting = ref(false);//設置標誌，表示正在重置表單
+const isResetting = ref<boolean>(false);//設置標誌，表示正在重置表單
 const actionType = ref<string>()
 // const modifiedFields = new Map<string,any>();//使用Set代表唯一性,key即為數據內容本身
 const modifiedFields = new Map<string,any>();//使用Set代表唯一性,key即為數據內容本身
@@ -201,11 +202,11 @@ import {
   validateGender, validatePhoneNumber,
   validateRole,
   validateStatus
-} from "@/hooks/useUserRequest.js"
+} from "@/validation/formUserVaild.ts"
 
 
 // 定義表單驗證規則
-const rules = reactive<FormRules<Form>>({
+const rules = reactive<FormRules<formUserInterface>>({
   name: [
     {type: 'string', required: true, message: '必填', trigger: 'blur'},
     {min: 1, max: 10, message: '用戶名長度必須介於1到10個半形字元之間', trigger: 'blur'},
@@ -262,7 +263,7 @@ import {
   getTableDataRequest,
   saveUserDataRequest,
   updateUserDataRequest
-} from "@/hooks/useUserRequest.ts";
+} from "@/requests/userRequest.js";
 import {R} from "@/interface/R.ts";
 const actionTypeStore = useactionTypeStore();
 const props =defineProps({
@@ -276,9 +277,9 @@ const handleReceiveParentData=function (){
   if(props.inputFormData){
     const inputFormData =props.inputFormData
     console.log("表單接收到父組件傳遞修改行的資料:",inputFormData)
-    const ipp = {...inputFormData,isResetting:true,checkPassword:inputFormData.password}// 設置標誌，true表示正在重置表單
-    console.log("ipp",ipp)
-    form.value=ipp
+    form.value = {...inputFormData,isResetting:true,checkPassword:inputFormData.password}// 設置標誌，true表示正在重置表單
+    // console.log("ipp",ipp)
+    // form.value=ipp
 
 
 

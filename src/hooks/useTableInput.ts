@@ -4,7 +4,7 @@ export function useSearch(searchKey:Ref<String | null>,searchValue:Ref<String | 
 ) {//執行搜尋
 
     let filteredData = ref<any[] |null>(tableRawData.value)  // 這裡存儲的是過濾後的數據
-    console.log("初始 filteredData:", filteredData.value)
+    console.log("初始filteredData:", filteredData.value)
 
     if(searchKey.value && (searchValue.value || searchDateRange.value)) {
         console.log("搜尋條件 searchKey:", searchKey.value, " searchValue:", searchValue.value, " searchDateRange:", searchDateRange.value)

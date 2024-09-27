@@ -150,7 +150,7 @@ const handlerFilter = (
  * 表格欄位過濾及排序
  */
 
-import {batchDeleteRequest,getTableDataRequest} from "@/hooks/useUserRequest.js"
+import {batchDeleteRequest,getTableDataRequest} from "@/requests/userRequest.js"
 
 //批量刪除
 const handleBatchDelete=function (){
