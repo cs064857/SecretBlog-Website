@@ -1,8 +1,11 @@
+import {reactive} from "vue";
+import {FormRules} from "element-plus";
+
 /**
  * 校驗
  */
 // 驗證電子郵件格式
-export const validateEmail = (rule: any, value: string, callback: any) => {
+const validateEmail = (rule: any, value: string, callback: any) => {
     if (!value) {
         callback(new Error('電子郵件是必填項'));
     } else {
@@ -16,7 +19,7 @@ export const validateEmail = (rule: any, value: string, callback: any) => {
 };
 
 // 驗證手機號碼格式（假設為台灣手機號碼）
-export const validatePhoneNumber = (rule: any, value: string, callback: any) => {
+const validatePhoneNumber = (rule: any, value: string, callback: any) => {
     if (!value) {
         callback(new Error('手機號碼是必填項'));
     } else {
@@ -29,7 +32,7 @@ export const validatePhoneNumber = (rule: any, value: string, callback: any) => 
     }
 };
 // 驗證確認密碼
-export const validateCheckPassword = (rule: any, value: any, callback: any,form:any) => {
+const validateCheckPassword = (rule: any, value: any, callback: any,form:any) => {
     if (!value) {
         callback(new Error('請確認密碼'));
     } else if (value === form.value.password) {
@@ -40,7 +43,7 @@ export const validateCheckPassword = (rule: any, value: any, callback: any,form:
 };
 
 // 驗證生日是否為有效日期且不在未來
-export const validateBirthday = (rule: any, value: Date, callback: any) => {
+ const validateBirthday = (rule: any, value: Date, callback: any) => {
     if (!value) {
         callback(new Error('生日是必填項'));
     } else {
@@ -54,7 +57,7 @@ export const validateBirthday = (rule: any, value: Date, callback: any) => {
 };
 
 // 驗證性別是否被選擇
-export const validateGender = (rule: any, value: string, callback: any) => {
+const validateGender = (rule: any, value: string, callback: any) => {
     const validGenders = ["male", "female","other"];
     console.log("選擇的性別:",value)
     const includes = validGenders.includes(value);
@@ -67,7 +70,7 @@ export const validateGender = (rule: any, value: string, callback: any) => {
 };
 
 // 驗證角色是否被選擇
-export const validateRole = (rule: any, value: string, callback: any,isResetting:any,options:any) => {
+const validateRole = (rule: any, value: string, callback: any,isResetting:any,options:any) => {
     if (isResetting.value == true) {//代表執行的是初始化表單數據,不進行校驗
         callback(); // 跳過驗證
         return;
@@ -90,7 +93,7 @@ export const validateRole = (rule: any, value: string, callback: any,isResetting
     }
 };
 
-export const validateStatus = (rule: any, value: string, callback: any) => {
+const validateStatus = (rule: any, value: string, callback: any) => {
     console.log("validateStatus.value:",value)
     if (!value) {
         callback(new Error('狀態是必填項'));
@@ -104,4 +107,53 @@ export const validateStatus = (rule: any, value: string, callback: any) => {
     //     callback(new Error('請輸入有效的電子郵件'));
     //   }
     // }
+};
+
+import {formUserInterface} from "@/interface/formUserInterface";
+export const useRules =(form:any,isResetting:boolean,options:any): FormRules<formUserInterface>=>{
+    return reactive<FormRules<formUserInterface>>({
+        name: [
+            {type: 'string', required: true, message: '必填', trigger: 'blur'},
+            {min: 1, max: 10, message: '用戶名長度必須介於1到10個半形字元之間', trigger: 'blur'},
+        ],
+        accountName: [
+            {type: 'string', required: true, message: '必填', trigger: 'blur'},
+            {min: 6, max: 30, message: '帳號長度必須介於6到30個半形字元之間', trigger: 'blur'},
+        ],
+        address: [
+            {type: 'string', required: false, trigger: 'blur'},
+        ],
+        password: [
+            {type: 'string', required: true, message: '必填', trigger: 'blur'},
+            {min: 8, max: 30, message: '密碼長度至少須為8個字元', trigger: 'blur'},
+            {max: 30, message: '密碼長度至多為30個字元', trigger: 'blur'},
+        ],
+        checkPassword: [
+            {type: 'string', required: true, message: '必填', trigger: 'blur'},
+            {validator: (rule: any, value: any, callback: any) =>
+                    validateCheckPassword(rule, value, callback, form), trigger: 'blur'},
+        ],
+        birthday: [
+            {validator: validateBirthday, trigger: 'blur'},
+        ],
+        gender: [
+            {validator: validateGender, trigger: 'blur'},
+        ],
+        roleId: [
+            {validator: (rule: any, value: string, callback: any)=>
+                    validateRole(rule, value, callback,isResetting,options), trigger: 'blur'},
+        ],
+        status:[
+            {validator: validateStatus, trigger: 'blur'}
+        ],
+        email: [
+            {type: 'string', required: true, message: '必填', trigger: 'blur'},
+            {validator: validateEmail, trigger: 'blur'},
+        ],
+        phoneNumber: [
+            {type: 'string', required: true, message: '必填', trigger: 'blur'},
+            {validator: validatePhoneNumber, trigger: 'blur'},
+        ],
+    })
+
 };

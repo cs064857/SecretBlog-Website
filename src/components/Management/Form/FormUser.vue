@@ -2,21 +2,7 @@
 import {nextTick, onBeforeMount, defineProps, onMounted, reactive, ref, watch} from 'vue';
 import {ElMessage, FormInstance, FormRules} from 'element-plus';
 
-// 定義表單資料接口
-interface formUserInterface {
-  isResetting?:boolean;
-  status:string;
-  name: string;
-  accountName: string;
-  password: string;
-  checkPassword: string;
-  birthday: Date;
-  gender: string;
-  roleId: string;
-  email: string;
-  address: string;
-  phoneNumber: string;
-}
+
 
 // 初始化表單資料
 const form = ref<formUserInterface>({
@@ -195,61 +181,11 @@ const options= ref<Option[] |null>(null);
 /**
  * 表單驗證規則
  */
-import {
-  validateBirthday,
-  validateCheckPassword,
-  validateEmail,
-  validateGender, validatePhoneNumber,
-  validateRole,
-  validateStatus
-} from "@/validation/formUserVaild.ts"
+import {useRules} from "@/validation/formUserVaild.ts"
 
-
+const rules = useRules(form.value,isResetting.value,options.value);
 // 定義表單驗證規則
-const rules = reactive<FormRules<formUserInterface>>({
-  name: [
-    {type: 'string', required: true, message: '必填', trigger: 'blur'},
-    {min: 1, max: 10, message: '用戶名長度必須介於1到10個半形字元之間', trigger: 'blur'},
-  ],
-  accountName: [
-    {type: 'string', required: true, message: '必填', trigger: 'blur'},
-    {min: 6, max: 30, message: '帳號長度必須介於6到30個半形字元之間', trigger: 'blur'},
-  ],
-  address: [
-    {type: 'string', required: false, trigger: 'blur'},
-  ],
-  password: [
-    {type: 'string', required: true, message: '必填', trigger: 'blur'},
-    {min: 8, max: 30, message: '密碼長度至少須為8個字元', trigger: 'blur'},
-    {max: 30, message: '密碼長度至多為30個字元', trigger: 'blur'},
-  ],
-  checkPassword: [
-    {type: 'string', required: true, message: '必填', trigger: 'blur'},
-    {validator: (rule: any, value: any, callback: any) =>
-          validateCheckPassword(rule, value, callback, form), trigger: 'blur'},
-  ],
-  birthday: [
-    {validator: validateBirthday, trigger: 'blur'},
-  ],
-  gender: [
-    {validator: validateGender, trigger: 'blur'},
-  ],
-  roleId: [
-    {validator: (rule: any, value: string, callback: any)=>
-          validateRole(rule, value, callback,isResetting,options), trigger: 'blur'},
-  ],
-  status:[
-    {validator: validateStatus, trigger: 'blur'}
-  ],
-  email: [
-    {type: 'string', required: true, message: '必填', trigger: 'blur'},
-    {validator: validateEmail, trigger: 'blur'},
-  ],
-  phoneNumber: [
-    {type: 'string', required: true, message: '必填', trigger: 'blur'},
-    {validator: validatePhoneNumber, trigger: 'blur'},
-  ],
-});
+
 /**
  * 表單驗證規則/
  */
@@ -265,6 +201,7 @@ import {
   updateUserDataRequest
 } from "@/requests/userRequest.js";
 import {R} from "@/interface/R.ts";
+import {formUserInterface} from "@/interface/formUserInterface.ts";
 const actionTypeStore = useactionTypeStore();
 const props =defineProps({
   inputFormData:{
