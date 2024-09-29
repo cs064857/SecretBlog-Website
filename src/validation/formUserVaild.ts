@@ -1,4 +1,4 @@
-import {reactive} from "vue";
+import {reactive, ref, Ref} from "vue";
 import {FormRules} from "element-plus";
 
 /**
@@ -33,9 +33,11 @@ const validatePhoneNumber = (rule: any, value: string, callback: any) => {
 };
 // 驗證確認密碼
 const validateCheckPassword = (rule: any, value: any, callback: any,form:any) => {
+    console.log("validateCheckPassword...value:",value,"form:",form)
+
     if (!value) {
         callback(new Error('請確認密碼'));
-    } else if (value === form.value.password) {
+    } else if (value === form.password) {
         callback();
     } else {
         callback(new Error('兩次密碼輸入不一致！'));
@@ -69,13 +71,15 @@ const validateGender = (rule: any, value: string, callback: any) => {
     }
 };
 
-// 驗證角色是否被選擇
-const validateRole = (rule: any, value: string, callback: any,isResetting:any,options:any) => {
-    if (isResetting.value == true) {//代表執行的是初始化表單數據,不進行校驗
-        callback(); // 跳過驗證
-        return;
-    }
 
+
+// 驗證角色是否被選擇
+const validateRole = (rule: any, value: string, callback: any,options:Ref<Option[]>) => {
+    // if (isResetting.value == true) {//代表執行的是初始化表單數據,不進行校驗
+    //     callback(); // 跳過驗證
+    //     return;
+    // }
+    console.log("validateRole...options:",options.value)
     const validRoles = options.value.map(option => option.label);
     console.log("validRoles", validRoles)
     // const validRoles = searchOptions.map(option => option.value);
@@ -109,9 +113,14 @@ const validateStatus = (rule: any, value: string, callback: any) => {
     // }
 };
 
-import {formUserInterface} from "@/interface/formUserInterface";
-export const useRules =(form:any,isResetting:boolean,options:any): FormRules<formUserInterface>=>{
+import {formUserInterface} from "@/interface/ManagementInter/formUserInterface";
+import {Option} from "../interface/formOption";
+
+export const useRules =(form:any,options:Ref<Option[]>): FormRules<formUserInterface>=>{
+    console.log("useRules...form:",form)
+    console.log("useRules...options:",options)
     return reactive<FormRules<formUserInterface>>({
+
         name: [
             {type: 'string', required: true, message: '必填', trigger: 'blur'},
             {min: 1, max: 10, message: '用戶名長度必須介於1到10個半形字元之間', trigger: 'blur'},
@@ -141,7 +150,7 @@ export const useRules =(form:any,isResetting:boolean,options:any): FormRules<for
         ],
         roleId: [
             {validator: (rule: any, value: string, callback: any)=>
-                    validateRole(rule, value, callback,isResetting,options), trigger: 'blur'},
+                    validateRole(rule, value, callback,options), trigger: 'blur'},
         ],
         status:[
             {validator: validateStatus, trigger: 'blur'}

@@ -1,6 +1,5 @@
 // 定義表單資料接口
 export interface formUserInterface {
-    isResetting?:boolean;
     status:string;
     name: string;
     accountName: string;

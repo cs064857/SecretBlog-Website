@@ -242,7 +242,7 @@ const handleCloseDialog = function () {
 /**
  * 新增按鈕、修改按鈕
  */
-import {useactionTypeStore} from '@/pinia/useUserManagementFormStore.ts'
+import {useactionTypeStore} from '@/pinia/useUserManagementFormStore'
 const formTitle=ref<string>("")//根據行為(例:新增、修改)決定表單Title
 console.log("初始 formTitle:", formTitle)
 const inputFormData=ref('');//傳遞給表單的資料

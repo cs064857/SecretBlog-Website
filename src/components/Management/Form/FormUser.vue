@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {nextTick, onBeforeMount, defineProps, onMounted, reactive, ref, watch} from 'vue';
+import {nextTick, onBeforeMount, defineProps, onMounted, reactive, ref, watch, Ref} from 'vue';
 import {ElMessage, FormInstance, FormRules} from 'element-plus';
 
 
@@ -19,7 +19,7 @@ const form = ref<formUserInterface>({
   phoneNumber: ''
 });
 
-// // 初始化表單資料
+// 初始化表單資料
 // const form = ref<formUserInterface>({
 //   status:"Normal",
 //   name: '測試1',
@@ -38,11 +38,12 @@ const form = ref<formUserInterface>({
 const emit = defineEmits(['dialogVisible']);
 const dialogVisible = ref(false);
 const ruleFormRef = ref<FormInstance | null>(null);
-const isResetting = ref<boolean>(false);//設置標誌，表示正在重置表單
+
 const actionType = ref<string>()
 // const modifiedFields = new Map<string,any>();//使用Set代表唯一性,key即為數據內容本身
 const modifiedFields = new Map<string,any>();//使用Set代表唯一性,key即為數據內容本身
 // 提交表單
+// const onSubmit = async (formEl: FormInstance | null,actionType,form,props) => {
 const onSubmit = async (formEl: FormInstance | null) => {
   if (!formEl) return;
   try {
@@ -91,17 +92,12 @@ const onSubmit = async (formEl: FormInstance | null) => {
       })
 
     }else if(actionType.value==="add"){
-      console.log("新增資料...")
-      // console.log("form.value",form.value)
-      saveUserDataRequest(form.value).then(({data}:{data:R}) => {
-        if (data.code == 200) {
-          emit('dialogVisible', dialogVisible.value);
-          // console.log('表單視窗關閉...');
-          window.location.replace(window.location.href);
-          //初始化清理表單資料
-          cleanFormValue();
-        }
-      });
+
+
+
+      saveUserData(form)
+
+
 
     }
 
@@ -113,38 +109,11 @@ const onSubmit = async (formEl: FormInstance | null) => {
 
 
 // 取消表單
-const onCancel = () => {
-  emit('dialogVisible', dialogVisible.value);
-  console.log('表單視窗關閉...');
-  nextTick(()=>{
-    cleanFormValue();
-  })
+const onCancel =useOnCancel(emit,form,ruleFormRef,dialogVisible);
 
-};
 
 // 清空表單資料
-const cleanFormValue = () => {
-  isResetting.value = true; // 設置標誌，true表示正在重置表單
-  form.value = {
-    status:"",
-    name: '',
-    accountName: '',
-    password: '',
-    checkPassword: '',
-    birthday: new Date(''),
-    gender: "",
-    roleId: '',
-    email: '',
-    address: '',
-    phoneNumber: ''
-  };
-  // 等待下一個 tick 以確保表單數據已更新
-  nextTick(() => {
-    isResetting.value = false; // 取消標誌
-    // 可選：清除驗證狀態
-    ruleFormRef.value?.clearValidate();
-  });
-};
+
 
 // 選項數據
 
@@ -168,22 +137,16 @@ onBeforeMount(()=>{
 })
 
 // 定義選項的介面
-interface Option {
-  value: string;
-  label: string;
-}
-
-
-
+import {Option} from "@/interface/formOption";
 const options= ref<Option[] |null>(null);
 
 
 /**
  * 表單驗證規則
  */
-import {useRules} from "@/validation/formUserVaild.ts"
-
-const rules = useRules(form.value,isResetting.value,options.value);
+import {useRules} from "@/validation/formUserVaild"
+let rules;
+rules = useRules(form.value,options);
 // 定義表單驗證規則
 
 /**
@@ -193,15 +156,19 @@ const rules = useRules(form.value,isResetting.value,options.value);
 /**
  * 接收表格(父組件)點擊編輯按鈕時取得該行的數據,並回顯示表單上
  */
-import {useactionTypeStore} from '@/pinia/useUserManagementFormStore.ts'
+import {useactionTypeStore} from '@/pinia/useUserManagementFormStore'
 import {
   getOptionsRequest,
   getTableDataRequest,
   saveUserDataRequest,
   updateUserDataRequest
 } from "@/requests/userRequest.js";
-import {R} from "@/interface/R.ts";
-import {formUserInterface} from "@/interface/formUserInterface.ts";
+import {R} from "@/interface/R";
+import {formUserInterface} from "@/interface/ManagementInter/formUserInterface";
+import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
+import {cleanFormValue, saveUserData} from "@/hooks/managementHooks/formHooks/useFormHooks";
+import {useOnCancel} from "@/hooks/managementHooks/formHooks/useFormHooks.js";
+
 const actionTypeStore = useactionTypeStore();
 const props =defineProps({
   inputFormData:{
@@ -212,9 +179,10 @@ const props =defineProps({
 const handleReceiveParentData=function (){
   console.log("執行handleReceiveParentData()")
   if(props.inputFormData){
-    const inputFormData =props.inputFormData
+    const inputFormData =<formUserInterface>props.inputFormData
     console.log("表單接收到父組件傳遞修改行的資料:",inputFormData)
-    form.value = {...inputFormData,isResetting:true,checkPassword:inputFormData.password}// 設置標誌，true表示正在重置表單
+    form.value = {...inputFormData,checkPassword:inputFormData.password}// 設置標誌，true表示正在重置表單
+    rules = useRules(form.value,options);
     // console.log("ipp",ipp)
     // form.value=ipp
 

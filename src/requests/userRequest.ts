@@ -1,6 +1,6 @@
 import {ElMessage} from "element-plus";
 import http from "@/utils/httpRequest.js";
-import {R} from "@/interface/R.ts";
+import {R} from "@/interface/R";
 
 export function batchDeleteRequest (userIdList:any){
     return http({
