@@ -1,9 +1,11 @@
-import {nextTick, Ref} from "vue";
+import {nextTick, ref, Ref} from "vue";
 import {FormInstance} from "element-plus";
 import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
 import {formUserInterface} from "../../../interface/ManagementInter/formUserInterface";
-import {saveUserDataRequest, updateUserDataRequest} from "../../../requests/userRequest";
+import {getOptionsRequest, saveUserDataRequest, updateUserDataRequest} from "../../../requests/userRequest";
 import {R} from "../../../interface/R";
+import {Option} from "../../../interface/formOption";
+
 
 
 export function useOnCancel(
@@ -44,7 +46,7 @@ export const saveUserData = function (form:Ref<Object>,dialogVisible:Ref<boolean
     });
 }
 
-export const updateUserData = function (props,form,dialogVisible:Ref<boolean>,emit: (event: 'dialogVisible', ...args: any[]) => void){
+export const updateUserData = function (props: Record<string, any>,form: Ref<formUserInterface>,dialogVisible:Ref<boolean>,emit: (event: 'dialogVisible', ...args: any[]) => void){
     console.log("updateUserData...props:",props)
 
     // //判斷修改了哪些內容
@@ -84,7 +86,7 @@ export const updateUserData = function (props,form,dialogVisible:Ref<boolean>,em
 }
 
 // 提交表單
-export function useOnSubmit(formEl: Ref<FormInstance | null>, actionType: Ref<string>, props: any, form: Ref<formUserInterface>,dialogVisible:Ref<boolean>,emit: (event: 'dialogVisible', ...args: any[]) => void) {
+export function useOnSubmit(formEl: Ref<FormInstance | null>, actionType: Ref<string>, props: Record<string, any>, form: Ref<formUserInterface>,dialogVisible:Ref<boolean>,emit: (event: 'dialogVisible', ...args: any[]) => void) {
     return async () => {
         console.log('formEl:', formEl.value);
         console.log('actionType:', actionType.value);
@@ -110,4 +112,18 @@ export function useOnSubmit(formEl: Ref<FormInstance | null>, actionType: Ref<st
     }
 }
 
+export const getOptions=function (){
+    const options= ref<Option[] |null>(null);
+    getOptionsRequest().then((data:R) => {
+        console.log("getOptions",data)
+        if(data.code==200){
+            options.value=data.data.map(item=>({
+                value:item.id,
+                label:item.roleName
+            }));
+            console.log("options",options)
+        }
+    })
+    return options
 
+}

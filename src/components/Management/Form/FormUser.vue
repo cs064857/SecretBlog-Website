@@ -43,34 +43,7 @@ const props =defineProps({
 const emit = defineEmits(['dialogVisible']);
 const dialogVisible = ref(false);
 const ruleFormRef = ref<FormInstance | null>(null);
-
 const actionType = ref<string>()
-// const modifiedFields = new Map<string,any>();//使用Set代表唯一性,key即為數據內容本身
-const modifiedFields = new Map<string,any>();//使用Set代表唯一性,key即為數據內容本身
-
-
-// const onSubmit = async (formEl: FormInstance | null,actionType:Ref<string>,form:Ref<Object>,props:Ref<Object>) => {
-// // const onSubmit = async (formEl: FormInstance | null) => {
-//   if (!formEl) return;
-//   try {
-//     await formEl.validate();
-//     console.log("actionType表單行為:",actionType.value)
-//     console.log('表單提交資料...');
-//     console.log('表單資料::', form.value);
-//
-//     if(actionType.value==="update"){
-//       updateUserData(props,form)
-//     }else if(actionType.value==="add"){
-//       saveUserData(form)
-//     }
-//
-//   } catch (error) {
-//     console.log('表單驗證失敗', error);
-//   }
-//
-// }
-
-
 const onSubmit = useOnSubmit(ruleFormRef,actionType,props,form,dialogVisible,emit);
 
 // 取消表單
@@ -82,28 +55,8 @@ const onCancel =useOnCancel(emit,form,ruleFormRef,dialogVisible);
 
 // 選項數據
 
-const getOptions=function (){
 
-  getOptionsRequest().then((data:R) => {
-    console.log("getOptions",data)
-      if(data.code==200){
-        options.value=data.data.map(item=>({
-          value:item.id,
-          label:item.roleName
-        }));
-        console.log("options",options)
-      }
-  })
-
-}
-
-onBeforeMount(()=>{
-  getOptions()
-})
-
-// 定義選項的介面
-import {Option} from "@/interface/formOption";
-const options= ref<Option[] |null>(null);
+const options = getOptions();
 
 
 /**
@@ -132,8 +85,7 @@ import {R} from "@/interface/R";
 import {formUserInterface} from "@/interface/ManagementInter/formUserInterface";
 import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
 import {
-  cleanFormValue,
-  onSubmit,
+  getOptions,
   saveUserData,
   updateUserData,
   useOnSubmit
@@ -148,14 +100,8 @@ const handleReceiveParentData=function (){
   if(props.inputFormData){
     const inputFormData =<formUserInterface>props.inputFormData
     console.log("表單接收到父組件傳遞修改行的資料:",inputFormData)
-    form.value = {...inputFormData,checkPassword:inputFormData.password}// 設置標誌，true表示正在重置表單
+    form.value = {...inputFormData,checkPassword:inputFormData.password}// 將確認密碼欄位回填與密碼相同值
     rules = useRules(form.value,options);
-    // console.log("ipp",ipp)
-    // form.value=ipp
-
-
-
-
   }
 }
 
@@ -163,7 +109,7 @@ watch(
     () => props.inputFormData,
     (newValue, oldValue, onCleanup)=>{
       console.log("FormUser接收到UserManagement資料")
-      actionType.value=actionTypeStore.getactionType
+      actionType.value=actionTypeStore.getactionType//從pinia中獲取actionType值
       handleReceiveParentData();
     },
     { immediate: true,deep:true}
