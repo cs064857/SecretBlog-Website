@@ -19,6 +19,11 @@ const form = ref<formUserInterface>({
   phoneNumber: ''
 });
 
+const props =defineProps({
+  inputFormData:{
+    type: Object,
+  }
+})
 // 初始化表單資料
 // const form = ref<formUserInterface>({
 //   status:"Normal",
@@ -42,71 +47,31 @@ const ruleFormRef = ref<FormInstance | null>(null);
 const actionType = ref<string>()
 // const modifiedFields = new Map<string,any>();//使用Set代表唯一性,key即為數據內容本身
 const modifiedFields = new Map<string,any>();//使用Set代表唯一性,key即為數據內容本身
-// 提交表單
-// const onSubmit = async (formEl: FormInstance | null,actionType,form,props) => {
-const onSubmit = async (formEl: FormInstance | null) => {
-  if (!formEl) return;
-  try {
-    await formEl.validate();
-    console.log("actionType表單行為:",actionType.value)
-    console.log('表單提交資料...');
-    console.log('表單資料::', form.value);
-    if(actionType.value==="update"){
-
-      // //判斷修改了哪些內容
-      // for (const field in props.inputFormData) {
-      //   console.log("field",field)
-      //   if(props.inputFormData[field]!=form.value[field]){
-      //     const value = form.value[field]
-      //     modifiedFields.set(field,value);
-      //   }
-      // }
-      // // 在處理完所有字段後，將 Map 轉換為 JSON 對象
-      // const modifiedFieldsJson = Object.fromEntries(modifiedFields);
-
-      // 將 props.inputFormData 轉換為 Object.entries 陣列
-      const modifiedFieldsJson = Object.entries(props.inputFormData as Record<string, any>)
-          .reduce((acc, [field, originalValue]) => {
-            // 從 form.value 中取得當前字段的值
-            const newValue = (form.value as Record<string, any>)[field];
-            // 如果新舊值不同，則將該字段及其新值加入累加器 acc
-            if (newValue !== originalValue) {
-              acc[field] = newValue;
-            }
-            return acc; // 返回累加器 acc
-          }, {} as Record<string, any>); // 初始值為空物件
-
-      console.log("修改資料...")
-      // console.log("需修改資料內容:",modifiedFields)
-      console.log("需修改資料內容:",modifiedFieldsJson)
-
-      // const lastMmodifiedFieldsJson = {...modifiedFieldsJson,id:props.inputFormData.id,userInfoId:props.inputFormData.userInfoId}//加上用戶ID與用戶資訊ID
-      // console.log("需修改資料內容:",lastMmodifiedFieldsJson)
-
-      updateUserDataRequest(props,modifiedFieldsJson).then((data:R)=>{
-        if(data.code==200){
-          emit('dialogVisible', dialogVisible.value);
-          console.log('表單視窗關閉...');
-        }
-
-      })
-
-    }else if(actionType.value==="add"){
 
 
+// const onSubmit = async (formEl: FormInstance | null,actionType:Ref<string>,form:Ref<Object>,props:Ref<Object>) => {
+// // const onSubmit = async (formEl: FormInstance | null) => {
+//   if (!formEl) return;
+//   try {
+//     await formEl.validate();
+//     console.log("actionType表單行為:",actionType.value)
+//     console.log('表單提交資料...');
+//     console.log('表單資料::', form.value);
+//
+//     if(actionType.value==="update"){
+//       updateUserData(props,form)
+//     }else if(actionType.value==="add"){
+//       saveUserData(form)
+//     }
+//
+//   } catch (error) {
+//     console.log('表單驗證失敗', error);
+//   }
+//
+// }
 
-      saveUserData(form)
 
-
-
-    }
-
-  } catch (error) {
-    console.log('表單驗證失敗', error);
-  }
-
-};
-
+const onSubmit = useOnSubmit(ruleFormRef,actionType,props,form,dialogVisible,emit);
 
 // 取消表單
 const onCancel =useOnCancel(emit,form,ruleFormRef,dialogVisible);
@@ -166,15 +131,17 @@ import {
 import {R} from "@/interface/R";
 import {formUserInterface} from "@/interface/ManagementInter/formUserInterface";
 import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
-import {cleanFormValue, saveUserData} from "@/hooks/managementHooks/formHooks/useFormHooks";
+import {
+  cleanFormValue,
+  onSubmit,
+  saveUserData,
+  updateUserData,
+  useOnSubmit
+} from "@/hooks/managementHooks/formHooks/useFormHooks";
 import {useOnCancel} from "@/hooks/managementHooks/formHooks/useFormHooks.js";
 
 const actionTypeStore = useactionTypeStore();
-const props =defineProps({
-  inputFormData:{
-        type: Object,
-  }
-})
+
 
 const handleReceiveParentData=function (){
   console.log("執行handleReceiveParentData()")
