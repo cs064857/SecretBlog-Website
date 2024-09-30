@@ -1,15 +1,17 @@
-import {nextTick, ref, Ref} from "vue";
+import {nextTick, ref, Ref, watch} from "vue";
 import {FormInstance} from "element-plus";
 import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
 import {formUserInterface} from "../../../interface/ManagementInter/formUserInterface";
 import {getOptionsRequest, saveUserDataRequest, updateUserDataRequest} from "../../../requests/userRequest";
 import {R} from "../../../interface/R";
 import {Option} from "../../../interface/formOption";
+import {useactionTypeStore} from "../../../pinia/useUserManagementFormStore";
+import {useRules} from "../../../validation/formUserVaild";
 
-
-
+export const dialogVisible = ref(false);
+export const ruleFormRef = ref<FormInstance | null>(null);
 export function useOnCancel(
-    emit:any, form:Ref<Object>, ruleFormRef:Ref<FormInstance | null>, dialogVisible:Ref<boolean>
+    emit:any, form:Ref<Object>, ruleFormRef:Ref<FormInstance | null>
 ) {
     return () => {
         emit('dialogVisible', dialogVisible.value);
@@ -86,7 +88,7 @@ export const updateUserData = function (props: Record<string, any>,form: Ref<for
 }
 
 // 提交表單
-export function useOnSubmit(formEl: Ref<FormInstance | null>, actionType: Ref<string>, props: Record<string, any>, form: Ref<formUserInterface>,dialogVisible:Ref<boolean>,emit: (event: 'dialogVisible', ...args: any[]) => void) {
+export function useOnSubmit(formEl: Ref<FormInstance | null>, actionType: Ref<string>, props: Record<string, any>, form: Ref<formUserInterface>,emit: (event: 'dialogVisible', ...args: any[]) => void) {
     return async () => {
         console.log('formEl:', formEl.value);
         console.log('actionType:', actionType.value);
@@ -111,9 +113,9 @@ export function useOnSubmit(formEl: Ref<FormInstance | null>, actionType: Ref<st
         }
     }
 }
-
+let options= ref<Option[] |null>(null);
 export const getOptions=function (){
-    const options= ref<Option[] |null>(null);
+
     getOptionsRequest().then((data:R) => {
         console.log("getOptions",data)
         if(data.code==200){
@@ -127,3 +129,34 @@ export const getOptions=function (){
     return options
 
 }
+
+export const actionType = ref<string>()
+export const useReceiveParentData=(props: Record<string, any>,form: Ref<formUserInterface>)=>{
+    watch(
+        () => props.inputFormData,
+        (newValue, oldValue, onCleanup)=>{
+            console.log("FormUser接收到UserManagement資料")
+            const actionTypeStore = useactionTypeStore();
+            actionType.value=actionTypeStore.getactionType//從pinia中獲取actionType值
+            handleReceiveParentData(props,form);
+        },
+        { immediate: true,deep:true}
+    );
+}
+export let rules;
+export const getRules=function (props: Record<string, any>,form: Ref<formUserInterface>){
+    // console.log("getRules...form",form)
+    rules = useRules(form.value,options);
+}
+
+ const handleReceiveParentData=function (props: Record<string, any>,form: Ref<formUserInterface>){
+    console.log("執行handleReceiveParentData()")
+    if(props.inputFormData){
+        const inputFormData =<formUserInterface>props.inputFormData
+        console.log("表單接收到父組件傳遞修改行的資料:",inputFormData)
+        form.value = {...inputFormData,checkPassword:inputFormData.password}// 將確認密碼欄位回填與密碼相同值
+        console.log("表單接收到父組件傳遞修改行form.value:",form.value)
+        rules = useRules(form.value,options);
+    }
+}
+

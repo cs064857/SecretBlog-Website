@@ -2,7 +2,24 @@
 import {nextTick, onBeforeMount, defineProps, onMounted, reactive, ref, watch, Ref} from 'vue';
 import {ElMessage, FormInstance, FormRules} from 'element-plus';
 
-
+import {useactionTypeStore} from '@/pinia/useUserManagementFormStore'
+import {
+  getOptionsRequest,
+  getTableDataRequest,
+  saveUserDataRequest,
+  updateUserDataRequest
+} from "@/requests/userRequest.js";
+import {R} from "@/interface/R";
+import {formUserInterface} from "@/interface/ManagementInter/formUserInterface";
+import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
+import {
+  actionType,
+  dialogVisible,
+  getOptions, rules, ruleFormRef,
+  saveUserData,
+  updateUserData,
+  useOnSubmit, useReceiveParentData, getRules
+} from "@/hooks/managementHooks/formHooks/useFormHooks";
 
 // 初始化表單資料
 const form = ref<formUserInterface>({
@@ -17,15 +34,6 @@ const form = ref<formUserInterface>({
   email: '',
   address: '',
   phoneNumber: ''
-});
-
-const props =defineProps({
-  inputFormData:{
-    type: Object,
-  }
-})
-// 初始化表單資料
-// const form = ref<formUserInterface>({
 //   status:"Normal",
 //   name: '測試1',
 //   accountName: 'testtest1',
@@ -37,34 +45,34 @@ const props =defineProps({
 //   email: 'testtestemail@gmail.com',
 //   address: '秘密',
 //   phoneNumber: '0900000000'
-// });
+});
+
+const props =defineProps({
+  inputFormData:{
+    type: Object,
+  }
+})
+
 
 // 定義事件
 const emit = defineEmits(['dialogVisible']);
-const dialogVisible = ref(false);
-const ruleFormRef = ref<FormInstance | null>(null);
-const actionType = ref<string>()
-const onSubmit = useOnSubmit(ruleFormRef,actionType,props,form,dialogVisible,emit);
 
+//表單行為(add or update)
+// const actionType = ref<string>()
+
+const onSubmit = useOnSubmit(ruleFormRef,actionType,props,form,emit);
 // 取消表單
-const onCancel =useOnCancel(emit,form,ruleFormRef,dialogVisible);
-
-
-// 清空表單資料
-
-
+const onCancel =useOnCancel(emit,form,ruleFormRef);
 // 選項數據
-
-
 const options = getOptions();
-
-
+getRules(props,form);
+useReceiveParentData(props,form)
 /**
  * 表單驗證規則
  */
 import {useRules} from "@/validation/formUserVaild"
-let rules;
-rules = useRules(form.value,options);
+// let rules;
+// rules = useRules(form.value,options);
 // 定義表單驗證規則
 
 /**
@@ -74,46 +82,31 @@ rules = useRules(form.value,options);
 /**
  * 接收表格(父組件)點擊編輯按鈕時取得該行的數據,並回顯示表單上
  */
-import {useactionTypeStore} from '@/pinia/useUserManagementFormStore'
-import {
-  getOptionsRequest,
-  getTableDataRequest,
-  saveUserDataRequest,
-  updateUserDataRequest
-} from "@/requests/userRequest.js";
-import {R} from "@/interface/R";
-import {formUserInterface} from "@/interface/ManagementInter/formUserInterface";
-import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
-import {
-  getOptions,
-  saveUserData,
-  updateUserData,
-  useOnSubmit
-} from "@/hooks/managementHooks/formHooks/useFormHooks";
+
 import {useOnCancel} from "@/hooks/managementHooks/formHooks/useFormHooks.js";
 
-const actionTypeStore = useactionTypeStore();
+// const actionTypeStore = useactionTypeStore();
 
 
-const handleReceiveParentData=function (){
-  console.log("執行handleReceiveParentData()")
-  if(props.inputFormData){
-    const inputFormData =<formUserInterface>props.inputFormData
-    console.log("表單接收到父組件傳遞修改行的資料:",inputFormData)
-    form.value = {...inputFormData,checkPassword:inputFormData.password}// 將確認密碼欄位回填與密碼相同值
-    rules = useRules(form.value,options);
-  }
-}
-
-watch(
-    () => props.inputFormData,
-    (newValue, oldValue, onCleanup)=>{
-      console.log("FormUser接收到UserManagement資料")
-      actionType.value=actionTypeStore.getactionType//從pinia中獲取actionType值
-      handleReceiveParentData();
-    },
-    { immediate: true,deep:true}
-);
+// const handleReceiveParentData=function (){
+//   console.log("執行handleReceiveParentData()")
+//   if(props.inputFormData){
+//     const inputFormData =<formUserInterface>props.inputFormData
+//     console.log("表單接收到父組件傳遞修改行的資料:",inputFormData)
+//     form.value = {...inputFormData,checkPassword:inputFormData.password}// 將確認密碼欄位回填與密碼相同值
+//     rules = useRules(form.value,options);
+//   }
+// }
+//
+// watch(
+//     () => props.inputFormData,
+//     (newValue, oldValue, onCleanup)=>{
+//       console.log("FormUser接收到UserManagement資料")
+//       actionType.value=actionTypeStore.getactionType//從pinia中獲取actionType值
+//       handleReceiveParentData();
+//     },
+//     { immediate: true,deep:true}
+// );
 
 
 
