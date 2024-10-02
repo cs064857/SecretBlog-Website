@@ -1,4 +1,4 @@
-import {nextTick, ref, Ref, watch} from "vue";
+import {computed, nextTick, onMounted, ref, Ref, watch} from "vue";
 import {FormInstance} from "element-plus";
 import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
 import {formUserInterface} from "../../../interface/ManagementInter/formUserInterface";
@@ -10,8 +10,9 @@ import {useRules} from "../../../validation/formUserVaild";
 
 export const dialogVisible = ref(false);
 export const ruleFormRef = ref<FormInstance | null>(null);
+
 export function useOnCancel(
-    emit:any, form:Ref<Object>, ruleFormRef:Ref<FormInstance | null>
+    emit:any, form:Ref<Object>,
 ) {
     return () => {
         emit('dialogVisible', dialogVisible.value);
@@ -88,24 +89,24 @@ export const updateUserData = function (props: Record<string, any>,form: Ref<for
 }
 
 // 提交表單
-export function useOnSubmit(formEl: Ref<FormInstance | null>, actionType: Ref<string>, props: Record<string, any>, form: Ref<formUserInterface>,emit: (event: 'dialogVisible', ...args: any[]) => void) {
+export function useOnSubmit(ruleFormRef:Ref<FormInstance | null>,actionType: Ref<string>, props: Record<string, any>, form: Ref<formUserInterface>,emit: (event: 'dialogVisible', ...args: any[]) => void) {
     return async () => {
-        console.log('formEl:', formEl.value);
+        console.log('formEl:', ruleFormRef.value);
         console.log('actionType:', actionType.value);
         console.log('props:', props);
         console.log('form:', form.value);
 
-        if (!formEl.value) return;
+        if (!ruleFormRef.value) return;
         try {
-            await formEl.value.validate();
+            await ruleFormRef.value.validate();
             console.log("actionType表單行為:", actionType.value);
             console.log('表單提交資料...');
             console.log('表單資料::', form.value);
-            console.log('表單formEl:', formEl.value);
+            console.log('表單formEl:', ruleFormRef.value);
             if (actionType.value === "update") {
                 updateUserData(props, form,dialogVisible,emit);
             } else if (actionType.value === "add") {
-                saveUserData(form,dialogVisible,formEl,emit);
+                saveUserData(form,dialogVisible,ruleFormRef,emit);
             }
 
         } catch (error) {
@@ -144,8 +145,11 @@ export const useReceiveParentData=(props: Record<string, any>,form: Ref<formUser
     );
 }
 export let rules;
-export const getRules=function (props: Record<string, any>,form: Ref<formUserInterface>){
-    // console.log("getRules...form",form)
+
+
+
+export const initializeRules = function (form: Ref<formUserInterface>) {
+    // 如果需要，可以在這裡
     rules = useRules(form.value,options);
 }
 
@@ -156,7 +160,8 @@ export const getRules=function (props: Record<string, any>,form: Ref<formUserInt
         console.log("表單接收到父組件傳遞修改行的資料:",inputFormData)
         form.value = {...inputFormData,checkPassword:inputFormData.password}// 將確認密碼欄位回填與密碼相同值
         console.log("表單接收到父組件傳遞修改行form.value:",form.value)
-        rules = useRules(form.value,options);
+        // rules = useRules(form.value,options);
+        Object.assign(rules, useRules(form.value, options));//更新 rules
     }
 }
 

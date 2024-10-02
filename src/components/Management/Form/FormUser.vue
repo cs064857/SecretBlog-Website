@@ -11,6 +11,7 @@ import {
 } from "@/requests/userRequest.js";
 import {R} from "@/interface/R";
 import {formUserInterface} from "@/interface/ManagementInter/formUserInterface";
+import {useOnCancel} from "@/hooks/managementHooks/formHooks/useFormHooks.js";
 import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
 import {
   actionType,
@@ -18,7 +19,7 @@ import {
   getOptions, rules, ruleFormRef,
   saveUserData,
   updateUserData,
-  useOnSubmit, useReceiveParentData, getRules
+  useOnSubmit, useReceiveParentData, initializeRules
 } from "@/hooks/managementHooks/formHooks/useFormHooks";
 
 // 初始化表單資料
@@ -34,19 +35,20 @@ const form = ref<formUserInterface>({
   email: '',
   address: '',
   phoneNumber: ''
-//   status:"Normal",
-//   name: '測試1',
-//   accountName: 'testtest1',
-//   password: 'testpassword1',
-//   checkPassword: 'testpassword1',
-//   birthday: new Date('1970-01-01'),
-//   gender: "male",
-//   roleId: '',
-//   email: 'testtestemail@gmail.com',
-//   address: '秘密',
-//   phoneNumber: '0900000000'
-});
 
+  // status:"Normal",
+  // name: '測試1',
+  // accountName: 'testtest1',
+  // password: 'testpassword1',
+  // checkPassword: 'testpassword1',
+  // birthday: new Date('1970-01-01'),
+  // gender: "male",
+  // roleId: '',
+  // email: 'testtestemail@gmail.com',
+  // address: '秘密',
+  // phoneNumber: '0900000000'
+});
+initializeRules(form);//初始化Rules
 const props =defineProps({
   inputFormData:{
     type: Object,
@@ -62,11 +64,11 @@ const emit = defineEmits(['dialogVisible']);
 
 const onSubmit = useOnSubmit(ruleFormRef,actionType,props,form,emit);
 // 取消表單
-const onCancel =useOnCancel(emit,form,ruleFormRef);
+const onCancel =useOnCancel(emit,form);
 // 選項數據
 const options = getOptions();
-getRules(props,form);
-useReceiveParentData(props,form)
+
+useReceiveParentData(props,form)//開啟監控props.inputFormData
 /**
  * 表單驗證規則
  */
@@ -83,7 +85,7 @@ import {useRules} from "@/validation/formUserVaild"
  * 接收表格(父組件)點擊編輯按鈕時取得該行的數據,並回顯示表單上
  */
 
-import {useOnCancel} from "@/hooks/managementHooks/formHooks/useFormHooks.js";
+
 
 // const actionTypeStore = useactionTypeStore();
 
