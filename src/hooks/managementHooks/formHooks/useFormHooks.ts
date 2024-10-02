@@ -11,6 +11,10 @@ import {useRules} from "../../../validation/formUserVaild";
 export const dialogVisible = ref(false);
 export const ruleFormRef = ref<FormInstance | null>(null);
 
+export interface FormProps {
+    inputFormData: Record<string, any>; // 假設 inputFormData 是一個通用的物件
+}
+
 export function useOnCancel(
     emit:any, form:Ref<Object>,
 ) {

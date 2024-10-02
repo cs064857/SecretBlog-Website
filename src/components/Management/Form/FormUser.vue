@@ -11,7 +11,7 @@ import {
 } from "@/requests/userRequest.js";
 import {R} from "@/interface/R";
 import {formUserInterface} from "@/interface/ManagementInter/formUserInterface";
-import {useOnCancel} from "@/hooks/managementHooks/formHooks/useFormHooks.js";
+import {FormProps, useOnCancel} from "@/hooks/managementHooks/formHooks/useFormHooks.js";
 import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
 import {
   actionType,
@@ -49,12 +49,8 @@ const form = ref<formUserInterface>({
   // phoneNumber: '0900000000'
 });
 initializeRules(form);//初始化Rules
-const props =defineProps({
-  inputFormData:{
-    type: Object,
-  }
-})
 
+const props = defineProps<FormProps>();//修改表單資料時回顯原表單數據
 
 // 定義事件
 const emit = defineEmits(['dialogVisible']);
@@ -62,13 +58,13 @@ const emit = defineEmits(['dialogVisible']);
 //表單行為(add or update)
 // const actionType = ref<string>()
 
-const onSubmit = useOnSubmit(ruleFormRef,actionType,props,form,emit);
+const onSubmit = useOnSubmit(ruleFormRef,actionType,props,form,emit);//送出表單資料按鈕
 // 取消表單
-const onCancel =useOnCancel(emit,form);
+const onCancel =useOnCancel(emit,form);//取消表單按鈕(清空表單資料並關閉視窗)
 // 選項數據
-const options = getOptions();
+const options = getOptions();//從後端獲得選項資料
 
-useReceiveParentData(props,form)//開啟監控props.inputFormData
+useReceiveParentData(props,form)//開啟監控props.inputFormData，若props.inputFormData有新值，代表為"update"，並執行對應的函數
 /**
  * 表單驗證規則
  */
