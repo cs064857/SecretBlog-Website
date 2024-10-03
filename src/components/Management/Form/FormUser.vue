@@ -2,7 +2,7 @@
 import {nextTick, onBeforeMount, defineProps, onMounted, reactive, ref, watch, Ref} from 'vue';
 import {ElMessage, FormInstance, FormRules} from 'element-plus';
 
-import {useactionTypeStore} from '@/pinia/useUserManagementFormStore'
+
 import {
   getOptionsRequest,
   getTableDataRequest,
@@ -14,7 +14,7 @@ import {formUserInterface} from "@/interface/ManagementInter/formUserInterface";
 import {FormProps, useOnCancel} from "@/hooks/managementHooks/formHooks/useFormHooks.js";
 import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
 import {
-  actionType,
+
   dialogVisible,
   getOptions, rules, ruleFormRef,
   saveUserData,
@@ -53,14 +53,14 @@ initializeRules(form);//初始化Rules
 const props = defineProps<FormProps>();//修改表單資料時回顯原表單數據
 
 // 定義事件
-const emit = defineEmits(['dialogVisible']);
+
 
 //表單行為(add or update)
 // const actionType = ref<string>()
 
-const onSubmit = useOnSubmit(ruleFormRef,actionType,props,form,emit);//送出表單資料按鈕
+const onSubmit = useOnSubmit(ruleFormRef,props,form);//送出表單資料按鈕
 // 取消表單
-const onCancel =useOnCancel(emit,form);//取消表單按鈕(清空表單資料並關閉視窗)
+const onCancel =useOnCancel(form);//取消表單按鈕(清空表單資料並關閉視窗)
 // 選項數據
 const options = getOptions();//從後端獲得選項資料
 

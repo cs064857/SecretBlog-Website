@@ -5,23 +5,26 @@ import {formUserInterface} from "../../../interface/ManagementInter/formUserInte
 import {getOptionsRequest, saveUserDataRequest, updateUserDataRequest} from "../../../requests/userRequest";
 import {R} from "../../../interface/R";
 import {Option} from "../../../interface/formOption";
-import {useactionTypeStore} from "../../../pinia/useUserManagementFormStore";
+import { store } from "@/pinia/index";
+import {useactionTypeStore,useDialogVisibleStore} from '@/pinia/useFormStore'
 import {useRules} from "../../../validation/formUserVaild";
-
+// import {useactionTypeStore} from "@/pinia/useUserManagementFormStore"
 export const dialogVisible = ref(false);
 export const ruleFormRef = ref<FormInstance | null>(null);
-
+const dialogVisibleStore = useDialogVisibleStore(store);
 export interface FormProps {
     inputFormData: Record<string, any>; // 假設 inputFormData 是一個通用的物件
 }
 
 export function useOnCancel(
-    emit:any, form:Ref<Object>,
+    form:Ref<Object>,
 ) {
     return () => {
-        emit('dialogVisible', dialogVisible.value);
+        // emit('dialogVisible', dialogVisible.value);
+        dialogVisibleStore.setDialogVisible(false)
         console.log('表單視窗關閉...');
         nextTick(() => {
+            console.log("useOnCancel...form:",form)
             cleanFormValue(form, ruleFormRef);
         })
     }
@@ -30,7 +33,7 @@ export function useOnCancel(
 
 
 const cleanFormValue = (form:Ref<Object>,ruleFormRef:Ref<FormInstance | null>) => {
-    console.log("cleanFormValue...")
+    console.log("cleanFormValue...form:",form)
     cleanStringAndDateValue(form.value)
     // 等待下一個 tick 以確保表單數據已更新
     nextTick(() => {
@@ -39,12 +42,13 @@ const cleanFormValue = (form:Ref<Object>,ruleFormRef:Ref<FormInstance | null>) =
     });
 };
 
-export const saveUserData = function (form:Ref<Object>,dialogVisible:Ref<boolean>,ruleFormRef: Ref<FormInstance | null>,emit: (event: 'dialogVisible', ...args: any[]) => void){
+export const saveUserData = function (form:Ref<Object>,dialogVisible:Ref<boolean>,ruleFormRef: Ref<FormInstance | null>){
     console.log("新增資料...")
     // console.log("form.value",form.value)
     saveUserDataRequest(form.value).then(({data}:{data:R}) => {
         if (data.code == 200) {
-            emit('dialogVisible', dialogVisible.value);
+            // emit('dialogVisible', dialogVisible.value);
+            dialogVisibleStore.setDialogVisible(false)
             // console.log('表單視窗關閉...');
             window.location.replace(window.location.href);
             //初始化清理表單資料
@@ -53,7 +57,7 @@ export const saveUserData = function (form:Ref<Object>,dialogVisible:Ref<boolean
     });
 }
 
-export const updateUserData = function (props: Record<string, any>,form: Ref<formUserInterface>,dialogVisible:Ref<boolean>,emit: (event: 'dialogVisible', ...args: any[]) => void){
+export const updateUserData = function (props: Record<string, any>,form: Ref<formUserInterface>,dialogVisible:Ref<boolean>){
     console.log("updateUserData...props:",props)
 
     // //判斷修改了哪些內容
@@ -85,7 +89,8 @@ export const updateUserData = function (props: Record<string, any>,form: Ref<for
 
     updateUserDataRequest(props,modifiedFieldsJson).then((data:R)=>{
         if(data.code==200){
-            emit('dialogVisible', dialogVisible.value);
+            // emit('dialogVisible', dialogVisible.value);
+            dialogVisibleStore.setDialogVisible(false)
             console.log('表單視窗關閉...');
         }
 
@@ -93,8 +98,9 @@ export const updateUserData = function (props: Record<string, any>,form: Ref<for
 }
 
 // 提交表單
-export function useOnSubmit(ruleFormRef:Ref<FormInstance | null>,actionType: Ref<string>, props: Record<string, any>, form: Ref<formUserInterface>,emit: (event: 'dialogVisible', ...args: any[]) => void) {
+export function useOnSubmit(ruleFormRef:Ref<FormInstance | null>,props: Record<string, any>, form: Ref<formUserInterface>) {
     return async () => {
+
         console.log('formEl:', ruleFormRef.value);
         console.log('actionType:', actionType.value);
         console.log('props:', props);
@@ -108,9 +114,9 @@ export function useOnSubmit(ruleFormRef:Ref<FormInstance | null>,actionType: Ref
             console.log('表單資料::', form.value);
             console.log('表單formEl:', ruleFormRef.value);
             if (actionType.value === "update") {
-                updateUserData(props, form,dialogVisible,emit);
+                updateUserData(props, form,dialogVisible);
             } else if (actionType.value === "add") {
-                saveUserData(form,dialogVisible,ruleFormRef,emit);
+                saveUserData(form,dialogVisible,ruleFormRef);
             }
 
         } catch (error) {

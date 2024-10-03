@@ -9,7 +9,7 @@
 
 
       <el-dialog
-          v-model="dialogVisible"
+          :model-value="dialogVisible"
           :title="formTitle"
           width="500"
           :before-close="handleClose"
@@ -212,8 +212,10 @@ onMounted(()=>{
 /**
  * 對話框
  */
-const dialogVisible = ref(false)
-console.log("對話框初始狀態 dialogVisible:", dialogVisible)
+import {useactionTypeStore,useDialogVisibleStore} from '@/pinia/useFormStore'
+const dialogVisibleStore = useDialogVisibleStore();
+// const dialogVisible = ref<boolean>(dialogVisibleStore.getDialogVisible)
+const dialogVisible = computed(() => dialogVisibleStore.dialogVisible)
 
 const handleClose = (done: () => void) => {
   ElMessageBox.confirm('確認是否關閉視窗？')
@@ -228,7 +230,7 @@ const handleClose = (done: () => void) => {
 
 const handleCloseDialog = function () {
   console.log("關閉對話框 handleCloseDialog")
-  dialogVisible.value = false
+  dialogVisibleStore.setDialogVisible(true)
 }
 /**
  * 對話框/
@@ -242,22 +244,23 @@ const handleCloseDialog = function () {
 /**
  * 新增按鈕、修改按鈕
  */
-import {useactionTypeStore} from '@/pinia/useUserManagementFormStore'
+
 const formTitle=ref<string>("")//根據行為(例:新增、修改)決定表單Title
 console.log("初始 formTitle:", formTitle)
-const inputFormData=ref('');//傳遞給表單的資料
+const inputFormData=ref({});//傳遞給表單的資料
 console.log("初始 inputFormData:", inputFormData)
 const actionTypeStore = useactionTypeStore();
+
 const handleAdd = () => {
-  formTitle.value="新增"
+  formTitle.value="新增"//設置表單標題
   console.log("觸發 handleAdd，formTitle:", formTitle.value)
   //告訴表單點擊的是新增，並使用新增相關的程式碼
   actionTypeStore.setactionType("add")
-  dialogVisible.value=true
+  dialogVisibleStore.setDialogVisible(true)
 }
 
 const handleEdit = (index: number, row: any) => {
-  formTitle.value="編輯"
+  formTitle.value="編輯"//設置表單標題
   console.log("觸發 handleEdit，formTitle:", formTitle.value)
   console.log("選中項 index:", index, " row:", row)
   //給表單組件傳遞並回顯選中項資料
@@ -265,7 +268,7 @@ const handleEdit = (index: number, row: any) => {
 
   //打開表單視窗
   actionTypeStore.setactionType("update")
-  dialogVisible.value=true
+  dialogVisibleStore.setDialogVisible(true)
 
 }
 /**
@@ -352,8 +355,9 @@ import {updatePaginatedData, useTablePaginated} from "@/hooks/useTablePaginated.
 let filteredData=ref<any[] |null>();
 const handleCurrentChange = (val: number) => {
   console.log("分頁當前頁變更 handleCurrentChange，頁數:", val)
+  console.log("分頁當前頁變更 filteredData，數據:", filteredData.value)
 
-  const {resultData:tempresult} =CurrentChange(val,tableRawData)
+  const {resultData:tempresult} =CurrentChange(val,filteredData)
   console.log("更新後的 resultData:", tempresult.value)
   resultData=tempresult
 }
@@ -380,28 +384,6 @@ onMounted(async ()=>{
   await getTableData();
 
 })
-
-// watch(() => tableRawData.value,
-//     (newData) => {
-//       filteredData.value = newData;
-//
-//     },
-//     { immediate: true, deep: true }
-// );
-
-// watch(()=>filteredData.value,()=>{
-//   console.log("監控到filteredData發生變化...")
-//   const {resultData:tempresultData} =updatePaginatedData(tableRawData,filteredData,dataTotalCount,currentPage,pageSize);
-//   resultData=tempresultData
-//   console.log("更新後resultData",resultData.value)
-// },{immediate:false,deep:true})
-
-// watch(()=>resultData.value,()=>{
-//   const {resultData:tempresultData} =updatePaginatedData(tableRawData,dataTotalCount,currentPage,pageSize);
-//   resultData=tempresultData
-//
-//   console.log("更新表格展示值:",tempresultData.value)
-// },{immediate:false,deep:true})
 
 /**
  * 搜尋欄位選單
@@ -447,7 +429,7 @@ const handleSearch=function (){
   currentPage.value=1//搜尋後回到第一頁
   dataTotalCount.value=tempdataTotalCount.value//搜尋後重新計算總數據
   console.log("搜尋後 dataTotalCount:", dataTotalCount.value)
-
+  filteredData.value=tempFilteredData.value
   // resultData.value = updatePaginatedData(tempFilteredData, dataTotalCount, currentPage, pageSize).resultData.value;
   const {resultData:tempresultData} =updatePaginatedData(tempFilteredData,dataTotalCount,currentPage,pageSize);
   console.log("搜尋後的 resultData:", tempresultData.value)

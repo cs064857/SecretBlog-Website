@@ -10,7 +10,7 @@ export function useTablePaginated(tableData: Ref<any[]>) {
 //設置索引
     const indexCount = (index: number) => {
         const calculatedIndex = (currentPage.value - 1) * pageSize.value + index + 1;
-        console.log("計算索引 indexCount:", calculatedIndex)
+        // console.log("計算索引 indexCount:", calculatedIndex)
         return calculatedIndex;
     }
 // /設置索引
