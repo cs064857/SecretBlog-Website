@@ -1,7 +1,7 @@
 import {computed, nextTick, onMounted, ref, Ref, watch} from "vue";
 import {FormInstance} from "element-plus";
 import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
-import {formUserInterface} from "../../../interface/ManagementInter/formUserInterface";
+import {formUserInterface} from "../../../interface/ManagementInter/formUserInterface";//㊣
 import {getOptionsRequest, saveUserDataRequest, updateUserDataRequest} from "../../../requests/userRequest";
 import {R} from "../../../interface/R";
 import {Option} from "../../../interface/formOption";
@@ -12,9 +12,13 @@ import {useRules} from "../../../validation/formUserVaild";
 export const dialogVisible = ref(false);
 export const ruleFormRef = ref<FormInstance | null>(null);
 const dialogVisibleStore = useDialogVisibleStore(store);
-export interface FormProps {
-    inputFormData: Record<string, any>; // 假設 inputFormData 是一個通用的物件
-}
+
+import {useInputFormDataStore} from "@/pinia/useFormStore"
+const inputFormDataStore = useInputFormDataStore();
+const props:Ref<Object> = computed(()=>inputFormDataStore.inputFormData)
+// export interface FormProps {
+//     inputFormData: Record<string, any>; // 假設 inputFormData 是一個通用的物件
+// }
 
 export function useOnCancel(
     form:Ref<Object>,
@@ -57,7 +61,7 @@ export const saveUserData = function (form:Ref<Object>,dialogVisible:Ref<boolean
     });
 }
 
-export const updateUserData = function (props: Record<string, any>,form: Ref<formUserInterface>,dialogVisible:Ref<boolean>){
+export const updateUserData = function (form: Ref<formUserInterface>,dialogVisible:Ref<boolean>){
     console.log("updateUserData...props:",props)
 
     // //判斷修改了哪些內容
@@ -72,7 +76,7 @@ export const updateUserData = function (props: Record<string, any>,form: Ref<for
     // const modifiedFieldsJson = Object.fromEntries(modifiedFields);
 
     // 將 props.inputFormData 轉換為 Object.entries 陣列
-    const modifiedFieldsJson = Object.entries(props.inputFormData as Record<string, any>)
+    const modifiedFieldsJson = Object.entries(props.value)
         .reduce((acc, [field, originalValue]) => {
             // 從 form.value 中取得當前字段的值
             const newValue = (form.value as Record<string, any>)[field];
@@ -98,7 +102,7 @@ export const updateUserData = function (props: Record<string, any>,form: Ref<for
 }
 
 // 提交表單
-export function useOnSubmit(ruleFormRef:Ref<FormInstance | null>,props: Record<string, any>, form: Ref<formUserInterface>) {
+export function useOnSubmit(ruleFormRef:Ref<FormInstance | null>, form: Ref<formUserInterface>) {
     return async () => {
 
         console.log('formEl:', ruleFormRef.value);
@@ -114,7 +118,7 @@ export function useOnSubmit(ruleFormRef:Ref<FormInstance | null>,props: Record<s
             console.log('表單資料::', form.value);
             console.log('表單formEl:', ruleFormRef.value);
             if (actionType.value === "update") {
-                updateUserData(props, form,dialogVisible);
+                updateUserData(form,dialogVisible);
             } else if (actionType.value === "add") {
                 saveUserData(form,dialogVisible,ruleFormRef);
             }
@@ -142,14 +146,18 @@ export const getOptions=function (){
 }
 
 export const actionType = ref<string>()
-export const useReceiveParentData=(props: Record<string, any>,form: Ref<formUserInterface>)=>{
+
+export const useReceiveParentData=(form: Ref<formUserInterface>)=>{
+
+
+
     watch(
-        () => props.inputFormData,
+        () => props.value,
         (newValue, oldValue, onCleanup)=>{
-            console.log("FormUser接收到UserManagement資料")
+            console.log("FormUser接收到UserManagement資料props:",props.value)
             const actionTypeStore = useactionTypeStore();
             actionType.value=actionTypeStore.getactionType//從pinia中獲取actionType值
-            handleReceiveParentData(props,form);
+            handleReceiveParentData(form);
         },
         { immediate: true,deep:true}
     );
@@ -163,10 +171,10 @@ export const initializeRules = function (form: Ref<formUserInterface>) {
     rules = useRules(form.value,options);
 }
 
- const handleReceiveParentData=function (props: Record<string, any>,form: Ref<formUserInterface>){
-    console.log("執行handleReceiveParentData()")
-    if(props.inputFormData){
-        const inputFormData =<formUserInterface>props.inputFormData
+ const handleReceiveParentData=function (form: Ref<formUserInterface>){
+    console.log("執行handleReceiveParentData()...props:",props)
+    if(props.value){
+        const inputFormData =<formUserInterface>props.value
         console.log("表單接收到父組件傳遞修改行的資料:",inputFormData)
         form.value = {...inputFormData,checkPassword:inputFormData.password}// 將確認密碼欄位回填與密碼相同值
         console.log("表單接收到父組件傳遞修改行form.value:",form.value)

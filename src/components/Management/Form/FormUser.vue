@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {nextTick, onBeforeMount, defineProps, onMounted, reactive, ref, watch, Ref} from 'vue';
+import {nextTick, onBeforeMount, defineProps, onMounted, reactive, ref, watch, Ref, computed} from 'vue';
 import {ElMessage, FormInstance, FormRules} from 'element-plus';
 
 
@@ -50,21 +50,25 @@ const form = ref<formUserInterface>({
 });
 initializeRules(form);//初始化Rules
 
-const props = defineProps<FormProps>();//修改表單資料時回顯原表單數據
 
+// const props = defineProps<FormProps>();//修改表單資料時回顯原表單數據
+
+// import {useInputFormDataStore} from "@/pinia/useFormStore"
+// const inputFormDataStore = useInputFormDataStore();
+// const props = computed(()=>inputFormDataStore.inputFormData)
 // 定義事件
 
 
 //表單行為(add or update)
 // const actionType = ref<string>()
 
-const onSubmit = useOnSubmit(ruleFormRef,props,form);//送出表單資料按鈕
+const onSubmit = useOnSubmit(ruleFormRef,form);//送出表單資料按鈕
 // 取消表單
 const onCancel =useOnCancel(form);//取消表單按鈕(清空表單資料並關閉視窗)
 // 選項數據
 const options = getOptions();//從後端獲得選項資料
 
-useReceiveParentData(props,form)//開啟監控props.inputFormData，若props.inputFormData有新值，代表為"update"，並執行對應的函數
+useReceiveParentData(form)//開啟監控props.inputFormData，若props.inputFormData有新值，代表為"update"，並執行對應的函數
 /**
  * 表單驗證規則
  */

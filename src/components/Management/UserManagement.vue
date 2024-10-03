@@ -258,17 +258,20 @@ const handleAdd = () => {
   actionTypeStore.setactionType("add")
   dialogVisibleStore.setDialogVisible(true)
 }
-
+import {useInputFormDataStore} from "@/pinia/useFormStore"
+const inputFormDataStore = useInputFormDataStore();
 const handleEdit = (index: number, row: any) => {
   formTitle.value="編輯"//設置表單標題
   console.log("觸發 handleEdit，formTitle:", formTitle.value)
   console.log("選中項 index:", index, " row:", row)
-  //給表單組件傳遞並回顯選中項資料
-  inputFormData.value= {...row,foo:Date.now()}//foo是無意義的數據,只是為了觸發FormUser的watch監聽
 
   //打開表單視窗
   actionTypeStore.setactionType("update")
   dialogVisibleStore.setDialogVisible(true)
+  //給表單組件傳遞並回顯選中項資料
+  inputFormDataStore.setInputFormData(row)
+  console.log("inputFormDataStore.getInputFormData...",inputFormDataStore.getInputFormData)
+  // inputFormData.value= {...row,foo:Date.now()}//foo是無意義的數據,只是為了觸發FormUser的watch監聽
 
 }
 /**

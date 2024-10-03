@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import {computed, ref} from "vue";
-
+//已開啟自動持久化
 export const useactionTypeStore = defineStore('actionTypeStore', ()=>{
     const actionType=ref<string>()
     const getactionType=computed(()=> actionType.value)
@@ -21,7 +21,15 @@ export const useDialogVisibleStore = defineStore('dialogVisibleStore', ()=>{
         }
         return{dialogVisible,getDialogVisible,setDialogVisible}
     }
-// , {
-//     persist: true  // 啟用持久化
-// }
+
+)
+
+export const useInputFormDataStore = defineStore('inputFormDataStore', ()=>{
+        const inputFormData=ref<Object>()
+        const getInputFormData=computed(()=> inputFormData.value)
+        const setInputFormData=function (newValue:any){
+            inputFormData.value=newValue
+        }
+        return{inputFormData,getInputFormData,setInputFormData}
+    }
 )
