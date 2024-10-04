@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import {ref} from 'vue';
 
-import {formDataInterface} from "@/interface/ManagementInter/formUserInterface";
-import {useOnCancel} from "@/hooks/managementHooks/formHooks/useFormHooks.js";
+import {formDataInterface} from "@/interface/ManagementInter/userInterface/formUserInterface.ts";
+import {useOnCancel} from "@/hooks/managementHooks/genericFormHooks/useGenericFormHooks.js";
 import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
 import {
   getOptions, rules, ruleFormRef,
   useOnSubmit, useReceiveParentData, initializeRules
-} from "@/hooks/managementHooks/formHooks/useFormHooks";
+} from "@/hooks/managementHooks/genericFormHooks/useGenericFormHooks";
 
 // 初始化表單資料㊣
 const form = ref<formDataInterface>({

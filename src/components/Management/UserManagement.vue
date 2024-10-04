@@ -212,7 +212,7 @@ onMounted(()=>{
 /**
  * 對話框
  */
-import {useActionTypeStore,useDialogVisibleStore} from '@/pinia/useFormStore'
+import {useActionTypeStore,useDialogVisibleStore} from '@/pinia/managementPinia/genericFormPinia/useFormStore.ts'
 const dialogVisibleStore = useDialogVisibleStore();
 // const dialogVisible = ref<boolean>(dialogVisibleStore.getDialogVisible)
 const dialogVisible = computed(() => dialogVisibleStore.dialogVisible)
@@ -258,7 +258,7 @@ const handleAdd = () => {
   actionTypeStore.setActionType("add")
   dialogVisibleStore.setDialogVisible(true)
 }
-import {useInputFormDataStore} from "@/pinia/useFormStore"
+import {useInputFormDataStore} from "@/pinia/managementPinia/genericFormPinia/useFormStore.ts"
 const inputFormDataStore = useInputFormDataStore();
 const handleEdit = (index: number, row: any) => {
   formTitle.value="編輯"//設置表單標題

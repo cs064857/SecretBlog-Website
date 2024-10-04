@@ -1,7 +1,7 @@
 import {computed, nextTick, onMounted, ref, Ref, watch} from "vue";
 import {FormInstance} from "element-plus";
 import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
-import {formDataInterface} from "../../../interface/ManagementInter/formUserInterface";//㊣
+import {formDataInterface} from "../../../interface/ManagementInter/userInterface/formUserInterface.ts";//㊣
 import {getOptionsRequest, saveUserDataRequest, updateUserDataRequest} from "../../../requests/userRequest";
 import {R} from "../../../interface/R";
 import {Option} from "../../../interface/formOption";
