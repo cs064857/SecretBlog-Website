@@ -1,7 +1,7 @@
 import {computed, nextTick, onMounted, ref, Ref, watch} from "vue";
 import {FormInstance} from "element-plus";
 import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
-import {formUserInterface} from "../../../interface/ManagementInter/formUserInterface";//㊣
+import {formDataInterface} from "../../../interface/ManagementInter/formUserInterface";//㊣
 import {getOptionsRequest, saveUserDataRequest, updateUserDataRequest} from "../../../requests/userRequest";
 import {R} from "../../../interface/R";
 import {Option} from "../../../interface/formOption";
@@ -61,7 +61,7 @@ export const saveUserData = function (form:Ref<Object>,dialogVisible:Ref<boolean
     });
 }
 
-export const updateUserData = function (form: Ref<formUserInterface>){
+export const updateUserData = function (form: Ref<formDataInterface>){
     console.log("updateUserData...form:",form.value)
     console.log("updateUserData...props:",props.value)
 
@@ -109,7 +109,7 @@ export const updateUserData = function (form: Ref<formUserInterface>){
 }
 
 // 提交表單
-export function useOnSubmit(ruleFormRef:Ref<FormInstance | null>, form: Ref<formUserInterface>) {
+export function useOnSubmit(ruleFormRef:Ref<FormInstance | null>, form: Ref<formDataInterface>) {
     return async () => {
 
         console.log('formEl:', ruleFormRef.value);
@@ -154,7 +154,7 @@ export const getOptions=function (){
 
 export const actionType = ref<string>()
 
-export const useReceiveParentData=(form: Ref<formUserInterface>)=>{
+export const useReceiveParentData=(form: Ref<formDataInterface>)=>{
 
 
 
@@ -173,15 +173,15 @@ export let rules;
 
 
 
-export const initializeRules = function (form: Ref<formUserInterface>) {
+export const initializeRules = function (form: Ref<formDataInterface>) {
     // 如果需要，可以在這裡
     rules = useRules(form.value,options);
 }
 
- const handleReceiveParentData=function (form: Ref<formUserInterface>){
+ const handleReceiveParentData=function (form: Ref<formDataInterface>){
     console.log("執行handleReceiveParentData()...props:",props)
     if(props.value){
-        const inputFormData =<formUserInterface>props.value
+        const inputFormData =<formDataInterface>props.value
         console.log("表單接收到父組件傳遞修改行的資料:",inputFormData)
         form.value = {...inputFormData,checkPassword:inputFormData.password}// 將確認密碼欄位回填與密碼相同值
         console.log("表單接收到父組件傳遞修改行form.value:",form.value)

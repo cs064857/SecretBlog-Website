@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {ref} from 'vue';
 
-import {formUserInterface} from "@/interface/ManagementInter/formUserInterface";
+import {formDataInterface} from "@/interface/ManagementInter/formUserInterface";
 import {useOnCancel} from "@/hooks/managementHooks/formHooks/useFormHooks.js";
 import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
 import {
@@ -10,7 +10,7 @@ import {
 } from "@/hooks/managementHooks/formHooks/useFormHooks";
 
 // 初始化表單資料㊣
-const form = ref<formUserInterface>({
+const form = ref<formDataInterface>({
   status:"",
   name: '',
   accountName: '',
@@ -130,7 +130,7 @@ useReceiveParentData(form)//開啟監控props.inputFormData，若props.inputForm
     </el-form-item>
 
     <el-form-item>
-      <el-button type="primary" @click="onSubmit(ruleFormRef)">確定</el-button>
+      <el-button type="primary" @click="onSubmit">確定</el-button>
       <el-button @click="onCancel">取消</el-button>
     </el-form-item>
   </el-form>
