@@ -1,6 +1,7 @@
 import {ElMessage} from "element-plus";
 import http from "@/utils/httpRequest.js";
 import {R} from "@/interface/R";
+import {Ref} from "vue";
 
 export function batchDeleteRequest (userIdList:any){
     return http({
@@ -35,9 +36,9 @@ export function getTableDataRequest(){
     });
 }
 
-export function updateUserDataRequest(props:any, modifiedFieldsJson:any){
+export function updateUserDataRequest(props:Ref<Object>, modifiedFieldsJson:Record<string, any>){
     return http({
-        url: http.adornUrl(`/ums/user/userDetails/${props.inputFormData.id}/${props.inputFormData.userInfoId}`),
+        url: http.adornUrl(`/ums/user/userDetails/${props.value.id}/${props.value.userInfoId}`),
         method: 'put',
         data: http.adornData(modifiedFieldsJson, false)
     }).then(({data}:{data:R}) => {

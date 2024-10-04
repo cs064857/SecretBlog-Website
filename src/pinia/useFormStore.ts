@@ -1,13 +1,13 @@
 import { defineStore } from 'pinia'
 import {computed, ref} from "vue";
 //已開啟自動持久化
-export const useactionTypeStore = defineStore('actionTypeStore', ()=>{
+export const useActionTypeStore = defineStore('actionTypeStore', ()=>{
     const actionType=ref<string>()
-    const getactionType=computed(()=> actionType.value)
-    const setactionType=function (newValue:any){
+    const getActionType=computed(()=> actionType.value)
+    const setActionType=function (newValue:any){
         actionType.value=newValue
     }
-    return{actionType,getactionType,setactionType}
+    return{actionType,getActionType,setActionType}
 }
 // , {
 //     persist: true  // 啟用持久化

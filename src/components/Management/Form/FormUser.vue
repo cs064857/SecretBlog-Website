@@ -1,28 +1,15 @@
 <script setup lang="ts">
-import {nextTick, onBeforeMount, defineProps, onMounted, reactive, ref, watch, Ref, computed} from 'vue';
-import {ElMessage, FormInstance, FormRules} from 'element-plus';
+import {ref} from 'vue';
 
-
-import {
-  getOptionsRequest,
-  getTableDataRequest,
-  saveUserDataRequest,
-  updateUserDataRequest
-} from "@/requests/userRequest.js";
-import {R} from "@/interface/R";
 import {formUserInterface} from "@/interface/ManagementInter/formUserInterface";
-import {FormProps, useOnCancel} from "@/hooks/managementHooks/formHooks/useFormHooks.js";
+import {useOnCancel} from "@/hooks/managementHooks/formHooks/useFormHooks.js";
 import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
 import {
-
-  dialogVisible,
   getOptions, rules, ruleFormRef,
-  saveUserData,
-  updateUserData,
   useOnSubmit, useReceiveParentData, initializeRules
 } from "@/hooks/managementHooks/formHooks/useFormHooks";
 
-// 初始化表單資料
+// 初始化表單資料㊣
 const form = ref<formUserInterface>({
   status:"",
   name: '',
@@ -49,73 +36,18 @@ const form = ref<formUserInterface>({
   // phoneNumber: '0900000000'
 });
 initializeRules(form);//初始化Rules
-
-
-// const props = defineProps<FormProps>();//修改表單資料時回顯原表單數據
-
-// import {useInputFormDataStore} from "@/pinia/useFormStore"
-// const inputFormDataStore = useInputFormDataStore();
-// const props = computed(()=>inputFormDataStore.inputFormData)
-// 定義事件
-
-
-//表單行為(add or update)
-// const actionType = ref<string>()
-
+// 送出表單
 const onSubmit = useOnSubmit(ruleFormRef,form);//送出表單資料按鈕
 // 取消表單
 const onCancel =useOnCancel(form);//取消表單按鈕(清空表單資料並關閉視窗)
 // 選項數據
 const options = getOptions();//從後端獲得選項資料
 
-useReceiveParentData(form)//開啟監控props.inputFormData，若props.inputFormData有新值，代表為"update"，並執行對應的函數
-/**
- * 表單驗證規則
- */
-import {useRules} from "@/validation/formUserVaild"
-// let rules;
-// rules = useRules(form.value,options);
-// 定義表單驗證規則
-
-/**
- * 表單驗證規則/
- */
-
 /**
  * 接收表格(父組件)點擊編輯按鈕時取得該行的數據,並回顯示表單上
  */
+useReceiveParentData(form)//開啟監控props.inputFormData，若props.inputFormData有新值，代表為"update"，並執行對應的函數
 
-
-
-// const actionTypeStore = useactionTypeStore();
-
-
-// const handleReceiveParentData=function (){
-//   console.log("執行handleReceiveParentData()")
-//   if(props.inputFormData){
-//     const inputFormData =<formUserInterface>props.inputFormData
-//     console.log("表單接收到父組件傳遞修改行的資料:",inputFormData)
-//     form.value = {...inputFormData,checkPassword:inputFormData.password}// 將確認密碼欄位回填與密碼相同值
-//     rules = useRules(form.value,options);
-//   }
-// }
-//
-// watch(
-//     () => props.inputFormData,
-//     (newValue, oldValue, onCleanup)=>{
-//       console.log("FormUser接收到UserManagement資料")
-//       actionType.value=actionTypeStore.getactionType//從pinia中獲取actionType值
-//       handleReceiveParentData();
-//     },
-//     { immediate: true,deep:true}
-// );
-
-
-
-
-/**
- * 接收表格(父組件)點擊編輯按鈕時取得該行的數據,並回顯示表單上/
- */
 
 </script>
 

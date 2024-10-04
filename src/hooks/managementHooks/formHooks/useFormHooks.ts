@@ -6,9 +6,9 @@ import {getOptionsRequest, saveUserDataRequest, updateUserDataRequest} from "../
 import {R} from "../../../interface/R";
 import {Option} from "../../../interface/formOption";
 import { store } from "@/pinia/index";
-import {useactionTypeStore,useDialogVisibleStore} from '@/pinia/useFormStore'
+import {useActionTypeStore,useDialogVisibleStore} from '@/pinia/useFormStore'
 import {useRules} from "../../../validation/formUserVaild";
-// import {useactionTypeStore} from "@/pinia/useUserManagementFormStore"
+// import {useActionTypeStore} from "@/pinia/useUserManagementFormStore"
 export const dialogVisible = ref(false);
 export const ruleFormRef = ref<FormInstance | null>(null);
 const dialogVisibleStore = useDialogVisibleStore(store);
@@ -61,8 +61,9 @@ export const saveUserData = function (form:Ref<Object>,dialogVisible:Ref<boolean
     });
 }
 
-export const updateUserData = function (form: Ref<formUserInterface>,dialogVisible:Ref<boolean>){
-    console.log("updateUserData...props:",props)
+export const updateUserData = function (form: Ref<formUserInterface>){
+    console.log("updateUserData...form:",form.value)
+    console.log("updateUserData...props:",props.value)
 
     // //判斷修改了哪些內容
     // for (const field in props.inputFormData) {
@@ -75,17 +76,23 @@ export const updateUserData = function (form: Ref<formUserInterface>,dialogVisib
     // // 在處理完所有字段後，將 Map 轉換為 JSON 對象
     // const modifiedFieldsJson = Object.fromEntries(modifiedFields);
 
+
+
+
     // 將 props.inputFormData 轉換為 Object.entries 陣列
+
     const modifiedFieldsJson = Object.entries(props.value)
-        .reduce((acc, [field, originalValue]) => {
-            // 從 form.value 中取得當前字段的值
+        .reduce((acc,[field,originalValue])=>{
+
+            // 直接從 form 中取得當前字段的值
             const newValue = (form.value as Record<string, any>)[field];
+            console.log("map:",field,":",originalValue,":",newValue)
             // 如果新舊值不同，則將該字段及其新值加入累加器 acc
             if (newValue !== originalValue) {
                 acc[field] = newValue;
             }
-            return acc; // 返回累加器 acc
-        }, {} as Record<string, any>); // 初始值為空物件
+            return acc
+        },{} as Record<string, any>);
 
     console.log("修改資料...")
     // console.log("需修改資料內容:",modifiedFields)
@@ -118,7 +125,7 @@ export function useOnSubmit(ruleFormRef:Ref<FormInstance | null>, form: Ref<form
             console.log('表單資料::', form.value);
             console.log('表單formEl:', ruleFormRef.value);
             if (actionType.value === "update") {
-                updateUserData(form,dialogVisible);
+                updateUserData(form);
             } else if (actionType.value === "add") {
                 saveUserData(form,dialogVisible,ruleFormRef);
             }
@@ -155,8 +162,8 @@ export const useReceiveParentData=(form: Ref<formUserInterface>)=>{
         () => props.value,
         (newValue, oldValue, onCleanup)=>{
             console.log("FormUser接收到UserManagement資料props:",props.value)
-            const actionTypeStore = useactionTypeStore();
-            actionType.value=actionTypeStore.getactionType//從pinia中獲取actionType值
+            const actionTypeStore = useActionTypeStore();
+            actionType.value=actionTypeStore.getActionType//從pinia中獲取actionType值
             handleReceiveParentData(form);
         },
         { immediate: true,deep:true}

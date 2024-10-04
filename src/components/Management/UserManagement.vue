@@ -212,7 +212,7 @@ onMounted(()=>{
 /**
  * 對話框
  */
-import {useactionTypeStore,useDialogVisibleStore} from '@/pinia/useFormStore'
+import {useActionTypeStore,useDialogVisibleStore} from '@/pinia/useFormStore'
 const dialogVisibleStore = useDialogVisibleStore();
 // const dialogVisible = ref<boolean>(dialogVisibleStore.getDialogVisible)
 const dialogVisible = computed(() => dialogVisibleStore.dialogVisible)
@@ -249,13 +249,13 @@ const formTitle=ref<string>("")//根據行為(例:新增、修改)決定表單Ti
 console.log("初始 formTitle:", formTitle)
 const inputFormData=ref({});//傳遞給表單的資料
 console.log("初始 inputFormData:", inputFormData)
-const actionTypeStore = useactionTypeStore();
+const actionTypeStore = useActionTypeStore();
 
 const handleAdd = () => {
   formTitle.value="新增"//設置表單標題
   console.log("觸發 handleAdd，formTitle:", formTitle.value)
   //告訴表單點擊的是新增，並使用新增相關的程式碼
-  actionTypeStore.setactionType("add")
+  actionTypeStore.setActionType("add")
   dialogVisibleStore.setDialogVisible(true)
 }
 import {useInputFormDataStore} from "@/pinia/useFormStore"
@@ -266,7 +266,7 @@ const handleEdit = (index: number, row: any) => {
   console.log("選中項 index:", index, " row:", row)
 
   //打開表單視窗
-  actionTypeStore.setactionType("update")
+  actionTypeStore.setActionType("update")
   dialogVisibleStore.setDialogVisible(true)
   //給表單組件傳遞並回顯選中項資料
   inputFormDataStore.setInputFormData(row)
