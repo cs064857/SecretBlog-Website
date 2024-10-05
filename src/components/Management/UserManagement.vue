@@ -129,12 +129,12 @@
 
 import {genericBatchDeleteRequest} from "@/requests/useGenericRequest";
 
-const tableRef = ref()
+const tableRef = ref<InstanceType<typeof ElTable>>()
 
 import {computed, nextTick, onBeforeUpdate, onMounted, onUnmounted, ref, watch, watchEffect} from 'vue'
-import {ElMessage, TableColumnCtx} from "element-plus";
+import {ElMessage, ElTable, TableColumnCtx} from "element-plus";
 import {ElMessageBox, ElSelect} from 'element-plus'
-import {useSearch} from "@/hooks/useTableInput.ts"
+import {useSearch} from "@/hooks/useTableInput"
 
 let resultData = ref<any[]>([])
 console.log("初始 resultData:", resultData)
@@ -147,8 +147,8 @@ const handleBatchDelete=function (){
   console.log("選中的資料 selectionRows:", selectionRows)
   const userIdList =selectionRows.map(item=>item.id)
   console.log("選中的 userIdList:",userIdList)
-  // batchDeleteRequest(userIdList);
-  genericBatchDeleteRequest("/ums/user/userDetails",userIdList)
+
+  // genericBatchDeleteRequest("/ums/user/userDetails",userIdList)
 }
 
 /**

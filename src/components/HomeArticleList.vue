@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import {computed, onMounted, onUpdated, ref, watch} from "vue";
-import {Articles} from "../interface/articleInterface.ts";
+import {Articles} from "@/interface/articleInterface";
 import {onBeforeRouteUpdate, useRoute, useRouter} from "vue-router";
 import http from "../utils/httpRequest"
-import {R} from "../interface/R.ts";
 import {ElMessage} from "element-plus";
 
 const route = useRoute()

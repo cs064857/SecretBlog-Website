@@ -69,9 +69,9 @@ export function saveUserDataRequest(form:any){
         return data
     });
 }
-export function getOptionsRequest(){
+export function getOptionsRequest(requestPath:string){
     return http({
-        url: http.adornUrl('/ums/role'),
+        url: http.adornUrl(`${requestPath}`),
         method: 'get',
         params: http.adornParams({})
     }).then(({data}:{data:R}) => {

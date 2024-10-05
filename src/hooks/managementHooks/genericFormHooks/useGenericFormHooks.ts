@@ -136,9 +136,9 @@ export function useOnSubmit(ruleFormRef:Ref<FormInstance | null>, form: Ref<form
     }
 }
 let options= ref<Option[] |null>(null);
-export const getOptions=function (){
+export const getOptions=function (requestPath:string){
 
-    getOptionsRequest().then((data:R) => {
+    getOptionsRequest(requestPath).then((data:R) => {
         console.log("getOptions",data)
         if(data.code==200){
             options.value=data.data.map(item=>({

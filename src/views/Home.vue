@@ -54,10 +54,10 @@ import './Home.css';
 import {computed, onMounted, ref, toRefs} from 'vue';
 import {useRouter, useRoute} from 'vue-router'
 import http from '../utils/httpRequest'
-import {ArticleInter, Articles} from "../interface/articleInterface.ts";
+import {ArticleInter, Articles} from "../interface/articleInterface";
 import { Menu, User} from "@element-plus/icons-vue";
 import {R} from "../interface/R.ts";
-import {useTreeCategoryStore} from "../pinia/useTreeCategoryStore.ts";
+import {useTreeCategoryStore} from "../pinia/useTreeCategoryStore";
 import {ElMessage} from "element-plus";
 
 interface tagsButton {

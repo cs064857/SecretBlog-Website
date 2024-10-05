@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import {onMounted, reactive, ref} from 'vue'
 import type Node from 'element-plus/es/components/tree/src/model/node'
-import http from '../utils/httpRequest'
+import http from '@/utils/httpRequest'
 import {ElMessage} from "element-plus";
-import {ConfirmDelete} from '../hooks/useMessageBox.ts'
-import {useTreeCategoryStore} from '../pinia/useTreeCategoryStore.ts'
-import {R} from "../interface/R.ts";
+import {ConfirmDelete} from '@/hooks/useMessageBox'
+import {useTreeCategoryStore} from '@/pinia/useTreeCategoryStore'
+import {R} from "@/interface/R";
 
 interface Tree {
   id: number

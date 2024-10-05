@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {ref} from 'vue';
 
-import {formDataInterface} from "@/interface/ManagementInter/userInterface/formUserInterface.ts";
+import {formDataInterface} from "@/interface/ManagementInter/userInterface/formUserInterface";
 import {useOnCancel} from "@/hooks/managementHooks/genericFormHooks/useGenericFormHooks.js";
 import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
 import {
@@ -41,7 +41,7 @@ const onSubmit = useOnSubmit(ruleFormRef,form);//送出表單資料按鈕
 // 取消表單
 const onCancel =useOnCancel(form);//取消表單按鈕(清空表單資料並關閉視窗)
 // 選項數據
-const options = getOptions();//從後端獲得選項資料
+const RoleOptions = getOptions("/ums/role");//從後端獲得選項資料
 
 /**
  * 接收表格(父組件)點擊編輯按鈕時取得該行的數據,並回顯示表單上
@@ -106,7 +106,7 @@ useReceiveParentData(form)//開啟監控props.inputFormData，若props.inputForm
           style="width: 240px"
       >
         <el-option
-            v-for="item in options"
+            v-for="item in RoleOptions"
             :key="item.value"
             :label="item.label"
             :value="item.label"

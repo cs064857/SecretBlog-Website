@@ -136,8 +136,8 @@ import "tinymce-i18n/langs7/zh_TW.js"
 // 處理送出至資料庫中
 import http from '../../utils/httpRequest';
 import {ElMessage} from "element-plus";
-import {R} from "../../interface/R.ts";
-import {useTreeCategoryStore} from "../../pinia/useTreeCategoryStore.ts"
+import {R} from "@/interface/R";
+import {useTreeCategoryStore} from "@/pinia/useTreeCategoryStore"
 const inputTitle = ref('')
 
 // 選擇器

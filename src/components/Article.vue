@@ -259,12 +259,12 @@
 <script setup lang="ts">
 import HomeHeaderNavigation from "./HomeHeaderNavigation.vue";
 
-import http from '../utils/httpRequest'
-import {ArticleInter, Articles} from "../interface/articleInterface.ts";
+import http from '@/utils/httpRequest'
+import {ArticleInter, Articles} from "@/interface/articleInterface";
 import {nextTick, onMounted, onUnmounted, ref} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {ElAnchor, ElMessage} from "element-plus";
-import {R} from "../interface/R.ts";
+import {R} from "@/interface/R";
 import { debounce } from 'throttle-debounce';
 const Article = ref<ArticleInter | null>(null);
 const ArticleContent = ref('')

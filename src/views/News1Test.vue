@@ -12,7 +12,7 @@
 </template>
 <script setup lang="ts" name="News1Test">
 import http from '../utils/httpRequest'
-import {ArticleInter,Articles} from "../interface/articleInterface.ts";
+import {ArticleInter,Articles} from "../interface/articleInterface";
 import {ref} from "vue";
 const News1 = ref<ArticleInter | null>(null);
 const lastContent = ref('')
