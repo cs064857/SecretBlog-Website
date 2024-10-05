@@ -1,5 +1,7 @@
 // 定義表單資料接口
 export interface formDataInterface {
+    id?:string,
+    userInfoId?:string,
     status:string;
     name: string;
     accountName: string;

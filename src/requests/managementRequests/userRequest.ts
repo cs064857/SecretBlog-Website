@@ -2,7 +2,7 @@ import {ElMessage} from "element-plus";
 import http from "@/utils/httpRequest.js";
 import {R} from "@/interface/R";
 import {Ref} from "vue";
-import {formDataInterface} from "../../../interface/ManagementInter/formUserInterface";//㊣
+import {formDataInterface} from "@/interface/ManagementInter/userInterface/formUserInterface";//㊣
 export function batchDeleteRequest (userIdList:any){
     return http({
         url: http.adornUrl(`/ums/user/userDetails/${userIdList}`),

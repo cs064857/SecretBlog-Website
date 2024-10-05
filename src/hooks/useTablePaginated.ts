@@ -38,7 +38,7 @@ export function useTablePaginated(tableData: Ref<any[]>) {
 }
 
 export function updatePaginatedData (tableData: Ref<any[]>,dataTotalCount:Ref<Number>,currentPage:Ref<number>,pageSize:Ref<number>){
-
+    console.log("分頁前的 tableData:", tableData.value)
     let resultData = ref<any[]>([])
     dataTotalCount.value = tableData.value.length  // 更新數據總量
     console.log("更新後的 dataTotalCount:", dataTotalCount.value)
@@ -51,7 +51,7 @@ export function updatePaginatedData (tableData: Ref<any[]>,dataTotalCount:Ref<Nu
 
     //返回分頁後的數據
     resultData.value = tableData.value.slice(PageStart, PageEnd);
-    console.log("更新後的分頁結果 resultData:", resultData.value)
+    console.log("分頁後的 tableData:", resultData.value)
 
     return {resultData}
 }

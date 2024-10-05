@@ -126,6 +126,9 @@
 
 <script setup lang="ts">
 
+
+import {genericBatchDeleteRequest} from "@/requests/useGenericRequest";
+
 const tableRef = ref()
 
 import {computed, nextTick, onBeforeUpdate, onMounted, onUnmounted, ref, watch, watchEffect} from 'vue'
@@ -135,22 +138,8 @@ import {useSearch} from "@/hooks/useTableInput.ts"
 
 let resultData = ref<any[]>([])
 console.log("初始 resultData:", resultData)
-/**
- * 表格欄位過濾及排序
- */
-const handlerFilter = (
-    value: string,
-    row: User,
-    column: TableColumnCtx<User>
-) => {
-  const property = column['property']
-  return row[property] === value
-}
-/**
- * 表格欄位過濾及排序
- */
 
-import {batchDeleteRequest,getTableDataRequest} from "@/requests/userRequest.js"
+import {batchDeleteRequest,getTableDataRequest} from "@/requests/managementRequests/userRequest.js"
 
 //批量刪除
 const handleBatchDelete=function (){
@@ -158,7 +147,8 @@ const handleBatchDelete=function (){
   console.log("選中的資料 selectionRows:", selectionRows)
   const userIdList =selectionRows.map(item=>item.id)
   console.log("選中的 userIdList:",userIdList)
-  batchDeleteRequest(userIdList);
+  // batchDeleteRequest(userIdList);
+  genericBatchDeleteRequest("/ums/user/userDetails",userIdList)
 }
 
 /**
@@ -308,6 +298,7 @@ const getTableData= async function (){
     if(data.code==200){
 
       tableRawData.value=data.data
+      filteredData.value=data.data
       console.log("更新後的 tableRawData:", tableRawData.value)
 
       dataTotalCount.value = tableRawData.value.length;
@@ -354,12 +345,13 @@ const tableRawData=ref<User[]>([]);
  * 分頁全程式碼
  */
 
-import {updatePaginatedData, useTablePaginated} from "@/hooks/useTablePaginated.ts";
+import {updatePaginatedData, useTablePaginated} from "@/hooks/useTablePaginated";
 let filteredData=ref<any[] |null>();
 const handleCurrentChange = (val: number) => {
   console.log("分頁當前頁變更 handleCurrentChange，頁數:", val)
-  console.log("分頁當前頁變更 filteredData，數據:", filteredData.value)
+  console.log("分頁當前頁變更 filteredData，數據:", filteredData)
 
+  // const {resultData:tempresult} =CurrentChange(val,resultData)
   const {resultData:tempresult} =CurrentChange(val,filteredData)
   console.log("更新後的 resultData:", tempresult.value)
   resultData=tempresult
@@ -367,7 +359,7 @@ const handleCurrentChange = (val: number) => {
 const handleSizeChange= (val: number) => {
   console.log("分頁大小變更 handleSizeChange，大小:", val)
 
-  const {resultData:tempresult} =SizeChange(val,tableRawData)
+  const {resultData:tempresult} =SizeChange(val,filteredData)
   console.log("更新後的 resultData:", tempresult.value)
   resultData=tempresult
 }
