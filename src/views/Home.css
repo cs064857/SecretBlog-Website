@@ -1,0 +1,156 @@
+.home-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    background-color: darksalmon;
+}
+
+.home-header {
+    display: flex;
+    justify-items: center;
+    align-items: center;
+    min-height: 8%;
+    max-height: 8%;
+    /*flex: 0.13;*/
+    background-color: darkgreen;
+
+    position: fixed;
+
+    left: 0;
+    right: 0;
+
+    z-index: 100;
+}
+
+.home-main {
+    display: flex;
+    flex-direction: row; /* 確保子元素水平排列 */
+    gap: 10px;
+    flex: 1;
+    background-color: darkmagenta;
+
+    min-height: 92%;
+    max-height: 92%;
+    position: relative;
+    top: 8%;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: auto;
+
+    flex-wrap: wrap;
+    place-content: flex-start;
+}
+
+.home-footer {
+    min-height: 8%;
+    max-height: 8%;
+
+    background-color: darkgray;
+    position: relative;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+}
+
+.home-left-navbar {
+    background-color: #eceff1;
+    flex: 1;
+    margin-left: 50px;
+
+    height: 80vh;
+    width: 15vw;
+    /*max-height: 1000px;*/
+    /*min-height: 1000px;*/
+    overflow: auto;
+
+
+    /*position: sticky;*/
+    /*top:0.1px;*/
+}
+
+.fixed-home-left-navbar{
+    flex: 1;
+    top: 13.5vh;
+    position: fixed;
+    z-index: 1200;
+}
+
+.home-article-navigation{
+    width: 100%;
+    height: 50px;
+    background-color: #82008b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.home-right-article {
+    /*flex: 1;*/
+    background-color: darkorange;
+
+    /*height: 50%;*/
+
+    width: 16vw;
+    height: 70vh;
+
+    margin-top: 30%;
+    margin-right: 50px;
+    /*position: sticky;*/
+    /*top: 0.1px;*/
+
+    /*max-height: 1000px;*/
+    /*min-height: 1000px;*/
+
+
+}
+
+.home-article-list {
+    display: grid;
+    width: 60%;
+    /*grid-template-rows:auto auto;*/
+    /*grid-template-columns: 1fr 1fr;*/
+    grid-template-columns: 1fr 1fr;
+    /* 自動行高 */
+    /*grid-auto-rows: minmax(auto, max-content); */
+    justify-content: center;
+    align-content: start;
+    /*align-items: start;*/
+
+    /*flex-direction: column;*/
+
+
+    /*overflow: auto;*/
+    background-color: darkslategrey;
+
+
+    /*  測試高度  */
+    /*max-height: 109rem;*/
+    /*height:180vh;*/
+
+
+    /*height: auto;*/
+    /*min-height: 100%;*/
+    /*max-height: 100%;*/
+
+    margin-left: 20%;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/*.home-rightMain {*/
+/*    background-color: darkmagenta;*/
+/*    grid-area: home-rightMain;*/
+/*}*/

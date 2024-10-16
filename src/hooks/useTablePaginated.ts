@@ -53,5 +53,5 @@ export function updatePaginatedData (tableData: Ref<any[]>,dataTotalCount:Ref<Nu
     resultData.value = tableData.value.slice(PageStart, PageEnd);
     console.log("分頁後的 tableData:", resultData.value)
 
-    return {resultData}
+    return resultData
 }

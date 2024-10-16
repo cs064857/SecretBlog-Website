@@ -202,7 +202,7 @@ onMounted(()=>{
 /**
  * 對話框
  */
-import {useActionTypeStore,useDialogVisibleStore} from '@/pinia/managementPinia/genericFormPinia/useFormStore.ts'
+import {useActionTypeStore,useDialogVisibleStore} from '@/pinia/managementPinia/genericFormPinia/useFormStore'
 const dialogVisibleStore = useDialogVisibleStore();
 // const dialogVisible = ref<boolean>(dialogVisibleStore.getDialogVisible)
 const dialogVisible = computed(() => dialogVisibleStore.dialogVisible)
@@ -248,7 +248,7 @@ const handleAdd = () => {
   actionTypeStore.setActionType("add")
   dialogVisibleStore.setDialogVisible(true)
 }
-import {useInputFormDataStore} from "@/pinia/managementPinia/genericFormPinia/useFormStore.ts"
+import {useInputFormDataStore} from "@/pinia/managementPinia/genericFormPinia/useFormStore"
 const inputFormDataStore = useInputFormDataStore();
 const handleEdit = (index: number, row: any) => {
   formTitle.value="編輯"//設置表單標題
@@ -291,6 +291,7 @@ function onCancel() {
 
 
 //表格資料
+import {handleSearchHook} from '@/hooks/managementHooks/useGenericTableHooks'
 
 const getTableData= async function (){
   await getTableDataRequest().then((data:any) => {
@@ -303,9 +304,11 @@ const getTableData= async function (){
 
       dataTotalCount.value = tableRawData.value.length;
       console.log("更新後的 dataTotalCount:", dataTotalCount.value)
-      const {resultData:tempresultData} =updatePaginatedData(tableRawData,dataTotalCount,currentPage,pageSize);
-      console.log("更新後的 resultData:", tempresultData.value)
-      resultData=tempresultData
+
+      // const {resultData:tempresultData} =updatePaginatedData(tableRawData,dataTotalCount,currentPage,pageSize);
+      // console.log("更新後的 resultData:", tempresultData.value)
+      // resultData=tempresultData
+
 
 
     }
@@ -349,20 +352,28 @@ import {updatePaginatedData, useTablePaginated} from "@/hooks/useTablePaginated"
 let filteredData=ref<any[] |null>();
 const handleCurrentChange = (val: number) => {
   console.log("分頁當前頁變更 handleCurrentChange，頁數:", val)
-  console.log("分頁當前頁變更 filteredData，數據:", filteredData)
-
-  // const {resultData:tempresult} =CurrentChange(val,resultData)
-  const {resultData:tempresult} =CurrentChange(val,filteredData)
-  console.log("更新後的 resultData:", tempresult.value)
-  resultData=tempresult
+  currentPage.value = val
+  updateResultData()
 }
-const handleSizeChange= (val: number) => {
+
+const handleSizeChange = (val: number) => {
   console.log("分頁大小變更 handleSizeChange，大小:", val)
-
-  const {resultData:tempresult} =SizeChange(val,filteredData)
-  console.log("更新後的 resultData:", tempresult.value)
-  resultData=tempresult
+  pageSize.value = val
+  currentPage.value = 1 // 重置到第一頁
+  updateResultData()
 }
+
+const updateResultData = () => {
+  const { value } = updatePaginatedData(filteredData, dataTotalCount, currentPage, pageSize)
+  resultData.value = value
+}
+
+// 初始化數據
+onMounted(async () => {
+  console.log("組件掛載完成，請求表格資料")
+  await getTableData()
+  updateResultData()
+})
 let {
   currentPage,
   pageSize,
@@ -387,7 +398,7 @@ onMounted(async ()=>{
 
 
 
-const searchKey = ref<String>()//選中的選項
+const searchKey = ref<string>()//選中的選項
 
 
 
@@ -410,30 +421,68 @@ const searchDateRange = ref<[string, string] | null>(null);// 使用陣列來存
 // const filteredData=handleSearch(searchKey,searchValue,searchDateRange,tableRawData,dataTotalCount,currentPage)
 
 const handleSearch=function (){
-  console.log("觸發搜尋 handleSearch，搜尋欄位:", searchKey.value, " 搜尋值:", searchValue.value, " 日期範圍:", searchDateRange.value)
-  /**
-   * 參數:搜尋欄位、搜尋值OR日期範圍、原始表格資料
-   * return:過濾後的資料
-   */
-  const { filteredData:tempFilteredData,currentPage:currentPage,dataTotalCount:tempdataTotalCount} = useSearch(
-      searchKey,
-      searchValue,
-      searchDateRange,
-      tableRawData
-  );
-  currentPage.value=1//搜尋後回到第一頁
-  dataTotalCount.value=tempdataTotalCount.value//搜尋後重新計算總數據
-  console.log("搜尋後 dataTotalCount:", dataTotalCount.value)
-  filteredData.value=tempFilteredData.value
-  // resultData.value = updatePaginatedData(tempFilteredData, dataTotalCount, currentPage, pageSize).resultData.value;
-  const {resultData:tempresultData} =updatePaginatedData(tempFilteredData,dataTotalCount,currentPage,pageSize);
-  console.log("搜尋後的 resultData:", tempresultData.value)
+  console.log("handleSearch parameters:", {
+    searchKey: searchKey.value,
+    searchValue: searchValue.value,
+    searchDateRange: searchDateRange.value,
+    tableRawData: tableRawData.value,
+    filteredData: filteredData.value,
+    dataTotalCount: dataTotalCount.value,
+    pageSize: pageSize.value
+  });
 
-  resultData.value=tempresultData.value
-
+resultData= handleSearchHook(searchKey,searchValue,searchDateRange,tableRawData,filteredData,dataTotalCount,pageSize);
 }
 
 
+
+// const handleSearch=function (){
+//   console.log("觸發搜尋 handleSearch，搜尋欄位:", searchKey.value, " 搜尋值:", searchValue.value, " 日期範圍:", searchDateRange.value)
+//   /**
+//    * 參數:搜尋欄位、搜尋值OR日期範圍、原始表格資料
+//    * return:過濾後的資料
+//    */
+//   const { filteredData:tempFilteredData,currentPage:currentPage,dataTotalCount:tempdataTotalCount} = useSearch(
+//       searchKey,
+//       searchValue,
+//       searchDateRange,
+//       tableRawData
+//   );
+//   currentPage.value=1//搜尋後回到第一頁
+//   dataTotalCount.value=tempdataTotalCount.value//搜尋後重新計算總數據
+//   console.log("搜尋後 dataTotalCount:", dataTotalCount.value)
+//   filteredData.value=tempFilteredData.value
+//   // resultData.value = updatePaginatedData(tempFilteredData, dataTotalCount, currentPage, pageSize).resultData.value;
+//   const {resultData:tempresultData} =updatePaginatedData(tempFilteredData,dataTotalCount,currentPage,pageSize);
+//   console.log("搜尋後的 resultData:", tempresultData.value)
+//
+//   resultData.value=tempresultData.value
+//
+// }
+
+// const handleSearch=function (){
+//   console.log("觸發搜尋 handleSearch，搜尋欄位:", searchKey.value, " 搜尋值:", searchValue.value, " 日期範圍:", searchDateRange.value)
+//   /**
+//    * 參數:搜尋欄位、搜尋值OR日期範圍、原始表格資料
+//    * return:過濾後的資料
+//    */
+//   const { filteredData:tempFilteredData,currentPage:currentPage,dataTotalCount:tempdataTotalCount} = useSearch(
+//       searchKey,
+//       searchValue,
+//       searchDateRange,
+//       tableRawData
+//   );
+//   currentPage.value=1//搜尋後回到第一頁
+//   dataTotalCount.value=tempdataTotalCount.value//搜尋後重新計算總數據
+//   console.log("搜尋後 dataTotalCount:", dataTotalCount.value)
+//   filteredData.value=tempFilteredData.value
+//   // resultData.value = updatePaginatedData(tempFilteredData, dataTotalCount, currentPage, pageSize).resultData.value;
+//   const {resultData:tempresultData} =updatePaginatedData(tempFilteredData,dataTotalCount,currentPage,pageSize);
+//   console.log("搜尋後的 resultData:", tempresultData.value)
+//
+//   resultData.value=tempresultData.value
+//
+// }
 
 
 /**
