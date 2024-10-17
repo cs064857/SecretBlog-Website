@@ -385,11 +385,7 @@ let {
   CurrentChange
 } = useTablePaginated(tableRawData);
 
-onMounted(async ()=>{
-  console.log("組件掛載完成，請求表格資料")
-  await getTableData();
 
-})
 
 /**
  * 搜尋欄位選單
@@ -418,8 +414,6 @@ const searchDateRange = ref<[string, string] | null>(null);// 使用陣列來存
 
 /*日期選擇器*/
 
-// const filteredData=handleSearch(searchKey,searchValue,searchDateRange,tableRawData,dataTotalCount,currentPage)
-
 const handleSearch=function (){
   console.log("handleSearch parameters:", {
     searchKey: searchKey.value,
@@ -433,57 +427,6 @@ const handleSearch=function (){
 
 resultData= handleSearchHook(searchKey,searchValue,searchDateRange,tableRawData,filteredData,dataTotalCount,pageSize);
 }
-
-
-
-// const handleSearch=function (){
-//   console.log("觸發搜尋 handleSearch，搜尋欄位:", searchKey.value, " 搜尋值:", searchValue.value, " 日期範圍:", searchDateRange.value)
-//   /**
-//    * 參數:搜尋欄位、搜尋值OR日期範圍、原始表格資料
-//    * return:過濾後的資料
-//    */
-//   const { filteredData:tempFilteredData,currentPage:currentPage,dataTotalCount:tempdataTotalCount} = useSearch(
-//       searchKey,
-//       searchValue,
-//       searchDateRange,
-//       tableRawData
-//   );
-//   currentPage.value=1//搜尋後回到第一頁
-//   dataTotalCount.value=tempdataTotalCount.value//搜尋後重新計算總數據
-//   console.log("搜尋後 dataTotalCount:", dataTotalCount.value)
-//   filteredData.value=tempFilteredData.value
-//   // resultData.value = updatePaginatedData(tempFilteredData, dataTotalCount, currentPage, pageSize).resultData.value;
-//   const {resultData:tempresultData} =updatePaginatedData(tempFilteredData,dataTotalCount,currentPage,pageSize);
-//   console.log("搜尋後的 resultData:", tempresultData.value)
-//
-//   resultData.value=tempresultData.value
-//
-// }
-
-// const handleSearch=function (){
-//   console.log("觸發搜尋 handleSearch，搜尋欄位:", searchKey.value, " 搜尋值:", searchValue.value, " 日期範圍:", searchDateRange.value)
-//   /**
-//    * 參數:搜尋欄位、搜尋值OR日期範圍、原始表格資料
-//    * return:過濾後的資料
-//    */
-//   const { filteredData:tempFilteredData,currentPage:currentPage,dataTotalCount:tempdataTotalCount} = useSearch(
-//       searchKey,
-//       searchValue,
-//       searchDateRange,
-//       tableRawData
-//   );
-//   currentPage.value=1//搜尋後回到第一頁
-//   dataTotalCount.value=tempdataTotalCount.value//搜尋後重新計算總數據
-//   console.log("搜尋後 dataTotalCount:", dataTotalCount.value)
-//   filteredData.value=tempFilteredData.value
-//   // resultData.value = updatePaginatedData(tempFilteredData, dataTotalCount, currentPage, pageSize).resultData.value;
-//   const {resultData:tempresultData} =updatePaginatedData(tempFilteredData,dataTotalCount,currentPage,pageSize);
-//   console.log("搜尋後的 resultData:", tempresultData.value)
-//
-//   resultData.value=tempresultData.value
-//
-// }
-
 
 /**
  * 分頁全程式碼
