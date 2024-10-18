@@ -241,29 +241,11 @@ const inputFormData=ref({});//傳遞給表單的資料
 console.log("初始 inputFormData:", inputFormData)
 const actionTypeStore = useActionTypeStore();
 
-const handleAdd = () => {
-  formTitle.value="新增"//設置表單標題
-  console.log("觸發 handleAdd，formTitle:", formTitle.value)
-  //告訴表單點擊的是新增，並使用新增相關的程式碼
-  actionTypeStore.setActionType("add")
-  dialogVisibleStore.setDialogVisible(true)
-}
 import {useInputFormDataStore} from "@/pinia/managementPinia/genericFormPinia/useFormStore"
 const inputFormDataStore = useInputFormDataStore();
-const handleEdit = (index: number, row: any) => {
-  formTitle.value="編輯"//設置表單標題
-  console.log("觸發 handleEdit，formTitle:", formTitle.value)
-  console.log("選中項 index:", index, " row:", row)
 
-  //打開表單視窗
-  actionTypeStore.setActionType("update")
-  dialogVisibleStore.setDialogVisible(true)
-  //給表單組件傳遞並回顯選中項資料
-  inputFormDataStore.setInputFormData(row)
-  console.log("inputFormDataStore.getInputFormData...",inputFormDataStore.getInputFormData)
-  // inputFormData.value= {...row,foo:Date.now()}//foo是無意義的數據,只是為了觸發FormUser的watch監聽
-
-}
+import { useHandleEdit} from '@/hooks/managementHooks/useGenericTableHooks';
+const { handleEdit,handleAdd } = useHandleEdit(formTitle);
 /**
  * 新增按鈕、修改按鈕/
  */

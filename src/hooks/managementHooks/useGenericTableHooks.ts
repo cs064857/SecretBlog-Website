@@ -1,7 +1,7 @@
 import {useSearch} from "../useTableInput";
 import {updatePaginatedData} from "../useTablePaginated";
 import {ref, Ref, UnwrapRef} from "vue";
-
+import { useActionTypeStore, useDialogVisibleStore, useInputFormDataStore } from '@/pinia/managementPinia/genericFormPinia/useFormStore';
 export const handleSearchHook=function ( searchKey: Ref<string>,
                                      searchValue: Ref<string>,
                                      searchDateRange: Ref<[string | null, string | null]>,
@@ -37,4 +37,32 @@ export const handleSearchHook=function ( searchKey: Ref<string>,
 
     return resultData
 
+}
+
+export function useHandleEdit(formTitle: Ref<string>) {
+    const dialogVisibleStore = useDialogVisibleStore();
+    const actionTypeStore = useActionTypeStore();
+    const inputFormDataStore = useInputFormDataStore();
+
+    const handleEdit = (index: number, row: any) => {
+        formTitle.value = "編輯";
+        console.log("觸發 handleEdit，formTitle:", formTitle.value);
+        console.log("選中項 index:", index, " row:", row);
+
+        actionTypeStore.setActionType("update");
+        dialogVisibleStore.setDialogVisible(true);
+        inputFormDataStore.setInputFormData(row);
+        console.log("inputFormDataStore.getInputFormData...", inputFormDataStore.getInputFormData);
+    };
+    const handleAdd = () => {
+        formTitle.value = "新增";
+        console.log("觸發 handleAdd，formTitle:", formTitle.value);
+        actionTypeStore.setActionType("add");
+        dialogVisibleStore.setDialogVisible(true);
+    };
+
+    return {
+        handleEdit,
+        handleAdd,
+    };
 }
