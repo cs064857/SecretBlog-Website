@@ -142,14 +142,14 @@ console.log("初始 resultData:", resultData)
 import {batchDeleteRequest,getTableDataRequest} from "@/requests/managementRequests/userRequest.js"
 
 //批量刪除
-const handleBatchDelete=function (){
-  const selectionRows:User[] = tableRef.value.getSelectionRows();//索引上選中的資料(數組)
-  console.log("選中的資料 selectionRows:", selectionRows)
-  const userIdList =selectionRows.map(item=>item.id)
-  console.log("選中的 userIdList:",userIdList)
-
-  // genericBatchDeleteRequest("/ums/user/userDetails",userIdList)
-}
+// const handleBatchDelete=function (){
+//   const selectionRows:User[] = tableRef.value.getSelectionRows();//索引上選中的資料(數組)
+//   console.log("選中的資料 selectionRows:", selectionRows)
+//   const userIdList =selectionRows.map(item=>item.id)
+//   console.log("選中的 userIdList:",userIdList)
+//
+//   // genericBatchDeleteRequest("/ums/user/userDetails",userIdList)
+// }
 
 /**
  * 表格欄位
@@ -256,18 +256,8 @@ import {InfoFilled, Search} from '@element-plus/icons-vue'
 
 import FormUser from "./Form/FormUser.vue";
 
-const handleDelete = (index: number, row: any) => {
-  console.log("觸發刪除 handleDelete，index:", index, " row:", row)
-  batchDeleteRequest(row.id);
-}
-
-const clicked = ref(false)
-
-function onCancel() {
-  console.log("取消刪除操作")
-  clicked.value = true
-}
-
+import { useHandleDelete } from '@/hooks/managementHooks/useGenericTableHooks';
+const { clicked, handleDelete, handleBatchDelete, onCancel } = useHandleDelete(tableRef);
 //表格中項目刪除按鈕/
 
 

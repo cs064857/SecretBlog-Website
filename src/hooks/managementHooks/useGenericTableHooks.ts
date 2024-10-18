@@ -2,6 +2,9 @@ import {useSearch} from "../useTableInput";
 import {updatePaginatedData} from "../useTablePaginated";
 import {ref, Ref, UnwrapRef} from "vue";
 import { useActionTypeStore, useDialogVisibleStore, useInputFormDataStore } from '@/pinia/managementPinia/genericFormPinia/useFormStore';
+import {batchDeleteRequest} from "@/requests/managementRequests/userRequest";
+import {ElMessageBox} from "element-plus";
+import {genericBatchDeleteRequest} from "@/requests/useGenericRequest";
 export const handleSearchHook=function ( searchKey: Ref<string>,
                                      searchValue: Ref<string>,
                                      searchDateRange: Ref<[string | null, string | null]>,
@@ -64,5 +67,59 @@ export function useHandleEdit(formTitle: Ref<string>) {
     return {
         handleEdit,
         handleAdd,
+    };
+}
+export function useHandleDelete(tableRef: Ref<any>) {
+    const clicked = ref(false);
+
+    const handleDelete = (index: number, row: any) => {
+        console.log("觸發刪除 handleDelete，index:", index, " row:", row);
+        ElMessageBox.confirm('確認是否刪除此選項？', '警告', {
+            confirmButtonText: '確定',
+            cancelButtonText: '取消',
+            type: 'warning',
+        }).then(() => {
+            batchDeleteRequest(row.id);
+            // 你可能想在這裡添加一些邏輯來更新成功刪除後的表格
+        }).catch(() => {
+            // 取消操作
+        });
+    };
+
+    const handleBatchDelete = () => {
+        const selectionRows = tableRef.value.getSelectionRows();
+        console.log("選中的資料 selectionRows:", selectionRows);
+        const userIdList = selectionRows.map(item => item.id);
+        console.log("選中的 userIdList:", userIdList);
+
+        if (userIdList.length === 0) {
+            ElMessageBox.alert('請至少選擇一項進行刪除', '提示', {
+                confirmButtonText: '確定',
+            });
+            return;
+        }
+
+        ElMessageBox.confirm('確認是否批量刪除選中的項目？', '警告', {
+            confirmButtonText: '確定',
+            cancelButtonText: '取消',
+            type: 'warning',
+        }).then(() => {
+            genericBatchDeleteRequest("/ums/user/userDetails", userIdList);
+            // 你可能想在這裡添加一些邏輯來更新成功刪除後的表格
+        }).catch(() => {
+            // 取消操作
+        });
+    };
+
+    const onCancel = () => {
+        console.log("取消刪除操作");
+        clicked.value = true;
+    };
+
+    return {
+        clicked,
+        handleDelete,
+        handleBatchDelete,
+        onCancel,
     };
 }
