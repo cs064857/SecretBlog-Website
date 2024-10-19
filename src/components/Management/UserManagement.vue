@@ -127,34 +127,32 @@
 <script setup lang="ts">
 
 
-import {genericBatchDeleteRequest} from "@/requests/useGenericRequest";
 
-const tableRef = ref<InstanceType<typeof ElTable>>()
 
-import {computed, nextTick, onBeforeUpdate, onMounted, onUnmounted, ref, watch, watchEffect} from 'vue'
-import {ElMessage, ElTable, TableColumnCtx} from "element-plus";
-import {ElMessageBox, ElSelect} from 'element-plus'
-import {useSearch} from "@/hooks/useTableInput"
 
+
+import {onMounted,ref} from 'vue'
+import {ElTable} from "element-plus";
+import {ElSelect} from 'element-plus'
+
+/**
+ * 初始化表格資料
+ */
 let resultData = ref<any[]>([])
 console.log("初始 resultData:", resultData)
 
-import {batchDeleteRequest,getTableDataRequest} from "@/requests/managementRequests/userRequest.js"
+import {getTableDataRequest} from "@/requests/managementRequests/userRequest.js"
+/**
+ * 初始化表格資料
+ */
 
-//批量刪除
-// const handleBatchDelete=function (){
-//   const selectionRows:User[] = tableRef.value.getSelectionRows();//索引上選中的資料(數組)
-//   console.log("選中的資料 selectionRows:", selectionRows)
-//   const userIdList =selectionRows.map(item=>item.id)
-//   console.log("選中的 userIdList:",userIdList)
-//
-//   // genericBatchDeleteRequest("/ums/user/userDetails",userIdList)
-// }
-const { dialogVisible, handleClose, handleCloseDialog } = useHandleDialog();
 /**
  * 表格欄位
  */
-const elTableColumnsData:{label:String,value:String}[] =[
+
+
+
+const elTableColumnsData:TableColumn[] =[
   // { label: "用戶ID", value: "id" },
   // { label: "使用者頭像", value: "avatar" },
   { label: "帳戶狀態", value: "status" },
@@ -202,28 +200,7 @@ onMounted(()=>{
 /**
  * 對話框
  */
-// import {useActionTypeStore,useDialogVisibleStore} from '@/pinia/managementPinia/genericFormPinia/useFormStore'
-// const dialogVisibleStore = useDialogVisibleStore();
-
-// const dialogVisible = ref<boolean>(dialogVisibleStore.getDialogVisible)!
-
-// const dialogVisible = computed(() => dialogVisibleStore.dialogVisible)
-//
-// const handleClose = (done: () => void) => {
-//   ElMessageBox.confirm('確認是否關閉視窗？')
-//       .then(() => {
-//         console.log("關閉對話框")
-//         done()
-//       })
-//       .catch(() => {
-//         // catch error
-//       })
-// }
-//
-// const handleCloseDialog = function () {
-//   console.log("關閉對話框 handleCloseDialog")
-//   dialogVisibleStore.setDialogVisible(true)
-// }
+const { dialogVisible, handleClose, handleCloseDialog } = useHandleDialog();
 /**
  * 對話框/
  */
@@ -241,10 +218,6 @@ const formTitle=ref<string>("")//根據行為(例:新增、修改)決定表單Ti
 console.log("初始 formTitle:", formTitle)
 const inputFormData=ref({});//傳遞給表單的資料
 console.log("初始 inputFormData:", inputFormData)
-const actionTypeStore = useActionTypeStore();
-
-import {useActionTypeStore, useInputFormDataStore} from "@/pinia/managementPinia/genericFormPinia/useFormStore"
-const inputFormDataStore = useInputFormDataStore();
 
 import {useHandleDialog, useHandleEdit} from '@/hooks/managementHooks/useGenericTableHooks';
 const { handleEdit,handleAdd } = useHandleEdit(formTitle);
@@ -253,12 +226,10 @@ const { handleEdit,handleAdd } = useHandleEdit(formTitle);
  */
 
 //表格中項目刪除按鈕
-
 import {InfoFilled, Search} from '@element-plus/icons-vue'
-
 import FormUser from "./Form/FormUser.vue";
-
 import { useHandleDelete } from '@/hooks/managementHooks/useGenericTableHooks';
+const tableRef = ref<InstanceType<typeof ElTable>>()
 const { clicked, handleDelete, handleBatchDelete, onCancel } = useHandleDelete(tableRef);
 //表格中項目刪除按鈕/
 
@@ -268,7 +239,7 @@ const { clicked, handleDelete, handleBatchDelete, onCancel } = useHandleDelete(t
 import {handleSearchHook} from '@/hooks/managementHooks/useGenericTableHooks'
 const dataTotalCount = ref<number>()
 const getTableData= async function (){
-  await getTableDataRequest().then((data:any) => {
+  await getTableDataRequest('/ums/user/userDetails').then((data:any) => {
     console.log("表格資料請求返回 data:", data)
     if(data.code==200){
 
@@ -279,38 +250,14 @@ const getTableData= async function (){
       dataTotalCount.value = tableRawData.value.length;
       console.log("更新後的 dataTotalCount:", dataTotalCount.value)
 
-      // const {resultData:tempresultData} =updatePaginatedData(tableRawData,dataTotalCount,currentPage,pageSize);
-      // console.log("更新後的 resultData:", tempresultData.value)
-      // resultData=tempresultData
-
-
-
     }
   })
 }
 
 
-interface User {
-  id:string;
-  name: string;             // 姓名
-  avatar: string;           // 使用者頭像
-  status: string;          // 帳號狀態 (0正常, 1封禁中)
 
-  // 以下是 UmsUserInfo 的欄位
-  accountName: string;      // 帳號名稱
-  password: string;         // 密碼
-  email: string;            // 信箱地址
-  birthday: Date | string;         // 生日 (LocalDate in Java)
-  gender: number | string;           // 性別 (1 男性, 2 女性, 3 不願透露)
-  address: string;          // 居住地址
-  phoneNumber: string;      // 手機號碼
-  createTime: Date | string;       // 註冊時間 (LocalDateTime in Java)
 
-  // 額外的欄位 (來自 UmsRole)
-  roleId: string;         // 權限名稱
-}
-
-const tableRawData=ref<User[]>([]);
+const tableRawData=ref<formUserInterface[]>([]);
 
 /**
  * 表格/
@@ -319,10 +266,12 @@ const tableRawData=ref<User[]>([]);
 
 
 /**
- * 分頁全程式碼
+ * 分頁
  */
 
 import {useTablePaginated} from "@/hooks/useTablePaginated";
+import {TableColumn} from "@/interface/tableColumInterFace";
+import {formUserInterface} from "@/interface/ManagementInter/userInterface/formUserInterface";
 let filteredData=ref<any[] |null>();
 
 
@@ -342,29 +291,17 @@ onMounted(async () => {
   console.log("組件掛載完成，請求表格資料");
   await getTableData();
 });
-
+/**
+ * 分頁
+ */
 
 
 /**
  * 搜尋欄位選單
  */
-
-
-
-
 const searchKey = ref<string>()//選中的選項
-
-
-
-/**
- * 搜尋欄位選單/
- */
-
-
 // 輸入框
 const searchValue = ref('')
-
-
 
 // /輸入框
 /*日期選擇器*/
@@ -384,10 +321,10 @@ const handleSearch = () => {
   );
 }
 
-
 /**
- * 分頁全程式碼
+ * 搜尋欄位選單/
  */
+
 
 
 </script>

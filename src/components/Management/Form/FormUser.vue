@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {ref} from 'vue';
 
-import {formDataInterface} from "@/interface/ManagementInter/userInterface/formUserInterface";
+import {formUserInterface} from "@/interface/ManagementInter/userInterface/formUserInterface";
 import {useOnCancel} from "@/hooks/managementHooks/genericFormHooks/useGenericFormHooks.js";
 import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
 import {
@@ -10,7 +10,7 @@ import {
 } from "@/hooks/managementHooks/genericFormHooks/useGenericFormHooks";
 
 // 初始化表單資料㊣
-const form = ref<formDataInterface>({
+const form = ref<formUserInterface>({
   status:"",
   name: '',
   accountName: '',

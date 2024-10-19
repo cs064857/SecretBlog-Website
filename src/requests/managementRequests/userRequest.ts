@@ -2,7 +2,7 @@ import {ElMessage} from "element-plus";
 import http from "@/utils/httpRequest.js";
 import {R} from "@/interface/R";
 import {Ref} from "vue";
-import {formDataInterface} from "@/interface/ManagementInter/userInterface/formUserInterface";//㊣
+import {formUserInterface} from "@/interface/ManagementInter/userInterface/formUserInterface";//㊣
 export function batchDeleteRequest (userIdList:any){
     return http({
         url: http.adornUrl(`/ums/user/userDetails/${userIdList}`),
@@ -17,9 +17,9 @@ export function batchDeleteRequest (userIdList:any){
         }
     });
 }
-export function getTableDataRequest(){
+export function getTableDataRequest(requestPath:string){
     return http({
-        url: http.adornUrl('/ums/user/userDetails'),
+        url: http.adornUrl(`${requestPath}`),
         method: 'get',
         params: http.adornParams({})
     }).then(({data}:{data:R}) => {
@@ -36,7 +36,7 @@ export function getTableDataRequest(){
     });
 }
 
-export function updateUserDataRequest(props:Ref<formDataInterface>, modifiedFieldsJson:Record<string, any>){
+export function updateUserDataRequest(props:Ref<formUserInterface>, modifiedFieldsJson:Record<string, any>){
     return http({
         url: http.adornUrl(`/ums/user/userDetails/${props.value.id}/${props.value.userInfoId}`),
         method: 'put',
