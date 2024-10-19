@@ -156,8 +156,6 @@ export const actionType = ref<string>()
 
 export const useReceiveParentData=(form: Ref<formDataInterface>)=>{
 
-
-
     watch(
         () => props.value,
         (newValue, oldValue, onCleanup)=>{

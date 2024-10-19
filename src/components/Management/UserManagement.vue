@@ -150,7 +150,7 @@ import {batchDeleteRequest,getTableDataRequest} from "@/requests/managementReque
 //
 //   // genericBatchDeleteRequest("/ums/user/userDetails",userIdList)
 // }
-
+const { dialogVisible, handleClose, handleCloseDialog } = useHandleDialog();
 /**
  * 表格欄位
  */
@@ -202,26 +202,28 @@ onMounted(()=>{
 /**
  * 對話框
  */
-import {useActionTypeStore,useDialogVisibleStore} from '@/pinia/managementPinia/genericFormPinia/useFormStore'
-const dialogVisibleStore = useDialogVisibleStore();
-// const dialogVisible = ref<boolean>(dialogVisibleStore.getDialogVisible)
-const dialogVisible = computed(() => dialogVisibleStore.dialogVisible)
+// import {useActionTypeStore,useDialogVisibleStore} from '@/pinia/managementPinia/genericFormPinia/useFormStore'
+// const dialogVisibleStore = useDialogVisibleStore();
 
-const handleClose = (done: () => void) => {
-  ElMessageBox.confirm('確認是否關閉視窗？')
-      .then(() => {
-        console.log("關閉對話框")
-        done()
-      })
-      .catch(() => {
-        // catch error
-      })
-}
+// const dialogVisible = ref<boolean>(dialogVisibleStore.getDialogVisible)!
 
-const handleCloseDialog = function () {
-  console.log("關閉對話框 handleCloseDialog")
-  dialogVisibleStore.setDialogVisible(true)
-}
+// const dialogVisible = computed(() => dialogVisibleStore.dialogVisible)
+//
+// const handleClose = (done: () => void) => {
+//   ElMessageBox.confirm('確認是否關閉視窗？')
+//       .then(() => {
+//         console.log("關閉對話框")
+//         done()
+//       })
+//       .catch(() => {
+//         // catch error
+//       })
+// }
+//
+// const handleCloseDialog = function () {
+//   console.log("關閉對話框 handleCloseDialog")
+//   dialogVisibleStore.setDialogVisible(true)
+// }
 /**
  * 對話框/
  */
@@ -241,10 +243,10 @@ const inputFormData=ref({});//傳遞給表單的資料
 console.log("初始 inputFormData:", inputFormData)
 const actionTypeStore = useActionTypeStore();
 
-import {useInputFormDataStore} from "@/pinia/managementPinia/genericFormPinia/useFormStore"
+import {useActionTypeStore, useInputFormDataStore} from "@/pinia/managementPinia/genericFormPinia/useFormStore"
 const inputFormDataStore = useInputFormDataStore();
 
-import { useHandleEdit} from '@/hooks/managementHooks/useGenericTableHooks';
+import {useHandleDialog, useHandleEdit} from '@/hooks/managementHooks/useGenericTableHooks';
 const { handleEdit,handleAdd } = useHandleEdit(formTitle);
 /**
  * 新增按鈕、修改按鈕/

@@ -1,6 +1,6 @@
 import {useSearch} from "../useTableInput";
 import {updatePaginatedData} from "../useTablePaginated";
-import {ref, Ref, UnwrapRef} from "vue";
+import {computed, ref, Ref, UnwrapRef} from "vue";
 import { useActionTypeStore, useDialogVisibleStore, useInputFormDataStore } from '@/pinia/managementPinia/genericFormPinia/useFormStore';
 import {batchDeleteRequest} from "@/requests/managementRequests/userRequest";
 import {ElMessageBox} from "element-plus";
@@ -121,5 +121,40 @@ export function useHandleDelete(tableRef: Ref<any>) {
         handleDelete,
         handleBatchDelete,
         onCancel,
+    };
+}
+export function useHandleDialog() {
+    const dialogVisibleStore = useDialogVisibleStore();
+
+    // Computed property for dialog visibility
+    const dialogVisible = computed(() => dialogVisibleStore.dialogVisible);
+
+    // Function to handle the closing of the dialog with confirmation
+    const handleClose = (done: () => void) => {
+        ElMessageBox.confirm('確認是否關閉視窗？', '提示', {
+            confirmButtonText: '確定',
+            cancelButtonText: '取消',
+            type: 'warning',
+        })
+            .then(() => {
+                console.log("關閉對話框");
+                done();
+                dialogVisibleStore.setDialogVisible(false); // Update the store to hide the dialog
+            })
+            .catch(() => {
+                // 如果用戶取消，什麼也不做
+            });
+    };
+
+    // Function to handle dialog closing from child components
+    const handleCloseDialog = () => {
+        console.log("關閉對話框 handleCloseDialog");
+        dialogVisibleStore.setDialogVisible(false);
+    };
+
+    return {
+        dialogVisible,
+        handleClose,
+        handleCloseDialog,
     };
 }
