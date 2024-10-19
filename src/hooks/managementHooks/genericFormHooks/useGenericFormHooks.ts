@@ -15,7 +15,11 @@ const dialogVisibleStore = useDialogVisibleStore(store);
 
 import {useInputFormDataStore} from "@/pinia/managementPinia/genericFormPinia/useFormStore"
 const inputFormDataStore = useInputFormDataStore();
-const props:Ref<any> = computed(()=>inputFormDataStore.inputFormData)
+
+// const props:Ref<any> = computed(()=>inputFormDataStore.inputFormData)
+const props:Ref<any> = computed(()=>({
+    ...inputFormDataStore.inputFormData,foo: new Date().toISOString()
+}))
 // export interface FormProps {
 //     inputFormData: Record<string, any>; // 假設 inputFormData 是一個通用的物件
 // }

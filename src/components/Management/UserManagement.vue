@@ -266,7 +266,7 @@ const { clicked, handleDelete, handleBatchDelete, onCancel } = useHandleDelete(t
 
 //表格資料
 import {handleSearchHook} from '@/hooks/managementHooks/useGenericTableHooks'
-
+const dataTotalCount = ref<number>()
 const getTableData= async function (){
   await getTableDataRequest().then((data:any) => {
     console.log("表格資料請求返回 data:", data)
@@ -322,42 +322,26 @@ const tableRawData=ref<User[]>([]);
  * 分頁全程式碼
  */
 
-import {updatePaginatedData, useTablePaginated} from "@/hooks/useTablePaginated";
+import {useTablePaginated} from "@/hooks/useTablePaginated";
 let filteredData=ref<any[] |null>();
-const handleCurrentChange = (val: number) => {
-  console.log("分頁當前頁變更 handleCurrentChange，頁數:", val)
-  currentPage.value = val
-  updateResultData()
-}
 
-const handleSizeChange = (val: number) => {
-  console.log("分頁大小變更 handleSizeChange，大小:", val)
-  pageSize.value = val
-  currentPage.value = 1 // 重置到第一頁
-  updateResultData()
-}
 
-const updateResultData = () => {
-  const { value } = updatePaginatedData(filteredData, dataTotalCount, currentPage, pageSize)
-  resultData.value = value
-}
-
-// 初始化數據
-onMounted(async () => {
-  console.log("組件掛載完成，請求表格資料")
-  await getTableData()
-  updateResultData()
-})
-let {
+// 使用封裝的分頁 hook
+const {
   currentPage,
   pageSize,
   background,
   disabled,
-  dataTotalCount,
   indexCount,
-  SizeChange,
-  CurrentChange
-} = useTablePaginated(tableRawData);
+  handleCurrentChange,
+  handleSizeChange,
+} = useTablePaginated(tableRawData, filteredData, resultData, dataTotalCount);
+
+// 初始化數據並設置分頁
+onMounted(async () => {
+  console.log("組件掛載完成，請求表格資料");
+  await getTableData();
+});
 
 
 
@@ -388,19 +372,18 @@ const searchDateRange = ref<[string, string] | null>(null);// 使用陣列來存
 
 /*日期選擇器*/
 
-const handleSearch=function (){
-  console.log("handleSearch parameters:", {
-    searchKey: searchKey.value,
-    searchValue: searchValue.value,
-    searchDateRange: searchDateRange.value,
-    tableRawData: tableRawData.value,
-    filteredData: filteredData.value,
-    dataTotalCount: dataTotalCount.value,
-    pageSize: pageSize.value
-  });
-
-resultData= handleSearchHook(searchKey,searchValue,searchDateRange,tableRawData,filteredData,dataTotalCount,pageSize);
+const handleSearch = () => {
+  handleSearchHook(
+      searchKey,
+      searchValue,
+      searchDateRange,
+      tableRawData,
+      filteredData,
+      dataTotalCount
+      // 不再傳遞 pageSize
+  );
 }
+
 
 /**
  * 分頁全程式碼

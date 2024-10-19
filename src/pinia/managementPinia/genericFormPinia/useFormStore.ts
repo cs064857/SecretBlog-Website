@@ -28,7 +28,7 @@ export const useInputFormDataStore = defineStore('inputFormDataStore', ()=>{
         const inputFormData=ref<Object>()
         const getInputFormData=computed(()=> inputFormData.value)
         const setInputFormData=function (newValue:any){
-            inputFormData.value=newValue
+            inputFormData.value={...newValue,foo: new Date().toISOString()}
         }
         return{inputFormData,getInputFormData,setInputFormData}
     }
