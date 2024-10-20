@@ -220,10 +220,8 @@ const inputFormData=ref({});//傳遞給表單的資料
 console.log("初始 inputFormData:", inputFormData)
 
 import {useHandleDialog, useHandleEdit} from '@/hooks/managementHooks/useGenericTableHooks';
+//新增按鈕、修改按鈕
 const { handleEdit,handleAdd } = useHandleEdit(formTitle);
-/**
- * 新增按鈕、修改按鈕/
- */
 
 //表格中項目刪除按鈕
 import {InfoFilled, Search} from '@element-plus/icons-vue'
@@ -236,29 +234,19 @@ const { clicked, handleDelete, handleBatchDelete, onCancel } = useHandleDelete(t
 
 
 //表格資料
-import {handleSearchHook} from '@/hooks/managementHooks/useGenericTableHooks'
-const dataTotalCount = ref<number>()
-const getTableData= async function (){
-  await getTableDataRequest('/ums/user/userDetails').then((data:any) => {
-    console.log("表格資料請求返回 data:", data)
-    if(data.code==200){
+import {handleSearchHook,useGenericTableData} from '@/hooks/managementHooks/useGenericTableHooks'
 
-      tableRawData.value=data.data
-      filteredData.value=data.data
-      console.log("更新後的 tableRawData:", tableRawData.value)
-
-      dataTotalCount.value = tableRawData.value.length;
-      console.log("更新後的 dataTotalCount:", dataTotalCount.value)
-
-    }
-  })
-}
-
-
-
-
-const tableRawData=ref<formUserInterface[]>([]);
-
+// 使用封裝的表格數據 Hook
+const {
+  tableRawData,
+  filteredData,
+  dataTotalCount,
+  getTableData
+} = useGenericTableData();
+onMounted(async () => {
+  console.log("組件掛載完成，請求表格資料");
+  await getTableData();
+});
 /**
  * 表格/
  */
@@ -272,7 +260,7 @@ const tableRawData=ref<formUserInterface[]>([]);
 import {useTablePaginatedHooks} from "@/hooks/useTablePaginatedHooks";
 import {TableColumn} from "@/interface/tableColumInterFace";
 import {formUserInterface} from "@/interface/ManagementInter/userInterface/formUserInterface";
-let filteredData=ref<any[] |null>();
+
 
 
 // 使用封裝的分頁 hook
@@ -287,10 +275,7 @@ const {
 } = useTablePaginatedHooks(tableRawData, filteredData, resultData, dataTotalCount);
 
 // 初始化數據並設置分頁
-onMounted(async () => {
-  console.log("組件掛載完成，請求表格資料");
-  await getTableData();
-});
+
 /**
  * 分頁
  */

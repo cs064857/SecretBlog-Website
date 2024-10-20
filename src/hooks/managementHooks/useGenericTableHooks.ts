@@ -5,10 +5,49 @@ import {
     useDialogVisibleStore,
     useInputFormDataStore,
 } from "@/pinia/managementPinia/genericFormPinia/useFormStore";
-import { batchDeleteRequest } from "@/requests/managementRequests/userRequest";
+import {batchDeleteRequest, getTableDataRequest} from "@/requests/managementRequests/userRequest";
 import { genericBatchDeleteRequest } from "@/requests/useGenericRequest";
 import { ElMessageBox } from "element-plus";
 
+/**
+ * 封裝表格數據管理邏輯
+ */
+export function useGenericTableData() {
+    const tableRawData = ref<formUserInterface[]>([]);
+    const filteredData = ref<any[] | null>(null);
+    const dataTotalCount = ref<number>(0);
+
+    const getTableData = async function () {
+        try {
+
+            const data: any = await getTableDataRequest('/ums/user/userDetails');
+            console.log("表格資料請求返回 data:", data);
+            if (data.code === 200) {
+                tableRawData.value = data.data;
+                filteredData.value = data.data;
+                dataTotalCount.value = tableRawData.value.length;
+                console.log("更新後的 tableRawData:", tableRawData.value);
+                console.log("更新後的 dataTotalCount:", dataTotalCount.value);
+            } else {
+                ElMessageBox.alert("獲取數據失敗", "錯誤", {
+                    confirmButtonText: "確定",
+                });
+            }
+        } catch (error) {
+            console.error("獲取表格數據時出錯:", error);
+            ElMessageBox.alert("獲取數據時出錯", "錯誤", {
+                confirmButtonText: "確定",
+            });
+        }
+    };
+
+    return {
+        tableRawData,
+        filteredData,
+        dataTotalCount,
+        getTableData,
+    };
+}
 
 export const handleSearchHook = function (
     searchKey: Ref<string>,
