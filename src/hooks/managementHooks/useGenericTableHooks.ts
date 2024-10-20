@@ -49,37 +49,48 @@ export function useGenericTableData() {
     };
 }
 
-export const handleSearchHook = function (
-    searchKey: Ref<string>,
-    searchValue: Ref<string>,
-    searchDateRange: Ref<[string | null, string | null]>,
+/**
+ * 封裝搜尋相關的狀態和行為
+ */
+export function useTableSearch(
     tableRawData: Ref<any[]>,
     filteredData: Ref<any[] | null>,
     dataTotalCount: Ref<number>
 ) {
-    console.log("觸發搜尋 handleSearch");
-    console.log("搜尋值:", searchValue.value);
-    console.log("搜尋欄位:", searchKey.value);
-    console.log("日期範圍:", searchDateRange.value);
+    const searchKey = ref<string>(''); // 選中的選項，設置默認值為空字符串
+    const searchValue = ref<string>(''); // 輸入框
+    const searchDateRange = ref<[string, string] | null>(null); // 使用陣列來存儲日期範圍
 
-    /**
-     * 參數: 搜尋欄位、搜尋值或日期範圍、原始表格資料
-     * 功能: 過濾原始表格資料並更新 filteredData 和 dataTotalCount
-     */
-    const { filteredData: tempFilteredData, dataTotalCount: tempdataTotalCount } = useSearch(
+    const handleSearch = () => {
+
+        /**
+         * 參數: 搜尋欄位、搜尋值或日期範圍、原始表格資料
+         * 功能: 過濾原始表格資料並更新 filteredData 和 dataTotalCount
+         */
+        const { filteredData: tempFilteredData, dataTotalCount: tempdataTotalCount } = useSearch(
+            searchKey,
+            searchValue,
+            searchDateRange,
+            tableRawData
+        );
+
+        // 更新 dataTotalCount 和 filteredData
+        dataTotalCount.value = tempdataTotalCount.value; // 搜尋後重新計算總數據
+        console.log("搜尋後 dataTotalCount:", dataTotalCount.value);
+        filteredData.value = tempFilteredData.value;
+
+        // 不再直接更新 resultData，讓 useTablePaginatedHooks 的 watch 自動更新
+    };
+
+    return {
         searchKey,
         searchValue,
         searchDateRange,
-        tableRawData
-    );
+        handleSearch,
+    };
+}
 
-    // 更新 dataTotalCount 和 filteredData
-    dataTotalCount.value = tempdataTotalCount.value; // 搜尋後重新計算總數據
-    console.log("搜尋後 dataTotalCount:", dataTotalCount.value);
-    filteredData.value = tempFilteredData.value;
 
-    // 不再直接更新 resultData，讓 useTablePaginatedHooks 的 watch 自動更新
-};
 
 export function useHandleEdit(formTitle: Ref<string>) {
     const dialogVisibleStore = useDialogVisibleStore();
@@ -109,6 +120,8 @@ export function useHandleEdit(formTitle: Ref<string>) {
         handleAdd,
     };
 }
+
+
 
 export function useHandleDelete(tableRef: Ref<any>) {
     const clicked = ref(false);

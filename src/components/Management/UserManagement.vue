@@ -152,7 +152,7 @@ import {getTableDataRequest} from "@/requests/managementRequests/userRequest.js"
 
 
 
-const elTableColumnsData:TableColumn[] =[
+const elTableColumnsData:TableColumn[] =[//㊣
   // { label: "用戶ID", value: "id" },
   // { label: "使用者頭像", value: "avatar" },
   { label: "帳戶狀態", value: "status" },
@@ -219,7 +219,7 @@ console.log("初始 formTitle:", formTitle)
 const inputFormData=ref({});//傳遞給表單的資料
 console.log("初始 inputFormData:", inputFormData)
 
-import {useHandleDialog, useHandleEdit} from '@/hooks/managementHooks/useGenericTableHooks';
+import {useHandleDialog, useHandleEdit, useTableSearch} from '@/hooks/managementHooks/useGenericTableHooks';
 //新增按鈕、修改按鈕
 const { handleEdit,handleAdd } = useHandleEdit(formTitle);
 
@@ -231,10 +231,8 @@ const tableRef = ref<InstanceType<typeof ElTable>>()
 const { clicked, handleDelete, handleBatchDelete, onCancel } = useHandleDelete(tableRef);
 //表格中項目刪除按鈕/
 
-
-
 //表格資料
-import {handleSearchHook,useGenericTableData} from '@/hooks/managementHooks/useGenericTableHooks'
+import {useGenericTableData} from '@/hooks/managementHooks/useGenericTableHooks'
 
 // 使用封裝的表格數據 Hook
 const {
@@ -284,27 +282,14 @@ const {
 /**
  * 搜尋欄位選單
  */
-const searchKey = ref<string>()//選中的選項
-// 輸入框
-const searchValue = ref('')
 
-// /輸入框
-/*日期選擇器*/
-const searchDateRange = ref<[string, string] | null>(null);// 使用陣列來存儲日期範圍
-
-/*日期選擇器*/
-
-const handleSearch = () => {
-  handleSearchHook(
-      searchKey,
-      searchValue,
-      searchDateRange,
-      tableRawData,
-      filteredData,
-      dataTotalCount
-      // 不再傳遞 pageSize
-  );
-}
+// 使用封裝的搜尋 Hook
+const {
+  searchKey,
+  searchValue,
+  searchDateRange,
+  handleSearch,
+} = useTableSearch(tableRawData, filteredData, dataTotalCount);
 
 /**
  * 搜尋欄位選單/
