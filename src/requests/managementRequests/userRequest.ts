@@ -18,6 +18,7 @@ export function batchDeleteRequest (userIdList:any){
     });
 }
 export function getTableDataRequest(requestPath:string){
+    console.log("getTableDataRequest...requestPath:",requestPath)
     return http({
         url: http.adornUrl(`${requestPath}`),
         method: 'get',
@@ -34,6 +35,7 @@ export function getTableDataRequest(requestPath:string){
     }).catch((error:Error)=>{
         ElMessage.error(`數據加載失敗：${error.message}，請稍後再試`);
     });
+
 }
 
 export function updateUserDataRequest(props:Ref<formUserInterface>, modifiedFieldsJson:Record<string, any>){

@@ -1,6 +1,6 @@
 import {Ref, ref, watch} from "vue";
 
-export function useTablePaginated(
+export function useTablePaginatedHooks(
     tableData: Ref<any[]>,
     filteredData: Ref<any[] | null>,
     resultData: Ref<any[]>,

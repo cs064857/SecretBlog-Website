@@ -269,7 +269,7 @@ const tableRawData=ref<formUserInterface[]>([]);
  * 分頁
  */
 
-import {useTablePaginated} from "@/hooks/useTablePaginated";
+import {useTablePaginatedHooks} from "@/hooks/useTablePaginatedHooks";
 import {TableColumn} from "@/interface/tableColumInterFace";
 import {formUserInterface} from "@/interface/ManagementInter/userInterface/formUserInterface";
 let filteredData=ref<any[] |null>();
@@ -284,7 +284,7 @@ const {
   indexCount,
   handleCurrentChange,
   handleSizeChange,
-} = useTablePaginated(tableRawData, filteredData, resultData, dataTotalCount);
+} = useTablePaginatedHooks(tableRawData, filteredData, resultData, dataTotalCount);
 
 // 初始化數據並設置分頁
 onMounted(async () => {
