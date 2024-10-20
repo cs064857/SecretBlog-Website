@@ -3,9 +3,9 @@ import http from "@/utils/httpRequest.js";
 import {R} from "@/interface/R";
 import {Ref} from "vue";
 import {formUserInterface} from "@/interface/ManagementInter/userInterface/formUserInterface";//㊣
-export function batchDeleteRequest (userIdList:any){
+export function batchDeleteRequest (requestPath:string,userIdList:any){
     return http({
-        url: http.adornUrl(`/ums/user/userDetails/${userIdList}`),
+        url: http.adornUrl(`${requestPath}/${userIdList}`),
         method: 'delete',
     }).then(({data}:{data:R}) => {
         if (data.code == 200) {

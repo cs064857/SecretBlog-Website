@@ -1,4 +1,5 @@
-import {computed, ref, Ref} from "vue";
+import {computed, onMounted, ref, Ref} from "vue";
+import {ElSelect} from "element-plus";
 
 export function useSearch(searchKey:Ref<String | null>,searchValue:Ref<String | null>,searchDateRange:Ref<[string, string] | null>,tableRawData:Ref<any[]>
 ) {//執行搜尋
@@ -44,5 +45,23 @@ export function useSearch(searchKey:Ref<String | null>,searchValue:Ref<String | 
     const currentPage = ref<number>(1); // 搜尋後回到第一頁
     console.log("搜尋後 currentPage:", currentPage.value)
 
-    return {filteredData, currentPage, dataTotalCount}
+    /**
+     * 搜尋選單的寬度設置邏輯
+     */
+
+    const searchSelectRef = ref<InstanceType<typeof ElSelect> | null>(null);
+
+    onMounted(() => {
+        const values = elTableColumnsData;
+        // 計算每個標籤的長度
+        const maxLength = values.reduce((max, item) => Math.max(max, item.label.length), 0);
+
+        // 設置 searchSelectRef 寬度為選項中文字的長度 + 3，單位為rem
+        console.log("設置搜尋前選項條寬度 maxLength:", maxLength);
+        if (searchSelectRef.value) {
+            searchSelectRef.value.$el.style.minWidth = `${maxLength + 3}rem`;
+            searchSelectRef.value.$el.style.maxWidth = `${maxLength + 3}rem`;
+        }
+    });
+    return {filteredData, currentPage, dataTotalCount,searchSelectRef}
 }

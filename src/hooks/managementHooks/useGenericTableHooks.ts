@@ -1,5 +1,5 @@
 import { useSearch } from "../useTableInput";
-import { computed, ref, Ref } from "vue";
+import {computed, onMounted, ref, Ref} from "vue";
 import {
     useActionTypeStore,
     useDialogVisibleStore,
@@ -7,7 +7,8 @@ import {
 } from "@/pinia/managementPinia/genericFormPinia/useFormStore";
 import {batchDeleteRequest, getTableDataRequest} from "@/requests/managementRequests/userRequest";
 import { genericBatchDeleteRequest } from "@/requests/useGenericRequest";
-import { ElMessageBox } from "element-plus";
+import {ElMessageBox, ElTable} from "element-plus";
+import {formUserInterface} from "@/interface/ManagementInter/userInterface/formUserInterface";
 
 /**
  * 封裝表格數據管理邏輯
@@ -41,11 +42,16 @@ export function useGenericTableData() {
         }
     };
 
+    // 移動 onMounted 進來這裡
+    onMounted(async () => {
+        console.log("組件掛載完成，請求表格資料");
+        await getTableData();
+    });
+
     return {
         tableRawData,
         filteredData,
         dataTotalCount,
-        getTableData,
     };
 }
 
@@ -123,7 +129,8 @@ export function useHandleEdit(formTitle: Ref<string>) {
 
 
 
-export function useHandleDelete(tableRef: Ref<any>) {
+export function useHandleDelete() {
+    const tableRef = ref<InstanceType<typeof ElTable>>()
     const clicked = ref(false);
 
     const handleDelete = (index: number, row: any) => {
@@ -134,7 +141,7 @@ export function useHandleDelete(tableRef: Ref<any>) {
             type: "warning",
         })
             .then(() => {
-                batchDeleteRequest(row.id);
+                batchDeleteRequest("/ums/user/userDetails",row.id);
                 // 您可能想在這裡添加一些邏輯來更新成功刪除後的表格
             })
             .catch(() => {
@@ -179,6 +186,7 @@ export function useHandleDelete(tableRef: Ref<any>) {
         handleDelete,
         handleBatchDelete,
         onCancel,
+        tableRef
     };
 }
 

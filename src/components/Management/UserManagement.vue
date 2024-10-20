@@ -126,14 +126,15 @@
 
 <script setup lang="ts">
 
-
-
-
-
-
 import {onMounted,ref} from 'vue'
 import {ElTable} from "element-plus";
 import {ElSelect} from 'element-plus'
+
+/**
+ * 表單
+ */
+
+import FormUser from "./Form/FormUser.vue";//㊣
 
 /**
  * 初始化表格資料
@@ -141,16 +142,9 @@ import {ElSelect} from 'element-plus'
 let resultData = ref<any[]>([])
 console.log("初始 resultData:", resultData)
 
-import {getTableDataRequest} from "@/requests/managementRequests/userRequest.js"
-/**
- * 初始化表格資料
- */
-
 /**
  * 表格欄位
  */
-
-
 
 const elTableColumnsData:TableColumn[] =[//㊣
   // { label: "用戶ID", value: "id" },
@@ -167,34 +161,29 @@ const elTableColumnsData:TableColumn[] =[//㊣
   { label: "註冊時間", value: "createTime" },
   { label: "地址", value: "address" }
 ]
-/**
- * 表格欄位/
- */
 
 
 
 /**
  * 設置搜尋前選項條的寬度
  */
-const searchSelectRef = ref<InstanceType<typeof ElSelect> | null>(null)
+// const searchSelectRef = ref<InstanceType<typeof ElSelect> | null>(null)
+//
+// onMounted(()=>{
+//   const values = elTableColumnsData.values()
+//   const arrayValues = Array.from(values)
+//   const maxLength = arrayValues.reduce((max, str)=>Math.max(max,str.label.length),0);
+//
+//   //設置searchSelectRef寬度為選項中字的length+3,單位為rem
+//   console.log("設置搜尋前選項條寬度 maxLength:", maxLength)
+//   searchSelectRef.value.$el.style.minWidth = `${maxLength + 3}rem`
+//   searchSelectRef.value.$el.style.maxWidth = `${maxLength + 3}rem`
+//   // console.log("keys",arrayValues)
+//   // console.log("values",arrayValues)
+//   // console.log("maxLength",maxLength)
+//
+// })
 
-onMounted(()=>{
-  const values = elTableColumnsData.values()
-  const arrayValues = Array.from(values)
-  const maxLength = arrayValues.reduce((max, str)=>Math.max(max,str.label.length),0);
-
-  //設置searchSelectRef寬度為選項中字的length+3,單位為rem
-  console.log("設置搜尋前選項條寬度 maxLength:", maxLength)
-  searchSelectRef.value.$el.style.minWidth = `${maxLength + 3}rem`
-  searchSelectRef.value.$el.style.maxWidth = `${maxLength + 3}rem`
-  // console.log("keys",arrayValues)
-  // console.log("values",arrayValues)
-  // console.log("maxLength",maxLength)
-
-})
-/**
- * 設置搜尋前選項寬度 /
- */
 
 
 /**
@@ -223,13 +212,18 @@ import {useHandleDialog, useHandleEdit, useTableSearch} from '@/hooks/management
 //新增按鈕、修改按鈕
 const { handleEdit,handleAdd } = useHandleEdit(formTitle);
 
-//表格中項目刪除按鈕
+/**
+ * 刪除按鈕
+ */
+
 import {InfoFilled, Search} from '@element-plus/icons-vue'
-import FormUser from "./Form/FormUser.vue";
+
 import { useHandleDelete } from '@/hooks/managementHooks/useGenericTableHooks';
-const tableRef = ref<InstanceType<typeof ElTable>>()
-const { clicked, handleDelete, handleBatchDelete, onCancel } = useHandleDelete(tableRef);
-//表格中項目刪除按鈕/
+
+const { clicked, handleDelete, handleBatchDelete, onCancel,tableRef } = useHandleDelete();
+/**
+ * 刪除按鈕
+ */
 
 //表格資料
 import {useGenericTableData} from '@/hooks/managementHooks/useGenericTableHooks'
@@ -239,12 +233,8 @@ const {
   tableRawData,
   filteredData,
   dataTotalCount,
-  getTableData
 } = useGenericTableData();
-onMounted(async () => {
-  console.log("組件掛載完成，請求表格資料");
-  await getTableData();
-});
+
 /**
  * 表格/
  */
@@ -257,10 +247,6 @@ onMounted(async () => {
 
 import {useTablePaginatedHooks} from "@/hooks/useTablePaginatedHooks";
 import {TableColumn} from "@/interface/tableColumInterFace";
-import {formUserInterface} from "@/interface/ManagementInter/userInterface/formUserInterface";
-
-
-
 // 使用封裝的分頁 hook
 const {
   currentPage,
@@ -272,7 +258,6 @@ const {
   handleSizeChange,
 } = useTablePaginatedHooks(tableRawData, filteredData, resultData, dataTotalCount);
 
-// 初始化數據並設置分頁
 
 /**
  * 分頁
@@ -289,6 +274,7 @@ const {
   searchValue,
   searchDateRange,
   handleSearch,
+  searchSelectRef
 } = useTableSearch(tableRawData, filteredData, dataTotalCount);
 
 /**
