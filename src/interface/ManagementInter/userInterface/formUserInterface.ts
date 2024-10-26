@@ -8,6 +8,7 @@ export interface formUserInterface {
     // 以下是 UmsUserInfo 的欄位
     accountName: string;      // 帳號名稱
     password: string;         // 密碼
+    checkPassword?: string;
     email: string;            // 信箱地址
     birthday: Date | string;         // 生日 (LocalDate in Java)
     gender: number | string;           // 性別 (1 男性, 2 女性, 3 不願透露)

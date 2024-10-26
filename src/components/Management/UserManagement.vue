@@ -209,6 +209,8 @@ const inputFormData=ref({});//傳遞給表單的資料
 console.log("初始 inputFormData:", inputFormData)
 
 import {useHandleDialog, useHandleEdit, useTableSearch} from '@/hooks/managementHooks/useGenericTableHooks';
+import {useConfigureSearchSelectWidthHooks} from '@/hooks/useTableInput';
+
 //新增按鈕、修改按鈕
 const { handleEdit,handleAdd } = useHandleEdit(formTitle);
 
@@ -274,9 +276,8 @@ const {
   searchValue,
   searchDateRange,
   handleSearch,
-  searchSelectRef
 } = useTableSearch(tableRawData, filteredData, dataTotalCount);
-
+const {searchSelectRef} = useConfigureSearchSelectWidthHooks(elTableColumnsData);
 /**
  * 搜尋欄位選單/
  */
