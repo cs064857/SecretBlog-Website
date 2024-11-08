@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-
+import http from "@/utils/httpRequest.js";
 import { formUserInterface } from "@/interface/ManagementInter/userInterface/formUserInterface";
 import { useOnCancel } from "@/hooks/managementHooks/genericFormHooks/useGenericFormHooks.js";
 import { cleanStringAndDateValue } from "@/utils/cleanStringAndDateValue";
@@ -11,8 +11,9 @@ import {
 import { UserFilled } from '@element-plus/icons-vue'
 // 初始化表單資料㊣
 const form = ref<formUserInterface>({
+  id:"",//用戶ID
   status: "",
-  name: '',
+  name: "",
   accountName: '',
   avatar: '',
   password: '',
@@ -24,9 +25,11 @@ const form = ref<formUserInterface>({
   address: '',
   phoneNumber: ''
 
-  // status:"Normal",
+  // id:"",//用戶ID
+  // status: "Normal",
   // name: '測試1',
   // accountName: 'testtest1',
+  // avatar: '',
   // password: 'testpassword1',
   // checkPassword: 'testpassword1',
   // birthday: new Date('1970-01-01'),
@@ -36,73 +39,73 @@ const form = ref<formUserInterface>({
   // address: '秘密',
   // phoneNumber: '0900000000'
 });
-initializeRules(form);//初始化Rules
-// 送出表單
-const onSubmit = useOnSubmit(ruleFormRef, form);//送出表單資料按鈕
-// 取消表單
-const onCancel = useOnCancel(form);//取消表單按鈕(清空表單資料並關閉視窗)
+const tempAvatar =ref<String>('')
+initializeRules(form);//初始化Rules、從表格欄位中獲得資料
+
 // 選項數據
 const RoleOptions = getOptions("/ums/role");//從後端獲得選項資料
 
 /**
  * 接收表格(父組件)點擊編輯按鈕時取得該行的數據,並回顯示表單上
  */
-useReceiveParentData(form)//開啟監控props.inputFormData，若props.inputFormData有新值，代表為"update"，並執行對應的函數
+useReceiveParentData(form,tempAvatar)//開啟監控props.inputFormData，若props.inputFormData有新值，代表為"update"，並執行對應的函數
 
 /**
  * 上傳頭像
  */
 import { ElMessage } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
+
 
 import type { UploadProps ,UploadRawFile} from 'element-plus'
 
-const imageUrl = ref('')
-const handleAvatarSuccess: UploadProps['onSuccess'] = (
-  response,
-  uploadFile
-) => {
-  imageUrl.value = URL.createObjectURL(uploadFile.raw!)
-}
-import axios from 'axios';
-const handleAvatarChange = async (file: File) => {
-  if (!beforeAvatarUpload(file as UploadRawFile)) {
-    return;
-  }
-  console.log("handleAvatarChange...:",file);
-  try {
-    // 這裡替換為您的 MinIO 上傳 API
-    const formData = new FormData();
-    formData.append('file', file);
 
-    const response = await axios.post('您的MinIO上傳API地址', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-
-    if (response.data.url) {
-      imageUrl.value = response.data.url;
-      ElMessage.success('頭像上傳成功');
-    } else {
-      throw new Error('上傳失敗');
-    }
-  } catch (error) {
-    console.error('上傳錯誤:', error);
-    ElMessage.error('頭像上傳失敗，請稍後再試');
-  }
-};
+/**
+ * MinIO上傳圖片
+ */
+//上傳之前判斷
 
 const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
-  if (rawFile.type !== 'image/jpeg') {
-    ElMessage.error('Avatar picture must be JPG format!')
+  if (!rawFile || !rawFile.type) return false;//若檔案為空則禁止上傳
+  console.log("beforeAvatarUpload...type:",rawFile.type);
+  if (!rawFile.type.startsWith('image')) {//上傳的必須是圖片檔案
+    ElMessage.error('Avatar picture must be image format!')
     return false
-  } else if (rawFile.size / 1024 / 1024 > 2) {
+  } else if (rawFile.size / 1024 / 1024 > 2) {//上傳的圖片大小不能超過2MB
     ElMessage.error('Avatar picture size can not exceed 2MB!')
     return false
   }
-  return true
+  console.log("beforeAvatarUpload...rawFile:",rawFile);
+  // form.value.avatar={
+  //   raw:rawFile,
+  //   uid:rawFile.uid.toString()
+  // }
+  form.value.avatar = rawFile as File; // 直接設置為 File 對象
+
+// 創建預覽 URL
+
+  tempAvatar.value = URL.createObjectURL(rawFile)
+  // form.value.avatar = URL.createObjectURL(rawFile)
+  console.log("beforeAvatarUpload...form.value.avatar:",form.value.avatar);
+
+
+  // 禁止上傳，使用其他方法在點擊確認後上傳至MinIo
+  return false
 }
+
+// 送出表單
+const onSubmit = useOnSubmit(ruleFormRef, form);//送出表單資料按鈕
+// 取消表單
+const onCancel = useOnCancel(form);//取消表單按鈕(清空表單資料並關閉視窗)
+
+//上傳成功
+// const handleAvatarSuccess: UploadProps['onSuccess'] = (
+//   response,
+//   uploadFile
+// ) => {
+//   console.log("handleAvatarSuccess...:",response);
+//   // form.value.avatar = response.data
+//   tempAvatar.value = URL.createObjectURL(uploadFile.raw!)
+// }
 </script>
 
 <template>
@@ -165,10 +168,10 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
 
     <el-form-item label="頭像" prop="avatar">
       <div class="avatar-container">
-        <el-upload class="avatar-uploader" action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-          :show-file-list="false" :on-success="handleAvatarSuccess" :on-change="handleAvatarChange" :before-upload="beforeAvatarUpload"
-          :auto-upload="true" ref="uploadRef">
-          <el-avatar :src="imageUrl || 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png'"
+        <el-upload class="avatar-uploader" action="#"
+          :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload"
+           ref="uploadRef">
+          <el-avatar :src="tempAvatar || 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png'"
             :size="100" />
         </el-upload>
       </div>

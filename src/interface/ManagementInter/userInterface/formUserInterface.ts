@@ -2,7 +2,10 @@
 export interface formUserInterface {
     id?:string;
     name: string;             // 姓名
-    avatar: string;           // 使用者頭像
+    avatar?:{
+        raw:File;
+        uid:string;
+    }|string|File;          // 使用者頭像
     status: string;          // 帳號狀態 (0正常, 1封禁中)
 
     // 以下是 UmsUserInfo 的欄位

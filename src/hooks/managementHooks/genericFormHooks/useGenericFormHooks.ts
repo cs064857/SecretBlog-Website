@@ -1,8 +1,8 @@
 import {computed, nextTick, onMounted, ref, Ref, watch} from "vue";
-import {FormInstance} from "element-plus";
+import {ElMessage, FormInstance} from "element-plus";
 import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
 import {formUserInterface} from "@/interface/ManagementInter/userInterface/formUserInterface";//㊣
-import {getOptionsRequest, saveUserDataRequest, updateUserDataRequest} from "@/requests/managementRequests/userRequest";
+import {getOptionsRequest, getPreSignedUrlFromMinio, saveUserAvatarRequest, saveUserDataRequest, updateUserAvatarUrlRequest, updateUserDataRequest} from "@/requests/managementRequests/userRequest";
 import {R} from "../../../interface/R";
 import {Option} from "../../../interface/formOption";
 import { store } from "@/pinia/index";
@@ -14,10 +14,11 @@ export const ruleFormRef = ref<FormInstance | null>(null);
 const dialogVisibleStore = useDialogVisibleStore(store);
 
 import {useInputFormDataStore} from "@/pinia/managementPinia/genericFormPinia/useFormStore"
+import { putImgToMinioRequest } from "@/requests/storage/minio/useMinioRequest";
 const inputFormDataStore = useInputFormDataStore();
 
 // const props:Ref<any> = computed(()=>inputFormDataStore.inputFormData)
-const props:Ref<any> = computed(()=>({
+const props:Ref<any> = computed(()=>({//從表格欄位中獲得資料
     ...inputFormDataStore.inputFormData,foo: new Date().toISOString()
 }))
 // export interface FormProps {
@@ -55,6 +56,7 @@ export const saveUserData = function (form:Ref<Object>,dialogVisible:Ref<boolean
     // console.log("form.value",form.value)
     saveUserDataRequest(form.value).then(({data}:{data:R}) => {
         if (data.code == 200) {
+
             // emit('dialogVisible', dialogVisible.value);
             dialogVisibleStore.setDialogVisible(false)
             // console.log('表單視窗關閉...');
@@ -101,7 +103,72 @@ export const updateUserData = function (form: Ref<formUserInterface>){
     console.log("修改資料...")
     // console.log("需修改資料內容:",modifiedFields)
     console.log("需修改資料內容:",modifiedFieldsJson)
+//--------------------------------------------------
+    if(modifiedFieldsJson.avatar){
+        console.log("modifiedFieldsJson.avatar:",modifiedFieldsJson.avatar)
+        //獲得Minio預簽名URL上傳鏈結
+        putImgToMinioRequest(form.value.avatar as File,form.value.id)
+        .then((data:{data:R})=>{
+            console.log("putImgToMinioRequest...data:",data)
+            if(data.data.code==200){
+                console.log("上傳頭像成功")
+                //data.data.data是上傳後的永久閱覽地址
+                // updateUserAvatarUrlRequest(form.value.id,data.data.data)
+                // dialogVisibleStore.setDialogVisible(false);
+                // window.location.replace(window.location.href);
+            }
 
+        })
+        .catch(error => {
+            console.error("處理頭像上傳時發生錯誤:", error);
+            ElMessage.error("更新用戶資料失敗");
+        });
+    }
+
+
+
+    // if(modifiedFieldsJson.avatar){
+    //     //獲得Minio預簽名URL上傳鏈結
+    //     getPreSignedUrlFromMinio().then(async (data:R)=>{
+    //         if(data.code==200){
+    //             console.log("getPreSignedUrlFromMinio...data:",data)
+    //             // 確保傳入的是 File 物件
+    //             const avatarFile = form.value.avatar as File;
+    //             console.log("avatarFile:",avatarFile)
+    //             const response=await saveUserAvatarRequest(data.data, avatarFile);
+    //             const test=response.request.responseURL
+    //             console.log("test:",test)
+    //             const baseUrl: string = "http://192.168.26.5:9000";
+    //             const bucketName: string = "secretblog ";
+    //             const storageName: string = "avatar";
+    //             const imgUrl: string = `${baseUrl}/api/v1/buckets/${bucketName}/objects/download?preview=true&prefix=${storageName}&version_id=null`;
+    //             return imgUrl;
+    //         }
+    //         throw new Error("獲取上傳URL失敗");
+    //     })
+    //     .then((data:R) => {
+    //         if(data.code==200){
+    //             dialogVisibleStore.setDialogVisible(false);
+    //             window.location.replace(window.location.href);
+    //         }
+    //     })
+    //     .catch(error => {
+    //         console.error("處理頭像上傳時發生錯誤:", error);
+    //         ElMessage.error("更新用戶資料失敗");
+    //     });
+    // }
+
+    // if(modifiedFieldsJson.avatar){
+    //     //獲得Minio預簽名URL上傳鏈結
+    //     getPreSignedUrlFromMinio().then((data:R)=>{
+    //         console.log("getPreSignedUrlFromMinio...data:",data)
+    //     //利用URL上傳
+    //         if(data.code==200){
+    //             saveUserDataRequest(data.data,form.value.avatar)
+    //         }
+    //     })
+    // }
+//--------------------------------------------------
     updateUserDataRequest(props,modifiedFieldsJson).then((data:R)=>{
         if(data.code==200){
             // emit('dialogVisible', dialogVisible.value);
@@ -160,7 +227,10 @@ export const getOptions=function (requestPath:string){
 
 export const actionType = ref<string>()
 
-export const useReceiveParentData=(form: Ref<formUserInterface>)=>{
+/**
+ * 接收表格(父組件)點擊編輯按鈕時取得該行的數據,並回顯示表單上
+ */
+export const useReceiveParentData=(form: Ref<formUserInterface>,tempAvatar?:Ref<String>)=>{
 
     watch(
         () => props.value,
@@ -168,7 +238,7 @@ export const useReceiveParentData=(form: Ref<formUserInterface>)=>{
             console.log("FormUser接收到UserManagement資料props:",props.value)
             const actionTypeStore = useActionTypeStore();
             actionType.value=actionTypeStore.getActionType//從pinia中獲取actionType值
-            handleReceiveParentData(form);
+            handleReceiveParentData(form,tempAvatar);
         },
         { immediate: true,deep:true}
     );
@@ -182,12 +252,16 @@ export const initializeRules = function (form: Ref<formUserInterface>) {
     rules = useRules(form.value,options);
 }
 
- const handleReceiveParentData=function (form: Ref<formUserInterface>){
+ const handleReceiveParentData=function (form: Ref<formUserInterface>,tempAvatar?:Ref<String>){
     console.log("執行handleReceiveParentData()...props:",props)
     if(props.value){
         const inputFormData =<formUserInterface>props.value
         console.log("表單接收到父組件傳遞修改行的資料:",inputFormData)
         form.value = {...inputFormData,checkPassword:inputFormData.password}// 將確認密碼欄位回填與密碼相同值
+        if (typeof inputFormData.avatar === 'string') { // 修正 typeof 檢查
+            tempAvatar.value = inputFormData.avatar;
+            console.log("tempAvatar回顯:",tempAvatar.value)
+        }
         console.log("表單接收到父組件傳遞修改行form.value:",form.value)
         // rules = useRules(form.value,options);
         Object.assign(rules, useRules(form.value, options));//更新 rules

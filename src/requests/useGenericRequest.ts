@@ -18,3 +18,4 @@ export function genericBatchDeleteRequest(resourcePath: string, idList: any[]): 
         ElMessage.error("請求出錯，請稍後再試");
     });
 }
+
