@@ -1,8 +1,10 @@
 <template>
 
     <el-container class="common-layout">
-      <el-header style="height: 75px;background-color: cadetblue;">
+      <el-header class="common-layout-header">
         Header
+
+        <el-switch v-model="darkModeToggle" class="ml-2" @change="switchchange" />
       </el-header>
       <el-container>
         <el-aside style="width: 200px">
@@ -11,9 +13,7 @@
             <el-col :span="12" style="height: 100%">
 <!--              <h5 class="mb-2">導航菜單</h5>-->
               <el-menu
-                  style="position: absolute;height: 100%; width: 100%;border-right-width: 0"
-                  active-text-color="#ffd04b"
-                  background-color="#545c64"
+
                   class="el-menu-vertical-demo"
                   default-active="2"
                   text-color="#fff"
@@ -22,7 +22,7 @@
                   @close="handleClose"
                   @select="handleSelect"
               >
-                <el-sub-menu  index="1">
+                <!-- <el-sub-menu   index="1">
                   <template #title >
                     <el-icon >
                       <location />
@@ -37,11 +37,17 @@
                     <el-menu-item index="Home">Home</el-menu-item>
                   </el-menu-item-group>
                   <el-sub-menu index="1-4">
-                    <template #title>item four</template>
+                    <template #title>
+                      <el-icon >
+                      <location />
+                    </el-icon>
+                      item four
+                    </template>
                     <el-menu-item index="1-4-1">item one</el-menu-item>
                   </el-sub-menu>
-                </el-sub-menu>
-                <el-menu-item index="2">
+                </el-sub-menu> -->
+
+                <!-- <el-menu-item index="2">
                   <el-icon>
                     <icon-menu/>
                   </el-icon>
@@ -52,6 +58,13 @@
                     <document/>
                   </el-icon>
                   <span>Navigator Three</span>
+                </el-menu-item> -->
+
+                <el-menu-item index="UserManagement">
+                  <el-icon>
+                    <setting/>
+                  </el-icon>
+                  <span>用戶系統</span>
                 </el-menu-item>
 
                 <el-menu-item index="TinyMceEditManagement">
@@ -116,11 +129,96 @@ const handleSelect =function (index:string){
   //利用@select放置於el-menu上,當點擊其中的el-menu-item的話,會獲得index參數並且觸發方法將參數傳入,並跳轉路由
   router.push({name:index})
 }
+/**
+ * 黑暗模式開關
+ */
+
+import 'element-plus/theme-chalk/dark/css-vars.css'
+ 
+
+
+
+ const darkModeToggle = ref(false)
+  
+ const switchchange = (val:any) => {
+
+ // 取得 html 根元素
+ let html = document.documentElement  //获取html根元素
+// 根據開關狀態設定 html 根元素的 class 屬性，實現暗黑模式切換，透過html.dark來設定CSS
+ val ? html.className = 'dark' : html.className = '' //判断开关打开添加dark 否则不添加
+}
+
+
 </script>
+
 
 <style scoped>
 
+/* 定義暗黑模式的全局變量 */
+html.dark .el-menu-item-group{
+  background-color: #111111e7;
+}
+html.dark .el-sub-menu,html.dark .el-menu-item{
+  /* 設置背景顏色(左側導航的字體顏色) */
+  --el-menu-text-color: #ffffff;
+}
+html.dark .el-menu-vertical-demo {
+  background-color: #111111;
+}
 
+html.dark .el-menu-vertical-demo{
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  /*border-right-width: 0;*/
+  /*active-text-color:#ffd04b;*/
+  /* 設置背景顏色(左側導航的背景顏色) */
+  background-color: #111111;
+  border: #333333 1px solid;;
+}
+html.dark .el-sub-menu[data-v-39f105c9] {
+
+--el-menu-bg-color: #111111e7;
+}
+html.dark .common-layout-header{
+  height: 75px;
+  background-color: #121212;
+}
+/* 修改el-menu-item hover顏色 */
+.el-menu-item:hover{
+  background-color: #1F1F1F;
+}
+.el-sub-menu[data-v-39f105c9] {
+
+    --el-menu-bg-color: #6b788be7;
+}
+
+
+.common-layout-header{
+  height: 75px;
+  background-color: #38866c;
+}
+
+.el-menu-item-group{
+  background-color: #da6969e7;
+}
+
+
+.el-sub-menu,.el-menu-item{
+  /* 設置背景顏色(左側導航的字體顏色) */
+  --el-menu-text-color: #000000;
+}
+
+.el-menu-vertical-demo{
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  /*border-right-width: 0;*/
+  /*active-text-color:#ffd04b;*/
+  /* 設置背景顏色(左側導航的背景顏色) */
+  background-color: #5a3636;
+  border: #333333 1px solid;;
+}
 
 .common-layout{
   overflow: clip;
@@ -138,6 +236,7 @@ const handleSelect =function (index:string){
   display: flex;
   justify-content: center;
   align-items: center;
+  /* background-color: #111111; */
 }
 
 :deep(.el-button) {

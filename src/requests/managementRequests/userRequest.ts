@@ -80,7 +80,7 @@ export function updateUserDataRequest(props:Ref<formUserInterface>, modifiedFiel
         if(data.code==200){
             ElMessage.success("修改用戶數據成功");
 
-            window.location.replace(window.location.href);
+            // window.location.replace(window.location.href);
         }else{
             ElMessage.error("修改用戶數據失敗");
         }

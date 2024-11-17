@@ -1,5 +1,5 @@
 import {computed, nextTick, onMounted, ref, Ref, watch} from "vue";
-import {ElMessage, FormInstance} from "element-plus";
+import {ElMessage, ElMessageBox, FormInstance} from "element-plus";
 import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
 import {formUserInterface} from "@/interface/ManagementInter/userInterface/formUserInterface";//㊣
 import {getOptionsRequest, getPreSignedUrlFromMinio, saveUserAvatarRequest, saveUserDataRequest, updateUserAvatarUrlRequest, updateUserDataRequest} from "@/requests/managementRequests/userRequest";
@@ -67,7 +67,7 @@ export const saveUserData = function (form:Ref<Object>,dialogVisible:Ref<boolean
     });
 }
 
-export const updateUserData = function (form: Ref<formUserInterface>){
+export const updateUserData = async function (form: Ref<formUserInterface>){
     console.log("updateUserData...form:",form.value)
     console.log("updateUserData...props:",props.value)
 
@@ -87,7 +87,7 @@ export const updateUserData = function (form: Ref<formUserInterface>){
 
     // 將 props.inputFormData 轉換為 Object.entries 陣列
 
-    const modifiedFieldsJson = Object.entries(props.value)
+    const modifiedFieldsJson = await Object.entries(props.value)
         .reduce((acc,[field,originalValue])=>{
 
             // 直接從 form 中取得當前字段的值
@@ -104,20 +104,27 @@ export const updateUserData = function (form: Ref<formUserInterface>){
     // console.log("需修改資料內容:",modifiedFields)
     console.log("需修改資料內容:",modifiedFieldsJson)
 //--------------------------------------------------
+    const closeDialog=ref<boolean>(false)
+
     if(modifiedFieldsJson.avatar){
         console.log("modifiedFieldsJson.avatar:",modifiedFieldsJson.avatar)
         //獲得Minio預簽名URL上傳鏈結
-        putImgToMinioRequest(form.value.avatar as File,form.value.id)
+        await putImgToMinioRequest(form.value.avatar as File,form.value.id)
         .then((data:{data:R})=>{
             console.log("putImgToMinioRequest...data:",data)
             if(data.data.code==200){
+                // form.value.avatar=data.data.data
                 console.log("上傳頭像成功")
+                modifiedFieldsJson.avatar=data.data.data
+
+                closeDialog.value=true
                 //data.data.data是上傳後的永久閱覽地址
                 // updateUserAvatarUrlRequest(form.value.id,data.data.data)
                 // dialogVisibleStore.setDialogVisible(false);
                 // window.location.replace(window.location.href);
+            }else{
+                closeDialog.value=false
             }
-
         })
         .catch(error => {
             console.error("處理頭像上傳時發生錯誤:", error);
@@ -125,7 +132,34 @@ export const updateUserData = function (form: Ref<formUserInterface>){
         });
     }
 
-
+    //判斷若除了avatar外有其他修改，則更新資料
+    if (!(Object.keys(modifiedFieldsJson).length === 1 && 'avatar' in modifiedFieldsJson)) {
+        console.log("除了avatar外有其他修改，則更新資料")
+        await updateUserDataRequest(props, modifiedFieldsJson).then((data: R) => {
+            if (data.code == 200) {
+                // emit('dialogVisible', dialogVisible.value);
+                closeDialog.value=true
+            }else{
+                closeDialog.value=false
+            }
+        })
+    }
+    console.log("closeDialog.value:",closeDialog.value)
+    if(closeDialog.value){
+    // dialogVisibleStore.setDialogVisible(false)
+    // console.log('表單視窗關閉...');
+    ElMessage.success("更新用戶資料成功")
+    window.location.replace(window.location.href);
+    }
+    // if(Object.keys(modifiedFieldsJson).length > 1){
+    //     updateUserDataRequest(props,modifiedFieldsJson).then((data:R)=>{
+    //         if(data.code==200){
+    //         // emit('dialogVisible', dialogVisible.value);
+    //         dialogVisibleStore.setDialogVisible(false)
+    //             console.log('表單視窗關閉...');
+    //         }
+    //     })
+    // }
 
     // if(modifiedFieldsJson.avatar){
     //     //獲得Minio預簽名URL上傳鏈結
@@ -169,14 +203,7 @@ export const updateUserData = function (form: Ref<formUserInterface>){
     //     })
     // }
 //--------------------------------------------------
-    updateUserDataRequest(props,modifiedFieldsJson).then((data:R)=>{
-        if(data.code==200){
-            // emit('dialogVisible', dialogVisible.value);
-            dialogVisibleStore.setDialogVisible(false)
-            console.log('表單視窗關閉...');
-        }
 
-    })
 }
 
 // 提交表單

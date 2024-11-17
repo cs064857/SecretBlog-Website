@@ -3,7 +3,7 @@
 
   <div class="mgmt-container"><!-- mgmt-container -->
 
-    <div class="FlexInnerLayer" id="mgmt-header" style="height: 10%;background: #213547"><!-- mgmt-header   -->
+    <div class="FlexInnerLayer" id="mgmt-header" ><!-- mgmt-header   -->
 
       <el-button type="primary" round style="margin-left: 20px" @click="handleAdd">新增</el-button>
 
@@ -18,7 +18,7 @@
       </el-dialog>
 
 
-      <el-select ref="searchSelectRef" class="search-select" clearable v-model="searchKey" placeholder="搜索欄位">
+      <el-select effect="dark" ref="searchSelectRef" class="search-select" clearable v-model="searchKey" placeholder="搜索欄位">
         <el-option v-for="option in elTableColumnsData" :key="option.label" :label="option.label" :value="option.value" />
       </el-select>
 
@@ -287,6 +287,33 @@ const {searchSelectRef} = useConfigureSearchSelectWidthHooks(elTableColumnsData)
 </script>
 
 <style scoped>
+
+#mgmt-footer[data-v-47a9e625]{
+  /* 設置分頁背景顏色 */
+  /* background: #1b1b1b; */
+  
+}
+#mgmt-header{
+  height: 10%;
+  /* 設置表格標頭背景顏色(新增、修改、查詢、刪除按鈕等欄位) */
+  /* background: #1b1b1b */
+}
+
+.el-table{
+  /* 設置表格標頭背景顏色(索引、帳戶狀態等欄位) */
+  /* --el-table-header-bg-color: #1b1b1b; */
+  /* 設置表格背景背景顏色 */
+  /* background: #1b1b1b; */
+}
+
+
+.el-sub-menu{
+  --el-menu-hover-bg-color: #1F1F1F;
+  --el-menu-bg-color: #373737;
+}
+
+
+
 /* 調整 el-table 欄位之間的間距 */
 :deep(.el-table .el-table__cell) {
   padding: 5px; /* 根據需求調整間距大小 */
@@ -313,7 +340,7 @@ const {searchSelectRef} = useConfigureSearchSelectWidthHooks(elTableColumnsData)
 }
 
 .mgmt-container {
-  background: #646cff;
+  /* background: #1b1b1b; */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -328,7 +355,7 @@ const {searchSelectRef} = useConfigureSearchSelectWidthHooks(elTableColumnsData)
   justify-content: center;
   align-items: center;
   /*align-items: flex-start;*/
-  background: #ffffff;
+  
   width: 100%;
 
   /*transform: translateY(-10px); /* 向上移動表格 */
@@ -353,11 +380,12 @@ const {searchSelectRef} = useConfigureSearchSelectWidthHooks(elTableColumnsData)
 #mgmt-footer {
   min-height: 10%;
   max-height: 10%;
-  background: #ffffff
+
 }
 
 #mgmt-content {
   min-height: 74vh;
   max-height: 74vh;
 }
+
 </style>

@@ -47,6 +47,29 @@ export function useSearch(searchKey:Ref<String | null>,searchValue:Ref<String | 
     return {filteredData,dataTotalCount}
 
 }
+// export const useConfigureSearchSelectWidthHooks=(elTableColumnsData:any[])=>{
+
+//     /**
+//      * 搜尋選單的寬度設置邏輯
+//      */
+
+//     const searchSelectRef = ref<InstanceType<typeof ElSelect> | null>(null);
+
+//     onMounted(() => {
+//         const values = elTableColumnsData;
+//         // 計算每個標籤的長度
+//         const maxLength = values.reduce((max, item) => Math.max(max, item.label.length), 0);
+//         console.log("計算後 maxLength:", maxLength);
+//         // 設置 searchSelectRef 寬度為選項中文字的長度 + 3，單位為rem
+//         console.log("設置搜尋前選項條寬度 maxLength:", maxLength);
+//         if (searchSelectRef.value) {
+//             searchSelectRef.value.$el.style.minWidth = `${maxLength + 3}rem`;
+//             searchSelectRef.value.$el.style.maxWidth = `${maxLength + 3}rem`;
+//         }
+//     });
+//     return {searchSelectRef}
+// }
+
 export const useConfigureSearchSelectWidthHooks=(elTableColumnsData:any[])=>{
 
     /**

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import http from "@/utils/httpRequest.js";
 import { formUserInterface } from "@/interface/ManagementInter/userInterface/formUserInterface";
 import { useOnCancel } from "@/hooks/managementHooks/genericFormHooks/useGenericFormHooks.js";
@@ -57,6 +57,7 @@ import { ElMessage } from 'element-plus'
 
 
 import type { UploadProps ,UploadRawFile} from 'element-plus'
+import { useActionTypeStore } from '@/pinia/managementPinia/genericFormPinia/useFormStore';
 
 
 /**
@@ -106,6 +107,13 @@ const onCancel = useOnCancel(form);//取消表單按鈕(清空表單資料並關
 //   // form.value.avatar = response.data
 //   tempAvatar.value = URL.createObjectURL(uploadFile.raw!)
 // }
+
+/**
+ * 判斷當前是否為新增模式，若為新增模式，則不顯示頭像欄位
+ */
+const actionTypeStore = useActionTypeStore();
+// 計算屬性，判斷當前是否為新增模式
+const isAddMode = computed(() => actionTypeStore.actionType === 'add');
 </script>
 
 <template>
@@ -166,10 +174,10 @@ const onCancel = useOnCancel(form);//取消表單按鈕(清空表單資料並關
       </el-radio-group>
     </el-form-item>
 
-    <el-form-item label="頭像" prop="avatar">
+    <el-form-item v-if="!isAddMode" label="頭像" prop="avatar">
       <div class="avatar-container">
         <el-upload class="avatar-uploader" action="#"
-          :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload"
+          :show-file-list="false"  :before-upload="beforeAvatarUpload"
            ref="uploadRef">
           <el-avatar :src="tempAvatar || 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png'"
             :size="100" />

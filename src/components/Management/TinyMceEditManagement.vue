@@ -48,12 +48,26 @@
 //字體
 
 :deep(.tox-tinymce) {
+
   border: 1px solid #dcdfe6;
   border-radius: 4px;
 
   .tox-statusbar {
     display: none;
   }
+}
+
+html.dark #inputHeader {
+
+display: flex;
+align-items: center;
+justify-content: start;
+width: 100%;
+height: 7vh;
+
+border-radius: 30px 30px 0px 0px;
+background-color: rgb(34, 33, 33);
+
 }
 
 #inputHeader {
@@ -71,11 +85,12 @@
 }
 
 #inputContent {
+
   width: 100%;
   height: 68vh;
-
 }
 #inputFooter{
+
   height: 3vh;
 }
 .main-editarticle {
@@ -235,13 +250,37 @@ const tinymceId = ref(
 );
 
 
+import 'tinymce/skins/content/dark/content.css'
 //定義一個對象 init初始化
 const init = reactive({
   selector: "#" + tinymceId.value, //富文本編輯器的id,
   // language_url: "public/langs/zh_TW.js", // 語言包的路徑，具體路徑看自己的項目
   language_url: "tinymce-i18n/langs7/zh_TW.js", // 語言包的路徑，具體路徑看自己的項目
   language: "zh_TW",
-  skin_url: "/tinymce/skins/ui/oxide", // skin路徑，具體路徑看自己的項目
+  // !skin_url: "/tinymce/skins/ui/oxide", // skin路徑，具體路徑看自己的項目
+
+  // 修改這些設定
+  skin_url: '/tinymce/skins/ui/oxide-dark', // 修改 skin_url
+  skin: 'oxide-dark',
+  content_css: '/tinymce/skins/content/dark/content.css', // 指定具體的 content_css 路徑
+  
+  // content_style: `
+  //   body {
+  //     font-family: Helvetica, Arial, sans-serif;
+  //     font-size: 16px;
+  //     color: #ffffff !important;
+  //     background-color: #2d2d2d !important;
+  //   }
+  //   p {
+  //     margin: 3px;
+  //     line-height: 24px;
+  //     color: #ffffff !important;
+  //   }
+  //   * {
+  //     color: #ffffff !important;
+  //   }
+  // `,
+
   editable_root: props.editable_root,
   height: 600,
   branding: false, // 是否禁用“Powered by TinyMCE”
@@ -291,7 +330,7 @@ const init = reactive({
   // autoresize_overflow_padding: 16,
   min_height: props.minHeight,
   // content_css: "/tinymce/skins/content/default/content.css", //以css文件方式自定義可編輯區域的css樣式，css文件需自己創建並引入
-  content_css: "/src/assets/css/content.css", //以css文件方式自定義可編輯區域的css樣式，css文件需自己創建並引入
+  // !content_css: "/src/assets/css/content.css", //以css文件方式自定義可編輯區域的css樣式，css文件需自己創建並引入
 
   // setup: function (editor) {
   // },
