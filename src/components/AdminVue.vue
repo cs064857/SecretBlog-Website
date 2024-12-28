@@ -71,7 +71,7 @@
                   <el-icon>
                     <setting/>
                   </el-icon>
-                  <span>編輯器</span>
+                  <span>編輯介面</span>
 
                 </el-menu-item>
 
@@ -80,7 +80,20 @@
                     <setting/>
                   </el-icon>
                   <span>分類系統</span>
+                </el-menu-item>
 
+                <el-menu-item index="ArticleManagement">
+                  <el-icon>
+                    <setting/>
+                  </el-icon>
+                  <span>文章系統</span>
+                </el-menu-item>
+
+                <el-menu-item index="Home">
+                  <el-icon>
+                    <setting/>
+                  </el-icon>
+                  <span>網站首頁</span>
                 </el-menu-item>
 
               </el-menu>
@@ -111,7 +124,7 @@ import {
   Location,
   Setting,
 } from '@element-plus/icons-vue'
-import {ref} from 'vue'
+import {onMounted, ref} from 'vue'
 const router = useRouter()
 
 const handleOpen = (key: string, keyPath: string[]) => {
@@ -135,18 +148,33 @@ const handleSelect =function (index:string){
 
 import 'element-plus/theme-chalk/dark/css-vars.css'
  
+onMounted(()=>{
+  document.documentElement.className = 'dark';
+})
 
+// onMounted(()=>{
+//   document.documentElement.className = 'dark';
+// })
 
+// import {useDarkModeToggleStore} from '@/pinia/useDarkModeToggleStore'
+// const darkModeToggleStore = useDarkModeToggleStore()
 
- const darkModeToggle = ref(false)
+//  const darkModeToggle = ref(false)
   
- const switchchange = (val:any) => {
+//  const switchchange = (val:any) => {
+// console.log("val：",val)
+//  // 取得 html 根元素
+//  let html = document.documentElement  //获取html根元素
+// // 根據開關狀態設定 html 根元素的 class 屬性，實現暗黑模式切換，透過html.dark來設定CSS
+// if (val) {
+//     darkModeToggleStore.setDarkModeToggle('dark');
+//     html.className = 'dark';
+//   } else {
+//     darkModeToggleStore.setDarkModeToggle('light');
+//     html.className = '';
+//   }
 
- // 取得 html 根元素
- let html = document.documentElement  //获取html根元素
-// 根據開關狀態設定 html 根元素的 class 屬性，實現暗黑模式切換，透過html.dark來設定CSS
- val ? html.className = 'dark' : html.className = '' //判断开关打开添加dark 否则不添加
-}
+// }
 
 
 </script>

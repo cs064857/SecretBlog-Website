@@ -6,6 +6,7 @@ import AdminVue from "../components/AdminVue.vue";
 import Article from "../components/Article.vue";
 import TreeCategories from "../components/TreeCategories.vue";
 import TinyMceEditManagement from "../components/Management/TinyMceEditManagement.vue";
+import ArticleManagement from "../components/Management/ArticleManagement.vue";
 const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -47,7 +48,16 @@ const router = createRouter({
                     components:{
                         AdminVueRouter: TreeCategories
                     }
+                },
+                {
+                    name:'ArticleManagement',
+                    path:'/AdminVue/ArticleManagement',
+                    components:{
+                        AdminVueRouter: ArticleManagement
+                    }
                 }
+
+                
             ],
             components: {
                 app: AdminVue

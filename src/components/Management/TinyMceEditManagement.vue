@@ -17,8 +17,8 @@
 
     </div>
 
-    <div id="inputContent">
-      <editor style="overflow: scroll" v-model="myValue" :init="init" :enabled="enabled" :id="tinymceId"></editor>
+    <div id="inputContent" >
+      <editor style="overflow: scroll" v-cloak v-model="myValue" :init="init" :enabled="enabled" :id="tinymceId"></editor>
     </div>
 
     <div id="inputFooter">
@@ -32,6 +32,15 @@
 
 </template>
 <style lang="scss" scoped>
+
+[v-cloak] { 
+  display: none 
+}
+
+
+// 添加 v-cloak 樣式
+
+
 // 字體
 
 @import '../../assets/font/font.css';
@@ -49,7 +58,7 @@
 
 :deep(.tox-tinymce) {
 
-  border: 1px solid #dcdfe6;
+  // border: 1px solid #dcdfe6;
   border-radius: 4px;
 
   .tox-statusbar {
@@ -85,7 +94,7 @@ background-color: rgb(34, 33, 33);
 }
 
 #inputContent {
-
+  // background-color: #2d2d2d;
   width: 100%;
   height: 68vh;
 }
@@ -111,7 +120,9 @@ background-color: rgb(34, 33, 33);
 </style>
 
 <script lang="ts" setup>
-import { computed, reactive, watch, ref, nextTick, onMounted } from "vue"; //全屏
+
+
+import { computed, reactive, watch, ref, nextTick, onMounted, initCustomFormatter } from "vue"; //全屏
 
 
 import tinymce from "tinymce/tinymce";
@@ -199,8 +210,6 @@ const handleInput = function () {
 
 
 
-
-
 const emits = defineEmits(["update:modelValue", "setHtml"]);
 //這裡我選擇將數據定義在props裡面，方便在不同的頁面也可以配置出不同的編輯器，當然也可以直接在組件中直接定義
 const props = defineProps({
@@ -250,9 +259,30 @@ const tinymceId = ref(
 );
 
 
-import 'tinymce/skins/content/dark/content.css'
-//定義一個對象 init初始化
+// import {useDarkModeToggleStore} from '@/pinia/useDarkModeToggleStore'
+// const darkModeToggleStore = useDarkModeToggleStore()
+// const darkModeToggle = computed(()=> darkModeToggleStore.darkModeToggle)
+// watch(()=> darkModeToggle.value,()=>{
+//   console.log("darkModeToggle.value：",darkModeToggle.value)
+// })
+
+
+/**
+ * 深色init
+ */
+// 添加編輯器載入狀態控制
+const editorReady = ref(false)
+
+// import 'tinymce/skins/content/dark/content.css'
+// //定義一個對象 init初始化
 const init = reactive({
+
+  setup: (editor) => {
+    editor.on('init', () => {
+      editorReady.value = true
+    })
+  },
+
   selector: "#" + tinymceId.value, //富文本編輯器的id,
   // language_url: "public/langs/zh_TW.js", // 語言包的路徑，具體路徑看自己的項目
   language_url: "tinymce-i18n/langs7/zh_TW.js", // 語言包的路徑，具體路徑看自己的項目
@@ -260,9 +290,11 @@ const init = reactive({
   // !skin_url: "/tinymce/skins/ui/oxide", // skin路徑，具體路徑看自己的項目
 
   // 修改這些設定
-  skin_url: '/tinymce/skins/ui/oxide-dark', // 修改 skin_url
-  skin: 'oxide-dark',
-  content_css: '/tinymce/skins/content/dark/content.css', // 指定具體的 content_css 路徑
+  skin_url: '/tinymce/skins/ui/oxide-dark', // 修改 skin_url(工具欄深顏色)
+  // skin_url: '/tinymce/skins/ui/oxide', // 修改 skin_url(工具欄淺顏色)
+  // skin: 'oxide-dark',
+  content_css: '/tinymce/skins/content/dark/content.css', // 指定具體的 content_css 路徑(輸入欄深色)
+  // content_css: '/tinymce/skins/content/default/content.css', // 指定具體的 content_css 路徑(輸入欄淺色)
   
   // content_style: `
   //   body {
@@ -366,6 +398,7 @@ const init = reactive({
 });
 
 
+
 // 外部傳遞進來的數據變化
 const myValue = computed({
   get() {
@@ -406,9 +439,9 @@ watch(
 );
 
 //初始化編輯器
-onMounted(() => {
-  tinymce.init({});
-});
+// onMounted(() => {
+//   tinymce.init({});
+// });
 
 // 設置值
 const handleSetContent = (content) => {

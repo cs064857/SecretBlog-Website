@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, onUpdated, ref, watch} from "vue";
+import {computed, onMounted, onUpdated, ref, watch, onUnmounted} from "vue";
 import {Articles} from "@/interface/articleInterface";
 import {onBeforeRouteUpdate, useRoute, useRouter} from "vue-router";
 import http from "../utils/httpRequest"
@@ -47,6 +47,7 @@ const articleList = ref<Articles | null>(null)
 // const routePage = computed(() => route.query.page)
 // let categoryId = ref(route.params.categoryId)
 // const routePage = ref(route.query.page)
+// 定義發射事件
 
 
 const getArticles = function (categoryId, routePage) {
@@ -61,6 +62,8 @@ const getArticles = function (categoryId, routePage) {
       articleList.value = data.data.records//要展示的所有文章列表資料
       console.log("根據分類ID與頁碼獲得的文章列表articleList.value:", articleList.value)
       totalItems = data.data.total//當前分類下所有文章的總數量
+
+
     } else {
       ElMessage.error("加載失敗,請重新嘗試");
     }
@@ -76,9 +79,12 @@ onBeforeRouteUpdate((to, from) => {
   }
 })
 
+
+
 onMounted(() => {
 
   getArticles(route.params.categoryId, route.query.page)
+})
 
 
   // {
@@ -94,7 +100,12 @@ onMounted(() => {
   //     console.log("從後端接收到的總文章列表articleList:", articleList.value)
   //   })
   // }
-})
+
+// 組件卸載時移除滾動監聽器
+// onUnmounted(() => {
+//   window.removeEventListener('scroll', handleScroll)
+// })
+
 //獲取文章列表/
 
 //根據categoryId篩選與分頁
@@ -132,12 +143,29 @@ onMounted(() => {
 </script>
 
 <template>
+
   <div v-for="article in articleList" :key="article.id" class="home-article">
+
+    <div class="article-box">
+      <div class="article-title">
+        <router-link :to="{name:'Article',params:{articleId:article.id}}"><p>{{ article.title }}</p></router-link>
+      </div>
+      <div class="article-info">
+        <div class="article-category"></div>
+        <div class="article-metrics"></div>
+      </div>
+      
+    </div>
+    <hr>
+  </div>
+  
+
+  <!-- <div v-for="article in articleList" :key="article.id" class="home-article">
     <div class="article-title">
       <router-link :to="{name:'Article',params:{articleId:article.id}}"><p>{{ article.title }}</p></router-link>
     </div>
     <div class="article-content"></div>
-<!--    <div v-html="article.content" class="article-content"></div>-->
+
     <div class="article-info"></div>
   </div>
 
@@ -145,10 +173,77 @@ onMounted(() => {
     <el-pagination @current-change="handleCurrentPageChange" @size-change="handlePageSizeChange"
                    v-model:current-page="currentPage" v-model:page-size="pageSize" background
                    layout="prev, pager, next" :total="totalItems"/>
-  </div>
+  </div> -->
 </template>
 
 <style scoped>
+
+
+
+.article-title p[data-v-7a0f854b] {
+  font-size: 22px;
+  font-weight: bold;
+  
+  
+  /* 由左至右依序嘗試使用字體，最後使用系統預設的無襯線字體 */
+  /* font-family: 'Microsoft JhengHei', 'PingFang TC', 'STHeiti', 'Noto Sans TC', ; */
+  /* font-family: 'Source Han Sans'; */
+
+}
+
+.article-title a {
+  text-decoration: none;  /* 移除超連結底線 */
+
+}
+.article-metrics{
+  background-color: #881d1d;
+  width: 70%;
+  height: 100%;
+}
+.article-category{
+  background-color: #1d5888;
+  width: 30%;
+  height: 100%;
+}
+/* .article-info-1{
+  background-color: #0c2a5a;
+  width: 100%;
+  height: 10px;
+} */
+hr{
+  background-color: #ffffff;
+  opacity: 0.5; /* 0.3 代表 30% 的不透明度 */
+  width: 100%;
+  position: relative;
+  top: 1.5vh;
+}
+.article-info{
+  background-color: #549122;
+  width: 100%;
+  height: 40%;
+  display: flex;
+  flex-direction: row;
+}
+.article-title{
+  background-color: #5c390e;
+  display: flex;
+
+  align-items: center;
+  width: 100%;
+  height: 60%;
+}
+
+.article-box{
+  background-color: #9a6e3a;
+  width: 100%;
+  height: 11vh;
+}
+.home-article{
+  display: flex;
+  flex-direction: column;
+  /* 間距 */
+
+}
 .article-title p {
   max-height: 20%;
   min-height: 20%;
@@ -160,18 +255,7 @@ onMounted(() => {
 
 }
 
-.article-title {
-  max-height: 5vh;
-  min-height: 5vh;
-  padding: 0 0 18px 10px;
 
-  background-color: #2dc26b;
-  width: 100%;
-  border-radius: 25px 25px 0 0;
-  overflow: hidden; /* 隱藏溢出內容 */
-
-  text-wrap: wrap;
-}
 .home-article {
   display: flex;
   flex-direction: column;
@@ -180,7 +264,7 @@ onMounted(() => {
   /*border-radius: 30px 30px 30px 30px;*/
   /*box-shadow: deeppink 0 0 5px;*/
   /*background-color: white;*/
-  margin: 2% 5% 2% 5%;
+  margin: 0% 5% 2% 5%;
   /*width: 60%;*/
   /*max-height: 100vh;*/
   /*min-height: auto;*/
@@ -203,19 +287,7 @@ onMounted(() => {
 
   text-wrap: wrap;
 }
-.article-info {
-  /*height: 15vh;*/
-  max-height: 3vh;
-  min-height: 3vh;
 
-  padding: 0 0 18px 10px;
-  background-color: #8a8f97;
-  width: 100%;
-  border-radius: 0 0 20px 20px;
-  overflow: hidden; /* 隱藏溢出內容 */
-
-  text-wrap: wrap;
-}
 .home-article-footer {
   grid-column: 1 / -1; /* 橫跨整個行 */
   display: flex;
