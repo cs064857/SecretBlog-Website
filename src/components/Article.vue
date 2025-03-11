@@ -5,7 +5,7 @@
     <HomeHeaderNavigation ref="headerRef"></HomeHeaderNavigation>
 
 
-    <div class="article-main">
+    <!-- <div class="article-main"> -->
 
       <div class="article-content-list" ref="articleContentListRef">
         <div class="Box1">
@@ -65,7 +65,7 @@
       </div>
     </div>
 
-  </div>
+  <!-- </div> -->
 </template>
 
 <style scoped>
@@ -260,7 +260,7 @@
 import HomeHeaderNavigation from "./HomeHeaderNavigation.vue";
 
 import http from '@/utils/httpRequest'
-import {ArticleInter, Articles} from "@/interface/articleInterface";
+import {ArticleInter, Articles} from "@/interface/front/articleInterface";
 import {nextTick, onMounted, onUnmounted, ref} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {ElAnchor, ElMessage} from "element-plus";

@@ -1,4 +1,4 @@
-import TinyMceEditManagement from './TinyMceEditManagement.vue';
+import TinyMceEditManagement from '@/components/admin/TinyMceEditManagement.vue';
 import {ComponentPublicInstance, ref} from 'vue'
 export default function(){
 // 定义 TinyMceEditManagement 组件暴露的方法类型

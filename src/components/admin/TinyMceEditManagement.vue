@@ -1,5 +1,5 @@
 <template>
-  <div class="main-editarticle">
+  <div v-loading="loading" class="main-editarticle">
 
     <div id="inputHeader">
       <span class="noto-sans-tc" style="font-size: 18px;max-width: 4vh;min-width: 4vh;font-family: 'Noto Sans TC', sans-serif;padding-left: 1%;padding-top: 1%;">標題</span>
@@ -18,7 +18,7 @@
     </div>
 
     <div id="inputContent" >
-      <editor style="overflow: scroll" v-cloak v-model="myValue" :init="init" :enabled="enabled" :id="tinymceId"></editor>
+      <editor style="overflow: scroll" v-model="myValue" :init="init" :enabled="enabled" :id="tinymceId"></editor>
     </div>
 
     <div id="inputFooter">
@@ -32,18 +32,21 @@
 
 </template>
 <style lang="scss" scoped>
-
 [v-cloak] { 
   display: none 
 }
+// 確保 loading 遮罩層在最上層
 
+.example-showcase .el-loading-mask {
+  z-index: 9;
+}
 
 // 添加 v-cloak 樣式
 
 
 // 字體
 
-@import '../../assets/font/font.css';
+@import '@/assets/font/font.css';
 
 // @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap');
 // .noto-sans-tc{
@@ -93,8 +96,11 @@ background-color: rgb(34, 33, 33);
 
 }
 
+#tox tox-tinymce{
+  background-color: #2d2d2d;
+}
+
 #inputContent {
-  // background-color: #2d2d2d;
   width: 100%;
   height: 68vh;
 }
@@ -160,10 +166,13 @@ import "tinymce/plugins/fullscreen";
 import "tinymce-i18n/langs7/zh_TW.js"
 
 // 處理送出至資料庫中
-import http from '../../utils/httpRequest';
+import http from '@/utils/httpRequest';
 import {ElMessage} from "element-plus";
 import {R} from "@/interface/R";
 import {useTreeCategoryStore} from "@/pinia/useTreeCategoryStore"
+
+import { ElLoading } from 'element-plus'
+
 const inputTitle = ref('')
 
 // 選擇器
@@ -253,7 +262,7 @@ const props = defineProps({
     default: 630,
   },
 });
-const loading = ref(false);
+const loading = ref(true);
 const tinymceId = ref(
   "vue-tinymce-" + +new Date() + ((Math.random() * 1000).toFixed(0) + "")
 );
@@ -280,9 +289,9 @@ const init = reactive({
   setup: (editor) => {
     editor.on('init', () => {
       editorReady.value = true
+      loading.value = false
     })
   },
-
   selector: "#" + tinymceId.value, //富文本編輯器的id,
   // language_url: "public/langs/zh_TW.js", // 語言包的路徑，具體路徑看自己的項目
   language_url: "tinymce-i18n/langs7/zh_TW.js", // 語言包的路徑，具體路徑看自己的項目
@@ -457,4 +466,5 @@ defineExpose({
   handleSetContent,
   handleGetContent,
 });
+
 </script>

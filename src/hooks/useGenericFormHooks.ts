@@ -2,19 +2,19 @@ import {computed, nextTick, onMounted, ref, Ref, watch} from "vue";
 import {ElMessage, ElMessageBox, FormInstance} from "element-plus";
 import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
 import {formUserInterface} from "@/interface/admin/formUserInterface";//㊣
-import {getOptionsRequest, getPreSignedUrlFromMinio, saveUserAvatarRequest, saveUserDataRequest, updateUserAvatarUrlRequest, updateUserDataRequest} from "@/requests/managementRequests/userRequest";
-import {R} from "../../../interface/R";
+import {getOptionsRequest, getPreSignedUrlFromMinio, saveUserAvatarRequest, saveUserDataRequest, updateUserAvatarUrlRequest, updateUserDataRequest} from "@/requests/userRequest";
+import {R} from "../interface/R";
 import {Option} from "@/interface/admin/formOption";
-import { store } from "@/pinia/index";
+import { store } from "@/pinia";
 import {useActionTypeStore,useDialogVisibleStore} from "@/pinia/useFormStore"
-import {useRules} from "../../../validation/formUserVaild";
+import {useRules} from "../validation/formUserVaild";
 // import {useActionTypeStore} from "@/pinia/useUserManagementFormStore"
 export const dialogVisible = ref(false);
 export const ruleFormRef = ref<FormInstance | null>(null);
 const dialogVisibleStore = useDialogVisibleStore(store);
 
 import {useInputFormDataStore} from "@/pinia/useFormStore"
-import { putImgToMinioRequest } from "@/requests/storage/minio/useMinioRequest";
+import { putImgToMinioRequest } from "@/requests/useMinioRequest";
 const inputFormDataStore = useInputFormDataStore();
 
 // const props:Ref<any> = computed(()=>inputFormDataStore.inputFormData)

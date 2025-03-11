@@ -1,11 +1,11 @@
-import { useSearch } from "../useTableInput";
+import { useSearch } from "./useTableInput";
 import {computed, onMounted, ref, Ref} from "vue";
 import {
     useActionTypeStore,
     useDialogVisibleStore,
     useInputFormDataStore,
 } from "@/pinia/useFormStore";
-import {batchDeleteRequest, getTableDataRequest} from "@/requests/managementRequests/userRequest";
+import {batchDeleteRequest, getTableDataRequest} from "@/requests/userRequest";
 import { genericBatchDeleteRequest } from "@/requests/useGenericRequest";
 import {ElMessageBox, ElTable} from "element-plus";
 import {formUserInterface} from "@/interface/admin/formUserInterface";

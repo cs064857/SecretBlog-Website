@@ -17,13 +17,13 @@
 <script lang="ts">
 // import HelloWorld from './components/HelloWorld.vue'
 import MinioUpload from "./components/minioUpload.vue";
-import Main from "./components/AdminVue.vue"
-import MainGrid from "./components/MainGrid.vue";
-import Home from "./views/Home.vue";
-import TinyMceEditManagement from "./components/Management/TinyMceEditManagement.vue"
-import AdminVue from "./components/AdminVue.vue";
+import Main from "./layouts/AdminLayout.vue"
+// import MainGrid from "./components/MainGrid.vue";
+import Home from "./layouts/FrontLayout.vue";
+import TinyMceEditManagement from "@/components/admin/TinyMceEditManagement.vue"
+import AdminVue from "./layouts/AdminLayout.vue";
 export default {
-  components:{AdminVue, MainGrid, MinioUpload,Main,Home,TinyMceEditManagement}
+  components:{AdminVue,MinioUpload,Main,Home,TinyMceEditManagement}
 }
 
 

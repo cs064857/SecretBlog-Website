@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {computed, onMounted, onUpdated, ref, watch, onUnmounted} from "vue";
-import {Articles} from "@/interface/articleInterface";
+import {computed, onMounted, onUpdated, ref, watch} from "vue";
+import {Articles} from "@/interface/front/articleInterface";
 import {onBeforeRouteUpdate, useRoute, useRouter} from "vue-router";
 import http from "../utils/httpRequest"
 import {ElMessage} from "element-plus";
@@ -9,9 +9,9 @@ const route = useRoute()
 const router = useRouter();
 
 let totalItems = ref<number>()
-const pageSize = ref(10)//每條顯示條目個數,默認為10
+const pageSize = ref(20)//每條顯示條目個數,默認為20
 const currentPage = ref(1)//目前頁數,默認為1
-let limitItems = ref<number>(10)//默認顯示10個項目,limitItems與頁數掛勾
+let limitItems = ref<number>(20)//默認顯示20個項目,limitItems與頁數掛勾
 
 const handleCurrentPageChange = async function (CurrentPage) {
   limitItems.value = CurrentPage * pageSize.value
@@ -38,7 +38,6 @@ const handleCurrentPageChange = async function (CurrentPage) {
 }
 
 const handlePageSizeChange = function (PageSize: string) {
-  currentPage.value++
   console.log("PageSize變化:", PageSize)
 }
 
@@ -48,7 +47,6 @@ const articleList = ref<Articles | null>(null)
 // const routePage = computed(() => route.query.page)
 // let categoryId = ref(route.params.categoryId)
 // const routePage = ref(route.query.page)
-// 定義發射事件
 
 
 const getArticles = function (categoryId, routePage) {
@@ -63,27 +61,11 @@ const getArticles = function (categoryId, routePage) {
       articleList.value = data.data.records//要展示的所有文章列表資料
       console.log("根據分類ID與頁碼獲得的文章列表articleList.value:", articleList.value)
       totalItems = data.data.total//當前分類下所有文章的總數量
-
-
     } else {
       ElMessage.error("加載失敗,請重新嘗試");
     }
   })
 }
-
-// 加載更多文章
-const loadMoreArticles = () => {
-  const nextPage = (Number(route.query.page) || 1) + 1
-  router.push({
-    query: { ...route.query, page: String(nextPage) }
-  })
-  getArticles(route.params.categoryId, nextPage)
-  
-}
-
-defineExpose({
-  loadMoreArticles
-})
 
 onBeforeRouteUpdate((to, from) => {
   if (to.path !== from.path) {
@@ -94,12 +76,9 @@ onBeforeRouteUpdate((to, from) => {
   }
 })
 
-
-
 onMounted(() => {
 
   getArticles(route.params.categoryId, route.query.page)
-})
 
 
   // {
@@ -115,12 +94,7 @@ onMounted(() => {
   //     console.log("從後端接收到的總文章列表articleList:", articleList.value)
   //   })
   // }
-
-// 組件卸載時移除滾動監聽器
-// onUnmounted(() => {
-//   window.removeEventListener('scroll', handleScroll)
-// })
-
+})
 //獲取文章列表/
 
 //根據categoryId篩選與分頁
@@ -158,7 +132,6 @@ onMounted(() => {
 </script>
 
 <template>
-
   <div v-for="article in articleList" :key="article.id" class="home-article">
 
     <div class="article-box">
@@ -169,37 +142,36 @@ onMounted(() => {
         <div class="article-category"></div>
         <div class="article-metrics"></div>
       </div>
-      
+
     </div>
     <hr>
   </div>
-  
 
-  <!-- <div v-for="article in articleList" :key="article.id" class="home-article">
-    <div class="article-title">
+
+<!-- <div v-for="article in articleList" :key="article.id" class="home-article"> -->
+    <!-- <div class="article-title">
       <router-link :to="{name:'Article',params:{articleId:article.id}}"><p>{{ article.title }}</p></router-link>
     </div>
     <div class="article-content"></div>
 
     <div class="article-info"></div>
-  </div>
+  </div> -->
 
   <div class="home-article-footer">
     <el-pagination @current-change="handleCurrentPageChange" @size-change="handlePageSizeChange"
                    v-model:current-page="currentPage" v-model:page-size="pageSize" background
                    layout="prev, pager, next" :total="totalItems"/>
-  </div> -->
+  </div>
 </template>
 
 <style scoped>
 
 
-
 .article-title p[data-v-7a0f854b] {
   font-size: 22px;
   font-weight: bold;
-  
-  
+
+
   /* 由左至右依序嘗試使用字體，最後使用系統預設的無襯線字體 */
   /* font-family: 'Microsoft JhengHei', 'PingFang TC', 'STHeiti', 'Noto Sans TC', ; */
   /* font-family: 'Source Han Sans'; */

@@ -7,7 +7,9 @@ const route = useRoute()
 const handleGoBackend = function () {//進入後台管理系統
   router.push('/AdminVue')
 }
-
+const navigateToAuth = function () {//進入註冊/登入系統頁面
+  router.push('/auth')
+}
 
 
 </script>
@@ -19,6 +21,7 @@ const handleGoBackend = function () {//進入後台管理系統
           <!--        <el-button style="height: 6vh;width: 6vh" @click="handleGoCategory" type="primary" :icon="Menu"/>-->
           <!--        <el-button style="height: 6vh;width: 6vh" @click="handleGoUser" type="primary" :icon="User"/>-->
           <el-button style="height: 6vh;width: 6vh" @click="handleGoBackend" type="primary" :icon="Management"/>
+          <button style="color: white; height: 6vh;width: 5vw" @click="navigateToAuth" >Login/SingUp</button>
 
         </div>
 </template>
@@ -36,6 +39,7 @@ const handleGoBackend = function () {//進入後台管理系統
 }
 
 .home-header-navigation {
+    padding-right: 3vw;
     display: flex;
     justify-content: end;
     align-items: center;
@@ -43,7 +47,7 @@ const handleGoBackend = function () {//進入後台管理系統
     /*height:100%;*/
     height: 4.785rem;
     background-color: darkslateblue;
-
+    gap: 1vw
 
 }
 </style>

@@ -1,12 +1,15 @@
 import {createRouter, createWebHistory} from 'vue-router'
-import UserManagement from '../components/Management/UserManagement.vue'
+import UserManagement from '@/components/admin/UserManagement.vue'
 // import MainGrid from '../components/MainGrid.vue'
-import Home from '../views/Home.vue'
-import AdminVue from "../components/AdminVue.vue";
+import Home from '../layouts/FrontLayout.vue'
+import AdminVue from "../layouts/AdminLayout.vue";
 import Article from "../components/Article.vue";
 import TreeCategories from "../components/TreeCategories.vue";
-import TinyMceEditManagement from "../components/Management/TinyMceEditManagement.vue";
-import ArticleManagement from "../components/Management/ArticleManagement.vue";
+import Auth from "../components/Auth.vue";
+import AuthLogin from '@/components/AuthLogin.vue';
+import AuthLayout from "../layouts/AuthLayout.vue";
+import TinyMceEditManagement from "@/components/admin/TinyMceEditManagement.vue";
+import ArticleManagement from "@/components/admin/ArticleManagement.vue";
 const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -57,7 +60,7 @@ const router = createRouter({
                     }
                 }
 
-                
+
             ],
             components: {
                 app: AdminVue
@@ -83,10 +86,26 @@ const router = createRouter({
 
         },
         {
-            //重定向,將/轉為/Home並訪問到首頁
-            path:'/',
-            redirect:'/Home'
+            name:'Auth',
+            path:'/auth',
+            redirect: "/auth/register",
+            components:{
+                app: AuthLayout
+            },
+            children: [
+                {
+                    path: 'login',
+                    name: 'Login',
+                    component: AuthLogin
+                },
+                {
+                    path: 'register',
+                    name: 'Register',
+                    component: Auth
+                }
+            ]
         }
+        
     ]
 })
 //全局路由守衛

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import http from "@/utils/httpRequest.js";
-import { formUserInterface } from "@/interface/ManagementInter/userInterface/formUserInterface";
-import { useOnCancel } from "@/hooks/managementHooks/genericFormHooks/useGenericFormHooks.js";
+import { formUserInterface } from "@/interface/admin/formUserInterface";
+import { useOnCancel } from "@/hooks/useGenericFormHooks";
 import { cleanStringAndDateValue } from "@/utils/cleanStringAndDateValue";
 import {
   getOptions, rules, ruleFormRef,
   useOnSubmit, useReceiveParentData, initializeRules
-} from "@/hooks/managementHooks/genericFormHooks/useGenericFormHooks";
+} from "@/hooks/useGenericFormHooks";
 import { UserFilled } from '@element-plus/icons-vue'
 // 初始化表單資料㊣
 const form = ref<formUserInterface>({
@@ -57,7 +57,7 @@ import { ElMessage } from 'element-plus'
 
 
 import type { UploadProps ,UploadRawFile} from 'element-plus'
-import { useActionTypeStore } from '@/pinia/managementPinia/genericFormPinia/useFormStore';
+import { useActionTypeStore } from '@/pinia/useFormStore';
 
 
 /**

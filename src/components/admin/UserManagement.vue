@@ -43,7 +43,7 @@
 
     <div class="FlexInnerLayer" id="mgmt-content"><!--mgmt-content   -->
 
-      <el-table class="mgmt-content-table" :data="resultData" ref="tableRef"
+      <el-table v-loading="loading" class="mgmt-content-table" :data="resultData" ref="tableRef"
       >
         <el-table-column type="selection" width="40"  />
 
@@ -132,11 +132,12 @@ import {onMounted,ref} from 'vue'
 import {ElTable} from "element-plus";
 import {ElSelect} from 'element-plus'
 
+
 /**
  * 表單
  */
 
-import FormUser from "./Form/FormUser.vue";//㊣
+import FormUser from "@/components/admin/forms/FormUser.vue";//㊣
 
 /**
  * 初始化表格資料
@@ -210,7 +211,7 @@ console.log("初始 formTitle:", formTitle)
 const inputFormData=ref({});//傳遞給表單的資料
 console.log("初始 inputFormData:", inputFormData)
 
-import {useHandleDialog, useHandleEdit, useTableSearch} from '@/hooks/managementHooks/useGenericTableHooks';
+import {useHandleDialog, useHandleEdit, useTableSearch} from '@/hooks/useGenericTableHooks';
 import {useConfigureSearchSelectWidthHooks} from '@/hooks/useTableInput';
 
 //新增按鈕、修改按鈕
@@ -222,7 +223,7 @@ const { handleEdit,handleAdd } = useHandleEdit(formTitle);
 
 import {InfoFilled, Search} from '@element-plus/icons-vue'
 
-import { useHandleDelete } from '@/hooks/managementHooks/useGenericTableHooks';
+import { useHandleDelete } from '@/hooks/useGenericTableHooks';
 
 const { clicked, handleDelete, handleBatchDelete, onCancel,tableRef } = useHandleDelete();
 /**
@@ -230,13 +231,14 @@ const { clicked, handleDelete, handleBatchDelete, onCancel,tableRef } = useHandl
  */
 
 //表格資料
-import {useGenericTableData} from '@/hooks/managementHooks/useGenericTableHooks'
+import {useGenericTableData} from '@/hooks/useGenericTableHooks'
 
 // 使用封裝的表格數據 Hook
 const {
   tableRawData,
   filteredData,
   dataTotalCount,
+  loading
 } = useGenericTableData();
 
 /**
@@ -289,24 +291,28 @@ const {searchSelectRef} = useConfigureSearchSelectWidthHooks(elTableColumnsData)
 </script>
 
 <style scoped>
+.example-showcase .el-loading-mask {
+  z-index: 9;
+}
 
-#mgmt-footer[data-v-47a9e625]{
+
+/* #mgmt-footer[data-v-47a9e625]{ */
   /* 設置分頁背景顏色 */
   /* background: #1b1b1b; */
-  
-}
+
+/* } */
 #mgmt-header{
   height: 10%;
   /* 設置表格標頭背景顏色(新增、修改、查詢、刪除按鈕等欄位) */
   /* background: #1b1b1b */
 }
 
-.el-table{
+/* .el-table{ */
   /* 設置表格標頭背景顏色(索引、帳戶狀態等欄位) */
   /* --el-table-header-bg-color: #1b1b1b; */
   /* 設置表格背景背景顏色 */
   /* background: #1b1b1b; */
-}
+/* } */
 
 
 .el-sub-menu{
@@ -357,7 +363,7 @@ const {searchSelectRef} = useConfigureSearchSelectWidthHooks(elTableColumnsData)
   justify-content: center;
   align-items: center;
   /*align-items: flex-start;*/
-  
+
   width: 100%;
 
   /*transform: translateY(-10px); /* 向上移動表格 */

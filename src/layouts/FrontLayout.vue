@@ -70,7 +70,7 @@
 </style>
 
 <script setup lang="ts" name="Home">
-import './Home.css';
+import '../assets/css/Home.css';
 import {computed, onMounted, ref, toRefs, onUnmounted, nextTick} from 'vue';
 import {useRouter, useRoute} from 'vue-router'
 import http from '../utils/httpRequest'
