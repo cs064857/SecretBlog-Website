@@ -38,6 +38,7 @@ const handleCurrentPageChange = async function (CurrentPage) {
 }
 
 const handlePageSizeChange = function (PageSize: string) {
+  currentPage.value++
   console.log("PageSize變化:", PageSize)
 }
 
@@ -69,6 +70,20 @@ const getArticles = function (categoryId, routePage) {
     }
   })
 }
+
+// 加載更多文章
+const loadMoreArticles = () => {
+  const nextPage = (Number(route.query.page) || 1) + 1
+  router.push({
+    query: { ...route.query, page: String(nextPage) }
+  })
+  getArticles(route.params.categoryId, nextPage)
+  
+}
+
+defineExpose({
+  loadMoreArticles
+})
 
 onBeforeRouteUpdate((to, from) => {
   if (to.path !== from.path) {

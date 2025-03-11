@@ -27,7 +27,7 @@
       <div class="home-article-list" ref="containerRef">
 
 
-        <HomeArticleList></HomeArticleList>
+        <HomeArticleList ref="articleList"></HomeArticleList>
 
         <div ref="bottomSentinel" style="height: 20px;"></div>
 
@@ -74,7 +74,7 @@ import './Home.css';
 import {computed, onMounted, ref, toRefs, onUnmounted, nextTick} from 'vue';
 import {useRouter, useRoute} from 'vue-router'
 import http from '../utils/httpRequest'
-import {ArticleInter, Articles} from "../interface/articleInterface";
+import {ArticleInter, Articles} from "@/interface/front/articleInterface";
 import { Menu, User} from "@element-plus/icons-vue";
 import {R} from "../interface/R.ts";
 import {useTreeCategoryStore} from "../pinia/useTreeCategoryStore";
@@ -127,32 +127,6 @@ import HomeArticleList from "../components/HomeArticleList.vue";
 //home-header-navigation Home首頁最上方導航列模塊
 import HomeHeaderNavigation from "../components/HomeHeaderNavigation.vue";
 
-import { useIntersectionObserver } from '@vueuse/core';
-
-const bottomSentinel = ref<HTMLElement | null>(null)
-const scrollContainer = ref<HTMLElement | null>(null)
-
-const isFirstIntersection = ref(true)
-
-const { stop } = useIntersectionObserver(
-  bottomSentinel,
-  ([{ isIntersecting }]) => {
-    if (isIntersecting && !isFirstIntersection.value) {
-      ElMessage({
-        message: '已到最底',
-        type: 'info',
-        duration: 2000
-      });
-    }
-    isFirstIntersection.value = false
-  },
-  {
-    root: scrollContainer.value,
-    threshold: 0.1,
-  }
-);
-
-
 // const scrollContainer = ref<HTMLElement | null>(null)
 // const windowHeight = ref(0)
 // const scrollY = ref(0)
@@ -164,10 +138,10 @@ const { stop } = useIntersectionObserver(
 //     console.log("handleScroll")
 //     windowHeight.value = scrollContainer.value.clientHeight
 //     scrollY.value = scrollContainer.value.scrollTop
-    
+
 //     documentHeight.value = scrollContainer.value.scrollHeight
 
-  
+
 //   // 當滾動到底部時（考慮 20px 的緩衝區）
 //   if (windowHeight.value + scrollY.value >= documentHeight.value - 100 && windowHeight.value != documentHeight.value) {
 //     ElMessage({

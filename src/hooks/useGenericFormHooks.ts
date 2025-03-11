@@ -1,19 +1,19 @@
 import {computed, nextTick, onMounted, ref, Ref, watch} from "vue";
 import {ElMessage, ElMessageBox, FormInstance} from "element-plus";
 import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
-import {formUserInterface} from "@/interface/ManagementInter/userInterface/formUserInterface";//㊣
+import {formUserInterface} from "@/interface/admin/formUserInterface";//㊣
 import {getOptionsRequest, getPreSignedUrlFromMinio, saveUserAvatarRequest, saveUserDataRequest, updateUserAvatarUrlRequest, updateUserDataRequest} from "@/requests/managementRequests/userRequest";
 import {R} from "../../../interface/R";
-import {Option} from "../../../interface/formOption";
+import {Option} from "@/interface/admin/formOption";
 import { store } from "@/pinia/index";
-import {useActionTypeStore,useDialogVisibleStore} from "@/pinia/managementPinia/genericFormPinia/useFormStore"
+import {useActionTypeStore,useDialogVisibleStore} from "@/pinia/useFormStore"
 import {useRules} from "../../../validation/formUserVaild";
 // import {useActionTypeStore} from "@/pinia/useUserManagementFormStore"
 export const dialogVisible = ref(false);
 export const ruleFormRef = ref<FormInstance | null>(null);
 const dialogVisibleStore = useDialogVisibleStore(store);
 
-import {useInputFormDataStore} from "@/pinia/managementPinia/genericFormPinia/useFormStore"
+import {useInputFormDataStore} from "@/pinia/useFormStore"
 import { putImgToMinioRequest } from "@/requests/storage/minio/useMinioRequest";
 const inputFormDataStore = useInputFormDataStore();
 
@@ -172,7 +172,7 @@ export const updateUserData = async function (form: Ref<formUserInterface>){
     //             const response=await saveUserAvatarRequest(data.data, avatarFile);
     //             const test=response.request.responseURL
     //             console.log("test:",test)
-    //             const baseUrl: string = "http://192.168.26.5:9000";
+    //             const baseUrl: string = "http://20.40.92.232:9000";
     //             const bucketName: string = "secretblog ";
     //             const storageName: string = "avatar";
     //             const imgUrl: string = `${baseUrl}/api/v1/buckets/${bucketName}/objects/download?preview=true&prefix=${storageName}&version_id=null`;

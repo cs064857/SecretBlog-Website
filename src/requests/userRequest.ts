@@ -2,7 +2,7 @@ import {ElMessage} from "element-plus";
 import http from "@/utils/httpRequest.js";
 import {R} from "@/interface/R";
 import {Ref} from "vue";
-import {formUserInterface} from "@/interface/ManagementInter/userInterface/formUserInterface";//㊣
+import {formUserInterface} from "@/interface/admin/formUserInterface";//㊣
 import axios from "axios";
 export function batchDeleteRequest (requestPath:string,userIdList:any){
     return http({
@@ -90,7 +90,7 @@ export function updateUserDataRequest(props:Ref<formUserInterface>, modifiedFiel
 
 export function saveUserAvatarRequest(preSignedUrl: string, avatar: File) {
     console.log("準備上傳檔案:", avatar);
-    
+
     return axios.put(preSignedUrl, avatar, {
         headers: {
             'Content-Type': avatar.type,  // 使用檔案的實際 MIME type
@@ -99,7 +99,7 @@ export function saveUserAvatarRequest(preSignedUrl: string, avatar: File) {
     })
     .then((response) => {
         if (response.status === 200) {
-            
+
             ElMessage.success("上傳頭像成功");
             console.log("上傳頭像成功:",response)
         } else {
@@ -125,8 +125,8 @@ export function saveUserAvatarRequest(preSignedUrl: string, avatar: File) {
 //     // formData.forEach((value, key) => {
 //     //     console.log(key + ': ' + value);
 //     // });
-        
-    
+
+
 
 //     return axios.put(preSignedUrl, formData, {
 //         headers: {

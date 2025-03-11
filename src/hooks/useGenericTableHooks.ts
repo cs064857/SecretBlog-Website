@@ -4,11 +4,11 @@ import {
     useActionTypeStore,
     useDialogVisibleStore,
     useInputFormDataStore,
-} from "@/pinia/managementPinia/genericFormPinia/useFormStore";
+} from "@/pinia/useFormStore";
 import {batchDeleteRequest, getTableDataRequest} from "@/requests/managementRequests/userRequest";
 import { genericBatchDeleteRequest } from "@/requests/useGenericRequest";
 import {ElMessageBox, ElTable} from "element-plus";
-import {formUserInterface} from "@/interface/ManagementInter/userInterface/formUserInterface";
+import {formUserInterface} from "@/interface/admin/formUserInterface";
 
 /**
  * 封裝表格數據管理邏輯
@@ -17,7 +17,7 @@ export function useGenericTableData() {
     const tableRawData = ref<formUserInterface[]>([]);
     const filteredData = ref<any[] | null>(null);
     const dataTotalCount = ref<number>(0);
-
+    const loading = ref(true);
     const getTableData = async function () {
         try {
 
@@ -27,6 +27,7 @@ export function useGenericTableData() {
                 tableRawData.value = data.data;
                 filteredData.value = data.data;
                 dataTotalCount.value = tableRawData.value.length;
+                loading.value = false;  // 設置 loading 為 false
                 console.log("更新後的 tableRawData:", tableRawData.value);
                 console.log("更新後的 dataTotalCount:", dataTotalCount.value);
             } else {
@@ -35,6 +36,7 @@ export function useGenericTableData() {
                 });
             }
         } catch (error) {
+            loading.value = false;  // 設置 loading 為 false
             console.error("獲取表格數據時出錯:", error);
             ElMessageBox.alert("獲取數據時出錯", "錯誤", {
                 confirmButtonText: "確定",
@@ -52,6 +54,7 @@ export function useGenericTableData() {
         tableRawData,
         filteredData,
         dataTotalCount,
+        loading
     };
 }
 
