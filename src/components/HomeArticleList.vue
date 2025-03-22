@@ -50,21 +50,23 @@ const articleList = ref<Articles | null>(null)
 
 
 const getArticles = function (categoryId, routePage) {
-  console.log("getArticles:categoryId=" + categoryId + ",routePage=" + routePage)
-  http({
-    url: http.adornUrl(`/article/categories/${categoryId}/articles`),
-    method: 'get',
-    params: http.adornParams({routePage: routePage})
-  }).then(({data}) => {
-    if (data.code == 200) {
-      console.log("根據分類ID與頁碼獲得的分頁資料:", data.data)
-      articleList.value = data.data.records//要展示的所有文章列表資料
-      console.log("根據分類ID與頁碼獲得的文章列表articleList.value:", articleList.value)
-      totalItems = data.data.total//當前分類下所有文章的總數量
-    } else {
-      ElMessage.error("加載失敗,請重新嘗試");
-    }
-  })
+
+    console.log("getArticles:categoryId=" + categoryId + ",routePage=" + routePage)
+    http({
+      url: http.adornUrl(`/article/categories/${categoryId}/articles`),
+      method: 'get',
+      params: http.adornParams({routePage: routePage})
+    }).then(({data}) => {
+      if (data.code == 200) {
+        console.log("根據分類ID與頁碼獲得的分頁資料:", data.data)
+        articleList.value = data.data.records//要展示的所有文章列表資料
+        console.log("根據分類ID與頁碼獲得的文章列表articleList.value:", articleList.value)
+        totalItems = data.data.total//當前分類下所有文章的總數量
+      } else {
+        ElMessage.error("加載失敗,請重新嘗試");
+      }
+    })
+
 }
 
 onBeforeRouteUpdate((to, from) => {

@@ -112,10 +112,15 @@ const loginAccount = function(){
             case 200:
                 
                 ElMessage.success("登入成功");
-                ///TODO 登入後跳轉到登入頁面
+                
                 //登入成功後將Token保存至Cookie中
 
                 document.cookie = `jwtToken=${data.data.token}; path=/; max-age=600;`
+                ///TODO 登入後跳轉至原頁面
+                const redirect=sessionStorage.getItem("redirect");
+                sessionStorage.removeItem("redirect")
+                // console.log("redirect",redirect)
+                router.push(redirect as string)
                 break;
                 // document.cookie = `refreshToken=${data.data.refreshToken}; path=/; max-age=600;`
 

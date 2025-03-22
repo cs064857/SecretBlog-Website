@@ -10,6 +10,7 @@ import AuthLogin from '@/components/AuthLogin.vue';
 import AuthLayout from "../layouts/AuthLayout.vue";
 import TinyMceEditManagement from "@/components/admin/TinyMceEditManagement.vue";
 import ArticleManagement from "@/components/admin/ArticleManagement.vue";
+import HomePage from "@/components/HomePage.vue";
 const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -104,6 +105,15 @@ const router = createRouter({
                     component: Auth
                 }
             ]
+        },
+        {
+            name:'HomePage',
+            path:'/Homepage',
+
+            components:{
+                app: HomePage
+            },
+  
         }
         
     ]
@@ -130,4 +140,6 @@ router.beforeEach((to, from, next) => {
         next();//正常導航
     }
 });
+
+
 export default router

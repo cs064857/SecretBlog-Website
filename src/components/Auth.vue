@@ -141,7 +141,8 @@
                 case 200:
                     ElMessage.success("註冊成功");
                     ///TODO 註冊成功後跳轉到登入頁面
-                    window.location.replace(window.location.href);
+                    // window.location.replace(window.location.href);
+                    router.push('/auth/login')
                     break;
                 case 300:
                     ElMessage.error("驗證碼錯誤!");

@@ -67,6 +67,7 @@
   margin: 5px 0;
   font-size: 14px;
 }
+
 </style>
 
 <script setup lang="ts" name="Home">
