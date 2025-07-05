@@ -9,42 +9,27 @@
 
 
     <div class="home-main" ref="scrollContainer">
-
-<!--      <el-affix style="background-color: #646cff;width: 100%;height: 50px" target=".home-main" :offset="77">-->
-<!--        <div class="home-article-navigation"><span-->
-<!--            style="font-size: 20px;font-family: 'Noto Sans TC',sans-serif">標籤1</span></div>-->
-<!--      </el-affix>-->
-
-
-      <div class="fixed-home-left-navbar">
-        <div class="home-left-navbar">
-          <HomeLeftNavbar></HomeLeftNavbar>
-        </div>
-
-      </div>
-
-
-      <div class="home-article-list" ref="containerRef">
-
-
-        <HomeArticleList ref="articleList"></HomeArticleList>
-
-        <div ref="bottomSentinel" style="height: 20px;"></div>
-
-      </div>
-
-      <el-affix style="height: 1vh" position="top" target=".home-main" :offset="50">
-        <!--          <el-affix position="bottom" target=".home-main" style="margin-top: 50%;"  :offset="800" z-index="1200">-->
-
-        <div class="home-right-article">
-          <div class="scroll-info">
-
-          </div>
-        </div>
-      </el-affix>
-
-
+  <div class="fixed-home-left-navbar">
+    <div class="home-left-navbar">
+      <HomeLeftNavbar></HomeLeftNavbar>
     </div>
+  </div>
+
+  <div class="main-content-area">
+    <div class="home-article-list" ref="containerRef">
+      <HomeArticleList ref="articleList"></HomeArticleList>
+      <div ref="bottomSentinel" style="height: 20px;"></div>
+    </div>
+
+    <el-affix style="height: 1vh" position="top" target=".home-main" :offset="50">
+      <div class="home-right-article">
+        <div class="scroll-info">
+          <!-- Your content here -->
+        </div>
+      </div>
+    </el-affix>
+  </div>
+</div>
 
     <!--    <div class="home-footer">home-footer</div>-->
   </div>

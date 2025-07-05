@@ -1,30 +1,64 @@
 <script setup lang="ts">
 import {Management} from "@element-plus/icons-vue";
 import {useRouter, useRoute} from 'vue-router'
+import { ref, onMounted ,reactive,toRefs, computed} from 'vue' // 新增引入
 
 const router = useRouter()
 const route = useRoute()
+const isLoggedIn = ref(false) // 登入狀態追蹤
+
+onMounted(() => {
+  // 檢查 cookie 中是否有 jwtToken
+  const cookies = document.cookie.split(';')
+  isLoggedIn.value = cookies.some(cookie => cookie.startsWith('jwtToken'))
+})
+
 const handleGoBackend = function () {//進入後台管理系統
   router.push('/AdminVue')
 }
 const navigateToAuth = function () {//進入註冊/登入系統頁面
-  ///TODO 將當前頁面路徑儲存至sessionStorage中,以便登入後跳轉至原頁面
   sessionStorage.setItem('redirect', route.fullPath)
   router.push('/auth')
 }
 
 
+const handleCommand = (command) => {
+  // console.log('handleCommand', command)
+}
+
+const handleSignOut = function(){
+  console.log('handleSignOut')
+}
 </script>
 
 <template>
         <div class="home-header-navigation">
-          <el-image class="home-header-navigation-logo" src="https://element-plus.org/images/element-plus-logo.svg">
-          </el-image>
+          
+          <el-image class="home-header-navigation-logo" src="https://element-plus.org/images/element-plus-logo.svg"></el-image>
           <!--        <el-button style="height: 6vh;width: 6vh" @click="handleGoCategory" type="primary" :icon="Menu"/>-->
           <!--        <el-button style="height: 6vh;width: 6vh" @click="handleGoUser" type="primary" :icon="User"/>-->
-          <el-button style="height: 6vh;width: 6vh" @click="handleGoBackend" type="primary" :icon="Management"/>
-          <button style="color: white; height: 6vh;width: 5vw" @click="navigateToAuth" >Login/SingUp</button>
+          
+          <el-dropdown @command="handleCommand" v-if="isLoggedIn">
+            <el-avatar :size="50" src="https://linux.do/user_avatar/linux.do/j3n5en/144/305927_2.gif" />
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item @click="handleSignOut">登出</el-dropdown-item>
+                <el-dropdown-item disabled>暫無選項</el-dropdown-item>
+                
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
 
+          <el-button style="height: 6vh;width: 6vh" @click="handleGoBackend" type="primary" :icon="Management"/>
+          
+          <button
+            style="color: white; height: 6vh;width: 5vw"
+            @click="navigateToAuth"
+            v-if="!isLoggedIn"
+          >
+            Login/SingUp
+          </button>
+          
         </div>
 </template>
 
@@ -49,7 +83,8 @@ const navigateToAuth = function () {//進入註冊/登入系統頁面
     /*height:100%;*/
     height: 4.785rem;
     background-color: darkslateblue;
-    gap: 1vw
-
+    gap: 1vw;
+    position: relative;
+    z-index: 1000;
 }
 </style>

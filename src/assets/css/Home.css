@@ -26,11 +26,10 @@
 
 .home-main {
     display: flex;
-    flex-direction: row; /* 確保子元素水平排列 */
+    flex-direction: row;
     gap: 10px;
     flex: 1;
     background-color: darkmagenta;
-
     min-height: 92%;
     max-height: 92%;
     position: relative;
@@ -39,8 +38,8 @@
     right: 0;
     bottom: 0;
     overflow: auto;
-
-    flex-wrap: wrap;
+    /* Remove this line: 
+    flex-wrap: wrap; */
     place-content: flex-start;
 }
 
@@ -90,54 +89,31 @@
 }
 
 .home-right-article {
-    /*flex: 1;*/
     background-color: darkorange;
-
-    /*height: 50%;*/
-
     width: 16vw;
     height: 70vh;
-
     margin-top: 30%;
     margin-right: 50px;
-    /*position: sticky;*/
-    /*top: 0.1px;*/
-
-    /*max-height: 1000px;*/
-    /*min-height: 1000px;*/
-
-
+    position: sticky; /* Make it sticky */
+    top: 50px; /* Align with your el-affix :offset value */
 }
 
+.main-content-area {
+    display: flex;
+    flex: 1;
+    justify-content: space-between;
+    margin-left: 20%; /* To account for the fixed left navbar */
+}
+
+/* Update home-article-list to fit within the new layout */
 .home-article-list {
+    width: calc(100% - 18vw); /* Adjust based on the width of your right sidebar plus margins */
+    margin-left: 0; /* Remove the margin since we're using the parent container for positioning */
     display: grid;
-    width: 60%;
-    /*grid-template-rows:auto auto;*/
-    /*grid-template-columns: 1fr 1fr;*/
     grid-template-columns: 1fr;
-    /* 自動行高 */
-    /*grid-auto-rows: minmax(auto, max-content); */
     justify-content: center;
     align-content: start;
-    /*align-items: start;*/
-
-    /*flex-direction: column;*/
-
-
-    /*overflow: auto;*/
     background-color: darkslategrey;
-
-
-    /*  測試高度  */
-    /*max-height: 109rem;*/
-    /*height:180vh;*/
-
-
-    /*height: auto;*/
-    /*min-height: 100%;*/
-    /*max-height: 100%;*/
-
-    margin-left: 20%;
 }
 
 
