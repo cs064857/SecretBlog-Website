@@ -2,6 +2,7 @@
 import {Management} from "@element-plus/icons-vue";
 import {useRouter, useRoute} from 'vue-router'
 import { ref, onMounted ,reactive,toRefs, computed} from 'vue' // 新增引入
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const route = useRoute()
@@ -27,7 +28,13 @@ const handleCommand = (command) => {
 }
 
 const handleSignOut = function(){
-  console.log('handleSignOut')
+  sessionStorage.removeItem('jwtToken')
+  document.cookie = "jwtToken=; max-age=0; path=/;";
+
+  isLoggedIn.value = false
+  router.push('/home')
+  window.location.reload()
+  ElMessage.success("登出成功")
 }
 </script>
 

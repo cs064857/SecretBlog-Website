@@ -5,7 +5,7 @@ import Home from '../layouts/FrontLayout.vue'
 import AdminVue from "../layouts/AdminLayout.vue";
 import Article from "../components/Article.vue";
 import TreeCategories from "../components/TreeCategories.vue";
-import Auth from "../components/Auth.vue";
+import Auth from "../components/AuthRegister.vue";
 import AuthLogin from '@/components/AuthLogin.vue';
 import AuthLayout from "../layouts/AuthLayout.vue";
 import TinyMceEditManagement from "@/components/admin/TinyMceEditManagement.vue";

@@ -1,4 +1,4 @@
-import Auth from '@/components/Auth.vue'
+import Auth from '@/components/AuthRegister.vue'
 
 <template>
     <!-- <h1>AuthLayout</h1> -->
@@ -16,13 +16,13 @@ import Auth from '@/components/Auth.vue'
 </script>
 
 <style scoped>
-@media screen and (max-height: 1024px) {
+@media screen and (max-height: 2000px) {
     .auth-container {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
-
+    
     min-height: 100%;
 
     background-color: #373737;

@@ -143,8 +143,8 @@ const loginAccount = function(){
 </script>
 
 <style scoped>
-/* 當高度寬度 ≤ 1024px 時的樣式 */
-@media screen and (max-height: 1024px) {
+
+@media screen and (max-height: 2000px) {
 
 
 
