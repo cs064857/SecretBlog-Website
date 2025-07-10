@@ -41,7 +41,8 @@ const handleSignOut = function(){
 <template>
         <div class="home-header-navigation">
           
-          <el-image class="home-header-navigation-logo" src="https://element-plus.org/images/element-plus-logo.svg"></el-image>
+          <!-- <el-image class="home-header-navigation-logo" src="https://element-plus.org/images/element-plus-logo.svg"></el-image> -->
+          <img class="home-header-navigation-logo" src="../assets/SecretBlog.svg"></img>
           <!--        <el-button style="height: 6vh;width: 6vh" @click="handleGoCategory" type="primary" :icon="Menu"/>-->
           <!--        <el-button style="height: 6vh;width: 6vh" @click="handleGoUser" type="primary" :icon="User"/>-->
           
@@ -71,17 +72,18 @@ const handleSignOut = function(){
 
 <style scoped>
 .home-header-navigation-logo{
-  background-color: #DD4A68;
+  /* background-color: #DD4A68; */
 
-  height: 8vh;
+  height: 27vh;
 
   width:auto;
   /*position:absolute;*/
   position:relative;
-  right:78%;
+  right:75%;
+  top:10%
 }
 
-.home-header-navigation {
+.dark .home-header-navigation {
     /* padding-right: 3vw; */
     display: flex;
     justify-content: end;
@@ -89,7 +91,7 @@ const handleSignOut = function(){
     width: 100%;
     /*height:100%;*/
     height: 4.785rem;
-    background-color: darkslateblue;
+    background-color: rgba(35, 38, 40, 0.8);
     gap: 1vw;
     position: relative;
     z-index: 1000;

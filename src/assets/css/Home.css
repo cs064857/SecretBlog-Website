@@ -1,20 +1,20 @@
 
-.home-container {
+.dark .home-container {
     display: flex;
     flex-direction: column;
     height: 100%;
     width: 100%;
-    background-color: darksalmon;
+    background-color: rgba(35, 38, 40, 0.8);
 }
 
-.home-header {
+.dark .home-header {
     display: flex;
     justify-items: center;
     align-items: center;
     min-height: 8%;
     max-height: 8%;
     /*flex: 0.13;*/
-    background-color: darkgreen;
+    background-color: rgba(35, 38, 40, 0.8);
 
     position: fixed;
 
@@ -24,12 +24,12 @@
     z-index: 100;
 }
 
-.home-main {
+.dark .home-main {
     display: flex;
     flex-direction: row;
     gap: 10px;
     flex: 1;
-    background-color: darkmagenta;
+    background-color: #1E2122;
     min-height: 92%;
     max-height: 92%;
     position: relative;
@@ -56,8 +56,8 @@
 
 }
 
-.home-left-navbar {
-    background-color: #eceff1;
+.dark .home-left-navbar {
+    background-color: rgb(42,45,47);
     flex: 1;
     margin-left: 50px;
 
@@ -88,8 +88,8 @@
     justify-content: center;
 }
 
-.home-right-article {
-    background-color: darkorange;
+.dark .home-right-article {
+    background-color: rgb(42,45,47);
     width: 16vw;
     height: 70vh;
     margin-top: 30%;
@@ -106,14 +106,14 @@
 }
 
 /* Update home-article-list to fit within the new layout */
-.home-article-list {
+.dark .home-article-list {
     width: calc(100% - 18vw); /* Adjust based on the width of your right sidebar plus margins */
     margin-left: 0; /* Remove the margin since we're using the parent container for positioning */
     display: grid;
     grid-template-columns: 1fr;
     justify-content: center;
     align-content: start;
-    background-color: darkslategrey;
+    background-color: #1E2122;
 }
 
 

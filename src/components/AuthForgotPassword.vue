@@ -8,7 +8,7 @@
                 <el-input id="email" v-model="email" style="width: 400px" placeholder="Please input" ></el-input>
         </div>
         <div class="auth-container-main-forgot-password-item">
-
+            /// TODO 忘記密碼
             <el-button type="primary"  @click="handleForgotPassword" style="width: 400px;height: 40px;">Reset Password</el-button>
 
         </div>
