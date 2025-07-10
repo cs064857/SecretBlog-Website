@@ -25,7 +25,7 @@ import Auth from '@/components/AuthRegister.vue'
     
     min-height: 100%;
 
-    background-color: #373737;
+    background-color: #181a1b;
 
     }
     .article-main {
@@ -43,6 +43,7 @@ import Auth from '@/components/AuthRegister.vue'
 
     }
     .auth-container-main{
+    background-color: #282B2D;
     border: 2px solid #fff;
     width: 500px;
     height: 800px;

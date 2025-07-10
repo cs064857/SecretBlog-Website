@@ -3,52 +3,61 @@
         <!-- <h1>Auth</h1> -->
          
             <div class="auth-container-main-title">
-                <h3>註冊頁面</h3>
+                <h1  style="color: #C9DDFF;margin-left: -180px;">Create an account</h1>
             </div>
             <div class="auth-container-main-mode-switcher">
-                <h3>TODO切換按鈕</h3>
-                <el-button type="success" @click="switchMode">
-                    {{isRegisterMode ? '已有帳號?點此登入' : '沒有帳號?點此註冊'}}
-                </el-button>
+
+                <!-- <el-button style="margin: 20px 20px;min-height: 50px;" type="success" @click="switchMode">
+                    {{isRegisterMode ? 'Already have an account?Login➔' : '沒有帳號?點此註冊'}}
+                </el-button> -->
+
+                    <span " v-if="isRegisterMode">Already have an account?</span>
+                    <span v-else>沒有帳號?點此點此</span>
+                    <a  @click="switchMode" style="color: #C9DDFF;cursor: pointer" v-if="isRegisterMode">Login➔</a>
+                    <!-- {{isRegisterMode ? 'Already have an account?Login➔' : '沒有帳號?點此註冊'}} -->
+
             </div>
             <div class="auth-container-main-external-providers">
-                <h3>TODO第三方鑑權</h3>
+                <h1>TODO第三方鑑權</h1>
             </div>
             <div class="auth-container-main-register">
-                <div class="auth-container-main-register-item">
+                <!-- <div class="auth-container-main-register-item">
                     <label>姓名</label>
                     <br>
                     <el-input v-model="name" style="width: 240px" placeholder="Please input" ></el-input>
-                </div>
-                <div class="auth-container-main-register-item">
+                </div> -->
+                <!-- <div class="auth-container-main-register-item">
                     <label>帳號名稱</label>
                     <br>
                     <el-input v-model="accountName" style="width: 240px" placeholder="Please input" ></el-input>
-                </div>
+                </div> -->
                 <div class="auth-container-main-register-item">
-                    <label>密碼</label>
+                    <label for="email" class="auth-label"">Email</label>
+                    <!-- <label style="color: #C9DDFF";font-size:14px>Email</label> -->
                     <br>
-                    <el-input v-model="password" style="width: 240px" type="password" show-password placeholder="Please input" ></el-input>
+                    <el-input id="email" v-model="email" style="width: 400px" placeholder="Please input" ></el-input>
                 </div>
                 <div class="auth-container-main-register-item">
+                    <label for="password" class="auth-label"">Password</label>
+                    <!-- <label style="color: #C9DDFF;font-size:14px">Password</label> -->
+                    <br>
+                    <el-input id="password" v-model="password" style="width: 400px" type="password" show-password placeholder="Please input" ></el-input>
+                </div>
+                <!-- <div class="auth-container-main-register-item">
                     <label>確認密碼</label>
                     <br>
                     <el-input v-model="checkPassword" style="width: 240px" type="password" show-password placeholder="Please input" ></el-input>
-                </div>
-                <div class="auth-container-main-register-item">
+                </div> -->
+                <!-- <div class="auth-container-main-register-item">
                     <label>性別</label>
                     <br>
                     <el-input v-model="gender" style="width: 240px" placeholder="Please input" ></el-input>
-                </div>
-                <div class="auth-container-main-register-item">
-                    <label>信箱</label>
-                    <br>
-                    <el-input v-model="email" style="width: 240px" placeholder="Please input" ></el-input>
-                </div>
+                </div> -->
+
                 <div class="auth-container-main-register-emailValidCode">
-                    <label>驗證碼</label>
+                    <label for="verificationCode" class="auth-label"">Verification code</label>
                     <br>
-                    <el-input v-model="emailValidCode" style="width: 240px" placeholder="Please input" >
+                    <el-input id="verificationCode" v-model="emailValidCode" style="width: 400px" placeholder="Please input" >
                         <template #append>
                             <el-button type="primary" @click="getemailValidCode">發送驗證碼</el-button>
                         </template>
@@ -56,14 +65,16 @@
                     <!-- <el-button type="primary" @click="getemailValidCode">發送驗證碼</el-button> -->
                 </div>
                 <div class="auth-container-main-register-item">
-                    <el-button type="primary" @click="createAccount">Create Account</el-button>
+                    <el-button type="primary" @click="createAccount" style="width: 400px;height: 40px;">Create Account</el-button>
                 </div>
                 
             </div>
+            <div class="auth-container-main-captcha"><h1>TodoCaptcha</h1></div>
 
 </template>
 
 <script setup lang="ts">
+    import '@/assets/css/auth-styles.css'
     import { ref, watchEffect } from 'vue'
     import http from '@/utils/httpRequest'
     import { ElMessage } from 'element-plus'
@@ -72,12 +83,12 @@
     import {useRouter,useRoute} from "vue-router"
     const router = useRouter()
     const route = useRoute()
-    const name = ref('Name20250224')
-    const accountName = ref('Account20250224')
-    const password = ref('Password20250224')
-    const checkPassword = ref('Password20250224')
-    const gender = ref('0')
-    const email = ref('Email20250224@gmail.com')
+    // const name = ref('Name20250224')
+    // const accountName = ref('Account20250224')
+    const password = ref('Password20250705')
+    // const checkPassword = ref('Password20250224')
+    // const gender = ref('0')
+    const email = ref('Email20250705@gmail.com')
     const emailValidCode = ref('')
     const isRegisterMode = ref<boolean>(true)
 
@@ -89,7 +100,8 @@
         http({
             url: http.adornUrl('/ums/user/email-verify-code'),
             method: 'post',
-            data: http.adornData({email:email.value,accountName:accountName.value}, false)
+            // data: http.adornData({email:email.value,accountName:accountName.value}, false)
+            data: http.adornData({email:email.value}, false)
         }).then(({data}:{data:R}) => {
             switch(data.code){
                 case 200:
@@ -123,11 +135,11 @@
     const createAccount = function(){
 
         const registerData:registerDataInterface = {
-            name: name.value,
-            accountName: accountName.value,
+            // name: name.value,
+            // accountName: accountName.value,
             password: password.value,
-            checkPassword: checkPassword.value,
-            gender: gender.value,
+            // checkPassword: checkPassword.value,
+            // gender: gender.value,
             email: email.value,
             emailValidCode: emailValidCode.value
         }
@@ -185,6 +197,9 @@
     border: 5px solid #723939;
 }
 .auth-container-main-mode-switcher{
+    display: flex;
+    justify-content: center;
+    align-content: center;
     border: 5px solid #b92ab2;
 }
 .auth-container-main-external-providers{
@@ -200,6 +215,16 @@
 }
 }
 
+.auth-container-main-captcha{
+        margin-top: 25px;
+        min-height: 150px;
+        border: 5px solid #7c2fa0;
+    }
+.auth-container-main-forget-password{
+    margin-top: 25px;
+    min-height: 150px;
+    border: 5px solid #2f77a0;
+}
 
 /* .auth-container {
     display: flex;

@@ -3,40 +3,44 @@
     <!-- <h1>Auth</h1> -->
      
         <div class="auth-container-main-title">
-            <h3>登入頁面</h3>
+            <h1  style="color: #C9DDFF;margin-left: -350px;">Log in</h1>
         </div>
         <div class="auth-container-main-mode-switcher">
-            <h3>TODO切換按鈕</h3>
-            <el-button type="success" @click="switchMode">
+            <!-- <el-button type="success" @click="switchMode">
                 {{isRegisterMode ? '已有帳號?點此登入' : '沒有帳號?點此註冊'}}
-            </el-button>
+            </el-button> -->
+            <span>Need an account?</span>
+            <a  @click="switchMode" style="color: #C9DDFF;cursor: pointer">SingUp➔</a>
+
         </div>
         <div class="auth-container-main-external-providers">
-            <h3>TODO第三方鑑權</h3>
+            <h1>TODO第三方鑑權</h1>
         </div>
         <div class="auth-container-main-login">
 
             <div class="auth-container-main-login-item">
-                <label>帳號/郵箱</label>
+                <label for="emailOrAccount" class="auth-label">Email/Account</label>
                 <br>
-                <el-input v-model="accountName" style="width: 240px" placeholder="Please input" ></el-input>
+                <el-input id="emailOrAccount" v-model="accountName" style="width: 400px" placeholder="Please input" ></el-input>
             </div>
             <div class="auth-container-main-login-item">
-                <label>密碼</label>
+                <label for="Password" class="auth-label">Password</label>
                 <br>
-                <el-input v-model="password" style="width: 240px" type="password" show-password placeholder="Please input" ></el-input>
+                <el-input id="Password" v-model="password" style="width: 400px" type="password" show-password placeholder="Please input" ></el-input>
             </div>
 
 
             <div class="auth-container-main-login-item">
-                <el-button type="primary" @click="loginAccount">Login Account</el-button>
+                <el-button type="primary"  @click="loginAccount" style="width: 400px;height: 40px;">Login Account</el-button>
             </div>
             
         </div>
-
+        <div class="auth-container-main-captcha"><h1>TodoCaptcha</h1></div>
+        <div class="auth-container-main-forget-password" @click="handleForgotPassword">Forget-password?</div>
 </template>
 
 <script setup lang="ts">
+import '@/assets/css/auth-styles.css'
 import { ref} from 'vue'
 import http from '@/utils/httpRequest'
 import { ElMessage } from 'element-plus'
@@ -53,11 +57,18 @@ const checkPassword = ref('Password20250224')
 const gender = ref('0')
 const email = ref('Email20250224@gmail.com')
 const emailValidCode = ref('')
-const isRegisterMode = ref<boolean>(true)
+// const isRegisterMode = ref<boolean>(true)
+
+const handleForgotPassword = function(){
+
+    router.push('/auth/forgot-password')
+
+}
 
 const switchMode = function(){
-    isRegisterMode.value = !isRegisterMode.value
-    router.push(isRegisterMode.value ? '/auth/register' : '/auth/login')
+    // isRegisterMode.value = !isRegisterMode.value
+    // router.push(isRegisterMode.value ? '/auth/register' : '/auth/login')
+    router.push('/auth/register')
 }
 const getemailValidCode = function(){
     http({
@@ -119,6 +130,12 @@ const loginAccount = function(){
                 ///TODO 登入後跳轉至原頁面
                 const redirect=sessionStorage.getItem("redirect");
                 sessionStorage.removeItem("redirect")
+
+                if(redirect==null){
+                    router.push('/home')
+
+                }
+
                 // console.log("redirect",redirect)
                 router.push(redirect as string)
                 break;
@@ -148,29 +165,44 @@ const loginAccount = function(){
 
 
 
-.auth-container-main-title{
-display: flex;
-justify-content: center;
-align-items: center;
-height: 10%;
-min-height: 10%;
-max-height: 10%;
-border: 5px solid #723939;
-}
-.auth-container-main-mode-switcher{
-border: 5px solid #b92ab2;
-}
-.auth-container-main-external-providers{
-border: 5px solid #2f77a0;
-}
-.auth-container-main-login{
-margin-top: 25px;
-display: flex;
-flex-direction: column;
-justify-content: center;
-align-items: center;
-gap: 1.5vh;
-}
+    .auth-container-main-title{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 10%;
+    min-height: 10%;
+    max-height: 10%;
+    border: 5px solid #723939;
+    }
+    .auth-container-main-mode-switcher{
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        border: 5px solid #b92ab2;
+    }
+    .auth-container-main-external-providers{
+    border: 5px solid #2f77a0;
+    }
+    .auth-container-main-login{
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5vh;
+    }
+    .auth-container-main-captcha{
+        margin-top: 25px;
+        min-height: 150px;
+        border: 5px solid #7c2fa0;
+    }
+    .auth-container-main-forget-password{
+        margin-top: 25px;
+        min-height: 150px;
+        border: 5px solid #2f77a0;
+    }
+
+
 }
 
 

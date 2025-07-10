@@ -11,6 +11,7 @@ import AuthLayout from "../layouts/AuthLayout.vue";
 import TinyMceEditManagement from "@/components/admin/TinyMceEditManagement.vue";
 import ArticleManagement from "@/components/admin/ArticleManagement.vue";
 import HomePage from "@/components/HomePage.vue";
+import AuthForgotPassword from "@/components/AuthForgotPassword.vue";
 const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -103,6 +104,11 @@ const router = createRouter({
                     path: 'register',
                     name: 'Register',
                     component: Auth
+                },
+                {
+                    path: 'forgot-password',
+                    name: 'ForgotPassword',
+                    component: AuthForgotPassword
                 }
             ]
         },
@@ -114,7 +120,12 @@ const router = createRouter({
                 app: HomePage
             },
   
-        }
+        },
+        // {
+        //     name:'Home',
+        //     path:'/',
+        //     redirect: "/home"
+        // }
         
     ]
 })
