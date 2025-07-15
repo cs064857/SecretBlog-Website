@@ -266,6 +266,7 @@ import {useRouter, useRoute} from "vue-router";
 import {ElAnchor, ElMessage} from "element-plus";
 import {R} from "@/interface/R";
 import { debounce } from 'throttle-debounce';
+import { commentDataInterface } from "@/interface/commentDataInterface";
 const Article = ref<ArticleInter | null>(null);
 const ArticleContent = ref('')
 
@@ -279,16 +280,39 @@ const {articleId} = route.params
 const textarea1 = ref()
 
 
+// const handleCommitComment=function (){
+//   const artInfo={
+//     comment:textarea1.value,
+//     userId: 1111,
+//     articleId:articleId,
+//   }
+//   http({
+//     url: http.adornUrl('/article/artInfo'),
+//     method: 'post',
+//     data: http.adornData(artInfo, false)
+//   }).then(({data}:{data:any}) => {
+//     if (data.code == 200) {
+//       ElMessage.success("成功發送評論");
+//     } else {
+//       ElMessage.error("提交評論失敗");
+//     }
+//   });
+// }
+
+///TODO 登入才能評論
 const handleCommitComment=function (){
-  const artInfo={
-    comment:textarea1.value,
-    userId: 1111,
-    articleId:articleId,
+
+  const acId= Array.isArray(articleId) ? articleId[0] : articleId
+  
+  const commentData:commentDataInterface={
+    commentContent:textarea1.value,
+    userId: 1111.,
+    articleId:acId
   }
   http({
-    url: http.adornUrl('/article/artInfo'),
+    url: http.adornUrl('/article/comment/create'),
     method: 'post',
-    data: http.adornData(artInfo, false)
+    data: http.adornData(commentData, false)
   }).then(({data}:{data:any}) => {
     if (data.code == 200) {
       ElMessage.success("成功發送評論");
@@ -297,7 +321,6 @@ const handleCommitComment=function (){
     }
   });
 }
-
 
 //評論/
 

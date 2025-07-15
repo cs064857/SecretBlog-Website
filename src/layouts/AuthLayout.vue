@@ -1,6 +1,7 @@
-import Auth from '@/components/AuthRegister.vue'
+
 
 <template>
+    <home-header-navigation></home-header-navigation>
     <!-- <h1>AuthLayout</h1> -->
     <!-- <div class="article-main"> -->
     <div class="auth-container">
@@ -12,7 +13,8 @@ import Auth from '@/components/AuthRegister.vue'
 </template>
 
 <script setup lang="ts">
-
+import Auth from '@/components/AuthRegister.vue'
+import HomeHeaderNavigation from '@/components/HomeHeaderNavigation.vue';
 </script>
 
 <style scoped>

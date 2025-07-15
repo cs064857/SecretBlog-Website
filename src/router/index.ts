@@ -90,7 +90,7 @@ const router = createRouter({
         {
             name:'Auth',
             path:'/auth',
-            redirect: "/auth/register",
+            redirect: "/auth/login",
             components:{
                 app: AuthLayout
             },

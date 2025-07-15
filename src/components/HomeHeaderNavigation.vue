@@ -36,13 +36,18 @@ const handleSignOut = function(){
   window.location.reload()
   ElMessage.success("登出成功")
 }
+const handleGoHome = function(){
+
+  router.push('/Home')
+
+}
 </script>
 
 <template>
         <div class="home-header-navigation">
           
           <!-- <el-image class="home-header-navigation-logo" src="https://element-plus.org/images/element-plus-logo.svg"></el-image> -->
-          <img class="home-header-navigation-logo" src="../assets/SecretBlog.svg"></img>
+          <img class="home-header-navigation-logo" style="cursor:pointer" alt="SecretBlog" v-on:click="handleGoHome" src="../assets/SecretBlog.svg"></img>
           <!--        <el-button style="height: 6vh;width: 6vh" @click="handleGoCategory" type="primary" :icon="Menu"/>-->
           <!--        <el-button style="height: 6vh;width: 6vh" @click="handleGoUser" type="primary" :icon="User"/>-->
           
@@ -66,7 +71,6 @@ const handleSignOut = function(){
           >
             Login/SingUp
           </button>
-          
         </div>
 </template>
 
