@@ -23,3 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 MyProgram/Convert/dmxapi/dmxapi8.py
+
+.cunzhi-memory/*

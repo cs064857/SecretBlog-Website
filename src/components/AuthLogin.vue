@@ -125,10 +125,15 @@ const loginAccount = function(){
                 ElMessage.success("登入成功");
                 
                 //登入成功後將Token保存至Cookie中
+                // 設置 Cookie，確保跨域請求時能正確發送
+                document.cookie = `jwtToken=${data.data.token}; path=/; max-age=600; SameSite=Lax;`
 
-                document.cookie = `jwtToken=${data.data.token}; path=/; max-age=600;`
+                // 驗證 Cookie 是否設置成功
+                console.log('Cookie 設置後的值:', document.cookie);
+                console.log('JWT Token:', data.data.token);
                 ///TODO 登入後跳轉至原頁面
                 const redirect=sessionStorage.getItem("redirect");
+
                 sessionStorage.removeItem("redirect")
 
                 if(redirect==null){

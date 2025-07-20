@@ -267,6 +267,7 @@ import {ElAnchor, ElMessage} from "element-plus";
 import {R} from "@/interface/R";
 import { debounce } from 'throttle-debounce';
 import { commentDataInterface } from "@/interface/commentDataInterface";
+import { getCookieValue } from "@/utils/jwtUtils";
 const Article = ref<ArticleInter | null>(null);
 const ArticleContent = ref('')
 
@@ -304,10 +305,16 @@ const handleCommitComment=function (){
 
   const acId= Array.isArray(articleId) ? articleId[0] : articleId
   
+  const jwtToken:string|null=getCookieValue("jwtToken");
+
+
+  console.log("jwtToken:",{jwtToken})
+  // console.log("cookie:",{cookie})
   const commentData:commentDataInterface={
     commentContent:textarea1.value,
     userId: 1111.,
-    articleId:acId
+    articleId:acId,
+    jwtToken:jwtToken
   }
   http({
     url: http.adornUrl('/article/comment/create'),

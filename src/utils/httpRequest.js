@@ -17,26 +17,70 @@ const http = axios.create({
 /**
  * 請求攔截
  */
+http.interceptors.request.use(config => {
+  // 從 Cookie 中獲取 JWT token
+  const cookies = document.cookie.split(';');
+  let jwtToken = null;
 
-// http.interceptors.request.use(config => {
-//   config.headers['token'] = Vue.cookie.get('token') // 請求頭帶上token
-//   return config
-// }, error => {
-//   return Promise.reject(error)
-// })
+  for (let cookie of cookies) {
+    const [name, value] = cookie.trim().split('=');
+    if (name === 'jwtToken') {
+      jwtToken = value;
+      break;
+    }
+  }
+
+  // 如果找到 token，添加到請求頭中（備用方案）
+  if (jwtToken) {
+    config.headers['Authorization'] = `Bearer ${jwtToken}`;
+  }
+
+  console.log('Request config:', config);
+  console.log('JWT Token:', jwtToken);
+  console.log('Request URL:', config.url);
+  console.log('Request headers:', config.headers);
+
+  return config;
+}, error => {
+  return Promise.reject(error);
+})
 
 /**
  * 響應攔截
  */
-// http.interceptors.response.use(response => {
-//   if (response.data && response.data.code === 401) { // 401, token失效
-//     clearLoginInfo()
-//     router.push({ name: 'login' })
-//   }
-//   return response
-// }, error => {
-//   return Promise.reject(error)
-// })
+http.interceptors.response.use(response => {
+  console.log('Response received:', response);
+  console.log('Response status:', response.status);
+  console.log('Response headers:', response.headers);
+
+  // 檢查是否是重定向到登入頁面的響應
+  if (response.status === 302 || (response.data && response.data.code === 401)) {
+    console.warn('認證失效，重定向到登入頁面');
+    // 清除 token
+    document.cookie = 'jwtToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    // 保存當前頁面路徑用於登入後重定向
+    sessionStorage.setItem('redirect', window.location.pathname + window.location.search);
+    // 跳轉到登入頁面
+    window.location.href = '/auth/login';
+  }
+  return response;
+}, error => {
+  console.error('HTTP 請求錯誤:', error);
+
+  // 處理 302 重定向錯誤
+  if (error.response && error.response.status === 302) {
+    console.warn('收到 302 重定向，可能是認證失效');
+    // 清除 token
+    document.cookie = 'jwtToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    // 保存當前頁面路徑
+    sessionStorage.setItem('redirect', window.location.pathname + window.location.search);
+    // 跳轉到登入頁面
+    window.location.href = '/auth/login';
+    return Promise.reject(error);
+  }
+
+  return Promise.reject(error);
+})
 
 /**
  * 請求地址處理
