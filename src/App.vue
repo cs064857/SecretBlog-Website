@@ -16,6 +16,10 @@
 
 <script lang="ts">
 // import HelloWorld from './components/HelloWorld.vue'
+import {onMounted} from "vue"
+import { useIsLoginStore } from "@/pinia/useIsLoginStore.js";
+import {isLoginRequest} from "@/requests/userAuthRequest"
+
 import MinioUpload from "./components/minioUpload.vue";
 import Main from "./layouts/AdminLayout.vue"
 // import MainGrid from "./components/MainGrid.vue";
@@ -26,6 +30,12 @@ export default {
   components:{AdminVue,MinioUpload,Main,Home,TinyMceEditManagement}
 }
 
+onMounted(async () => {
+  // 應用程式啟動時，呼叫後端 API 驗證登入狀態，
+  // isLoginRequest 函數內部會更新 Pinia store。
+  await isLoginRequest(); 
+
+})
 
 </script>
 

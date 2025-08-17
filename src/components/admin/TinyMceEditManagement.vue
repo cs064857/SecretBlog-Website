@@ -5,6 +5,8 @@
       <span class="noto-sans-tc" style="font-size: 18px;max-width: 4vh;min-width: 4vh;font-family: 'Noto Sans TC', sans-serif;padding-left: 1%;padding-top: 1%;">標題</span>
       <el-input v-model="inputTitle" style="width: 240px;margin: 2% 2% 2% 0.2%;padding-top: 1%;" placeholder="請輸入標題" />
       <span class="noto-sans-tc" style="font-size: 18px;max-width: 8vh;min-width: 8vh;font-family: 'Noto Sans TC', sans-serif;padding-left: 1%;padding-top: 1%;">文章分類</span>
+
+
       <el-tree-select
           v-model="selectValue"
           :data="treeSelectData"
@@ -13,9 +15,20 @@
           style="max-width: 20vh;min-width: 20vh;margin: 2% 2% 2% 0.2%;padding-top: 1%;"
           value-key="id"
       />
-      <el-divider />
-
-    </div>
+      <!-- <el-divider /> -->
+      <span class="noto-sans-tc" style="font-size: 18px;max-width: 8vh;min-width: 8vh;font-family: 'Noto Sans TC', sans-serif;padding-left: 1%;padding-top: 1%;">文章標籤</span>
+      <el-tree-select
+                v-model="selectTagsValue"
+                :data="tagsSelectData"
+                :props="treeProps"
+                multiple
+                @change="handleTagsChange"
+                :render-after-expand="false"
+                style="max-width: 20vh;min-width: 20vh;margin: 2% 2% 2% 0.2%;padding-top: 1%;"
+                value-key="id"
+            />
+      <!-- <el-divider /> -->
+</div>
 
     <div id="inputContent" >
       <editor style="overflow: scroll" v-model="myValue" :init="init" :enabled="enabled" :id="tinymceId"></editor>
@@ -172,7 +185,8 @@ import {R} from "@/interface/R";
 import {useTreeCategoryStore} from "@/pinia/useTreeCategoryStore"
 
 import { ElLoading } from 'element-plus'
-
+import { useTagsStore } from "@/pinia/useTagsStores";
+import {getCookieValue} from "@/utils/jwtUtils"
 const inputTitle = ref('')
 
 // 選擇器
@@ -180,8 +194,38 @@ const TreeCategoryStore= useTreeCategoryStore()
 const treeSelectData = TreeCategoryStore.getTreeData
 console.log("treeSelectData:",treeSelectData)
 
-const selectValue = ref()//選中項綁定的分類
 
+
+const tagsStore =useTagsStore()
+const tagsSelectData = ref()
+
+
+onMounted(()=>{
+
+http({
+  url: http.adornUrl('/article/tags/list'),
+  method: 'get',
+}).then(({data}:{ data: R }) => {
+  console.log("data",data)
+  if(data.code==200){
+    tagsSelectData.value=data.data
+    console.log("tagsSelectData:",tagsSelectData.value)
+    ElMessage.success("文章標籤獲取成功")
+  }else {
+    ElMessage.error("文章標籤獲取失敗")
+  }
+});
+
+})
+// 在您的 <script setup> 中加入
+const treeProps = {
+  label: 'name', // 指定用數據中的 'name' 屬性作為顯示的標籤
+  value: 'id',   // 指定用數據中的 'id' 屬性作為選項的值
+}
+
+
+const selectValue = ref()//選中項綁定的分類
+const selectTagsValue =ref()
 // 選擇器/
 const selectCategoryId=ref<number>()
 const handleChange = function (value:number){
@@ -189,13 +233,23 @@ const handleChange = function (value:number){
   selectCategoryId.value=value
   console.log("handleChange.value",value)
 }
+const handleTagsChange = function(value:number){
+
+  selectTagsValue.value=value
+  console.log("handleTagsChange.value",value)
+
+}
+
+
 
 const handleInput = function () {
   const save = ref(
     {
       title: inputTitle.value,
       content: handleGetContent(),
-      categoryId:selectCategoryId.value
+      categoryId:selectCategoryId.value,
+      tagsId: selectTagsValue.value,
+      jwtToken: getCookieValue("jwtToken")
     },
   )
   console.log("selectValue2:",selectValue)

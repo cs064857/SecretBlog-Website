@@ -3,16 +3,25 @@ import {Management} from "@element-plus/icons-vue";
 import {useRouter, useRoute} from 'vue-router'
 import { ref, onMounted ,reactive,toRefs, computed} from 'vue' // 新增引入
 import { ElMessage } from 'element-plus'
-
+import {R} from "@/interface/R";
+import http from "@/utils/httpRequest.js";
+import {useIsLoginStore} from "@/pinia/useIsLoginStore"
 const router = useRouter()
 const route = useRoute()
-const isLoggedIn = ref(false) // 登入狀態追蹤
+const isLoginStore =useIsLoginStore()
+// 已經調用後端判斷是否成功登入,從pinia中獲取登入資訊
+const isLoggedIn = computed(() => isLoginStore.getIsLoginData) // 綁定 Pinia
+// onMounted(() => {
+//   // 檢查 cookie 中是否有 jwtToken
+//   // const cookies = document.cookie.split(';')
+//   // console.log("cookies",cookies)
+//   // isLoggedIn.value = cookies.some(cookie => cookie.startsWith('jwtToken'))
 
-onMounted(() => {
-  // 檢查 cookie 中是否有 jwtToken
-  const cookies = document.cookie.split(';')
-  isLoggedIn.value = cookies.some(cookie => cookie.startsWith('jwtToken'))
-})
+  
+
+//   isLoggedIn.value=isLoginStore.getIsLoginData;
+
+// })
 
 const handleGoBackend = function () {//進入後台管理系統
   router.push('/AdminVue')
@@ -28,13 +37,33 @@ const handleCommand = (command) => {
 }
 
 const handleSignOut = function(){
-  sessionStorage.removeItem('jwtToken')
-  document.cookie = "jwtToken=; max-age=0; path=/;";
+  //TODO 調用Logout API使jwtToken在後端拉入黑名單中
+  http({
+      url: http.adornUrl('/ums/user/logout'),
+      method: 'post',
+      // data: http.adornData(data, false)
+  }).then(({data}:{data:R}) => {
+      if (data.code == 200) {
+          isLoginStore.setIsLoginData(false)
+          ElMessage.success("成功訊息");
+          sessionStorage.removeItem('jwtToken')
 
-  isLoggedIn.value = false
-  router.push('/home')
-  window.location.reload()
-  ElMessage.success("登出成功")
+          //登出時使jwtToken過期並且清空,
+          document.cookie = "jwtToken=; max-age=0; path=/;";
+
+
+          router.push('/home')
+
+          ElMessage.success("登出成功")
+      } else {
+          ElMessage.error("錯誤訊息");
+      }
+    
+  }).catch(() => {
+      ElMessage.error("請求出錯，請稍後再試");
+  });
+
+
 }
 const handleGoHome = function(){
 

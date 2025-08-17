@@ -44,7 +44,16 @@
     </div>
 
     <div class="article-footer">
+      <div class="article-comment-context">
+
+            
+        <div class="article-comment-context-item">Item1</div>
+        <div class="article-comment-context-item">Item2</div>
+      </div>
+
+      
       <div class="article-comment">
+
 
         <div class="article-comment-input">
           <el-input
@@ -57,7 +66,7 @@
               placeholder="輸入評論..."
           />
         </div>
-
+        
         <div class="article-comment-button">
           <el-button @click="handleCommitComment" size="large" type="primary" round>發表評論</el-button>
         </div>
@@ -69,6 +78,27 @@
 </template>
 
 <style scoped>
+.article-comment-context-item{
+  background-color: #25c9c9;
+
+  min-height: 150px;
+  min-width: 1570px;
+  max-width: 1570px;
+  width: 1570px;
+}
+
+.article-comment-context{
+  display: flex;
+  flex-direction: column;
+  gap:50px;
+  background-color: #395c5c;
+
+  /* min-height: 350px; */
+  min-width: 1570px;
+  max-width: 1570px;
+  width: 1570px;
+}
+
 .article-comment-button {
   background-color: #0d9393;
   min-width: 90%;
@@ -93,29 +123,31 @@
 
 .article-comment {
   display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
   justify-content: right;
   align-content: start;
   /*transform: translate(50%);*/
   background-color: darkslateblue;
 
-  min-width: 71.5%;
-  max-width: 71.5%;
+  min-width: 51.5%;
+  max-width: 51.5%;
   max-height: 80%;
   min-height: 80%;
 }
 
 .article-footer {
   display: flex;
-
+  flex-direction: column;
   /* 新增 Flexbox */
-  justify-content: center; /* 水平居中 */
-
+  justify-content: right; /* 水平居中 */
+  align-items: center;
   position: relative;
   left: 5%;
   background-color: #213547;
   width: 90%;
-  height: 35%;
+  min-height: 55%;
+  /* max-height: 20%; */
 }
 
 
@@ -275,6 +307,27 @@ const router = useRouter()
 const route = useRoute()
 const {articleId} = route.params
 
+//加載留言
+onMounted(()=>{
+
+  const artComments=getArtComments()
+  console.log("artComments:",artComments)
+})
+
+const getArtComments=function(){
+
+  http({
+    url: http.adornUrl(`/article/${articleId}/comments`),
+    method: 'get',
+  }).then(({data}:{data:any}) => {
+    if (data.code == 200) {
+      ElMessage.success("成功加載文章留言區");
+    } else {
+      ElMessage.error("加載文章留言區失敗");
+    }
+  });
+
+}
 
 //評論
 
