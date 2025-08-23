@@ -5,10 +5,12 @@ import {
     useDialogVisibleStore,
     useInputFormDataStore,
 } from "@/pinia/useFormStore";
-import {batchDeleteRequest, getTableDataRequest} from "@/requests/userRequest";
+import {deleteUserDetailRequest, getTableDataRequest} from "@/requests/userRequest";
 import { genericBatchDeleteRequest } from "@/requests/useGenericRequest";
 import {ElMessageBox, ElTable} from "element-plus";
 import {formUserInterface} from "@/interface/admin/formUserInterface";
+import { userDetailsDTO } from "@/interface/userDetailsDTOInterface";
+import { R } from "@/interface/R";
 
 /**
  * 封裝表格數據管理邏輯
@@ -21,7 +23,7 @@ export function useGenericTableData() {
     const getTableData = async function () {
         try {
 
-            const data: any = await getTableDataRequest('/ums/user/userDetails');
+            const data: R<userDetailsDTO> = await getTableDataRequest('/ums/user/userDetails');
             console.log("表格資料請求返回 data:", data);
             if (data.code === 200) {
                 tableRawData.value = data.data;
@@ -136,7 +138,8 @@ export function useHandleDelete() {
     const tableRef = ref<InstanceType<typeof ElTable>>()
     const clicked = ref(false);
 
-    const handleDelete = (index: number, row: any) => {
+    const handleDelete = (index: number, row) => {
+
         console.log("觸發刪除 handleDelete，index:", index, " row:", row);
         ElMessageBox.confirm("確認是否刪除此選項？", "警告", {
             confirmButtonText: "確定",
@@ -144,7 +147,7 @@ export function useHandleDelete() {
             type: "warning",
         })
             .then(() => {
-                batchDeleteRequest("/ums/user/userDetails",row.id);
+                deleteUserDetailRequest("/ums/user/delete/userDetail",row.id);
                 // 您可能想在這裡添加一些邏輯來更新成功刪除後的表格
             })
             .catch(() => {

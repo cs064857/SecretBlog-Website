@@ -153,8 +153,8 @@
     { label: "標題", value: "title" },
     { label: "TAG", value: "tag" },
     { label: "帳號", value: "accountName" },
-    { label: "發布時間", value: "createTime" },
-    { label: "修改時間", value: "updateTime" },
+    { label: "發布時間", value: "createAt" },
+    { label: "修改時間", value: "updateAt" },
     { label: "顯示", value: "deleted" },
   ]
 

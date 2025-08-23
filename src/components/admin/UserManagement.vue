@@ -154,14 +154,14 @@ const elTableColumnsData:TableColumn[] =[//㊣
   // { label: "使用者頭像", value: "avatar" },
   { label: "帳戶狀態", value: "status" },
   { label: "權限名稱", value: "roleId" },
-  { label: "使用者名稱", value: "name" },
+  { label: "使用者名稱", value: "nickName" },
   { label: "帳號", value: "accountName" },
   { label: "密碼", value: "password" },
   { label: "信箱", value: "email" },
   { label: "生日", value: "birthday" },
   { label: "性別", value: "gender" },
   { label: "手機號碼", value: "phoneNumber" },
-  { label: "註冊時間", value: "createTime" },
+  { label: "註冊時間", value: "createAt" },
   { label: "地址", value: "address" }
 ]
 

@@ -1,5 +1,5 @@
-export interface R{
+export interface R<T>{
     code:number,
     msg?:string
-    data?:any
+    data?:T|any
 }

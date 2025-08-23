@@ -4,10 +4,12 @@ import {R} from "@/interface/R";
 import {Ref} from "vue";
 import {formUserInterface} from "@/interface/admin/formUserInterface";//㊣
 import axios from "axios";
-export function batchDeleteRequest (requestPath:string,userIdList:any){
+export function deleteUserDetailRequest (requestPath:string,userId:String){
+    
     return http({
-        url: http.adornUrl(`${requestPath}/${userIdList}`),
-        method: 'delete',
+        url: http.adornUrl(`${requestPath}/${userId}`),
+        method: 'post',
+        // params: {id: userId}
     }).then(({data}:{data:R}) => {
         if (data.code == 200) {
             ElMessage.success("刪除用戶資料數據成功");

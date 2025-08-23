@@ -17,7 +17,7 @@ export interface formUserInterface {
     gender: number | string;           // 性別 (1 男性, 2 女性, 3 不願透露)
     address: string;          // 居住地址
     phoneNumber: string;      // 手機號碼
-    createTime?: Date | string;       // 註冊時間 (LocalDateTime in Java)
+    createAt?: Date | string;       // 註冊時間 (LocalDateTime in Java)
 
     // 額外的欄位 (來自 UmsRole)
     roleId: string;         // 權限名稱
