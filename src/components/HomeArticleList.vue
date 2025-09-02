@@ -61,6 +61,7 @@ const getArticles = function (categoryId, routePage) {
         console.log("根據分類ID與頁碼獲得的分頁資料:", data.data)
         articleList.value = data.data.records//要展示的所有文章列表資料
         console.log("根據分類ID與頁碼獲得的文章列表articleList.value:", articleList.value)
+
         totalItems = data.data.total//當前分類下所有文章的總數量
       } else {
         ElMessage.error("加載失敗,請重新嘗試");
@@ -134,11 +135,77 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-for="article in articleList" :key="article.id" class="home-article">
+
+    <div class="home-article">
+
+        <div v-for="article in articleList"   :key="article.articleId"  class="article-box">
+          <div class="article-title">
+            <router-link :to="{name:'Article',params:{articleId:article.articleId}}"><p>{{ article.title }}</p></router-link>
+          </div>
+          <div class="article-info">
+            <div class="article-category">
+                {{article.categoryName}}
+                
+                <!-- <div>username</div> -->
+                
+                <!-- <div>avatar</div> -->
+
+
+            </div>
+            <div class="article-tags">
+              <div v-for="amsArtTag in article.amsArtTagList" class="article-tag">
+                {{ amsArtTag.tagsId }}
+            </div>
+            <!-- <div class="article-tag">
+                AI API
+            </div> -->
+            <!-- <div class="article-tag">
+                LLM大模型
+            </div>
+            <div class="article-tag">
+                RAG知識庫
+            </div> -->
+            </div>
+
+            <div class="article-metrics">
+
+                <div class="article-metrics-label">喜歡</div>
+                <div class="article-metrics-label">查看</div>
+                <div class="article-metrics-label">書籤</div>
+                <div class="article-metrics-label">創建時期</div>
+                <div class="article-metrics-label">更新日期</div>
+
+                <div class="article-metrics-value">{{article.likesCount}}</div>
+                <div class="article-metrics-value">{{article.viewsCount}}</div>
+                <div class="article-metrics-value">{{article.bookmarksCount}}</div>
+                <div class="article-metrics-value">{{article.createTime}}</div>
+                <div class="article-metrics-value">{{article.updateTime}}</div>
+
+                <!-- <div class="article-metrics-label">喜歡</div>
+                <div class="article-metrics-label">查看</div>
+                <div class="article-metrics-label">書籤</div>
+                <div class="article-metrics-label">創建時期</div>
+                <div class="article-metrics-label">更新日期</div>
+
+                <div class="article-metrics-value">001</div>
+                <div class="article-metrics-value">002</div>
+                <div class="article-metrics-value">003</div>
+                <div class="article-metrics-value">12小時</div>
+                <div class="article-metrics-value">24小時</div> -->
+
+            </div>
+          </div>
+
+        </div>
+    <hr>
+    </div>
+
+
+  <!-- <div v-for="article in articleList"  :key="article.id" class="home-article">
 
     <div class="article-box">
       <div class="article-title">
-        <router-link :to="{name:'Article',params:{articleId:article.id}}"><p>{{ article.title }}</p></router-link>
+        <router-link :to="{name:'Article',params:{articleId:article.amsArtTagList[0].articleId}}"><p>{{ article.title }}</p></router-link>
       </div>
       <div class="article-info">
         <div class="article-category"></div>
@@ -147,7 +214,7 @@ onMounted(() => {
 
     </div>
     <hr>
-  </div>
+  </div> -->
 
 
 <!-- <div v-for="article in articleList" :key="article.id" class="home-article"> -->
@@ -167,8 +234,63 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.article-category-categoryname{
+  text-align: center;
+  width: 50%;
+  
+}
+
+.article-tag{
+  background-color: #549122;
+  
+}
+
+.article-tags{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  background-color: bisque;
+  width: 70%;
+  height: 100%;
+}
+.article-metrics{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  
 
 
+  background-color: #881d1d;
+  width: 100%;
+  height: 100%;
+}
+.article-category{
+  /* display: flex;
+  flex-direction: row;
+  align-items: center; */
+
+  /* 將這個 div 變成 flex 容器 */
+  display: flex;
+  
+
+  justify-content: center; 
+  
+
+  align-items: center;   
+  background-color: #1d5888;
+  width: 30%;
+  height: 100%;
+}
+.article-metrics-label{
+  text-align: center;
+  width: 20%;
+}
+.article-metrics-value{
+  text-align: center;
+  
+  width: 20%;
+}
 .article-title p[data-v-7a0f854b] {
   font-size: 22px;
   font-weight: bold;
@@ -184,16 +306,7 @@ onMounted(() => {
   text-decoration: none;  /* 移除超連結底線 */
 
 }
-.article-metrics{
-  background-color: #881d1d;
-  width: 70%;
-  height: 100%;
-}
-.article-category{
-  background-color: #1d5888;
-  width: 30%;
-  height: 100%;
-}
+
 /* .article-info-1{
   background-color: #0c2a5a;
   width: 100%;
@@ -212,6 +325,9 @@ hr{
   height: 40%;
   display: flex;
   flex-direction: row;
+  justify-content: center;
+
+
 }
 .article-title{
   background-color: #5c390e;
