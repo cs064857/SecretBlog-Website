@@ -7,9 +7,13 @@ import 'element-plus/dist/index.css'
 import router from './router'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+
+
 // import { createPinia } from 'pinia'
 import { store } from "@/pinia/index";    // 引入創建好的pinia
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'//自動持久化pinia中的數據,儲存在localStorage 或 sessionStorage中
+
+
 const app = createApp(App)
 // import httpRequest from '/utils/httpRequest';
 // createApp(App).mount('#app')

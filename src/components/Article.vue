@@ -43,16 +43,10 @@
 
     </div>
 
-    <div class="article-footer">
-      <div class="article-comment-context">
 
-            
-        <div class="article-comment-context-item">Item1</div>
-        <div class="article-comment-context-item">Item2</div>
-      </div>
 
       
-      <div class="article-comment">
+      <!-- <div class="article-comment">
 
 
         <div class="article-comment-input">
@@ -70,30 +64,64 @@
         <div class="article-comment-button">
           <el-button @click="handleCommitComment" size="large" type="primary" round>發表評論</el-button>
         </div>
+      </div> -->
+        
+      <div class="article-footer">
+        <div v-for="(articleComment,index) in artComments" :key="index" class="article-comment-context">
 
+          <div class="article-comment-context-item">
+
+
+              <div class="article-comment-context-item-user">{{articleComment.username}}</div>
+              <div class="article-comment-context-item-main">{{articleComment.commentContent}}</div>
+              <div class="article-comment-context-item-metrics">{{articleComment.replysCount}}</div>
+          </div>
+          
+        </div>
+        
       </div>
-    </div>
 
-  <!-- </div> -->
 </template>
 
 <style scoped>
-.article-comment-context-item{
-  background-color: #25c9c9;
+.article-comment-context-item-user {
+  text-align: left;
+  
+  flex: 1 1 0;
+}
+.article-comment-context-item-main{
+  flex: 1 1 0;
+}
+.article-comment-context-item-metrics{
+  flex: 1 1 0;
+}
 
+.article-comment-context-item{
+  display: flex;
+  flex-direction: column;
+
+  flex-wrap: wrap;
+
+
+  border: 0.1px solid rgb(190, 186, 186);
+  text-align: center;
+  background-color: #1a1d1d;
   min-height: 150px;
   min-width: 1570px;
   max-width: 1570px;
   width: 1570px;
 }
+/* .article-comment-context{
 
+  width: 100px;
+  height: 100px;
+  
+} */
 .article-comment-context{
   display: flex;
   flex-direction: column;
-  gap:50px;
+  /* gap: 20px; */
   background-color: #395c5c;
-
-  /* min-height: 350px; */
   min-width: 1570px;
   max-width: 1570px;
   width: 1570px;
@@ -103,22 +131,21 @@
   background-color: #0d9393;
   min-width: 90%;
   max-width: 90%;
-  /*flex: 0.5;*/
-  max-height: 18%;
-  min-height: 18%;
-
   display: flex;
   justify-content: end;
   align-items: center;
+  /* 移除高度鎖定，讓內容自然撐開 */
+  /* max-height: 18%; */
+  /* min-height: 18%; */
 }
 
 .article-comment-input {
   background-color: #98710e;
   min-width: 90%;
   max-width: 90%;
-  /*flex: 1;*/
-  max-height: 82%;
-  min-height: 82%;
+  /* 移除高度鎖定，讓內容自然撐開 */
+  /* max-height: 82%; */
+  /* min-height: 82%; */
 }
 
 .article-comment {
@@ -127,29 +154,29 @@
   flex-wrap: wrap;
   justify-content: right;
   align-content: start;
-  /*transform: translate(50%);*/
   background-color: darkslateblue;
-
   min-width: 51.5%;
   max-width: 51.5%;
-  max-height: 80%;
-  min-height: 80%;
+  /* 讓高度由內容撐開 */
+  /* max-height: 80%; */
+  /* min-height: 80%; */
 }
 
 .article-footer {
   display: flex;
   flex-direction: column;
-  /* 新增 Flexbox */
-  justify-content: right; /* 水平居中 */
+  justify-content: center;  /* footer 內容置中 */
   align-items: center;
-  position: relative;
-  left: 5%;
   background-color: #213547;
   width: 90%;
-  min-height: 55%;
-  /* max-height: 20%; */
-}
+  margin: 40px auto 0;      /* 置中並與上方內容留距 */
+  position: static;         /* 確保參與正常文流，不覆蓋內容 */
+  /* 移除 left 與高度限制 */
+  /* left: 5%; */
+  /* min-height: 55%; */
 
+  /* gap: 6rem; */
+}
 
 .article-header {
   border: black 3px solid;
@@ -167,71 +194,38 @@
   margin: 0 50px 50px 50px;
   background-color: #d7e6c8;
   box-shadow: 0px 0px 30px;
-  /*height: auto;*/
-
-  /*重要*/
-  max-height: none;
-  /*max-height: 200%;*/
-  /*overflow: visible;*/
-
-  /*padding: 0 0 5% 0;*/
-
-  /*position: absolute;*/
-  /*top: 16%; !* Add this to position from the top of article-main *!*/
-  /*left: 0; !* Add this to position from the left of article-main *!*/
-  /*right: 0; !* Add this to stretch the width *!*/
-
-  /* 自動換行的樣式 */
-  word-wrap: break-word; /* 遇到長單詞自動換行 */
-  word-break: break-all; /* 對於所有內容進行換行，防止超出容器 */
-  /*overflow-wrap: break-word; !* 讓內容在需要時自動換行 *!*/
-
-
+  max-height: none;     /* 不裁切內容 */
+  word-wrap: break-word;
+  word-break: break-all;
 }
 
 .article-container {
   background-color: #d57656;
   width: 100%;
-  height: 100%;
-  overflow: auto;
+  /* 重要：不要限制高度或隱藏溢出，改由整個頁面滾動 */
+  /* height: 100%; */
+  overflow: visible;    /* 不顯示容器自身滾軸 */
 }
 
 .Box3 {
   background-color: darkgreen;
-  /*width: 50%;*/
-  /*max-width: 80%;*/
   flex: 2.5;
-  /*max-height: none;*/
-  /*height: auto;*/
-  /*overflow: visible;*/
-
   display: flex;
   flex-direction: column;
-  /*gap: 5%;*/
-  /*align-content: center;*/
-  /*justify-content: flex-start;*/
   justify-items: flex-start;
-
-
   position: relative;
-  min-height: 92%;
-
-
+  /* 移除最小高度限制，避免內容被截斷 */
+  /* min-height: 92%; */
 }
 
 .article-main {
   background-color: darkgrey;
   width: 100%;
-  min-height: 92%;
+  /* 讓內容自然撐開 */
+  /* min-height: 92%; */
   max-height: none;
-
   display: flex;
   justify-content: center;
-  /*align-content: center;*/
-  /*overflow: auto;*/
-
-  /*position: relative;*/
-
 }
 
 .article-content-list {
@@ -240,52 +234,39 @@
   background-color: darkslategray;
   justify-content: flex-start;
   align-content: flex-start;
+  align-items: stretch;  /* 讓左右欄高度跟隨中間欄 */
   width: 90%;
-
-  /*重要*/
-  min-height: 92vh;
-
+  margin: 0 auto;       /* 置中 */
+  /* 不鎖在視窗高度，讓高度由內容決定 */
+  /* min-height: 92vh; */
   max-height: none;
-
-  /*height: auto;*/
-
-
-  /*margin-top: 15%;*/
-
-
 }
-
 
 .Box1 {
   background-color: darksalmon;
-  /*width: 100%;*/
-  height: 92vh;
   flex: 0.5;
+  /* 移除視窗高度鎖定 */
+  /* height: 92vh; */
 }
 
 .Box2 {
   background-color: darkmagenta;
-  /*width: 100%;*/
-  height: 92vh;
   flex: 0.5;
-
   position: relative;
   display: flex;
   justify-content: flex-start;
   align-content: start;
+  /* 移除視窗高度鎖定 */
+  /* height: 92vh; */
 }
-
 
 .Box4 {
   background-color: darkblue;
   width: 100%;
   height: min-content;
-
-  /*position: sticky;*/
-  position: relative;
+  position: relative;  /* 若要吸頂可改為 sticky */
   top: 150px;
 }
-
 </style>
 
 <script setup lang="ts">
@@ -306,11 +287,11 @@ const ArticleContent = ref('')
 const router = useRouter()
 const route = useRoute()
 const {articleId} = route.params
-
+const artComments = ref();
 //加載留言
 onMounted(()=>{
 
-  const artComments=getArtComments()
+  getArtComments()
   console.log("artComments:",artComments)
 })
 
@@ -321,6 +302,7 @@ const getArtComments=function(){
     method: 'get',
   }).then(({data}:{data:any}) => {
     if (data.code == 200) {
+      artComments.value=data.data
       ElMessage.success("成功加載文章留言區");
     } else {
       ElMessage.error("加載文章留言區失敗");

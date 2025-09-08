@@ -4,6 +4,15 @@ import {Articles} from "@/interface/front/articleInterface";
 import {onBeforeRouteUpdate, useRoute, useRouter} from "vue-router";
 import http from "../utils/httpRequest"
 import {ElMessage} from "element-plus";
+// 時間組件
+// import dayjs from 'dayjs'
+
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import 'dayjs/locale/zh-tw' // 引入繁體中文語系
+dayjs.extend(relativeTime)
+dayjs.locale('zh-tw') // 設定預設語系為繁體中文
+
 
 const route = useRoute()
 const router = useRouter();
@@ -178,8 +187,8 @@ onMounted(() => {
                 <div class="article-metrics-value">{{article.likesCount}}</div>
                 <div class="article-metrics-value">{{article.viewsCount}}</div>
                 <div class="article-metrics-value">{{article.bookmarksCount}}</div>
-                <div class="article-metrics-value">{{article.createTime}}</div>
-                <div class="article-metrics-value">{{article.updateTime}}</div>
+                <div class="article-metrics-value">{{ dayjs(article.createTime).fromNow() }}</div>
+                <div class="article-metrics-value">{{ dayjs(article.updateTime).fromNow() }}</div>
 
                 <!-- <div class="article-metrics-label">喜歡</div>
                 <div class="article-metrics-label">查看</div>
@@ -251,19 +260,30 @@ onMounted(() => {
   align-items: center;
   gap: 10px;
   background-color: bisque;
-  width: 70%;
+  flex: 4.5;
+
+  min-width: 0; 
+
+  overflow: hidden;
+
+  padding: 0.5rem; 
+  box-sizing: border-box;
   height: 100%;
 }
 .article-metrics{
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  background-color: #881d1d;
+  flex: 4.5;
+
+  min-width: 0; 
   
 
+  overflow: hidden;
 
-  background-color: #881d1d;
-  width: 100%;
-  height: 100%;
+  padding: 0.5rem; 
+  box-sizing: border-box;
 }
 .article-category{
   /* display: flex;
@@ -279,7 +299,11 @@ onMounted(() => {
 
   align-items: center;   
   background-color: #1d5888;
-  width: 30%;
+  flex: 1;
+  min-width: 0; 
+  overflow: hidden;
+  padding: 0.5rem; 
+  box-sizing: border-box;
   height: 100%;
 }
 .article-metrics-label{
@@ -339,13 +363,15 @@ hr{
 }
 
 .article-box{
+  
   background-color: #9a6e3a;
   width: 100%;
-  height: 11vh;
+  height: 12vh;
 }
 .home-article{
   display: flex;
   flex-direction: column;
+  gap:1rem;
   /* 間距 */
 
 }

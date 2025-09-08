@@ -4,7 +4,9 @@
     "paths": {
       "@/*": ["src/*"]
     },
+    "esModuleInterop": true
     // 其他配置項...
   },
   "include": ["src/**/*"]
+  
 }
