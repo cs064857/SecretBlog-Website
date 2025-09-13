@@ -48,7 +48,8 @@ function doLogoutAndRedirect (triggerUrl) {
     sessionStorage.setItem('redirect', window.location.pathname + window.location.search)
   }
   if (window.location.pathname !== LOGIN_PATH) {
-    window.location.href = LOGIN_PATH
+        // window.location.href = LOGIN_PATH // <--- 暫時註解掉，防止跳轉
+        console.error('偵測到認證失效，已阻止自動跳轉以便調適。觸發來源:', triggerUrl); // 可以加一行日誌方便觀察
   }
 }
 

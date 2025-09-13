@@ -57,7 +57,8 @@ const articleList = ref<Articles | null>(null)
 // let categoryId = ref(route.params.categoryId)
 // const routePage = ref(route.query.page)
 
-
+import { AmsListRecordsListInterface } from "@/interface/amsListRecordsInterface"
+import {R} from "@/interface/R"
 const getArticles = function (categoryId, routePage) {
 
     console.log("getArticles:categoryId=" + categoryId + ",routePage=" + routePage)
@@ -65,7 +66,8 @@ const getArticles = function (categoryId, routePage) {
       url: http.adornUrl(`/article/categories/${categoryId}/articles`),
       method: 'get',
       params: http.adornParams({routePage: routePage})
-    }).then(({data}) => {
+    }).then(({data}: {data:R<AmsListRecordsListInterface>}) => {
+      
       if (data.code == 200) {
         console.log("根據分類ID與頁碼獲得的分頁資料:", data.data)
         articleList.value = data.data.records//要展示的所有文章列表資料

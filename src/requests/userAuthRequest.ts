@@ -11,10 +11,10 @@ export function isLoginRequest(){
         if (data.code == 200) {
 
             isLoginStore.setIsLoginData(true)
-            // ElMessage.success("已登入");
+            ElMessage.success("已登入");
         } else {
             isLoginStore.setIsLoginData(false);
-            // ElMessage.error("未登入");
+            ElMessage.error("未登入");
         }
     }).catch(() => {
         ElMessage.error("請求出錯，請稍後再試");

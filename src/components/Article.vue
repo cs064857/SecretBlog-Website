@@ -46,7 +46,7 @@
 
 
       
-      <!-- <div class="article-comment">
+      <div class="article-comment">
 
 
         <div class="article-comment-input">
@@ -64,19 +64,39 @@
         <div class="article-comment-button">
           <el-button @click="handleCommitComment" size="large" type="primary" round>發表評論</el-button>
         </div>
-      </div> -->
+      </div>
         
       <div class="article-footer">
         <div v-for="(articleComment,index) in artComments" :key="index" class="article-comment-context">
 
+          <div class="article-comment-context-avatar">
+            <img class="user-avatar" :src="articleComment.avatar" alt="avatar">
+          </div>
+
           <div class="article-comment-context-item">
 
 
-              <div class="article-comment-context-item-user">{{articleComment.username}}</div>
+              <div class="article-comment-context-item-avatar">
+                
+                <div class="user-username">{{articleComment.username}}</div>
+              </div>
+              
               <div class="article-comment-context-item-main">{{articleComment.commentContent}}</div>
-              <div class="article-comment-context-item-metrics">{{articleComment.replysCount}}</div>
+              <div class="article-comment-context-item-info">
+                
+                  <div class="ararticle-comment-context-item-info-metrics">
+                    <div class="ararticle-comment-context-item-info-metrics-likesCount">{{articleComment.likesCount}}</div>
+                    <div class="ararticle-comment-context-item-info-metrics-replysCount">{{articleComment.replysCount}}</div>
+                    <div class="ararticle-comment-context-item-info-metrics-createAt">{{articleComment.createAt}}</div>
+                    <div class="ararticle-comment-context-item-info-metrics-updateAt">{{articleComment.updateAt}}</div>
+                    <div class="ararticle-comment-context-item-info-metrics-reply"><el-button @click="dialogVisible=true" type="primary">回覆</el-button></div>
+                    <!-- <div class="ararticle-comment-context-item-info-metrics-reply"><el-button v-click="handleReplyComment(articleComment.articleId,articleComment.commentId)" type="primary">回覆</el-button></div> -->
+
+                  </div>
+
+              </div>
           </div>
-          
+
         </div>
         
       </div>
@@ -84,32 +104,63 @@
 </template>
 
 <style scoped>
-.article-comment-context-item-user {
+.ararticle-comment-context-item-info-metrics{
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+
+  justify-content: end;
+}
+.user-avatar{
+  display: block;
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.user-username {
   text-align: left;
   
   flex: 1 1 0;
 }
-.article-comment-context-item-main{
-  flex: 1 1 0;
-}
-.article-comment-context-item-metrics{
-  flex: 1 1 0;
-}
 
+.article-comment-context-item-avatar{
+  display: flex;
+  
+  flex: 1 1 0;
+}
+.article-comment-context-item-main{
+  text-align: start;
+  
+  flex: 1 1 0;
+}
+.article-comment-context-item-info{
+  text-align: end;
+  flex: 1 1 0;
+}
+.article-comment-context-avatar{
+    margin: 0 auto;
+    padding: 1rem;
+}
 .article-comment-context-item{
   display: flex;
+  gap: 2rem;
   flex-direction: column;
 
   flex-wrap: wrap;
 
 
-  border: 0.1px solid rgb(190, 186, 186);
+  /* border: 0.1px solid rgb(190, 186, 186); */
   text-align: center;
   background-color: #1a1d1d;
-  min-height: 150px;
+  /* min-height: 150px;
   min-width: 1570px;
-  max-width: 1570px;
-  width: 1570px;
+  max-width: 1570px; */
+  margin: 0 auto;
+  padding: 1rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing:border-box
 }
 /* .article-comment-context{
 
@@ -119,12 +170,15 @@
 } */
 .article-comment-context{
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   /* gap: 20px; */
   background-color: #395c5c;
-  min-width: 1570px;
+  /* min-width: 1570px;
   max-width: 1570px;
-  width: 1570px;
+  width: 1570px; */
+  width: 100%;
+  border: 0.1px solid rgb(190, 186, 186);
+  background-color: #1a1d1d;
 }
 
 .article-comment-button {
@@ -286,7 +340,8 @@ const ArticleContent = ref('')
 
 const router = useRouter()
 const route = useRoute()
-const {articleId} = route.params
+const {articleId} = Array.isArray(route.params) ? route.params[0] : route.params
+const commentId =ref()
 const artComments = ref();
 //加載留言
 onMounted(()=>{
@@ -294,6 +349,50 @@ onMounted(()=>{
   getArtComments()
   console.log("artComments:",artComments)
 })
+
+/**
+ * 回覆評論
+ */
+import { ElMessageBox } from "element-plus";
+const dialogVisible = ref(false);
+const handleClose = (done: () => void) => {
+  ElMessageBox.confirm('Are you sure to close this dialog?')
+    .then(() => {
+      done()
+    })
+    .catch(() => {
+      // catch error
+    })
+}
+
+
+import {replyCommentDataInterface} from "@/interface/replyCommentDataInterface";
+const handleReplyComment= function(parentCommentId:string){
+  // console.log("articleId:",articleId)
+  console.log("parentCommentId:",parentCommentId)
+  
+  const data:replyCommentDataInterface={
+    parentCommentId:parentCommentId,
+    commentContent:textarea1.value,
+    articleId:articleId,
+  }
+
+  http({
+      url: http.adornUrl('/article/comment/create'),
+      method: 'post',
+      data: http.adornData(data, false)
+  }).then(({data}:{data:R}) => {
+      if (data.code == 200) {
+
+          ElMessage.success("成功訊息");
+      } else {
+          ElMessage.error("錯誤訊息");
+      }
+  }).catch(() => {
+      ElMessage.error("請求出錯，請稍後再試");
+  });
+
+}
 
 const getArtComments=function(){
 
@@ -340,16 +439,16 @@ const handleCommitComment=function (){
 
   const acId= Array.isArray(articleId) ? articleId[0] : articleId
   
-  const jwtToken:string|null=getCookieValue("jwtToken");
+  // const jwtToken:string|null=getCookieValue("jwtToken");
 
 
-  console.log("jwtToken:",{jwtToken})
+  // console.log("jwtToken:",{jwtToken})
   // console.log("cookie:",{cookie})
   const commentData:commentDataInterface={
     commentContent:textarea1.value,
-    userId: 1111.,
+    // userId: 1111.,
     articleId:acId,
-    jwtToken:jwtToken
+    // jwtToken:jwtToken
   }
   http({
     url: http.adornUrl('/article/comment/create'),

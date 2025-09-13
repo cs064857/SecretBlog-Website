@@ -1,5 +1,6 @@
-export interface commentDataInterface{
+export interface replyCommentDataInterface{
 
+    parentCommentId:String,
     commentContent:String,
     // userId: number,
     articleId:String,
