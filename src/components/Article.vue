@@ -89,7 +89,7 @@
                     <div class="ararticle-comment-context-item-info-metrics-replysCount">{{articleComment.replysCount}}</div>
                     <div class="ararticle-comment-context-item-info-metrics-createAt">{{articleComment.createAt}}</div>
                     <div class="ararticle-comment-context-item-info-metrics-updateAt">{{articleComment.updateAt}}</div>
-                    <div class="ararticle-comment-context-item-info-metrics-reply"><el-button @click="dialogVisible=true" type="primary">回覆</el-button></div>
+                    <div class="ararticle-comment-context-item-info-metrics-reply"><el-button @click="handleOpenReplyModal(articleComment)" type="primary">回覆</el-button></div>
                     <!-- <div class="ararticle-comment-context-item-info-metrics-reply"><el-button v-click="handleReplyComment(articleComment.articleId,articleComment.commentId)" type="primary">回覆</el-button></div> -->
 
                   </div>
@@ -100,6 +100,14 @@
         </div>
         
       </div>
+
+  <!-- 回覆評論彈出框 -->
+  <ReplyModal
+    :visible="replyModalVisible"
+    :replyToUser="currentReplyUser"
+    @close="handleCloseReplyModal"
+    @submit="handleSubmitReply"
+  />
 
 </template>
 
@@ -325,6 +333,7 @@
 
 <script setup lang="ts">
 import HomeHeaderNavigation from "./HomeHeaderNavigation.vue";
+import ReplyModal from "./ReplyModal.vue";
 
 import http from '@/utils/httpRequest'
 import {ArticleInter, Articles} from "@/interface/front/articleInterface";
@@ -343,6 +352,16 @@ const route = useRoute()
 const {articleId} = Array.isArray(route.params) ? route.params[0] : route.params
 const commentId =ref()
 const artComments = ref();
+
+// 回覆模態框相關狀態
+const replyModalVisible = ref(false);
+const currentReplyUser = ref({
+  username: '',
+  commentContent: '',
+  commentId: '',
+  articleId: ''
+});
+
 //加載留言
 onMounted(()=>{
 
@@ -409,6 +428,55 @@ const getArtComments=function(){
   });
 
 }
+
+// 開啟回覆模態框
+const handleOpenReplyModal = (comment: any) => {
+  currentReplyUser.value = {
+    username: comment.username,
+    commentContent: comment.commentContent,
+    commentId: comment.commentId,
+    articleId: articleId as string
+  };
+  replyModalVisible.value = true;
+};
+
+// 關閉回覆模態框
+const handleCloseReplyModal = () => {
+  replyModalVisible.value = false;
+  currentReplyUser.value = {
+    username: '',
+    commentContent: '',
+    commentId: '',
+    articleId: ''
+  };
+};
+
+// 提交回覆
+const handleSubmitReply = async (content: string, replyData: any) => {
+  try {
+    const response = await http({
+      url: http.adornUrl('/article/comment/create'),
+      method: 'post',
+      data: http.adornData({
+        commentContent: content,
+        parentCommentId: replyData.commentId,
+        articleId: replyData.articleId
+      }, false)
+    });
+
+    if (response.data.code === 200) {
+      ElMessage.success("回覆發送成功！");
+      handleCloseReplyModal();
+      // 重新加載評論
+      getArtComments();
+    } else {
+      ElMessage.error("回覆發送失敗：" + response.data.msg);
+    }
+  } catch (error) {
+    ElMessage.error("網路錯誤，請稍後再試");
+    console.error('發送回覆時出錯:', error);
+  }
+};
 
 //評論
 
