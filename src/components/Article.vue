@@ -81,7 +81,8 @@
                 <div class="user-username">{{articleComment.username}}</div>
               </div>
               
-              <div class="article-comment-context-item-main">{{articleComment.commentContent}}</div>
+              <!-- <div class="article-comment-context-item-main">{{articleComment.commentContent}}</div> -->
+              <div v-html="renderedComments.find(item=>item.commentId==articleComment.commentId).commentContent" class="article-comment-context-item-main"></div>
               <div class="article-comment-context-item-info">
                 
                   <div class="ararticle-comment-context-item-info-metrics">
@@ -334,16 +335,17 @@
 <script setup lang="ts">
 import HomeHeaderNavigation from "./HomeHeaderNavigation.vue";
 import ReplyModal from "./ReplyModal.vue";
-
+import { ElMessageBox } from "element-plus";
 import http from '@/utils/httpRequest'
 import {ArticleInter, Articles} from "@/interface/front/articleInterface";
-import {nextTick, onMounted, onUnmounted, ref} from "vue";
+import {nextTick,watch, onMounted, onUnmounted, ref} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import {ElAnchor, ElMessage} from "element-plus";
 import {R} from "@/interface/R";
 import { debounce } from 'throttle-debounce';
 import { commentDataInterface } from "@/interface/commentDataInterface";
 import { getCookieValue } from "@/utils/jwtUtils";
+import {replyCommentDataInterface} from "@/interface/replyCommentDataInterface.ts";
 const Article = ref<ArticleInter | null>(null);
 const ArticleContent = ref('')
 
@@ -362,17 +364,66 @@ const currentReplyUser = ref({
   articleId: ''
 });
 
-//加載留言
-onMounted(()=>{
 
-  getArtComments()
-  console.log("artComments:",artComments)
-})
+
+
+import DOMPurify from 'dompurify';
+import { marked } from "marked";
+
+
+const renderedComments=ref([])
+
+watch(artComments, async (newArtComments) => {
+  console.log("newArtComments:", newArtComments);
+  if (!newArtComments || newArtComments.length === 0) {
+    renderedComments.value = [];
+    return;
+  }
+  
+  const processedList = await Promise.all(
+    newArtComments.map(async (item) => {
+      const rawHTML = await marked.parse(item.commentContent || '');
+      const sanitizedHtml = DOMPurify.sanitize(rawHTML);
+      return { ...item, commentContent: sanitizedHtml };
+    })
+  );
+  // 將處理完的結果賦值給 renderedComments
+  renderedComments.value = processedList; 
+  console.log("renderedComments.value:",renderedComments.value)
+}, { deep: true }); // 加上 deep: true 來監聽物件陣列內部的變化
+
+
+
+
+// watch(artComments,async(newArtComments)=>{
+//   console.log("newArtComments:",newArtComments)
+//   if(!newArtComments || newArtComments.length==0){
+//     renderedComments.value=[]
+//     return;
+//   }
+//   const processedList = await Promise.all(
+//     newArtComments.map(async (item) => {
+//       const rawHTML=await marked.parse(item.commentContent || '');
+//       const sanitizedHtml=DOMPurify.sanitize(rawHTML)
+//       return {...item,commentContent:sanitizedHtml}
+
+//     })
+
+// );
+
+// const renderedMarkdown =computed(() => {
+
+
+//     artComments.value =artComments.value.forEach((item,index)=>{
+//         const rawHTML=item.commentContent=marked.parse(item.commentContent)
+//         const sanitizedHtml=item.commentContent = DOMPurify.sanitize(rawHTML)
+//     }
+// )
 
 /**
  * 回覆評論
  */
-import { ElMessageBox } from "element-plus";
+
 const dialogVisible = ref(false);
 const handleClose = (done: () => void) => {
   ElMessageBox.confirm('Are you sure to close this dialog?')
@@ -385,7 +436,7 @@ const handleClose = (done: () => void) => {
 }
 
 
-import {replyCommentDataInterface} from "@/interface/replyCommentDataInterface";
+
 const handleReplyComment= function(parentCommentId:string){
   // console.log("articleId:",articleId)
   console.log("parentCommentId:",parentCommentId)
@@ -428,6 +479,13 @@ const getArtComments=function(){
   });
 
 }
+
+//加載留言
+onMounted(()=>{
+  
+  getArtComments()
+  console.log("artComments:",artComments)
+})
 
 // 開啟回覆模態框
 const handleOpenReplyModal = (comment: any) => {
