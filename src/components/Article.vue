@@ -67,7 +67,7 @@
       </div>
         
       <div class="article-footer">
-        <div v-for="(articleComment,index) in artComments" :key="index" class="article-comment-context">
+        <div v-for="(articleComment,index) in renderedComments" :key="index" class="article-comment-context">
 
           <div class="article-comment-context-avatar">
             <img class="user-avatar" :src="articleComment.avatar" alt="avatar">
@@ -82,7 +82,7 @@
               </div>
               
               <!-- <div class="article-comment-context-item-main">{{articleComment.commentContent}}</div> -->
-              <div v-html="renderedComments.find(item=>item.commentId==articleComment.commentId).commentContent" class="article-comment-context-item-main"></div>
+              <div v-html="articleComment.commentContent" class="article-comment-context-item-main"></div>
               <div class="article-comment-context-item-info">
                 
                   <div class="ararticle-comment-context-item-info-metrics">
@@ -140,7 +140,7 @@
 }
 .article-comment-context-item-main{
   text-align: start;
-  
+  word-break: break-all;
   flex: 1 1 0;
 }
 .article-comment-context-item-info{
@@ -387,6 +387,16 @@ watch(artComments, async (newArtComments) => {
       return { ...item, commentContent: sanitizedHtml };
     })
   );
+
+  // const processedList = await Promise.all(
+  //   newArtComments.map(async (item) => {
+      
+  //     const rawHTML = await DOMPurify.sanitize(item.commentContent);
+  //     const sanitizedHtml =  marked.parse( rawHTML|| '');
+  //     return { ...item, commentContent: sanitizedHtml };
+  //   })
+  // );
+
   // 將處理完的結果賦值給 renderedComments
   renderedComments.value = processedList; 
   console.log("renderedComments.value:",renderedComments.value)
