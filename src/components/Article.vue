@@ -43,7 +43,9 @@
 
     </div>
 
+      <div class="article-metrics">
 
+      </div>
 
       
       <div class="article-comment">
@@ -79,6 +81,9 @@
               <div class="article-comment-context-item-avatar">
                 
                 <div class="user-username">{{articleComment.username}}</div>
+                <div v-if="articleComment.parentCommentId" class="user-parentUsername"><img style="position: relative; top:0.5rem;  width: 3rem; height: 2rem;" src="/src/assets/share-solid-full.svg">{{articleComment.parentCommentId ? renderedComments.find(item=>item.commentId==articleComment.parentCommentId).username : ''}}</div>
+                <!-- <div class="user-parentUsername"><img style="position: relative; top:0.5rem;  width: 3rem; height: 2rem;" src="/src/assets/share-solid-full.svg">{{renderedComments.find(item=>item.commentId==1968026366882635777).username}}</div> -->
+                <!-- <div class="user-parentUsername"><img style="position: relative; top:0.5rem;  width: 3rem; height: 2rem;" src="/src/assets/share-solid-full.svg">{{articleComment.parentCommentId}}</div> -->
               </div>
               
               <!-- <div class="article-comment-context-item-main">{{articleComment.commentContent}}</div> -->
@@ -86,10 +91,11 @@
               <div class="article-comment-context-item-info">
                 
                   <div class="ararticle-comment-context-item-info-metrics">
-                    <div class="ararticle-comment-context-item-info-metrics-likesCount">{{articleComment.likesCount}}</div>
-                    <div class="ararticle-comment-context-item-info-metrics-replysCount">{{articleComment.replysCount}}</div>
-                    <div class="ararticle-comment-context-item-info-metrics-createAt">{{articleComment.createAt}}</div>
-                    <div class="ararticle-comment-context-item-info-metrics-updateAt">{{articleComment.updateAt}}</div>
+                    <div class="ararticle-comment-context-item-info-metrics-likesCount"><img @click="handleLikes(articleComment.commentId)" style="cursor: pointer; position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/heart-solid-full.svg">{{articleComment.likesCount}}</div>
+          
+                    <div class="ararticle-comment-context-item-info-metrics-replysCount"><img style=" cursor: pointer;position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/reply-solid-full.svg">{{articleComment.replysCount}}</div>
+                    <div class="ararticle-comment-context-item-info-metrics-createAt"><img style="position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/calendar-days-solid-full.svg">{{articleComment.createAt}}</div>
+                    <div class="ararticle-comment-context-item-info-metrics-updateAt"><img  style="position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/pen-solid-full.svg">{{articleComment.updateAt}}</div>
                     <div class="ararticle-comment-context-item-info-metrics-reply"><el-button @click="handleOpenReplyModal(articleComment)" type="primary">回覆</el-button></div>
                     <!-- <div class="ararticle-comment-context-item-info-metrics-reply"><el-button v-click="handleReplyComment(articleComment.articleId,articleComment.commentId)" type="primary">回覆</el-button></div> -->
 
@@ -113,6 +119,13 @@
 </template>
 
 <style scoped>
+.article-metrics{
+  min-width: 100%;
+  max-width:100%;
+  height: 100px;
+  background-color: #88c847;
+}
+
 .ararticle-comment-context-item-info-metrics{
   display: flex;
   gap: 1rem;
@@ -215,11 +228,11 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: right;
+  justify-content: center;
   align-content: start;
   background-color: darkslateblue;
-  min-width: 51.5%;
-  max-width: 51.5%;
+  min-width: 100%;
+  max-width: 100%;
   /* 讓高度由內容撐開 */
   /* max-height: 80%; */
   /* min-height: 80%; */
@@ -367,6 +380,28 @@ const currentReplyUser = ref({
 
 
 
+/**
+ * 評論點讚
+ */
+const handleLikes=function(commentId: string) {
+    console.log("commentId:", commentId)
+  http({
+      url: http.adornUrl(`/article/comment/${commentId}/like`),
+      method: 'post'
+  }).then(({data}:{data:R}) => {
+      if (data.code == 200) {
+          ElMessage.success("成功訊息");
+      } else {
+          ElMessage.error("錯誤訊息");
+      }
+  }).catch(() => {
+      ElMessage.error("請求出錯，請稍後再試");
+  });
+
+}
+/**
+ * 展示評論
+ */
 import DOMPurify from 'dompurify';
 import { marked } from "marked";
 
@@ -482,6 +517,7 @@ const getArtComments=function(){
   }).then(({data}:{data:any}) => {
     if (data.code == 200) {
       artComments.value=data.data
+      console.log("文章留言區artComments.value:",artComments.value)
       ElMessage.success("成功加載文章留言區");
     } else {
       ElMessage.error("加載文章留言區失敗");

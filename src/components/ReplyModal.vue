@@ -148,7 +148,7 @@
             <QuillEditor
               ref="quillEditor"
               v-model:content="content"
-              content-type="html"
+              content-type="text"
               :options="editorOptions"
               placeholder="撰寫您的回覆..."
               @ready="onEditorReady"
