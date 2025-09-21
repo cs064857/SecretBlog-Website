@@ -93,10 +93,11 @@
                   <div class="ararticle-comment-context-item-info-metrics">
                     <div class="ararticle-comment-context-item-info-metrics-likesCount"><img @click="handleLikes(articleComment.commentId)" style="cursor: pointer; position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/heart-solid-full.svg">{{articleComment.likesCount}}</div>
           
-                    <div class="ararticle-comment-context-item-info-metrics-replysCount"><img style=" cursor: pointer;position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/reply-solid-full.svg">{{articleComment.replysCount}}</div>
+                    <!-- <div class="ararticle-comment-context-item-info-metrics-replysCount"><img style=" cursor: pointer;position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/reply-solid-full.svg">{{articleComment.replysCount}}</div> -->
+                    
                     <div class="ararticle-comment-context-item-info-metrics-createAt"><img style="position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/calendar-days-solid-full.svg">{{articleComment.createAt}}</div>
                     <div class="ararticle-comment-context-item-info-metrics-updateAt"><img  style="position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/pen-solid-full.svg">{{articleComment.updateAt}}</div>
-                    <div class="ararticle-comment-context-item-info-metrics-reply"><el-button @click="handleOpenReplyModal(articleComment)" type="primary">回覆</el-button></div>
+                    <div class="ararticle-comment-context-item-info-metrics-reply"><el-button @click="handleOpenReplyModal(articleComment)" type="primary"><img style=" cursor: pointer;position: relative;right:0.5rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/reply-solid-full.svg">回覆</el-button></div>
                     <!-- <div class="ararticle-comment-context-item-info-metrics-reply"><el-button v-click="handleReplyComment(articleComment.articleId,articleComment.commentId)" type="primary">回覆</el-button></div> -->
 
                   </div>
