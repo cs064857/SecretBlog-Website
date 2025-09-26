@@ -902,43 +902,43 @@ onMounted(() => {
     method: 'get',
     params: http.adornParams({})
   }).then(({data}: { data: R }) => {
-    // alert("請求完畢")
-    console.log("data:", data)
-    if (data.code == 200) {//若請求成功
-      Article.value = data.data
+    console.log("data:", data);
+    if (data.code == 200) {
+      Article.value = data.data;
       if (Article.value != null) {
-        ArticleContent.value = Article.value.content
-        console.log("ArticleContent.value:", ArticleContent.value)
-        //將文章錨點及該標題放入右側導航列中
-        const anchorIdRegex = new RegExp(/a id="([^"]*)"/g);
-        // const anchorIdRegex = new RegExp(/id="(\w*)"/g);
-        const anchorId = ArticleContent.value.matchAll(anchorIdRegex);
-        // const anchorTitleRegex = new RegExp(/<\/a>([^<]*)/g)
-        const anchorTitleRegex = new RegExp(/"><\/a>([^<]*)/g)
-        const anchorTitle = ArticleContent.value.matchAll(anchorTitleRegex);
-        if (anchorId && anchorTitle) {
-          let anchorIdIterator = anchorId.next();
-          let anchorTitleIterator = anchorTitle.next();
+        ArticleContent.value = Article.value.content;
+        console.log("ArticleContent.value:", ArticleContent.value);
+        
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(ArticleContent.value, 'text/html');
+        console.log("doc:", doc);
+        // 1. 使用正確的選擇器
+        const anchors = doc.querySelectorAll('a[id]:empty');
+        console.log("anchors:", anchors);
+        // 2. 遍歷查詢結果
+        anchors.forEach(anchor => {
+          const id = anchor.id;
+          let title = '';
 
-          while ((!anchorIdIterator.done && !anchorTitleIterator.done)) {
-            const association = {id: anchorIdIterator.value[1], title: anchorTitleIterator.value[1]}
-            articleAnchorData.value.push(association)
-            anchorIdIterator = anchorId.next()
-            anchorTitleIterator = anchorTitle.next();
+          // 3. 使用正確的標題提取邏輯
+          const nextNode = anchor.nextSibling;
+          if (nextNode && nextNode.nodeType === Node.TEXT_NODE) {
+            title = nextNode.textContent.trim();
           }
 
-          console.log("anchorId", anchorId)
-          console.log("anchorTitle", anchorTitle)
-          console.log("articleAnchorData.value", articleAnchorData.value)
-        }
+          // 4. 確保 id 和 title 都有效
+          if (id && title) {
+            articleAnchorData.value.push({ id, title });
+          }
+        });
+
+
+        console.log("articleAnchorData.value:", articleAnchorData.value);
       }
-      // console.log("Header height:", HeaderHeight.value);
-    } else {
-      //elementPlus的Message消息提示組件
-      ElMessage.error("獲取文章資料失敗")
     }
-  })
-})
+  });
+});
+
 
 //右方導航列錨點
 interface AnchorItem {
