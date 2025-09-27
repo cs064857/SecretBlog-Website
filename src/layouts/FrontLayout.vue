@@ -16,6 +16,24 @@
   </div>
 
   <div class="main-content-area">
+    <div class="home-article-header">
+      <div class="home-article-header-main">
+        <div class="home-article-header-main-tags">
+            <div>標籤列表</div>
+            <div>分類列表</div>
+
+        </div>
+        <div class="home-article-header-main-nav-pills">
+            <div>最新1</div>
+            <div>最新2</div>
+            <div>最新3</div>
+        </div>
+        <div class="home-article-header-main-controls">
+            <el-button @click="handleOpenReplyModal()" type="primary">新增文章</el-button>
+
+        </div>
+      </div>
+    </div>
     <div class="home-article-list" ref="containerRef">
       <HomeArticleList ref="articleList"></HomeArticleList>
       <div ref="bottomSentinel" style="height: 20px;"></div>
@@ -34,6 +52,14 @@
     <!--    <div class="home-footer">home-footer</div>-->
   </div>
 
+
+  <!-- 回覆評論彈出框 -->
+  <ReplyModal
+    :visible="replyModalVisible"
+    :replyToUser="currentReplyUser"
+    @close="handleCloseReplyModal"
+    @submit="handleSubmitReply"
+  />
 </template>
 
 <style scoped>
@@ -155,7 +181,83 @@ import HomeHeaderNavigation from "../components/HomeHeaderNavigation.vue";
 //   window.removeEventListener('resize', throttledUpdateScrollInfo)
 // })
 
+/**
+ * 新增文章
+ */
 
+// 開啟回覆模態框
+// 回覆模態框相關狀態
+import ReplyModal from "@/components/ReplyModal.vue";
+const replyModalVisible = ref(false);
+const currentReplyUser = ref({
+  username: '',
+  commentContent: '',
+  commentId: '',
+  articleId: ''
+});
+const handleOpenReplyModal = () => {
+  // 為了測試，提供一組模擬數據
+  // currentReplyUser.value = {
+  //   username: '測試用戶',
+  //   commentContent: '這是一條等待被回覆的原始評論內容...',
+  //   commentId: 'mock-comment-id-123',
+  //   articleId: 'mock-article-id-456'
+  // };
+  replyModalVisible.value = true;
+};
+
+// 關閉回覆模態框
+const handleCloseReplyModal = () => {
+  replyModalVisible.value = false;
+  currentReplyUser.value = {
+    username: '',
+    commentContent: '',
+    commentId: '',
+    articleId: ''
+  };
+};
+
+// 提交回覆
+const handleSubmitReply = async (content: string, replyData: any) => {
+  try {
+    const response = await http({
+      url: http.adornUrl('/article/comment/create'),
+      method: 'post',
+      data: http.adornData({
+        commentContent: content,
+        parentCommentId: replyData.commentId,
+        articleId: replyData.articleId
+      }, false)
+    });
+
+    if (response.data.code === 200) {
+      ElMessage.success("回覆發送成功！");
+      handleCloseReplyModal();
+      // 重新加載評論
+      // getArtComments();
+    } else {
+      ElMessage.error("回覆發送失敗：" + response.data.msg);
+    }
+  } catch (error) {
+    ElMessage.error("網路錯誤，請稍後再試");
+    console.error('發送回覆時出錯:', error);
+  }
+};
+
+// const handleNewArticle = async ()=>{
+//   await http({
+//     url: http.adornUrl('/article/save'),
+//     method: 'post',
+//     data: http.adornData(save.value, false)
+//   }).then(({data}:{ data: R }) => {
+//     console.log("data",data)
+//     if(data.code==200){
+//       ElMessage.success("文章發布成功")
+//     }else {
+//       ElMessage.error("文章發布失敗")
+//     }
+//   });
+// }
 </script>
 
 
