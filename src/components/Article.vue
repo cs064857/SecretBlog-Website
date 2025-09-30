@@ -112,6 +112,7 @@
   <!-- 回覆評論彈出框 -->
   <ReplyModal
     :visible="replyModalVisible"
+    model="replyComment"
     :replyToUser="currentReplyUser"
     @close="handleCloseReplyModal"
     @submit="handleSubmitReply"
@@ -543,6 +544,7 @@ const handleOpenReplyModal = (comment: any) => {
     articleId: articleId as string
   };
   replyModalVisible.value = true;
+  
 };
 
 // 關閉回覆模態框

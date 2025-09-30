@@ -3,8 +3,8 @@
     <Transition name="reply-modal" appear>
       <div v-if="visible" class="reply-modal-overlay" @click="handleOverlayClick">
         <div class="reply-modal-container" @click.stop>
-          <!-- 智能回覆提示區 -->
-          <div class="reply-header">
+          <!-- 評論功能：智能回覆提示區 -->
+          <div v-if="props.model=='replyComment'? true : false" class="reply-header">
             <div class="reply-info">
               <span class="reply-text">正在回覆</span>
               <span class="reply-username">@{{ replyToUser.username }}</span>
@@ -19,6 +19,45 @@
             </button>
           </div>
 
+          <!-- 新增文章功能：Header(標題、分類、標籤設置)-->
+          <div v-if="props.model=='createArticle'" class="create-article-header">
+            <div class="create-article-info" >
+              <div class="create-article-title">
+                <span class="create-article-title-text">標題</span>
+                <el-input class="create-article-title-input" type="text" placeholder="輸入標題..." v-model="inputTitle"></el-input>
+              </div>
+
+              <div class="create-article-meta">
+                <div class="create-article-category">
+                  <span class="create-article-title-text">分類</span>
+                  <el-tree-select
+                      v-model="selectCategoryValue"
+                      :data="treeCategory"
+                      @change="handleChange"
+                      :render-after-expand="false"
+                      style="max-width: 20vh;min-width: 20vh;margin: 2% 2% 2% 0.2%;padding-top: 1%;"
+                      value-key="id"
+                  />
+                </div>
+                <div class="create-article-tag">
+                  <span class="create-article-title-text">標籤</span>
+                    <el-tree-select
+                    v-model="selectTagsValue"
+                    :data="tagsSelectData"
+                    :props="treeProps"
+                    multiple
+                    @change="handleTagsChange"
+                    :render-after-expand="false"
+                    style="max-width: 20vh;min-width: 20vh;"
+                    value-key="id"
+                    />
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+          <br></br>
           <!-- 智能工具列 -->
           <div class="smart-toolbar">
             <!-- 文字格式組 -->
@@ -180,7 +219,7 @@ import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
 // Props
-interface ReplyToUser {
+interface ReplyToUserInterface {
   username: string
   commentContent: string
   commentId: string
@@ -189,11 +228,13 @@ interface ReplyToUser {
 
 interface Props {
   visible: boolean
-  replyToUser: ReplyToUser
+  replyToUser: ReplyToUserInterface
+  model: "replyComment" | "createArticle"
 }
 
 const props = withDefaults(defineProps<Props>(), {
   visible: false,
+  model:'createArticle',
   replyToUser: () => ({
     username: '',
     commentContent: '',
@@ -202,10 +243,21 @@ const props = withDefaults(defineProps<Props>(), {
   })
 })
 
+import {createArticleDataInterface} from "@/interface/createArticleDataInterface";
+const inputTitle=ref<string>('')
+const createArticleData=ref<createArticleDataInterface>({
+  title: '',
+  content:'',
+  categoryId:'',
+  tagsId:''
+})
+
 // Emits
 const emit = defineEmits<{
   close: []
-  submit: [content: string, replyData: ReplyToUser]
+  submit: [content: string, replyData?: ReplyToUserInterface]
+  handleCreateArticle: [createArticleData?: createArticleDataInterface]
+
 }>()
 
 // Reactive data
@@ -304,7 +356,18 @@ const handleSubmit = async () => {
   isSubmitting.value = true
   
   try {
-    emit('submit', content.value, props.replyToUser)
+    console.log("props.model:",props.model)
+    if(props.model=="replyComment"){
+      emit('submit', content.value, props.replyToUser)
+    }else{
+      createArticleData.value.title=inputTitle.value
+      createArticleData.value.content=content.value
+      createArticleData.value.categoryId=selectCategoryId.value
+      createArticleData.value.tagsId=selectTagsValue.value
+      
+      emit('handleCreateArticle', createArticleData.value)
+    }
+    
     resetModal()
   } catch (error) {
     console.error('發送回覆時出錯:', error)
@@ -590,15 +653,114 @@ if (typeof window !== 'undefined') {
   // Vue 3 的 onUnmounted
   onUnmounted(cleanup)
 }
+
+/*
+* 新增文章
+*/
+  /**
+   * 文章標籤
+   */
+
+   const selectTagsValue =ref()
+
+    interface tagsSelectData{
+      name: string,
+      id: string,
+    }
+
+   const tagsSelectData = ref<tagsSelectData[]>()
+
+    // tagsSelectData.value=[
+    //   {
+    //     name: "標籤1",
+    //     id: "1",
+    //   },
+    //   {
+    //     name: "標籤2",
+    //     id: "2",
+    //   },
+    // ]
+
+   const treeProps = {
+      label: 'name', // 指定用數據中的 'name' 屬性作為顯示的標籤
+      value: 'id',   // 指定用數據中的 'id' 屬性作為選項的值
+    }
+import { onMounted } from 'vue';
+import http from '@/utils/httpRequest'
+import {ElMessage, useThrottleRender} from "element-plus";
+import {R} from "@/interface/R";
+import {useTreeCategoryStore} from "@/pinia/useTreeCategoryStore"
+
+/**
+ * 獲取分類資訊
+ */
+const treeCategory =useTreeCategoryStore().getTreeData;
+
+
+const selectCategoryValue = ref('')
+
+const selectCategoryId=ref<string>()
+const handleChange = function (value:string){
+  //得到樹形選擇器中該分類的ID
+  selectCategoryId.value=value
+  console.log("handleChange.value",value)
+}
+
+    onMounted(()=>{
+
+      /**
+       * 獲取標籤資訊
+       */
+      http({
+        url: http.adornUrl('/article/tags/list'),
+        method: 'get',
+      }).then(({data}:{ data: R }) => {
+        console.log("data",data)
+        if(data.code==200){
+          tagsSelectData.value=data.data
+          console.log("tagsSelectData:",tagsSelectData.value)
+          ElMessage.success("文章標籤獲取成功")
+        }else {
+          ElMessage.error("文章標籤獲取失敗")
+        }
+      });
+    })
+    const handleTagsChange = function(value:number){
+
+      selectTagsValue.value=value
+      console.log("handleTagsChange.value",value)
+
+      }
+
+
+
+    
+
+
 </script>
 
 <style scoped>
 /* ==========================================
    Design System Variables
    ========================================== */
-:root {
-  /* Core Colors */
-  --primary-500: #007AFF;
+.reply-modal-container{
+  --padding-1: 1rem;
+  --padding-2: 2rem;
+  --padding-3: 3rem;
+  --padding-4: 4rem;
+  --padding-5: 5rem;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+    /* Core Colors */
+    --primary-500: #007AFF;
   --primary-600: #0066CC;
   --primary-50: rgba(0, 122, 255, 0.1);
   --primary-100: rgba(0, 122, 255, 0.2);
@@ -636,16 +798,11 @@ if (typeof window !== 'undefined') {
   --warning-500: #F59E0B;
   --error-500: #EF4444;
   
-  /* Spacing */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
-  
+
+
+
+
+
   /* Border Radius */
   --radius-sm: 6px;
   --radius-md: 8px;
@@ -679,6 +836,8 @@ if (typeof window !== 'undefined') {
   --transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   --transition-bounce: 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
+
+
 
 /* ==========================================
    Modal Animations
@@ -1025,7 +1184,7 @@ if (typeof window !== 'undefined') {
   background: var(--surface-primary);
   border-radius: var(--radius-lg);
   border: 2px solid var(--border-default);
-  min-height: 140px;
+  min-height: 240px;
   color: var(--text-primary);
   transition: all var(--transition-base);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -1468,5 +1627,50 @@ if (typeof window !== 'undefined') {
   .action-buttons {
     padding: var(--space-3) var(--space-4) var(--space-4);
   }
+}
+/**
+* 新增文章
+*/
+.create-article-header{
+  padding: var(--padding-1)
+}
+.create-article-info{
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+}
+.create-article-title-text{
+  color: var(--text-tertiary);
+  font-size: 20px;
+  font-weight: 500;
+}
+
+
+.create-article-title-input{
+  width: 90%;
+}
+.create-article-title{
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+.create-article-meta{
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+}
+.create-article-category{
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  flex: 1
+}
+.create-article-tag{
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+
+  flex: 1
 }
 </style>

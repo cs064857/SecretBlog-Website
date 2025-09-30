@@ -56,9 +56,11 @@
   <!-- 回覆評論彈出框 -->
   <ReplyModal
     :visible="replyModalVisible"
+    model="createArticle"
     :replyToUser="currentReplyUser"
     @close="handleCloseReplyModal"
-    @submit="handleSubmitReply"
+    
+    @handleCreateArticle="handleCreateArticle"
   />
 </template>
 
@@ -218,31 +220,41 @@ const handleCloseReplyModal = () => {
 };
 
 // 提交回覆
-const handleSubmitReply = async (content: string, replyData: any) => {
-  try {
-    const response = await http({
-      url: http.adornUrl('/article/comment/create'),
-      method: 'post',
-      data: http.adornData({
-        commentContent: content,
-        parentCommentId: replyData.commentId,
-        articleId: replyData.articleId
-      }, false)
-    });
+import {createArticleDataInterface} from "@/interface/createArticleDataInterface";
+const handleCreateArticle = function (createArticle: createArticleDataInterface) {
 
-    if (response.data.code === 200) {
-      ElMessage.success("回覆發送成功！");
-      handleCloseReplyModal();
-      // 重新加載評論
-      // getArtComments();
-    } else {
-      ElMessage.error("回覆發送失敗：" + response.data.msg);
-    }
-  } catch (error) {
-    ElMessage.error("網路錯誤，請稍後再試");
-    console.error('發送回覆時出錯:', error);
+// const save = ref(
+//   {
+//     title: inputTitle.value,
+//     content: content.value,
+//     categoryId:selectCategoryId.value,
+//     tagsId: selectTagsValue.value
+//   },
+// )
+// console.log("selectTagsValue:",selectTagsValue)
+
+// console.log("save:", save)
+if(createArticle == null){
+  ElMessage.error("文章發布失敗")
+  return
+}
+console.log("createArticle:", createArticle)
+http({
+  url: http.adornUrl('/article/save'),
+  method: 'post',
+  data: http.adornData(createArticle, false)
+}).then(({data}:{ data: R }) => {
+  console.log("data",data)
+  if(data.code==200){
+    ElMessage.success("文章發布成功")
+  }else {
+    ElMessage.error("文章發布失敗")
   }
-};
+});
+
+}// 處理送出至資料庫中
+
+
 
 // const handleNewArticle = async ()=>{
 //   await http({
