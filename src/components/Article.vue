@@ -44,9 +44,67 @@
     </div>
 
       <div class="article-metrics">
+        <div class="metrics-container">
+          <div class="metrics-button-wrapper">
+            <button 
+              @click="handleArticleLike" 
+              class="like-button"
+              :class="{ 'liked': isLiked }"
+            >
+              <img 
+                class="like-icon" 
+                src="/src/assets/heart-solid-full.svg" 
+                alt="like"
+              >
+              <span class="like-count">{{ Article?.likesCount ?? 0 }}</span>
 
+            </button>
+          </div>
+        </div>
       </div>
 
+   
+      <div class="article-metrics">
+        <div class="metrics-container">
+          <div class="metrics-button-wrapper">
+            <button 
+              @click="handleArticleLike" 
+              class="like-button"
+            >
+              <img 
+                class="like-icon" 
+                src="/src/assets/heart-solid-full.svg" 
+                alt="like"
+              >
+              <span class="like-count">{{ Article?.viewsCount ?? 0 }}</span>
+
+            </button>
+          </div>
+        </div>
+      </div> 
+      
+
+      <div class="article-metrics">
+        <div class="metrics-container">
+          <div class="metrics-button-wrapper">
+            <button 
+              @click="handleArticleLike" 
+              class="like-button"
+              :class="{ 'liked': isLiked }"
+            >
+              <img 
+                class="like-icon" 
+                src="/src/assets/heart-solid-full.svg" 
+                alt="like"
+              >
+              
+              <span class="like-count">{{ Article?.bookmarksCount ?? 0 }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      
       
       <div class="article-comment">
 
@@ -345,6 +403,79 @@
   position: relative;  /* 若要吸頂可改為 sticky */
   top: 150px;
 }
+/**
+* 點讚按鈕
+*/
+.article-metrics {
+  min-width: 100%;
+  max-width: 100%;
+  height: 100px;
+  background-color: #1a1d1d;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.metrics-container {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.metrics-button-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.like-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.5rem;
+  background-color: #2c3e50;
+  border: 2px solid #34495e;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
+  color: #ecf0f1;
+}
+
+.like-button:hover {
+  background-color: #34495e;
+  border-color: #e74c3c;
+  transform: scale(1.05);
+}
+
+.like-button.liked {
+  background-color: #e74c3c;
+  border-color: #c0392b;
+}
+
+.like-button.liked:hover {
+  background-color: #c0392b;
+}
+
+.like-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  transition: transform 0.3s ease;
+}
+
+.like-button:hover .like-icon {
+  transform: scale(1.2);
+}
+
+.like-button.liked .like-icon {
+  filter: brightness(1.2);
+}
+
+.like-count {
+  font-weight: bold;
+  min-width: 2rem;
+  text-align: center;
+}
+
 </style>
 
 <script setup lang="ts">
@@ -560,6 +691,7 @@ const handleCloseReplyModal = () => {
 
 // 提交回覆
 const handleSubmitReply = async (content: string, replyData: any) => {
+  console.log("handleSubmitReply:replyData:",replyData)
   try {
     const response = await http({
       url: http.adornUrl('/article/comment/create'),
@@ -898,48 +1030,73 @@ onUnmounted(() => {// 在組件卸載後移除滾動事件監聽器
 // })
 
 //後端使用泛型
-onMounted(() => {
-  http({
-    url: http.adornUrl(`/article/articles/${articleId}`),
-    method: 'get',
-    params: http.adornParams({})
-  }).then(({data}: { data: R }) => {
-    console.log("data:", data);
-    if (data.code == 200) {
-      Article.value = data.data;
-      if (Article.value != null) {
-        ArticleContent.value = Article.value.content;
-        console.log("ArticleContent.value:", ArticleContent.value);
+// onMounted(() => {
+//   http({
+//     url: http.adornUrl(`/article/articles/${articleId}`),
+//     method: 'get',
+//     params: http.adornParams({})
+//   }).then(({data}: { data: R }) => {
+//     console.log("data:", data);
+//     if (data.code == 200) {
+//       Article.value = data.data;
+//       if (Article.value != null) {
+//         ArticleContent.value = Article.value.content;
+//         console.log("ArticleContent.value:", ArticleContent.value);
         
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(ArticleContent.value, 'text/html');
-        console.log("doc:", doc);
-        // 1. 使用正確的選擇器
-        const anchors = doc.querySelectorAll('a[id]:empty');
-        console.log("anchors:", anchors);
-        // 2. 遍歷查詢結果
-        anchors.forEach(anchor => {
-          const id = anchor.id;
-          let title = '';
+//         const parser = new DOMParser();
+//         const doc = parser.parseFromString(ArticleContent.value, 'text/html');
+//         console.log("doc:", doc);
+//         // 1. 使用正確的選擇器
+//         const anchors = doc.querySelectorAll('a[id]:empty');
+//         console.log("anchors:", anchors);
+//         // 2. 遍歷查詢結果
+//         anchors.forEach(anchor => {
+//           const id = anchor.id;
+//           let title = '';
 
-          // 3. 使用正確的標題提取邏輯
-          const nextNode = anchor.nextSibling;
-          if (nextNode && nextNode.nodeType === Node.TEXT_NODE) {
-            title = nextNode.textContent.trim();
-          }
+//           // 3. 使用正確的標題提取邏輯
+//           const nextNode = anchor.nextSibling;
+//           if (nextNode && nextNode.nodeType === Node.TEXT_NODE) {
+//             title = nextNode.textContent.trim();
+//           }
 
-          // 4. 確保 id 和 title 都有效
-          if (id && title) {
-            articleAnchorData.value.push({ id, title });
-          }
-        });
+//           // 4. 確保 id 和 title 都有效
+//           if (id && title) {
+//             articleAnchorData.value.push({ id, title });
+//           }
+//         });
 
 
-        console.log("articleAnchorData.value:", articleAnchorData.value);
-      }
+//         console.log("articleAnchorData.value:", articleAnchorData.value);
+//       }
+//     }
+//   });
+
+// });
+
+
+onMounted(async ()=>{
+
+try {
+    const { data } = await http({
+      url: http.adornUrl(`/article/articles/${articleId}`),
+      method: 'get',
+      params: http.adornParams({})
+    }) as { data: R };
+  
+    console.log("data:", data);
+    
+    if (data.code == 200 && data.data) {
+      Article.value = data.data;
+      ArticleContent.value = Article.value.content;
+      console.log("ArticleContent.value:", ArticleContent.value);
+      
     }
-  });
-});
+} catch (error) {
+    console.error("獲取文章資料失敗:", error);
+}
+})
+
 
 
 //右方導航列錨點
@@ -954,4 +1111,33 @@ const handleChange = (href: string) => {
   console.log(`anchor change: ${href}`)
 }
 //右方導航列錨點/
+
+
+// 文章點讚相關狀態
+// const articleLikesCount = ref(0);
+const isLiked = ref(false);
+
+/**
+ * 文章點讚處理函數
+ */
+const handleArticleLike = function() {
+  console.log("articleId:", articleId);
+  
+  http({
+    url: http.adornUrl(`/article/articles/${articleId}/like`),
+    method: 'get'
+  }).then(({ data }: { data: R }) => {
+    if (data.code === 200) {
+      // 更新點讚數
+      Article.value.likesCount = data.data;
+      // 標記為已點讚
+      isLiked.value = true;
+      ElMessage.success("點讚成功！");
+    } else {
+      ElMessage.error("點讚失敗：" + data.msg);
+    }
+  }).catch(() => {
+    ElMessage.error("請求出錯，請稍後再試");
+  });
+};
 </script>

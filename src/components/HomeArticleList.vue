@@ -428,7 +428,7 @@ hr{
   align-self: center;
   background-color: darkred;
   width: 100%;
-  height: 100%;
+  height: 5vh;
 
 
 }
