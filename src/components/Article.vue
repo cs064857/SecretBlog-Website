@@ -1,181 +1,195 @@
 <template>
-  <div ref="scrollContainer" class="article-container">
+  <ArticleSkeleton v-if="loading"/>
+  
+  <section v-else-if="Article">
+
+    <div ref="scrollContainer" class="article-container">
 
 
-    <HomeHeaderNavigation ref="headerRef"></HomeHeaderNavigation>
+      <HomeHeaderNavigation ref="headerRef"></HomeHeaderNavigation>
 
 
-    <!-- <div class="article-main"> -->
+      <!-- <div class="article-main"> -->
 
-      <div class="article-content-list" ref="articleContentListRef">
-        <div class="Box1">
-          1
-        </div>
-
-        <div class="Box3">
-
-
-          <div class="article-header">
-            <h1>{{ articleId }}</h1>
+        <div class="article-content-list" ref="articleContentListRef">
+          <div class="Box1">
+            1
           </div>
 
-          <div v-html="ArticleContent" class="article-content" ref="articleContentRef">
+          <div class="Box3">
 
-          </div>
 
-        </div>
+            <div class="article-header">
+              <!-- <div><h1>{{ Article?.userId}}</h1></div> -->
+              <div><h1>{{ Article.title }}</h1></div>
 
-        <div class="Box2">
-
-          <div class="Box4">
-            <el-anchor ref="anchorRef" :offset="70" @change="handleChange">
-
-              <el-anchor-link v-for="item in articleAnchorData" :key="item.id" :href="'#'+item.id">
-                {{ item.title }}
-              </el-anchor-link>
-
-            </el-anchor>
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-      <div class="article-metrics">
-        <div class="metrics-container">
-          <div class="metrics-button-wrapper">
-            <button 
-              @click="handleArticleLike" 
-              class="like-button"
-              :class="{ 'liked': isLiked }"
-            >
-              <img 
-                class="like-icon" 
-                src="/src/assets/heart-solid-full.svg" 
-                alt="like"
-              >
-              <span class="like-count">{{ Article?.likesCount ?? 0 }}</span>
-
-            </button>
-          </div>
-        </div>
-      </div>
-
-   
-      <div class="article-metrics">
-        <div class="metrics-container">
-          <div class="metrics-button-wrapper">
-            <button 
-              @click="handleArticleLike" 
-              class="like-button"
-            >
-              <img 
-                class="like-icon" 
-                src="/src/assets/heart-solid-full.svg" 
-                alt="like"
-              >
-              <span class="like-count">{{ Article?.viewsCount ?? 0 }}</span>
-
-            </button>
-          </div>
-        </div>
-      </div> 
-      
-
-      <div class="article-metrics">
-        <div class="metrics-container">
-          <div class="metrics-button-wrapper">
-            <button 
-              @click="handleArticleLike" 
-              class="like-button"
-              :class="{ 'liked': isLiked }"
-            >
-              <img 
-                class="like-icon" 
-                src="/src/assets/heart-solid-full.svg" 
-                alt="like"
-              >
               
-              <span class="like-count">{{ Article?.bookmarksCount ?? 0 }}</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      
-      
-      <div class="article-comment">
-
-
-        <div class="article-comment-input">
-          <el-input
-              v-model="textarea1"
-              style="width: 100%;font-size: 18px"
-              :rows="8"
-              maxlength="480"
-              resize="none"
-              type="textarea"
-              placeholder="輸入評論..."
-          />
-        </div>
-        
-        <div class="article-comment-button">
-          <el-button @click="handleCommitComment" size="large" type="primary" round>發表評論</el-button>
-        </div>
-      </div>
-        
-      <div class="article-footer">
-        <div v-for="(articleComment,index) in renderedComments" :key="index" class="article-comment-context">
-
-          <div class="article-comment-context-avatar">
-            <img class="user-avatar" :src="articleComment.avatar" alt="avatar">
-          </div>
-
-          <div class="article-comment-context-item">
-
-
-              <div class="article-comment-context-item-avatar">
-                
-                <div class="user-username">{{articleComment.username}}</div>
-                <div v-if="articleComment.parentCommentId" class="user-parentUsername"><img style="position: relative; top:0.5rem;  width: 3rem; height: 2rem;" src="/src/assets/share-solid-full.svg">{{articleComment.parentCommentId ? renderedComments.find(item=>item.commentId==articleComment.parentCommentId).username : ''}}</div>
-                <!-- <div class="user-parentUsername"><img style="position: relative; top:0.5rem;  width: 3rem; height: 2rem;" src="/src/assets/share-solid-full.svg">{{renderedComments.find(item=>item.commentId==1968026366882635777).username}}</div> -->
-                <!-- <div class="user-parentUsername"><img style="position: relative; top:0.5rem;  width: 3rem; height: 2rem;" src="/src/assets/share-solid-full.svg">{{articleComment.parentCommentId}}</div> -->
-              </div>
               
-              <!-- <div class="article-comment-context-item-main">{{articleComment.commentContent}}</div> -->
-              <div v-html="articleComment.commentContent" class="article-comment-context-item-main"></div>
-              <div class="article-comment-context-item-info">
+            </div>
+
+            <div v-html="ArticleContent" class="article-content" ref="articleContentRef">
+
+            </div>
+
+          </div>
+
+          <div class="Box2">
+
+            <div class="Box4">
+              <el-anchor ref="anchorRef" :offset="70" @change="handleChange">
+
+                <el-anchor-link v-for="item in articleAnchorData" :key="item.id" :href="'#'+item.id">
+                  {{ item.title }}
+                </el-anchor-link>
+
+              </el-anchor>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+        <div class="article-metrics">
+
+          <div class="metrics-container">
+            <div class="metrics-button-wrapper">
+              <button 
+                @click="handleArticleLike" 
+                class="like-button"
+              >
+                <img 
+                  class="like-icon" 
+                  src="/src/assets/eye-solid-full.svg" 
+                  alt="like"
+                >
+                <span class="like-count">{{ Article?.viewsCount ?? 0 }}</span>
+
+              </button>
+            </div>
+          </div>
+
+          <div class="metrics-container">
+            <div class="metrics-button-wrapper">
+              <button 
+                @click="handleArticleLike" 
+                class="like-button"
+                :class="{ 'liked': isLiked }"
+              >
+                <img 
+                  class="like-icon" 
+                  src="/src/assets/heart-solid-full.svg" 
+                  alt="like"
+                >
+                <span class="like-count">{{ Article?.likesCount ?? 0 }}</span>
+
+              </button>
+            </div>
+          </div>
+
+
+    
+
+
+
+        
+
+
+          <div class="metrics-container">
+            <div class="metrics-button-wrapper">
+              <button 
+                @click="handleArticleLike" 
+                class="like-button"
+                :class="{ 'liked': isLiked }"
+              >
+                <img 
+                  class="like-icon" 
+                  src="/src/assets/bookmark-solid-full.svg" 
+                  alt="like"
+                >
                 
-                  <div class="ararticle-comment-context-item-info-metrics">
-                    <div class="ararticle-comment-context-item-info-metrics-likesCount"><img @click="handleLikes(articleComment.commentId)" style="cursor: pointer; position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/heart-solid-full.svg">{{articleComment.likesCount}}</div>
+                <span class="like-count">{{ Article?.bookmarksCount ?? 0 }}</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        
+        
+        <div class="article-comment">
+
+
+          <div class="article-comment-input">
+            <el-input
+                v-model="textarea1"
+                style="width: 100%;font-size: 18px"
+                :rows="8"
+                maxlength="480"
+                resize="none"
+                type="textarea"
+                placeholder="輸入評論..."
+            />
+          </div>
           
-                    <!-- <div class="ararticle-comment-context-item-info-metrics-replysCount"><img style=" cursor: pointer;position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/reply-solid-full.svg">{{articleComment.replysCount}}</div> -->
-                    
-                    <div class="ararticle-comment-context-item-info-metrics-createAt"><img style="position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/calendar-days-solid-full.svg">{{articleComment.createAt}}</div>
-                    <div class="ararticle-comment-context-item-info-metrics-updateAt"><img  style="position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/pen-solid-full.svg">{{articleComment.updateAt}}</div>
-                    <div class="ararticle-comment-context-item-info-metrics-reply"><el-button @click="handleOpenReplyModal(articleComment)" type="primary"><img style=" cursor: pointer;position: relative;right:0.5rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/reply-solid-full.svg">回覆</el-button></div>
-                    <!-- <div class="ararticle-comment-context-item-info-metrics-reply"><el-button v-click="handleReplyComment(articleComment.articleId,articleComment.commentId)" type="primary">回覆</el-button></div> -->
-
-                  </div>
-
-              </div>
+          <div class="article-comment-button">
+            <el-button @click="handleCommitComment" size="large" type="primary" round>發表評論</el-button>
           </div>
-
         </div>
-        
-      </div>
+          
+        <div class="article-footer">
+          <div v-for="(articleComment,index) in renderedComments" :key="index" class="article-comment-context">
 
-  <!-- 回覆評論彈出框 -->
-  <ReplyModal
-    :visible="replyModalVisible"
-    model="replyComment"
-    :replyToUser="currentReplyUser"
-    @close="handleCloseReplyModal"
-    @submit="handleSubmitReply"
-  />
+            <div class="article-comment-context-avatar">
+              <img class="user-avatar" :src="articleComment.avatar" alt="avatar">
+            </div>
 
+            <div class="article-comment-context-item">
+
+
+                <div class="article-comment-context-item-avatar">
+                  
+                  <div class="user-username">{{articleComment.username}}</div>
+                  <div v-if="articleComment.parentCommentId" class="user-parentUsername"><img style="position: relative; top:0.5rem;  width: 3rem; height: 2rem;" src="/src/assets/share-solid-full.svg">{{articleComment.parentCommentId ? renderedComments.find(item=>item.commentId==articleComment.parentCommentId).username : ''}}</div>
+                  <!-- <div class="user-parentUsername"><img style="position: relative; top:0.5rem;  width: 3rem; height: 2rem;" src="/src/assets/share-solid-full.svg">{{renderedComments.find(item=>item.commentId==1968026366882635777).username}}</div> -->
+                  <!-- <div class="user-parentUsername"><img style="position: relative; top:0.5rem;  width: 3rem; height: 2rem;" src="/src/assets/share-solid-full.svg">{{articleComment.parentCommentId}}</div> -->
+                </div>
+                
+                <!-- <div class="article-comment-context-item-main">{{articleComment.commentContent}}</div> -->
+                <div v-html="articleComment.commentContent" class="article-comment-context-item-main"></div>
+                <div class="article-comment-context-item-info">
+                  
+                    <div class="ararticle-comment-context-item-info-metrics">
+                      <div class="ararticle-comment-context-item-info-metrics-likesCount"><img @click="handleLikes(articleComment.commentId)" style="cursor: pointer; position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/heart-solid-full.svg">{{articleComment.likesCount}}</div>
+            
+                      <!-- <div class="ararticle-comment-context-item-info-metrics-replysCount"><img style=" cursor: pointer;position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/reply-solid-full.svg">{{articleComment.replysCount}}</div> -->
+                      
+                      <div class="ararticle-comment-context-item-info-metrics-createAt"><img style="position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/calendar-days-solid-full.svg">{{articleComment.createAt}}</div>
+                      <div class="ararticle-comment-context-item-info-metrics-updateAt"><img  style="position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/pen-solid-full.svg">{{articleComment.updateAt}}</div>
+                      <div class="ararticle-comment-context-item-info-metrics-reply"><el-button @click="handleOpenReplyModal(articleComment)" type="primary"><img style=" cursor: pointer;position: relative;right:0.5rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/reply-solid-full.svg">回覆</el-button></div>
+                      <!-- <div class="ararticle-comment-context-item-info-metrics-reply"><el-button v-click="handleReplyComment(articleComment.articleId,articleComment.commentId)" type="primary">回覆</el-button></div> -->
+
+                    </div>
+
+                </div>
+            </div>
+
+          </div>
+          
+        </div>
+
+    <!-- 回覆評論彈出框 -->
+    <ReplyModal
+      :visible="replyModalVisible"
+      model="replyComment"
+      :replyToUser="currentReplyUser"
+      @close="handleCloseReplyModal"
+      @submit="handleSubmitReply"
+    />
+  </section>
+
+  <EmptyOrError v-else />
 </template>
 
 <style scoped>
@@ -414,6 +428,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 2rem;
 }
 
 .metrics-container {
@@ -642,29 +657,9 @@ const handleReplyComment= function(parentCommentId:string){
 
 }
 
-const getArtComments=function(){
 
-  http({
-    url: http.adornUrl(`/article/${articleId}/comments`),
-    method: 'get',
-  }).then(({data}:{data:any}) => {
-    if (data.code == 200) {
-      artComments.value=data.data
-      console.log("文章留言區artComments.value:",artComments.value)
-      ElMessage.success("成功加載文章留言區");
-    } else {
-      ElMessage.error("加載文章留言區失敗");
-    }
-  });
 
-}
 
-//加載留言
-onMounted(()=>{
-  
-  getArtComments()
-  console.log("artComments:",artComments)
-})
 
 // 開啟回覆模態框
 const handleOpenReplyModal = (comment: any) => {
@@ -1074,28 +1069,81 @@ onUnmounted(() => {// 在組件卸載後移除滾動事件監聽器
 
 // });
 
-
-onMounted(async ()=>{
+const getArticle=(async ()=>{
 
 try {
-    const { data } = await http({
-      url: http.adornUrl(`/article/articles/${articleId}`),
-      method: 'get',
-      params: http.adornParams({})
-    }) as { data: R };
+  const { data } = await http({
+    url: http.adornUrl(`/article/articles/${articleId}`),
+    method: 'get',
+    params: http.adornParams({})
+  }) as { data: R };
+
+  console.log("data:", data);
   
-    console.log("data:", data);
-    
-    if (data.code == 200 && data.data) {
-      Article.value = data.data;
-      ArticleContent.value = Article.value.content;
-      console.log("ArticleContent.value:", ArticleContent.value);
-      
-    }
+  if (data.code == 200 && data.data) {
+    // Article.value = data.data;
+    // ArticleContent.value = Article.value.content;
+    // console.log("ArticleContent.value:", ArticleContent.value);
+    return data;
+  }
 } catch (error) {
-    console.error("獲取文章資料失敗:", error);
+  console.error("獲取文章資料失敗:", error);
 }
 })
+
+
+  const getArtComments=async function(){
+    try {
+      const {data} =await http({
+        url: http.adornUrl(`/article/${articleId}/comments`),
+        method: 'get',
+      }) as {data : R}
+    
+        if (data.code == 200) {
+          // artComments.value=data.data
+          
+          // console.log("文章留言區artComments.value:",artComments.value)
+          // ElMessage.success("成功加載文章留言區");
+          return data;
+        } else {
+          ElMessage.error("加載文章留言區失敗");
+        }
+      }catch (error) {
+          console.error("獲取文章留言區失敗:", error);
+      }
+    
+  
+  ;
+} 
+const loading = ref(true);
+
+//加載文章以及留言
+onMounted(async()=>{
+  const [articleResult, commentsResult]=await Promise.allSettled([getArticle(),getArtComments()]);
+  console.log("artComments:",artComments)
+  console.log("commentsResult:",commentsResult)
+  
+  //檢查文章是否載入成功(必須成功)
+  if(articleResult.status==='rejected'){
+
+    ElMessage.error("獲取文章資料失敗")
+    return;
+  }
+  //評論加載失敗也無訪
+  const article = articleResult.value.data;
+  // Article.value = article.article.value;
+
+  const comments = commentsResult.status==='fulfilled'? commentsResult.value.data : [];
+  Article.value = article;
+  ArticleContent.value = article.content;
+  artComments.value =comments;
+  loading.value = false;
+  console.log("article:",article)
+  console.log("comments:",comments)
+
+})
+
+
 
 
 

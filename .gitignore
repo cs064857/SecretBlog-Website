@@ -25,3 +25,4 @@ dist-ssr
 MyProgram/Convert/dmxapi/dmxapi8.py
 
 .cunzhi-memory/*
+.tmp.driveupload/*
