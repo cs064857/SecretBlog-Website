@@ -30,7 +30,7 @@ export interface AmsArtTag {
     userId: bigint;
     categoryId: bigint;
     title: string | null;
-    username: string | null;
+    userName: string | null;
     avatar: string | null;
     accountName: string | null;
     categoryName: string;

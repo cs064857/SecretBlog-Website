@@ -19,13 +19,42 @@
           <div class="Box3">
 
 
+
             <div class="article-header">
               <!-- <div><h1>{{ Article?.userId}}</h1></div> -->
-              <div><h1>{{ Article.title }}</h1></div>
+              <div class="article-header-title"><h1><span>{{ Article.title }}</span></h1></div>
+              
+              <div class="article-header-info">
+                
+
+                <div class="article-header-info-user">
+                  <el-avatar :size="25" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"></el-avatar>
+                  <span>{{ Article.userName }}</span>
+                </div>
+
+                <div class="article-header-info-right">
+
+                  <div class="article-header-info-edit">
+                    <img @click="handleEditArticle" src="/src/assets/pen-solid-full.svg" alt="edit" style="width: 1.5rem;height: 1.5rem;"></img>
+                  </div>
+
+                  <div class="article-header-info-time">
+                    <span>{{ dayjs(Article.createTime).format('YYYY-MM-DD HH:mm') }}</span>
+                  <!-- <span>{{ dayjs(Article.updateTime).format('YYYY-MM-DD HH:mm') }}</span> -->
+                  <!-- <span>{{ Article.updateTime }}</span> -->
+                  </div>
+
+
+                </div>
+                
+              </div>
 
               
               
+
+          
             </div>
+
 
             <div v-html="ArticleContent" class="article-content" ref="articleContentRef">
 
@@ -336,7 +365,52 @@
   background-color: #88c847;
   box-shadow: 0px 0px 30px;
 }
+.article-header-title {
 
+background-color: #81156a;
+
+}
+.article-header-info{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+.article-header-info-user {
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  align-items: center;
+  background-color: #03638f;
+
+}
+.article-header-info-time {
+
+  /* display: flex; */
+  /* flex-direction: row;
+  justify-content: end;
+  align-items: center; */
+  background-color: #0c038f;
+
+}
+
+.article-header-info-right{
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  align-items: center;
+  gap: 1rem;
+  background-color: #332f6b;
+}
+
+.article-title {
+  border: black 3px solid;
+  max-width: 92%;
+  min-width: 92%;
+  margin: 50px 50px 0 50px;
+  background-color: #324222;
+  box-shadow: 0px 0px 30px;
+}
 .article-content {
   border: black 3px solid;
   max-width: 92%;
@@ -507,6 +581,14 @@ import { debounce } from 'throttle-debounce';
 import { commentDataInterface } from "@/interface/commentDataInterface";
 import { getCookieValue } from "@/utils/jwtUtils";
 import {replyCommentDataInterface} from "@/interface/replyCommentDataInterface.ts";
+
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import 'dayjs/locale/zh-tw' // 引入繁體中文語系
+dayjs.extend(relativeTime)
+dayjs.locale('zh-tw') // 設定預設語系為繁體中文
+
+
 const Article = ref<ArticleInter | null>(null);
 const ArticleContent = ref('')
 
@@ -712,6 +794,14 @@ const handleSubmitReply = async (content: string, replyData: any) => {
   }
 };
 
+
+//編輯文章
+
+const handleEditArticle = function(){
+
+  
+  
+}
 //評論
 
 const textarea1 = ref()
