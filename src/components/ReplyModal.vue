@@ -20,18 +20,20 @@
           </div>
 
           <!-- 新增文章功能：Header(標題、分類、標籤設置)-->
-          <div v-if="props.model=='createArticle'" class="create-article-header">
+          <div v-if="props.model=='createArticle' || props.model=='editArticle'" class="create-article-header">
             <div class="create-article-info" >
               <div class="create-article-title">
                 <span class="create-article-title-text">標題</span>
                 <el-input class="create-article-title-input" type="text" placeholder="輸入標題..." v-model="inputTitle"></el-input>
+                <!-- <el-input class="create-article-title-input" type="text" :placeholder="`輸入標題... (文章ID: ${replyToUser.articleId})`" v-model="inputTitle"></el-input> -->
+                
               </div>
 
               <div class="create-article-meta">
                 <div class="create-article-category">
                   <span class="create-article-title-text">分類</span>
                   <el-tree-select
-                      v-model="selectCategoryValue"
+                      v-model="selectCategoryId"
                       :data="treeCategory"
                       @change="handleChange"
                       :render-after-expand="false"
@@ -219,28 +221,29 @@ import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
 // Props
-interface ReplyToUserInterface {
-  username: string
-  commentContent: string
-  commentId: string
-  articleId: string
-}
+// interface ReplyToUserInterface {
+//   username: string
+//   commentContent: string
+//   commentId: string
+//   articleId: string
+// }
 
 interface Props {
   visible: boolean
-  replyToUser: ReplyToUserInterface
-  model: "replyComment" | "createArticle"
+  // replyToUser: ReplyToUserInterface
+  replyToUser: Object
+  model: "replyComment" | "createArticle" | "editArticle"
 }
 
 const props = withDefaults(defineProps<Props>(), {
   visible: false,
   model:'createArticle',
-  replyToUser: () => ({
-    username: '',
-    commentContent: '',
-    commentId: '',
-    articleId: ''
-  })
+  // replyToUser: () => ({
+  //   username: '',
+  //   commentContent: '',
+  //   commentId: '',
+  //   articleId: ''
+  // })
 })
 
 import {createArticleDataInterface} from "@/interface/createArticleDataInterface";
@@ -252,12 +255,34 @@ const createArticleData=ref<createArticleDataInterface>({
   tagsId:''
 })
 
+import {artTagsDataInterfaceList} from "@/interface/artTagsDataInterface";
+
+interface editArticleDataInterface{
+  title: string;
+  content: string;
+  categoryId: string;
+  tagsId: string[];  // 改為字串陣列
+  articleId?: string;  // 編輯時需要文章 ID
+}
+
+const editArticleData=ref<editArticleDataInterface>({
+  title: '',
+  content:'',
+  categoryId:'',
+  tagsId: [],
+  articleId: '',
+  // title: inputTitle.value,
+  // content: content.value,
+  // categoryId: selectCategoryId.value,
+  // amsArticleTagsVoList: selectTagsValue.value
+})
+
 // Emits
 const emit = defineEmits<{
-  close: []
-  submit: [content: string, replyData?: ReplyToUserInterface]
+  close: [];
+  submit: [content: string, replyData?: Object]
   handleCreateArticle: [createArticleData?: createArticleDataInterface]
-
+  handleEditArticle: [articleId:string,editArticleData?: editArticleDataInterface];
 }>()
 
 // Reactive data
@@ -351,35 +376,47 @@ const handleCancel = () => {
 }
 
 const handleSubmit = async () => {
-  if (!content.value.trim() || isSubmitting.value) return
+  if (!content.value.trim() || isSubmitting.value) return;
   
-  isSubmitting.value = true
+  isSubmitting.value = true;
   
   try {
-    console.log("props.model:",props.model)
-    if(props.model=="replyComment"){
-      emit('submit', content.value, props.replyToUser)
-    }else{
-      createArticleData.value.title=inputTitle.value
-      createArticleData.value.content=content.value
-      createArticleData.value.categoryId=selectCategoryId.value
-      createArticleData.value.tagsId=selectTagsValue.value
+    console.log("props.model:", props.model);
+    
+    if (props.model === "replyComment") {
+      // 處理評論回覆
+      emit('submit', content.value, props.replyToUser);
       
-      emit('handleCreateArticle', createArticleData.value)
+    } else if (props.model === "createArticle") {
+      // 處理新增文章
+      createArticleData.value = {
+        title: inputTitle.value,
+        content: content.value,
+        categoryId: selectCategoryId.value,
+        tagsId: selectTagsValue.value
+      };
+      emit('handleCreateArticle', createArticleData.value);
+      
+    } else if (props.model === "editArticle") {
+      // 處理編輯文章
+      editArticleData.value = {
+        title: inputTitle.value,
+        content: content.value,
+        categoryId: selectCategoryId.value,
+        tagsId: selectTagsValue.value,
+        // articleId: props.replyToUser.articleId
+      };
+      emit('handleEditArticle', props.replyToUser.articleId,editArticleData.value);
     }
     
-    resetModal()
+    resetModal();
   } catch (error) {
-    console.error('發送回覆時出錯:', error)
+    console.error('提交時出錯:', error);
   } finally {
-    isSubmitting.value = false
+    isSubmitting.value = false;
   }
-}
+};
 
-const resetModal = () => {
-  content.value = ''
-  isSubmitting.value = false
-}
 
 // 真正的所見即所得格式應用
 const applyFormat = (tool: any) => {
@@ -697,8 +734,6 @@ import {useTreeCategoryStore} from "@/pinia/useTreeCategoryStore"
 const treeCategory =useTreeCategoryStore().getTreeData;
 
 
-const selectCategoryValue = ref('')
-
 const selectCategoryId=ref<string>()
 const handleChange = function (value:string){
   //得到樹形選擇器中該分類的ID
@@ -732,9 +767,31 @@ const handleChange = function (value:string){
 
       }
 
+/**
+ * watch編輯文章內容
+ */
+ watch(() => props.visible, (newValue) => {
+  if (props.model === "editArticle" && newValue) {
+    console.log("編輯模式，載入文章資料:", props.replyToUser);
+    console.log("編輯模式，載入文章資料amsArticleTagsVoList:", props.replyToUser.amsArticleTagsVoList);
+    // 載入文章資料到表單
+    inputTitle.value = props.replyToUser.title || '';
+    content.value = props.replyToUser.commentContent || '';
+    selectCategoryId.value = props.replyToUser.categoryId || '';
 
-
+    // 處理標籤資料
+    if (props.replyToUser.amsArticleTagsVoList) {
+      selectTagsValue.value = props.replyToUser.amsArticleTagsVoList.map(
+        (item: any) => item.id
+      );
+    }
     
+    console.log("載入完成 - 標題:", inputTitle.value);
+    console.log("載入完成 - 分類:", selectCategoryId.value);
+    console.log("載入完成 - 標籤:", selectTagsValue.value);
+  }
+});
+
 
 
 </script>

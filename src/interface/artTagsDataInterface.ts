@@ -4,3 +4,5 @@ export interface artTagsDataInterface{
     name:String,
 
 }
+
+export type artTagsDataInterfaceList = artTagsDataInterface[]

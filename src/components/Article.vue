@@ -35,7 +35,9 @@
                 <div class="article-header-info-right">
 
                   <div class="article-header-info-edit">
-                    <img @click="handleEditArticle" src="/src/assets/pen-solid-full.svg" alt="edit" style="width: 1.5rem;height: 1.5rem;"></img>
+                    <!-- <img @click="handleEditArticle" src="/src/assets/pen-solid-full.svg" alt="edit" style="width: 1.5rem;height: 1.5rem;"></img> -->
+                    <img @click="handleOpenEditArticleModal()" src="/src/assets/pen-solid-full.svg" alt="edit" style="width: 1.5rem;height: 1.5rem;"></img>
+                    <!-- <el-button @click="handleOpenEditArticleModal()" type="primary">新增文章</el-button> -->
                   </div>
 
                   <div class="article-header-info-time">
@@ -207,7 +209,15 @@
           </div>
           
         </div>
-
+    <!-- 編輯文章彈出框 -->
+    <ReplyModal
+      :visible="createArticleModalVisible"
+      model="editArticle"
+      :replyToUser="currentReplyUser"
+      @close="handleCloseEditArticleModal"
+      
+      @handleEditArticle="handleEditArticle"
+    />
     <!-- 回覆評論彈出框 -->
     <ReplyModal
       :visible="replyModalVisible"
@@ -600,13 +610,14 @@ const artComments = ref();
 
 // 回覆模態框相關狀態
 const replyModalVisible = ref(false);
-const currentReplyUser = ref({
-  username: '',
-  commentContent: '',
-  commentId: '',
-  articleId: ''
-});
+// const currentReplyUser = ref({
+//   username: '',
+//   commentContent: '',
+//   commentId: '',
+//   articleId: ''
+// });
 
+const currentReplyUser = ref(null);
 
 
 
@@ -634,6 +645,7 @@ const handleLikes=function(commentId: string) {
  */
 import DOMPurify from 'dompurify';
 import { marked } from "marked";
+import { AmsArtTagListInterface } from "@/interface/amsArtTagInterface";
 
 
 const renderedComments=ref([])
@@ -739,11 +751,34 @@ const handleReplyComment= function(parentCommentId:string){
 
 }
 
+const createArticleModalVisible = ref(false);
+// 開啟編輯文章模態框
+const handleOpenEditArticleModal = () => {
+  console.log("handleOpenEditArticleModal:Article.value:",Article.value)
+  currentReplyUser.value = {
+    title: Article.value.title,
+    articleId: Article.value.id,
+    categoryId: Article.value.categoryId,
+    commentContent: Article.value.content,
+    amsArticleTagsVoList: Article.value.amsArticleTagsVoList
+  };
+  console.log("handleOpenEditArticleModal:currentReplyUser.value:",currentReplyUser.value)
+  createArticleModalVisible.value = true;
+};
 
+// 關閉編輯文章模態框
+const handleCloseEditArticleModal = () => {
+  currentReplyUser.value = {
+    username: '',
+    commentContent: '',
+    commentId: '',
+    articleId: ''
+  };
+  createArticleModalVisible.value = false;
 
+};
 
-
-// 開啟回覆模態框
+// 開啟評論回覆模態框
 const handleOpenReplyModal = (comment: any) => {
   currentReplyUser.value = {
     username: comment.username,
@@ -755,7 +790,7 @@ const handleOpenReplyModal = (comment: any) => {
   
 };
 
-// 關閉回覆模態框
+// 關閉評論回覆模態框
 const handleCloseReplyModal = () => {
   replyModalVisible.value = false;
   currentReplyUser.value = {
@@ -765,6 +800,7 @@ const handleCloseReplyModal = () => {
     articleId: ''
   };
 };
+
 
 // 提交回覆
 const handleSubmitReply = async (content: string, replyData: any) => {
@@ -796,10 +832,35 @@ const handleSubmitReply = async (content: string, replyData: any) => {
 
 
 //編輯文章
+import editArticleInterface from "@/interface/editArticleInterface";
+const handleEditArticle = async function(articleId:string,editArticleData:editArticleInterface){
+  //補上文章 ID
+  // editArticleData.articleId=articleId
+  console.log("handleEditArticle:editArticleData:",editArticleData)
 
-const handleEditArticle = function(){
 
+  const updateArticle = ref<editArticleInterface>({
+
+    title:editArticleData.title,
+    content:editArticleData.content,
+    categoryId:editArticleData.categoryId,
+    tagsId:editArticleData.tagsId,
+  })
+
+  console.log("handleEditArticle:updateArticle.value:",updateArticle.value)
+
+  const {data}= await http({
+    url:http.adornUrl(`/article/update/${articleId}`),
+    method:'put',
+    data:http.adornData(updateArticle.value,false)
+  })
   
+  if(data.code==200){
+    console.log("handleEditArticle:data.data",data.data)
+    ElMessage.success("編輯成功")
+  }else{
+    ElMessage.error("編輯失敗")
+  }
   
 }
 //評論

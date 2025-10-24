@@ -1,9 +1,9 @@
 export interface AmsArtTagInterface {
-    articleId: string
-    createAt: string
     id: string
+    articleId: string
     tagsId: string
-    updateAt: string
+    createAt: string | Date
+    updateAt: string | Date
 }
 
 export type AmsArtTagListInterface = AmsArtTagInterface[];

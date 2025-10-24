@@ -51,7 +51,8 @@ const handleSignOut = function(){
           //登出時使jwtToken過期並且清空,
           document.cookie = "jwtToken=; max-age=0; path=/;";
 
-
+        
+          
           router.push('/home')
 
           ElMessage.success("登出成功")
