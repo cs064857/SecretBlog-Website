@@ -3,56 +3,35 @@
     <Transition name="reply-modal" appear>
       <div v-if="visible" class="reply-modal-overlay" @click="handleOverlayClick">
         <div class="reply-modal-container" @click.stop>
-          <!-- 評論功能：智能回覆提示區 -->
-          <div v-if="props.model=='replyComment'? true : false" class="reply-header">
-            <div class="reply-info">
-              <span class="reply-text">正在回覆</span>
-              <span class="reply-username">@{{ replyToUser.username }}</span>
-            </div>
-            <div class="original-comment">
-              {{ truncateText(replyToUser.commentContent, 50) }}
-            </div>
-            <button class="close-btn" @click="handleCancel">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"/>
-              </svg>
-            </button>
+
+
+          <div style="width: 500px; height: 600px; background-color: whitesmoke;">
+              <slot name="header"/>
           </div>
 
           <!-- 新增文章功能：Header(標題、分類、標籤設置)-->
-          <div v-if="props.model=='createArticle' || props.model=='editArticle'" class="create-article-header">
-            <div class="create-article-info" >
+          <div v-if="props.model == 'createArticle' || props.model == 'editArticle'" class="create-article-header">
+            <div class="create-article-info">
               <div class="create-article-title">
                 <span class="create-article-title-text">標題</span>
-                <el-input class="create-article-title-input" type="text" placeholder="輸入標題..." v-model="inputTitle"></el-input>
+                <el-input class="create-article-title-input" type="text" placeholder="輸入標題..."
+                  v-model="inputTitle"></el-input>
                 <!-- <el-input class="create-article-title-input" type="text" :placeholder="`輸入標題... (文章ID: ${replyToUser.articleId})`" v-model="inputTitle"></el-input> -->
-                
+
               </div>
 
               <div class="create-article-meta">
                 <div class="create-article-category">
                   <span class="create-article-title-text">分類</span>
-                  <el-tree-select
-                      v-model="selectCategoryId"
-                      :data="treeCategory"
-                      @change="handleChange"
-                      :render-after-expand="false"
-                      style="max-width: 20vh;min-width: 20vh;margin: 2% 2% 2% 0.2%;padding-top: 1%;"
-                      value-key="id"
-                  />
+                  <el-tree-select v-model="selectCategoryId" :data="treeCategory" @change="handleChange"
+                    :render-after-expand="false"
+                    style="max-width: 20vh;min-width: 20vh;margin: 2% 2% 2% 0.2%;padding-top: 1%;" value-key="id" />
                 </div>
                 <div class="create-article-tag">
                   <span class="create-article-title-text">標籤</span>
-                    <el-tree-select
-                    v-model="selectTagsValue"
-                    :data="tagsSelectData"
-                    :props="treeProps"
-                    multiple
-                    @change="handleTagsChange"
-                    :render-after-expand="false"
-                    style="max-width: 20vh;min-width: 20vh;"
-                    value-key="id"
-                    />
+                  <el-tree-select v-model="selectTagsValue" :data="tagsSelectData" :props="treeProps" multiple
+                    @change="handleTagsChange" :render-after-expand="false" style="max-width: 20vh;min-width: 20vh;"
+                    value-key="id" />
                 </div>
               </div>
 
@@ -66,34 +45,23 @@
             <div class="toolbar-group">
               <span class="group-label">格式</span>
               <div class="tool-buttons">
-                <button 
-                  v-for="tool in textFormattingTools" 
-                  :key="tool.name"
-                  class="tool-btn"
-                  :class="{ active: tool.active }"
-                  :title="tool.title"
-                  @click="applyFormat(tool)"
-                >
+                <button v-for="tool in textFormattingTools" :key="tool.name" class="tool-btn"
+                  :class="{ active: tool.active }" :title="tool.title" @click="applyFormat(tool)">
                   <svg class="tool-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path :d="tool.iconPath"/>
+                    <path :d="tool.iconPath" />
                   </svg>
                 </button>
               </div>
             </div>
-            
+
             <!-- 內容插入組 -->
             <div class="toolbar-group">
               <span class="group-label">插入</span>
               <div class="tool-buttons">
-                <button 
-                  v-for="tool in insertionTools" 
-                  :key="tool.name"
-                  class="tool-btn"
-                  :title="tool.title"
-                  @click="insertContent(tool)"
-                >
+                <button v-for="tool in insertionTools" :key="tool.name" class="tool-btn" :title="tool.title"
+                  @click="insertContent(tool)">
                   <svg class="tool-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path :d="tool.iconPath"/>
+                    <path :d="tool.iconPath" />
                   </svg>
                 </button>
               </div>
@@ -103,19 +71,16 @@
             <div class="toolbar-group">
               <span class="group-label">工具</span>
               <div class="tool-buttons">
-                <button 
-                  class="tool-btn help-btn"
-                  title="Markdown 語法指南"
-                  @click="showMarkdownGuide = true"
-                >
+                <button class="tool-btn help-btn" title="Markdown 語法指南" @click="showMarkdownGuide = true">
                   <svg class="tool-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z" />
                   </svg>
                 </button>
               </div>
             </div>
           </div>
-          
+
           <!-- Markdown語法指南模態 -->
           <Teleport to="body">
             <Transition name="guide-modal" appear>
@@ -125,7 +90,8 @@
                     <h3>Markdown 語法指南</h3>
                     <button class="guide-close" @click="showMarkdownGuide = false">
                       <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M18.3 5.71a.75.75 0 00-1.06 0L12 10.94 6.76 5.7a.75.75 0 10-1.06 1.06L10.94 12l-5.24 5.24a.75.75 0 101.06 1.06L12 13.06l5.24 5.24a.75.75 0 001.06-1.06L13.06 12l5.24-5.29a.75.75 0 000-1.06z"/>
+                        <path
+                          d="M18.3 5.71a.75.75 0 00-1.06 0L12 10.94 6.76 5.7a.75.75 0 10-1.06 1.06L10.94 12l-5.24 5.24a.75.75 0 101.06 1.06L12 13.06l5.24 5.24a.75.75 0 001.06-1.06L13.06 12l5.24-5.29a.75.75 0 000-1.06z" />
                       </svg>
                     </button>
                   </div>
@@ -145,7 +111,7 @@
                         <span class="result code">程式碼</span>
                       </div>
                     </div>
-                    
+
                     <div class="syntax-section">
                       <h4>內容結構</h4>
                       <div class="syntax-item">
@@ -165,7 +131,7 @@
                         <span class="result">1. 編號項目</span>
                       </div>
                     </div>
-                    
+
                     <div class="syntax-section">
                       <h4>程式碼區塊</h4>
                       <div class="syntax-item code-block-example">
@@ -186,14 +152,8 @@
 
           <!-- 編輯器區域 -->
           <div class="editor-container">
-            <QuillEditor
-              ref="quillEditor"
-              v-model:content="content"
-              content-type="text"
-              :options="editorOptions"
-              placeholder="撰寫您的回覆..."
-              @ready="onEditorReady"
-            />
+            <QuillEditor ref="quillEditor" v-model:content="content" content-type="text" :options="editorOptions"
+              placeholder="撰寫您的回覆..." @ready="onEditorReady" />
           </div>
 
           <!-- 操作按鈕 -->
@@ -201,16 +161,13 @@
             <button class="cancel-btn" @click="handleCancel">
               取消
             </button>
-            <button 
-              class="submit-btn" 
-              @click="handleSubmit"
-              :disabled="!isContentValid || isSubmitting"
-            >
+            <button class="submit-btn" @click="handleSubmit" :disabled="!isContentValid || isSubmitting">
               {{ isSubmitting ? '發送中...' : '發表回覆' }}
             </button>
           </div>
         </div>
       </div>
+
     </Transition>
   </Teleport>
 </template>
@@ -237,7 +194,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   visible: false,
-  model:'createArticle',
+  model: 'createArticle',
   // replyToUser: () => ({
   //   username: '',
   //   commentContent: '',
@@ -246,18 +203,18 @@ const props = withDefaults(defineProps<Props>(), {
   // })
 })
 
-import {createArticleDataInterface} from "@/interface/createArticleDataInterface";
-const inputTitle=ref<string>('')
-const createArticleData=ref<createArticleDataInterface>({
+import { createArticleDataInterface } from "@/interface/createArticleDataInterface";
+const inputTitle = ref<string>('')
+const createArticleData = ref<createArticleDataInterface>({
   title: '',
-  content:'',
-  categoryId:'',
-  tagsId:''
+  content: '',
+  categoryId: '',
+  tagsId: ''
 })
 
-import {artTagsDataInterfaceList} from "@/interface/artTagsDataInterface";
+import { artTagsDataInterfaceList } from "@/interface/artTagsDataInterface";
 
-interface editArticleDataInterface{
+interface editArticleDataInterface {
   title: string;
   content: string;
   categoryId: string;
@@ -265,10 +222,10 @@ interface editArticleDataInterface{
   articleId?: string;  // 編輯時需要文章 ID
 }
 
-const editArticleData=ref<editArticleDataInterface>({
+const editArticleData = ref<editArticleDataInterface>({
   title: '',
-  content:'',
-  categoryId:'',
+  content: '',
+  categoryId: '',
   tagsId: [],
   articleId: '',
   // title: inputTitle.value,
@@ -282,7 +239,7 @@ const emit = defineEmits<{
   close: [];
   submit: [content: string, replyData?: Object]
   handleCreateArticle: [createArticleData?: createArticleDataInterface]
-  handleEditArticle: [articleId:string,editArticleData?: editArticleDataInterface];
+  handleEditArticle: [articleId: string, editArticleData?: editArticleDataInterface];
 }>()
 
 // Reactive data
@@ -293,23 +250,23 @@ const showMarkdownGuide = ref(false)
 
 // 智能工具列配置
 const textFormattingTools = [
-  { 
-    name: 'bold', 
-    title: '粗體 (Ctrl+B)', 
+  {
+    name: 'bold',
+    title: '粗體 (Ctrl+B)',
     format: 'bold',
     iconPath: 'M15.6 10.79c.97-.67 1.65-1.77 1.65-2.79 0-2.26-1.75-4-4-4H7v14h7.04c2.09 0 3.71-1.7 3.71-3.79 0-1.52-.86-2.82-2.15-3.42zM10 6.5h3c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-3v-3zm3.5 9H10v-3h3.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5z',
     active: false
   },
-  { 
-    name: 'italic', 
-    title: '斜體 (Ctrl+I)', 
+  {
+    name: 'italic',
+    title: '斜體 (Ctrl+I)',
     format: 'italic',
     iconPath: 'M10 4v3h2.21l-3.42 8H6v3h8v-3h-2.21l3.42-8H18V4h-8z',
     active: false
   },
-  { 
-    name: 'code', 
-    title: '行內程式碼 (`)', 
+  {
+    name: 'code',
+    title: '行內程式碼 (`)',
     format: 'code',
     iconPath: 'M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0L19.2 12l-4.6-4.6L16 6l6 6-6 6-1.4-1.4z',
     active: false
@@ -377,16 +334,16 @@ const handleCancel = () => {
 
 const handleSubmit = async () => {
   if (!content.value.trim() || isSubmitting.value) return;
-  
+
   isSubmitting.value = true;
-  
+
   try {
     console.log("props.model:", props.model);
-    
+
     if (props.model === "replyComment") {
       // 處理評論回覆
       emit('submit', content.value, props.replyToUser);
-      
+
     } else if (props.model === "createArticle") {
       // 處理新增文章
       createArticleData.value = {
@@ -396,7 +353,7 @@ const handleSubmit = async () => {
         tagsId: selectTagsValue.value
       };
       emit('handleCreateArticle', createArticleData.value);
-      
+
     } else if (props.model === "editArticle") {
       // 處理編輯文章
       editArticleData.value = {
@@ -406,9 +363,9 @@ const handleSubmit = async () => {
         tagsId: selectTagsValue.value,
         // articleId: props.replyToUser.articleId
       };
-      emit('handleEditArticle', props.replyToUser.articleId,editArticleData.value);
+      emit('handleEditArticle', props.replyToUser.articleId, editArticleData.value);
     }
-    
+
     resetModal();
   } catch (error) {
     console.error('提交時出錯:', error);
@@ -428,25 +385,25 @@ const applyFormat = (tool: any) => {
 
   // 切換工具的激活狀態
   tool.active = !tool.active
-  
+
   if (range.length > 0) {
     // 有選中文字，直接應用格式
     const currentFormat = editor.getFormat(range)
     const isActive = currentFormat[tool.format]
-    
+
     editor.formatText(range.index, range.length, tool.format, !isActive)
-    
+
     // 更新工具的激活狀態以反映實際格式
     tool.active = !isActive
   } else {
     // 沒有選中文字，設定游標位置的格式
     const currentFormat = editor.getFormat()
     const isActive = currentFormat[tool.format]
-    
+
     editor.format(tool.format, !isActive)
     tool.active = !isActive
   }
-  
+
   // 保持編輯器焦點
   editor.focus()
 }
@@ -458,7 +415,7 @@ const insertContent = (tool: any) => {
 
   const range = editor.getSelection() || { index: editor.getLength(), length: 0 }
   const selectedText = range.length > 0 ? editor.getText(range.index, range.length) : ''
-  
+
   let textToInsert = ''
   let selectionStart = range.index
   let selectionLength = 0
@@ -521,16 +478,16 @@ const insertContent = (tool: any) => {
   if (range.length > 0) {
     editor.deleteText(range.index, range.length)
   }
-  
+
   editor.insertText(range.index, textToInsert)
-  
+
   // 設定新的選中範圍
   if (selectionLength > 0) {
     editor.setSelection(selectionStart, selectionLength)
   } else {
     editor.setSelection(selectionStart, 0)
   }
-  
+
   editor.focus()
 }
 
@@ -543,7 +500,7 @@ const updateToolStates = () => {
   if (!range) return
 
   const format = editor.getFormat(range)
-  
+
   textFormattingTools.forEach(tool => {
     tool.active = !!format[tool.format]
   })
@@ -593,13 +550,13 @@ const onEditorReady = () => {
     const editor = quillEditor.value?.getQuill()
     if (editor) {
       editor.focus()
-      
+
       // 監聽選擇變化以更新工具狀態
       editor.on('selection-change', updateToolStates)
-      
+
       // 監聽內容變化以同步狀態
       editor.on('text-change', updateToolStates)
-      
+
       // 鍵盤快捷鍵支援
       const toolbar = editor.getModule('toolbar')
       editor.keyboard.addBinding({
@@ -610,7 +567,7 @@ const onEditorReady = () => {
         if (boldTool) applyFormat(boldTool)
         return false // 阻止預設行為
       })
-      
+
       editor.keyboard.addBinding({
         key: 'I',
         ctrlKey: true
@@ -619,7 +576,7 @@ const onEditorReady = () => {
         if (italicTool) applyFormat(italicTool)
         return false
       })
-      
+
       editor.keyboard.addBinding({
         key: 'K',
         ctrlKey: true
@@ -628,7 +585,7 @@ const onEditorReady = () => {
         if (linkTool) insertContent(linkTool)
         return false
       })
-      
+
       editor.keyboard.addBinding({
         key: '`',
         ctrlKey: true
@@ -637,7 +594,7 @@ const onEditorReady = () => {
         if (codeTool) applyFormat(codeTool)
         return false
       })
-      
+
       // Enter 鍵提交支援 (Ctrl+Enter)
       editor.keyboard.addBinding({
         key: 'Enter',
@@ -648,7 +605,7 @@ const onEditorReady = () => {
         }
         return false
       })
-      
+
       // ESC 鍵關閉支援
       editor.keyboard.addBinding({
         key: 'Escape'
@@ -664,13 +621,13 @@ const onEditorReady = () => {
 const handleGlobalKeydown = (event: KeyboardEvent) => {
   // 在模態開啟時處理全局鍵盤事件
   if (!props.visible) return
-  
+
   // ESC 鍵關閉模態
   if (event.key === 'Escape' && !showMarkdownGuide.value) {
     event.preventDefault()
     handleCancel()
   }
-  
+
   // F1 開啟幫助
   if (event.key === 'F1') {
     event.preventDefault()
@@ -681,12 +638,12 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
 // 監聽全局鍵盤事件
 if (typeof window !== 'undefined') {
   window.addEventListener('keydown', handleGlobalKeydown)
-  
+
   // 清理函式（當組件銷毀時）
   const cleanup = () => {
     window.removeEventListener('keydown', handleGlobalKeydown)
   }
-  
+
   // Vue 3 的 onUnmounted
   onUnmounted(cleanup)
 }
@@ -694,83 +651,83 @@ if (typeof window !== 'undefined') {
 /*
 * 新增文章
 */
-  /**
-   * 文章標籤
-   */
+/**
+ * 文章標籤
+ */
 
-   const selectTagsValue =ref()
+const selectTagsValue = ref()
 
-    interface tagsSelectData{
-      name: string,
-      id: string,
-    }
+interface tagsSelectData {
+  name: string,
+  id: string,
+}
 
-   const tagsSelectData = ref<tagsSelectData[]>()
+const tagsSelectData = ref<tagsSelectData[]>()
 
-    // tagsSelectData.value=[
-    //   {
-    //     name: "標籤1",
-    //     id: "1",
-    //   },
-    //   {
-    //     name: "標籤2",
-    //     id: "2",
-    //   },
-    // ]
+// tagsSelectData.value=[
+//   {
+//     name: "標籤1",
+//     id: "1",
+//   },
+//   {
+//     name: "標籤2",
+//     id: "2",
+//   },
+// ]
 
-   const treeProps = {
-      label: 'name', // 指定用數據中的 'name' 屬性作為顯示的標籤
-      value: 'id',   // 指定用數據中的 'id' 屬性作為選項的值
-    }
+const treeProps = {
+  label: 'name', // 指定用數據中的 'name' 屬性作為顯示的標籤
+  value: 'id',   // 指定用數據中的 'id' 屬性作為選項的值
+}
 import { onMounted } from 'vue';
 import http from '@/utils/httpRequest'
-import {ElMessage, useThrottleRender} from "element-plus";
-import {R} from "@/interface/R";
-import {useTreeCategoryStore} from "@/pinia/useTreeCategoryStore"
+import { ElMessage, useThrottleRender } from "element-plus";
+import { R } from "@/interface/R";
+import { useTreeCategoryStore } from "@/pinia/useTreeCategoryStore"
 
 /**
  * 獲取分類資訊
  */
-const treeCategory =useTreeCategoryStore().getTreeData;
+const treeCategory = useTreeCategoryStore().getTreeData;
 
 
-const selectCategoryId=ref<string>()
-const handleChange = function (value:string){
+const selectCategoryId = ref<string>()
+const handleChange = function (value: string) {
   //得到樹形選擇器中該分類的ID
-  selectCategoryId.value=value
-  console.log("handleChange.value",value)
+  selectCategoryId.value = value
+  console.log("handleChange.value", value)
 }
 
-    onMounted(()=>{
+onMounted(() => {
 
-      /**
-       * 獲取標籤資訊
-       */
-      http({
-        url: http.adornUrl('/article/tags/list'),
-        method: 'get',
-      }).then(({data}:{ data: R }) => {
-        console.log("data",data)
-        if(data.code==200){
-          tagsSelectData.value=data.data
-          console.log("tagsSelectData:",tagsSelectData.value)
-          ElMessage.success("文章標籤獲取成功")
-        }else {
-          ElMessage.error("文章標籤獲取失敗")
-        }
-      });
-    })
-    const handleTagsChange = function(value:number){
+  /**
+   * 獲取標籤資訊
+   */
+  http({
+    url: http.adornUrl('/article/tags/list'),
+    method: 'get',
+  }).then(({ data }: { data: R }) => {
+    console.log("data", data)
+    if (data.code == 200) {
+      tagsSelectData.value = data.data
+      console.log("tagsSelectData:", tagsSelectData.value)
+      ElMessage.success("文章標籤獲取成功")
+    } else {
+      ElMessage.error("文章標籤獲取失敗")
+    }
+  });
+})
+const handleTagsChange = function (value: number) {
 
-      selectTagsValue.value=value
-      console.log("handleTagsChange.value",value)
+  selectTagsValue.value = value
+  console.log("handleTagsChange.value", value)
 
-      }
+}
 
 /**
  * watch編輯文章內容
  */
- watch(() => props.visible, (newValue) => {
+watch(() => props.visible, (newValue) => {
   if (props.model === "editArticle" && newValue) {
     console.log("編輯模式，載入文章資料:", props.replyToUser);
     console.log("編輯模式，載入文章資料amsArticleTagsVoList:", props.replyToUser.amsArticleTagsVoList);
@@ -785,7 +742,7 @@ const handleChange = function (value:string){
         (item: any) => item.id
       );
     }
-    
+
     console.log("載入完成 - 標題:", inputTitle.value);
     console.log("載入完成 - 分類:", selectCategoryId.value);
     console.log("載入完成 - 標籤:", selectTagsValue.value);
@@ -800,7 +757,7 @@ const handleChange = function (value:string){
 /* ==========================================
    Design System Variables
    ========================================== */
-.reply-modal-container{
+.reply-modal-container {
   --padding-1: 1rem;
   --padding-2: 2rem;
   --padding-3: 3rem;
@@ -816,13 +773,13 @@ const handleChange = function (value:string){
   --space-8: 32px;
   --space-10: 40px;
 
-    /* Core Colors */
-    --primary-500: #007AFF;
+  /* Core Colors */
+  --primary-500: #007AFF;
   --primary-600: #0066CC;
   --primary-50: rgba(0, 122, 255, 0.1);
   --primary-100: rgba(0, 122, 255, 0.2);
   --primary-200: rgba(0, 122, 255, 0.3);
-  
+
   /* Grayscale */
   --gray-50: #F9FAFB;
   --gray-100: #F3F4F6;
@@ -834,7 +791,7 @@ const handleChange = function (value:string){
   --gray-700: #374151;
   --gray-800: #1F2937;
   --gray-900: #111827;
-  
+
   /* Dark Theme Palette */
   --surface-primary: #1A1A1A;
   --surface-secondary: #2A2A2A;
@@ -842,19 +799,19 @@ const handleChange = function (value:string){
   --surface-elevated: #3A3A3A;
   --surface-hover: #444444;
   --surface-active: #555555;
-  
+
   /* Text Colors */
   --text-primary: #F2F2F2;
   --text-secondary: #CCCCCC;
   --text-tertiary: #999999;
   --text-quaternary: #888888;
   --text-disabled: #666666;
-  
+
   /* Semantic Colors */
   --success-500: #10B981;
   --warning-500: #F59E0B;
   --error-500: #EF4444;
-  
+
 
 
 
@@ -867,7 +824,7 @@ const handleChange = function (value:string){
   --radius-xl: 16px;
   --radius-2xl: 20px;
   --radius-full: 9999px;
-  
+
   /* Border Colors & Effects */
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-muted: rgba(255, 255, 255, 0.12);
@@ -875,18 +832,18 @@ const handleChange = function (value:string){
   --border-strong: rgba(255, 255, 255, 0.24);
   --border-primary: var(--primary-500);
   --border-primary-hover: var(--primary-400);
-  
+
   /* Gradient Borders */
   --gradient-border-primary: linear-gradient(135deg, var(--primary-500), var(--primary-600));
   --gradient-border-subtle: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-  
+
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
   --shadow-modal: 0 -4px 24px rgba(0, 0, 0, 0.3);
-  
+
   /* Transitions */
   --transition-fast: 0.15s ease;
   --transition-base: 0.2s ease;
@@ -948,7 +905,7 @@ const handleChange = function (value:string){
   max-height: 75vh;
   background: var(--surface-secondary);
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-  box-shadow: 
+  box-shadow:
     var(--shadow-modal),
     0 0 0 1px var(--border-default),
     inset 0 1px 0 var(--border-subtle);
@@ -976,6 +933,7 @@ const handleChange = function (value:string){
   from {
     transform: translateY(100%);
   }
+
   to {
     transform: translateY(0);
   }
@@ -1223,9 +1181,12 @@ const handleChange = function (value:string){
   padding: 0 var(--space-6) var(--space-5);
   min-height: 220px;
   overflow: hidden;
-  border-top: 1px solid #e0e0e0;    /* 設定上邊框 */
-  border-bottom: 1px solid #e0e0e0; /* 設定下邊框 */
+  border-top: 1px solid #e0e0e0;
+  /* 設定上邊框 */
+  border-bottom: 1px solid #e0e0e0;
+  /* 設定下邊框 */
 }
+
 :deep(.ql-container) {
   border: none !important;
   font-size: 15px;
@@ -1267,7 +1228,7 @@ const handleChange = function (value:string){
 
 :deep(.ql-editor:focus) {
   border-color: var(--border-primary);
-  box-shadow: 
+  box-shadow:
     0 0 0 3px var(--primary-100),
     0 4px 12px rgba(0, 122, 255, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -1333,7 +1294,7 @@ const handleChange = function (value:string){
   color: var(--text-primary);
   border-color: var(--border-strong);
   transform: translateY(-1px);
-  box-shadow: 
+  box-shadow:
     var(--shadow-md),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
@@ -1342,7 +1303,7 @@ const handleChange = function (value:string){
   background: var(--gradient-border-primary);
   color: white;
   border: 2px solid var(--primary-600);
-  box-shadow: 
+  box-shadow:
     var(--shadow-md),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   position: relative;
@@ -1368,8 +1329,8 @@ const handleChange = function (value:string){
   background: linear-gradient(135deg, var(--primary-600), #0052CC);
   border-color: var(--primary-500);
   transform: translateY(-2px);
-  box-shadow: 
-    var(--shadow-lg), 
+  box-shadow:
+    var(--shadow-lg),
     0 0 20px var(--primary-200),
     0 0 0 1px var(--border-primary-hover),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
@@ -1408,7 +1369,7 @@ const handleChange = function (value:string){
 .markdown-guide-modal {
   background: var(--surface-secondary);
   border-radius: var(--radius-xl);
-  box-shadow: 
+  box-shadow:
     var(--shadow-xl),
     0 0 0 1px var(--border-default),
     inset 0 1px 0 var(--border-subtle);
@@ -1640,26 +1601,26 @@ const handleChange = function (value:string){
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
     border: 1px solid white;
   }
-  
+
   .smart-toolbar {
     padding: var(--space-3) var(--space-4);
     gap: var(--space-6);
   }
-  
+
   .toolbar-group {
     min-width: auto;
   }
-  
+
   .action-buttons {
     flex-direction: column-reverse;
     gap: var(--space-3);
   }
-  
+
   .cancel-btn,
   .submit-btn {
     width: 100%;
   }
-  
+
   .markdown-guide-modal {
     margin: var(--space-4);
     max-height: 90vh;
@@ -1670,60 +1631,67 @@ const handleChange = function (value:string){
   .reply-header {
     padding: var(--space-4) var(--space-4) var(--space-3);
   }
-  
+
   .close-btn {
     top: var(--space-3);
     right: var(--space-4);
   }
-  
+
   .editor-container {
     padding: 0 var(--space-4) var(--space-4);
 
   }
-  
+
   .action-buttons {
     padding: var(--space-3) var(--space-4) var(--space-4);
   }
 }
+
 /**
 * 新增文章
 */
-.create-article-header{
+.create-article-header {
   padding: var(--padding-1)
 }
-.create-article-info{
+
+.create-article-info {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 
 }
-.create-article-title-text{
+
+.create-article-title-text {
   color: var(--text-tertiary);
   font-size: 20px;
   font-weight: 500;
 }
 
 
-.create-article-title-input{
+.create-article-title-input {
   width: 90%;
 }
-.create-article-title{
+
+.create-article-title {
   display: flex;
   flex-direction: row;
   gap: 1rem;
 }
-.create-article-meta{
+
+.create-article-meta {
   display: flex;
   flex-direction: row;
   justify-content: start;
 }
-.create-article-category{
+
+.create-article-category {
   display: flex;
   flex-direction: row;
   gap: 1rem;
   flex: 1
 }
-.create-article-tag{
+
+.create-article-tag {
   display: flex;
   flex-direction: row;
   gap: 1rem;
