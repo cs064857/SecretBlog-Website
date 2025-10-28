@@ -1,6 +1,6 @@
 <template>
-  <ArticleSkeleton v-if="loading"/>
-  
+  <ArticleSkeleton v-if="loading" />
+
   <section v-else-if="Article">
 
     <div ref="scrollContainer" class="article-container">
@@ -11,273 +11,373 @@
 
       <!-- <div class="article-main"> -->
 
-        <div class="article-content-list" ref="articleContentListRef">
-          <div class="Box1">
-            1
-          </div>
+      <div class="article-content-list" ref="articleContentListRef">
+        <div class="Box1">
+          1
+        </div>
 
-          <div class="Box3">
-
-
-
-            <div class="article-header">
-              <!-- <div><h1>{{ Article?.userId}}</h1></div> -->
-              <div class="article-header-title"><h1><span>{{ Article.title }}</span></h1></div>
-              
-              <div class="article-header-info">
-                
-
-                <div class="article-header-info-user">
-                  <el-avatar :size="25" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"></el-avatar>
-                  <span>{{ Article.userName }}</span>
-                </div>
-
-                <div class="article-header-info-right">
-
-                  <div class="article-header-info-edit">
-                    <!-- <img @click="handleEditArticle" src="/src/assets/pen-solid-full.svg" alt="edit" style="width: 1.5rem;height: 1.5rem;"></img> -->
-                    <img @click="handleOpenEditArticleModal()" src="/src/assets/pen-solid-full.svg" alt="edit" style="width: 1.5rem;height: 1.5rem;"></img>
-                    <!-- <el-button @click="handleOpenEditArticleModal()" type="primary">新增文章</el-button> -->
-                  </div>
-
-                  <div class="article-header-info-time">
-                    <span>{{ dayjs(Article.createTime).format('YYYY-MM-DD HH:mm') }}</span>
-                  <!-- <span>{{ dayjs(Article.updateTime).format('YYYY-MM-DD HH:mm') }}</span> -->
-                  <!-- <span>{{ Article.updateTime }}</span> -->
-                  </div>
+        <div class="Box3">
 
 
-                </div>
-                
+
+          <div class="article-header">
+            <!-- <div><h1>{{ Article?.userId}}</h1></div> -->
+            <div class="article-header-title">
+              <h1><span>{{ Article.title }}</span></h1>
+            </div>
+
+            <div class="article-header-info">
+
+
+              <div class="article-header-info-user">
+                <el-avatar :size="25"
+                  src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"></el-avatar>
+                <span>{{ Article.userName }}</span>
               </div>
 
-              
-              
+              <div class="article-header-info-right">
 
-          
+                <div class="article-header-info-edit">
+                  <!-- <img @click="handleEditArticle" src="/src/assets/pen-solid-full.svg" alt="edit" style="width: 1.5rem;height: 1.5rem;"></img> -->
+                  <img @click="handleOpenEditArticleModal()" src="/src/assets/pen-solid-full.svg" alt="edit"
+                    style="width: 1.5rem;height: 1.5rem;"></img>
+                  <!-- <el-button @click="handleOpenEditArticleModal()" type="primary">新增文章</el-button> -->
+                </div>
+
+                <div class="article-header-info-time">
+                  <span>{{ dayjs(Article.createTime).format('YYYY-MM-DD HH:mm') }}</span>
+                  <!-- <span>{{ dayjs(Article.updateTime).format('YYYY-MM-DD HH:mm') }}</span> -->
+                  <!-- <span>{{ Article.updateTime }}</span> -->
+                </div>
+
+
+              </div>
+
             </div>
 
 
-            <div v-html="ArticleContent" class="article-content" ref="articleContentRef">
 
-            </div>
+
 
           </div>
 
-          <div class="Box2">
 
-            <div class="Box4">
-              <el-anchor ref="anchorRef" :offset="70" @change="handleChange">
+          <div v-html="ArticleContent" class="article-content" ref="articleContentRef">
 
-                <el-anchor-link v-for="item in articleAnchorData" :key="item.id" :href="'#'+item.id">
-                  {{ item.title }}
-                </el-anchor-link>
+          </div>
 
-              </el-anchor>
-            </div>
+        </div>
 
+        <div class="Box2">
+
+          <div class="Box4">
+            <el-anchor ref="anchorRef" :offset="70" @change="handleChange">
+
+              <el-anchor-link v-for="item in articleAnchorData" :key="item.id" :href="'#' + item.id">
+                {{ item.title }}
+              </el-anchor-link>
+
+            </el-anchor>
           </div>
 
         </div>
 
       </div>
 
-        <div class="article-metrics">
+    </div>
 
-          <div class="metrics-container">
-            <div class="metrics-button-wrapper">
-              <button 
-                @click="handleArticleLike" 
-                class="like-button"
-              >
-                <img 
-                  class="like-icon" 
-                  src="/src/assets/eye-solid-full.svg" 
-                  alt="like"
-                >
-                <span class="like-count">{{ Article?.viewsCount ?? 0 }}</span>
+    <div class="article-metrics">
 
-              </button>
-            </div>
+      <div class="metrics-container">
+        <div class="metrics-button-wrapper">
+          <button @click="handleArticleLike" class="like-button">
+            <img class="like-icon" src="/src/assets/eye-solid-full.svg" alt="like">
+            <span class="like-count">{{ Article?.viewsCount ?? 0 }}</span>
+
+          </button>
+        </div>
+      </div>
+
+      <div class="metrics-container">
+        <div class="metrics-button-wrapper">
+          <button @click="handleArticleLike" class="like-button" :class="{ 'liked': isLiked }">
+            <img class="like-icon" src="/src/assets/heart-solid-full.svg" alt="like">
+            <span class="like-count">{{ Article?.likesCount ?? 0 }}</span>
+
+          </button>
+        </div>
+      </div>
+
+
+
+
+
+
+
+
+
+      <div class="metrics-container">
+        <div class="metrics-button-wrapper">
+          <button @click="handleArticleLike" class="like-button" :class="{ 'liked': isLiked }">
+            <img class="like-icon" src="/src/assets/bookmark-solid-full.svg" alt="like">
+
+            <span class="like-count">{{ Article?.bookmarksCount ?? 0 }}</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+
+
+    <div class="article-comment">
+
+
+      <div class="article-comment-input">
+        <el-input v-model="textarea1" style="width: 100%;font-size: 18px" :rows="8" maxlength="480" resize="none"
+          type="textarea" placeholder="輸入評論..." />
+      </div>
+
+      <div class="article-comment-button">
+        <el-button @click="handleCommitComment" size="large" type="primary" round>發表評論</el-button>
+      </div>
+    </div>
+
+    <div class="article-footer">
+      <div v-for="(articleComment, index) in renderedComments" :key="index" class="article-comment-context">
+
+        <div class="article-comment-context-avatar">
+          <img class="user-avatar" :src="articleComment.avatar" alt="avatar">
+        </div>
+
+        <div class="article-comment-context-item">
+
+
+          <div class="article-comment-context-item-avatar">
+
+            <div class="user-username">{{ articleComment.username }}</div>
+            <div v-if="articleComment.parentCommentId" class="user-parentUsername"><img
+                style="position: relative; top:0.5rem;  width: 3rem; height: 2rem;"
+                src="/src/assets/share-solid-full.svg">{{articleComment.parentCommentId ?
+                  renderedComments.find(item => item.commentId == articleComment.parentCommentId).username : ''}}</div>
+            <!-- <div class="user-parentUsername"><img style="position: relative; top:0.5rem;  width: 3rem; height: 2rem;" src="/src/assets/share-solid-full.svg">{{renderedComments.find(item=>item.commentId==1968026366882635777).username}}</div> -->
+            <!-- <div class="user-parentUsername"><img style="position: relative; top:0.5rem;  width: 3rem; height: 2rem;" src="/src/assets/share-solid-full.svg">{{articleComment.parentCommentId}}</div> -->
           </div>
 
-          <div class="metrics-container">
-            <div class="metrics-button-wrapper">
-              <button 
-                @click="handleArticleLike" 
-                class="like-button"
-                :class="{ 'liked': isLiked }"
-              >
-                <img 
-                  class="like-icon" 
-                  src="/src/assets/heart-solid-full.svg" 
-                  alt="like"
-                >
-                <span class="like-count">{{ Article?.likesCount ?? 0 }}</span>
+          <!-- <div class="article-comment-context-item-main">{{articleComment.commentContent}}</div> -->
+          <div v-html="articleComment.commentContent" class="article-comment-context-item-main"></div>
+          <div class="article-comment-context-item-info">
 
-              </button>
-            </div>
-          </div>
+            <div class="ararticle-comment-context-item-info-metrics">
+              <div class="ararticle-comment-context-item-info-metrics-likesCount"><img
+                  @click="handleLikes(articleComment.commentId)"
+                  style="cursor: pointer; position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;"
+                  src="/src/assets/heart-solid-full.svg">{{ articleComment.likesCount }}</div>
 
+              <!-- <div class="ararticle-comment-context-item-info-metrics-replysCount"><img style=" cursor: pointer;position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/reply-solid-full.svg">{{articleComment.replysCount}}</div> -->
 
-    
+              <div class="ararticle-comment-context-item-info-metrics-createAt"><img
+                  style="position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;"
+                  src="/src/assets/calendar-days-solid-full.svg">{{ articleComment.createAt }}</div>
+              <div class="ararticle-comment-context-item-info-metrics-updateAt"><img
+                  style="position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;"
+                  src="/src/assets/pen-solid-full.svg">{{ articleComment.updateAt }}</div>
+              <div class="ararticle-comment-context-item-info-metrics-reply"><el-button
+                  @click="handleOpenReplyModal(articleComment)" type="primary"><img
+                    style=" cursor: pointer;position: relative;right:0.5rem;width: 1.5rem; height: 1.5rem;"
+                    src="/src/assets/reply-solid-full.svg">回覆</el-button></div>
+              <!-- <div class="ararticle-comment-context-item-info-metrics-reply"><el-button v-click="handleReplyComment(articleComment.articleId,articleComment.commentId)" type="primary">回覆</el-button></div> -->
 
-
-
-        
-
-
-          <div class="metrics-container">
-            <div class="metrics-button-wrapper">
-              <button 
-                @click="handleArticleLike" 
-                class="like-button"
-                :class="{ 'liked': isLiked }"
-              >
-                <img 
-                  class="like-icon" 
-                  src="/src/assets/bookmark-solid-full.svg" 
-                  alt="like"
-                >
-                
-                <span class="like-count">{{ Article?.bookmarksCount ?? 0 }}</span>
-              </button>
             </div>
 
           </div>
         </div>
 
-        
-        
-        <div class="article-comment">
+      </div>
 
+    </div>
 
-          <div class="article-comment-input">
-            <el-input
-                v-model="textarea1"
-                style="width: 100%;font-size: 18px"
-                :rows="8"
-                maxlength="480"
-                resize="none"
-                type="textarea"
-                placeholder="輸入評論..."
-            />
+    <reply-modal @close="handleCloseReplyModal()" v-if="replyModalVisible" :visible="true" :replyToUser="currentReplyUser">
+      <template  v-slot:header>
+        <!-- 評論功能：智能回覆提示區 -->
+        <!-- <div v-if="props.model == 'replyComment' ? true : false" class="reply-header"> -->
+        <div class="reply-header">
+          <div class="reply-info">
+            <span class="reply-text">正在回覆</span>
+            <!-- <span class="reply-username">1111</span> -->
+            <span class="reply-username">{{ currentReplyUser.username }}</span>
           </div>
-          
-          <div class="article-comment-button">
-            <el-button @click="handleCommitComment" size="large" type="primary" round>發表評論</el-button>
-          </div>
-        </div>
-          
-        <div class="article-footer">
-          <div v-for="(articleComment,index) in renderedComments" :key="index" class="article-comment-context">
-
-            <div class="article-comment-context-avatar">
-              <img class="user-avatar" :src="articleComment.avatar" alt="avatar">
-            </div>
-
-            <div class="article-comment-context-item">
-
-
-                <div class="article-comment-context-item-avatar">
-                  
-                  <div class="user-username">{{articleComment.username}}</div>
-                  <div v-if="articleComment.parentCommentId" class="user-parentUsername"><img style="position: relative; top:0.5rem;  width: 3rem; height: 2rem;" src="/src/assets/share-solid-full.svg">{{articleComment.parentCommentId ? renderedComments.find(item=>item.commentId==articleComment.parentCommentId).username : ''}}</div>
-                  <!-- <div class="user-parentUsername"><img style="position: relative; top:0.5rem;  width: 3rem; height: 2rem;" src="/src/assets/share-solid-full.svg">{{renderedComments.find(item=>item.commentId==1968026366882635777).username}}</div> -->
-                  <!-- <div class="user-parentUsername"><img style="position: relative; top:0.5rem;  width: 3rem; height: 2rem;" src="/src/assets/share-solid-full.svg">{{articleComment.parentCommentId}}</div> -->
-                </div>
-                
-                <!-- <div class="article-comment-context-item-main">{{articleComment.commentContent}}</div> -->
-                <div v-html="articleComment.commentContent" class="article-comment-context-item-main"></div>
-                <div class="article-comment-context-item-info">
-                  
-                    <div class="ararticle-comment-context-item-info-metrics">
-                      <div class="ararticle-comment-context-item-info-metrics-likesCount"><img @click="handleLikes(articleComment.commentId)" style="cursor: pointer; position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/heart-solid-full.svg">{{articleComment.likesCount}}</div>
+          <div class="original-comment">
             
-                      <!-- <div class="ararticle-comment-context-item-info-metrics-replysCount"><img style=" cursor: pointer;position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/reply-solid-full.svg">{{articleComment.replysCount}}</div> -->
-                      
-                      <div class="ararticle-comment-context-item-info-metrics-createAt"><img style="position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/calendar-days-solid-full.svg">{{articleComment.createAt}}</div>
-                      <div class="ararticle-comment-context-item-info-metrics-updateAt"><img  style="position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/pen-solid-full.svg">{{articleComment.updateAt}}</div>
-                      <div class="ararticle-comment-context-item-info-metrics-reply"><el-button @click="handleOpenReplyModal(articleComment)" type="primary"><img style=" cursor: pointer;position: relative;right:0.5rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/reply-solid-full.svg">回覆</el-button></div>
-                      <!-- <div class="ararticle-comment-context-item-info-metrics-reply"><el-button v-click="handleReplyComment(articleComment.articleId,articleComment.commentId)" type="primary">回覆</el-button></div> -->
-
-                    </div>
-
-                </div>
-            </div>
-
+            {{ truncateText(currentReplyUser.commentContent, 50) }}
           </div>
-          
+          <button class="close-btn" @click="handleCancel">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path
+                            d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                    </svg>
+          </button>
         </div>
+      </template>
+    </reply-modal>
+
     <!-- 編輯文章彈出框 -->
-    <ReplyModal
-      :visible="createArticleModalVisible"
-      model="editArticle"
-      :replyToUser="currentReplyUser"
-      @close="handleCloseEditArticleModal"
-      
-      @handleEditArticle="handleEditArticle"
-    />
+    <ReplyModal :visible="createArticleModalVisible" model="editArticle" :replyToUser="currentReplyUser"
+      @close="handleCloseEditArticleModal" @handleEditArticle="handleEditArticle" />
     <!-- 回覆評論彈出框 -->
-    <ReplyModal
-      :visible="replyModalVisible"
-      model="replyComment"
-      :replyToUser="currentReplyUser"
-      @close="handleCloseReplyModal"
-      @submit="handleSubmitReply"
-    />
+    <ReplyModal :visible="replyModalVisible" model="replyComment" :replyToUser="currentReplyUser"
+      @close="handleCloseReplyModal" @submit="handleSubmitReply" />
   </section>
 
   <EmptyOrError v-else />
 </template>
 
 <style scoped>
-.article-metrics{
+/* ==========================================
+   Reply Header
+   ========================================== */
+.reply-header {
+  padding: var(--space-5) var(--space-6) var(--space-4);
+  background: var(--surface-primary);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  border-bottom: 1px solid var(--border-default);
+  position: relative;
+}
+
+.reply-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: var(--space-6);
+  right: var(--space-6);
+  height: 1px;
+  background: var(--gradient-border-subtle);
+}
+
+.reply-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.reply-text {
+  color: var(--text-tertiary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.reply-username {
+  color: var(--primary-500);
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--primary-50);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+.original-comment {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+  background: var(--surface-tertiary);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--primary-500);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--primary-500);
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.original-comment::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--primary-500), transparent);
+}
+
+.close-btn {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-5);
+  background: none;
+  border: 1px solid transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  color: var(--text-primary);
+  background: var(--surface-hover);
+  border-color: var(--border-muted);
+  transform: rotate(90deg);
+  box-shadow: var(--shadow-sm);
+}
+
+
+
+.article-metrics {
   min-width: 100%;
-  max-width:100%;
+  max-width: 100%;
   height: 100px;
   background-color: #88c847;
 }
 
-.ararticle-comment-context-item-info-metrics{
+.ararticle-comment-context-item-info-metrics {
   display: flex;
   gap: 1rem;
   align-items: center;
 
   justify-content: end;
 }
-.user-avatar{
+
+.user-avatar {
   display: block;
   width: 60px;
   height: 60px;
   object-fit: cover;
   border-radius: 50%;
 }
+
 .user-username {
   text-align: left;
-  
+
   flex: 1 1 0;
 }
 
-.article-comment-context-item-avatar{
+.article-comment-context-item-avatar {
   display: flex;
-  
+
   flex: 1 1 0;
 }
-.article-comment-context-item-main{
+
+.article-comment-context-item-main {
   text-align: start;
   word-break: break-all;
   flex: 1 1 0;
 }
-.article-comment-context-item-info{
+
+.article-comment-context-item-info {
   text-align: end;
   flex: 1 1 0;
 }
-.article-comment-context-avatar{
-    margin: 0 auto;
-    padding: 1rem;
+
+.article-comment-context-avatar {
+  margin: 0 auto;
+  padding: 1rem;
 }
-.article-comment-context-item{
+
+.article-comment-context-item {
   display: flex;
   gap: 2rem;
   flex-direction: column;
@@ -295,15 +395,16 @@
   padding: 1rem;
   width: 100%;
   max-width: 100%;
-  box-sizing:border-box
+  box-sizing: border-box
 }
+
 /* .article-comment-context{
 
   width: 100px;
   height: 100px;
   
 } */
-.article-comment-context{
+.article-comment-context {
   display: flex;
   flex-direction: row;
   /* gap: 20px; */
@@ -354,12 +455,15 @@
 .article-footer {
   display: flex;
   flex-direction: column;
-  justify-content: center;  /* footer 內容置中 */
+  justify-content: center;
+  /* footer 內容置中 */
   align-items: center;
   background-color: #213547;
   width: 90%;
-  margin: 40px auto 0;      /* 置中並與上方內容留距 */
-  position: static;         /* 確保參與正常文流，不覆蓋內容 */
+  margin: 40px auto 0;
+  /* 置中並與上方內容留距 */
+  position: static;
+  /* 確保參與正常文流，不覆蓋內容 */
   /* 移除 left 與高度限制 */
   /* left: 5%; */
   /* min-height: 55%; */
@@ -375,17 +479,20 @@
   background-color: #88c847;
   box-shadow: 0px 0px 30px;
 }
+
 .article-header-title {
 
-background-color: #81156a;
+  background-color: #81156a;
 
 }
-.article-header-info{
+
+.article-header-info {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
 }
+
 .article-header-info-user {
   display: flex;
   flex-direction: row;
@@ -394,6 +501,7 @@ background-color: #81156a;
   background-color: #03638f;
 
 }
+
 .article-header-info-time {
 
   /* display: flex; */
@@ -404,7 +512,7 @@ background-color: #81156a;
 
 }
 
-.article-header-info-right{
+.article-header-info-right {
   display: flex;
   flex-direction: row;
   justify-content: end;
@@ -421,6 +529,7 @@ background-color: #81156a;
   background-color: #324222;
   box-shadow: 0px 0px 30px;
 }
+
 .article-content {
   border: black 3px solid;
   max-width: 92%;
@@ -428,7 +537,8 @@ background-color: #81156a;
   margin: 0 50px 50px 50px;
   background-color: #d7e6c8;
   box-shadow: 0px 0px 30px;
-  max-height: none;     /* 不裁切內容 */
+  max-height: none;
+  /* 不裁切內容 */
   word-wrap: break-word;
   word-break: break-all;
 }
@@ -438,7 +548,8 @@ background-color: #81156a;
   width: 100%;
   /* 重要：不要限制高度或隱藏溢出，改由整個頁面滾動 */
   /* height: 100%; */
-  overflow: visible;    /* 不顯示容器自身滾軸 */
+  overflow: visible;
+  /* 不顯示容器自身滾軸 */
 }
 
 .Box3 {
@@ -468,9 +579,11 @@ background-color: #81156a;
   background-color: darkslategray;
   justify-content: flex-start;
   align-content: flex-start;
-  align-items: stretch;  /* 讓左右欄高度跟隨中間欄 */
+  align-items: stretch;
+  /* 讓左右欄高度跟隨中間欄 */
   width: 90%;
-  margin: 0 auto;       /* 置中 */
+  margin: 0 auto;
+  /* 置中 */
   /* 不鎖在視窗高度，讓高度由內容決定 */
   /* min-height: 92vh; */
   max-height: none;
@@ -498,9 +611,11 @@ background-color: #81156a;
   background-color: darkblue;
   width: 100%;
   height: min-content;
-  position: relative;  /* 若要吸頂可改為 sticky */
+  position: relative;
+  /* 若要吸頂可改為 sticky */
   top: 150px;
 }
+
 /**
 * 點讚按鈕
 */
@@ -574,7 +689,6 @@ background-color: #81156a;
   min-width: 2rem;
   text-align: center;
 }
-
 </style>
 
 <script setup lang="ts">
@@ -582,15 +696,15 @@ import HomeHeaderNavigation from "./HomeHeaderNavigation.vue";
 import ReplyModal from "./ReplyModal.vue";
 import { ElMessageBox } from "element-plus";
 import http from '@/utils/httpRequest'
-import {ArticleInter, Articles} from "@/interface/front/articleInterface";
-import {nextTick,watch, onMounted, onUnmounted, ref} from "vue";
-import {useRouter, useRoute} from "vue-router";
-import {ElAnchor, ElMessage} from "element-plus";
-import {R} from "@/interface/R";
+import { ArticleInter, Articles } from "@/interface/front/articleInterface";
+import { nextTick, watch, onMounted, onUnmounted, ref } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { ElAnchor, ElMessage } from "element-plus";
+import { R } from "@/interface/R";
 import { debounce } from 'throttle-debounce';
 import { commentDataInterface } from "@/interface/commentDataInterface";
 import { getCookieValue } from "@/utils/jwtUtils";
-import {replyCommentDataInterface} from "@/interface/replyCommentDataInterface.ts";
+import { replyCommentDataInterface } from "@/interface/replyCommentDataInterface.ts";
 
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -598,14 +712,19 @@ import 'dayjs/locale/zh-tw' // 引入繁體中文語系
 dayjs.extend(relativeTime)
 dayjs.locale('zh-tw') // 設定預設語系為繁體中文
 
+// Methods
+const truncateText = (text: string, maxLength: number): string => {
+  if (text.length <= maxLength) return text
+  return text.substring(0, maxLength) + '...'
+}
 
 const Article = ref<ArticleInter | null>(null);
 const ArticleContent = ref('')
 
 const router = useRouter()
 const route = useRoute()
-const {articleId} = Array.isArray(route.params) ? route.params[0] : route.params
-const commentId =ref()
+const { articleId } = Array.isArray(route.params) ? route.params[0] : route.params
+const commentId = ref()
 const artComments = ref();
 
 // 回覆模態框相關狀態
@@ -624,19 +743,19 @@ const currentReplyUser = ref(null);
 /**
  * 評論點讚
  */
-const handleLikes=function(commentId: string) {
-    console.log("commentId:", commentId)
+const handleLikes = function (commentId: string) {
+  console.log("commentId:", commentId)
   http({
-      url: http.adornUrl(`/article/comment/${commentId}/like`),
-      method: 'post'
-  }).then(({data}:{data:R}) => {
-      if (data.code == 200) {
-          ElMessage.success("成功訊息");
-      } else {
-          ElMessage.error("錯誤訊息");
-      }
+    url: http.adornUrl(`/article/comment/${commentId}/like`),
+    method: 'post'
+  }).then(({ data }: { data: R }) => {
+    if (data.code == 200) {
+      ElMessage.success("成功訊息");
+    } else {
+      ElMessage.error("錯誤訊息");
+    }
   }).catch(() => {
-      ElMessage.error("請求出錯，請稍後再試");
+    ElMessage.error("請求出錯，請稍後再試");
   });
 
 }
@@ -648,7 +767,7 @@ import { marked } from "marked";
 import { AmsArtTagListInterface } from "@/interface/amsArtTagInterface";
 
 
-const renderedComments=ref([])
+const renderedComments = ref([])
 
 watch(artComments, async (newArtComments) => {
   console.log("newArtComments:", newArtComments);
@@ -656,7 +775,7 @@ watch(artComments, async (newArtComments) => {
     renderedComments.value = [];
     return;
   }
-  
+
   const processedList = await Promise.all(
     newArtComments.map(async (item) => {
       const rawHTML = await marked.parse(item.commentContent || '');
@@ -667,7 +786,7 @@ watch(artComments, async (newArtComments) => {
 
   // const processedList = await Promise.all(
   //   newArtComments.map(async (item) => {
-      
+
   //     const rawHTML = await DOMPurify.sanitize(item.commentContent);
   //     const sanitizedHtml =  marked.parse( rawHTML|| '');
   //     return { ...item, commentContent: sanitizedHtml };
@@ -675,8 +794,8 @@ watch(artComments, async (newArtComments) => {
   // );
 
   // 將處理完的結果賦值給 renderedComments
-  renderedComments.value = processedList; 
-  console.log("renderedComments.value:",renderedComments.value)
+  renderedComments.value = processedList;
+  console.log("renderedComments.value:", renderedComments.value)
 }, { deep: true }); // 加上 deep: true 來監聽物件陣列內部的變化
 
 
@@ -724,29 +843,29 @@ const handleClose = (done: () => void) => {
 
 
 
-const handleReplyComment= function(parentCommentId:string){
+const handleReplyComment = function (parentCommentId: string) {
   // console.log("articleId:",articleId)
-  console.log("parentCommentId:",parentCommentId)
-  
-  const data:replyCommentDataInterface={
-    parentCommentId:parentCommentId,
-    commentContent:textarea1.value,
-    articleId:articleId,
+  console.log("parentCommentId:", parentCommentId)
+
+  const data: replyCommentDataInterface = {
+    parentCommentId: parentCommentId,
+    commentContent: textarea1.value,
+    articleId: articleId,
   }
 
   http({
-      url: http.adornUrl('/article/comment/create'),
-      method: 'post',
-      data: http.adornData(data, false)
-  }).then(({data}:{data:R}) => {
-      if (data.code == 200) {
+    url: http.adornUrl('/article/comment/create'),
+    method: 'post',
+    data: http.adornData(data, false)
+  }).then(({ data }: { data: R }) => {
+    if (data.code == 200) {
 
-          ElMessage.success("成功訊息");
-      } else {
-          ElMessage.error("錯誤訊息");
-      }
+      ElMessage.success("成功訊息");
+    } else {
+      ElMessage.error("錯誤訊息");
+    }
   }).catch(() => {
-      ElMessage.error("請求出錯，請稍後再試");
+    ElMessage.error("請求出錯，請稍後再試");
   });
 
 }
@@ -754,15 +873,16 @@ const handleReplyComment= function(parentCommentId:string){
 const createArticleModalVisible = ref(false);
 // 開啟編輯文章模態框
 const handleOpenEditArticleModal = () => {
-  console.log("handleOpenEditArticleModal:Article.value:",Article.value)
+  console.log("handleOpenEditArticleModal:Article.value:", Article.value)
   currentReplyUser.value = {
     title: Article.value.title,
     articleId: Article.value.id,
     categoryId: Article.value.categoryId,
     commentContent: Article.value.content,
-    amsArticleTagsVoList: Article.value.amsArticleTagsVoList
+    amsArticleTagsVoList: Article.value.amsArticleTagsVoList,
+    
   };
-  console.log("handleOpenEditArticleModal:currentReplyUser.value:",currentReplyUser.value)
+  console.log("handleOpenEditArticleModal:currentReplyUser.value:", currentReplyUser.value)
   createArticleModalVisible.value = true;
 };
 
@@ -780,6 +900,7 @@ const handleCloseEditArticleModal = () => {
 
 // 開啟評論回覆模態框
 const handleOpenReplyModal = (comment: any) => {
+  console.log("handleOpenReplyModal:comment:", comment)
   currentReplyUser.value = {
     username: comment.username,
     commentContent: comment.commentContent,
@@ -787,11 +908,12 @@ const handleOpenReplyModal = (comment: any) => {
     articleId: articleId as string
   };
   replyModalVisible.value = true;
-  
+
 };
 
 // 關閉評論回覆模態框
 const handleCloseReplyModal = () => {
+  console.log("觸發handleCloseReplyModal")
   replyModalVisible.value = false;
   currentReplyUser.value = {
     username: '',
@@ -804,7 +926,7 @@ const handleCloseReplyModal = () => {
 
 // 提交回覆
 const handleSubmitReply = async (content: string, replyData: any) => {
-  console.log("handleSubmitReply:replyData:",replyData)
+  console.log("handleSubmitReply:replyData:", replyData)
   try {
     const response = await http({
       url: http.adornUrl('/article/comment/create'),
@@ -833,35 +955,35 @@ const handleSubmitReply = async (content: string, replyData: any) => {
 
 //編輯文章
 import editArticleInterface from "@/interface/editArticleInterface";
-const handleEditArticle = async function(articleId:string,editArticleData:editArticleInterface){
+const handleEditArticle = async function (articleId: string, editArticleData: editArticleInterface) {
   //補上文章 ID
   // editArticleData.articleId=articleId
-  console.log("handleEditArticle:editArticleData:",editArticleData)
+  console.log("handleEditArticle:editArticleData:", editArticleData)
 
 
   const updateArticle = ref<editArticleInterface>({
 
-    title:editArticleData.title,
-    content:editArticleData.content,
-    categoryId:editArticleData.categoryId,
-    tagsId:editArticleData.tagsId,
+    title: editArticleData.title,
+    content: editArticleData.content,
+    categoryId: editArticleData.categoryId,
+    tagsId: editArticleData.tagsId,
   })
 
-  console.log("handleEditArticle:updateArticle.value:",updateArticle.value)
+  console.log("handleEditArticle:updateArticle.value:", updateArticle.value)
 
-  const {data}= await http({
-    url:http.adornUrl(`/article/update/${articleId}`),
-    method:'put',
-    data:http.adornData(updateArticle.value,false)
+  const { data } = await http({
+    url: http.adornUrl(`/article/update/${articleId}`),
+    method: 'put',
+    data: http.adornData(updateArticle.value, false)
   })
-  
-  if(data.code==200){
-    console.log("handleEditArticle:data.data",data.data)
+
+  if (data.code == 200) {
+    console.log("handleEditArticle:data.data", data.data)
     ElMessage.success("編輯成功")
-  }else{
+  } else {
     ElMessage.error("編輯失敗")
   }
-  
+
 }
 //評論
 
@@ -888,26 +1010,26 @@ const textarea1 = ref()
 // }
 
 ///TODO 登入才能評論
-const handleCommitComment=function (){
+const handleCommitComment = function () {
 
-  const acId= Array.isArray(articleId) ? articleId[0] : articleId
-  
+  const acId = Array.isArray(articleId) ? articleId[0] : articleId
+
   // const jwtToken:string|null=getCookieValue("jwtToken");
 
 
   // console.log("jwtToken:",{jwtToken})
   // console.log("cookie:",{cookie})
-  const commentData:commentDataInterface={
-    commentContent:textarea1.value,
+  const commentData: commentDataInterface = {
+    commentContent: textarea1.value,
     // userId: 1111.,
-    articleId:acId,
+    articleId: acId,
     // jwtToken:jwtToken
   }
   http({
     url: http.adornUrl('/article/comment/create'),
     method: 'post',
     data: http.adornData(commentData, false)
-  }).then(({data}:{data:any}) => {
+  }).then(({ data }: { data: any }) => {
     if (data.code == 200) {
       ElMessage.success("成功發送評論");
     } else {
@@ -924,21 +1046,21 @@ const handleCommitComment=function (){
 // let articleContentRefObserver: ResizeObserver
 
 // onMounted(() => {
-  // debounce(5000,()=>{
-  //   if (!articleContentRef.value) return
-  //   articleContentRefObserver = new ResizeObserver(entries => {
-  //     for (let entry of entries) {
-  //       const articleContentHeight = entry.contentRect.height
-  //       console.log("articleContentHeight:", articleContentHeight)
-  //
-  //       if (articleContentHeight > 0 && articleContentListRef.value) {
-  //         articleContentListRef.value.style.height = `${articleContentHeight + 150}px`
-  //       }
-  //     }
-  //   })
-  //
-  //   articleContentRefObserver.observe(articleContentRef.value)
-  // })
+// debounce(5000,()=>{
+//   if (!articleContentRef.value) return
+//   articleContentRefObserver = new ResizeObserver(entries => {
+//     for (let entry of entries) {
+//       const articleContentHeight = entry.contentRect.height
+//       console.log("articleContentHeight:", articleContentHeight)
+//
+//       if (articleContentHeight > 0 && articleContentListRef.value) {
+//         articleContentListRef.value.style.height = `${articleContentHeight + 150}px`
+//       }
+//     }
+//   })
+//
+//   articleContentRefObserver.observe(articleContentRef.value)
+// })
 
 // })
 
@@ -1188,7 +1310,7 @@ onUnmounted(() => {// 在組件卸載後移除滾動事件監聽器
 //       if (Article.value != null) {
 //         ArticleContent.value = Article.value.content;
 //         console.log("ArticleContent.value:", ArticleContent.value);
-        
+
 //         const parser = new DOMParser();
 //         const doc = parser.parseFromString(ArticleContent.value, 'text/html');
 //         console.log("doc:", doc);
@@ -1220,62 +1342,62 @@ onUnmounted(() => {// 在組件卸載後移除滾動事件監聽器
 
 // });
 
-const getArticle=(async ()=>{
+const getArticle = (async () => {
 
-try {
-  const { data } = await http({
-    url: http.adornUrl(`/article/articles/${articleId}`),
-    method: 'get',
-    params: http.adornParams({})
-  }) as { data: R };
+  try {
+    const { data } = await http({
+      url: http.adornUrl(`/article/articles/${articleId}`),
+      method: 'get',
+      params: http.adornParams({})
+    }) as { data: R };
 
-  console.log("data:", data);
-  
-  if (data.code == 200 && data.data) {
-    // Article.value = data.data;
-    // ArticleContent.value = Article.value.content;
-    // console.log("ArticleContent.value:", ArticleContent.value);
-    return data;
+    console.log("data:", data);
+
+    if (data.code == 200 && data.data) {
+      // Article.value = data.data;
+      // ArticleContent.value = Article.value.content;
+      // console.log("ArticleContent.value:", ArticleContent.value);
+      return data;
+    }
+  } catch (error) {
+    console.error("獲取文章資料失敗:", error);
   }
-} catch (error) {
-  console.error("獲取文章資料失敗:", error);
-}
 })
 
 
-  const getArtComments=async function(){
-    try {
-      const {data} =await http({
-        url: http.adornUrl(`/article/${articleId}/comments`),
-        method: 'get',
-      }) as {data : R}
-    
-        if (data.code == 200) {
-          // artComments.value=data.data
-          
-          // console.log("文章留言區artComments.value:",artComments.value)
-          // ElMessage.success("成功加載文章留言區");
-          return data;
-        } else {
-          ElMessage.error("加載文章留言區失敗");
-        }
-      }catch (error) {
-          console.error("獲取文章留言區失敗:", error);
-      }
-    
-  
+const getArtComments = async function () {
+  try {
+    const { data } = await http({
+      url: http.adornUrl(`/article/${articleId}/comments`),
+      method: 'get',
+    }) as { data: R }
+
+    if (data.code == 200) {
+      // artComments.value=data.data
+
+      // console.log("文章留言區artComments.value:",artComments.value)
+      // ElMessage.success("成功加載文章留言區");
+      return data;
+    } else {
+      ElMessage.error("加載文章留言區失敗");
+    }
+  } catch (error) {
+    console.error("獲取文章留言區失敗:", error);
+  }
+
+
   ;
-} 
+}
 const loading = ref(true);
 
 //加載文章以及留言
-onMounted(async()=>{
-  const [articleResult, commentsResult]=await Promise.allSettled([getArticle(),getArtComments()]);
-  console.log("artComments:",artComments)
-  console.log("commentsResult:",commentsResult)
-  
+onMounted(async () => {
+  const [articleResult, commentsResult] = await Promise.allSettled([getArticle(), getArtComments()]);
+  console.log("artComments:", artComments)
+  console.log("commentsResult:", commentsResult)
+
   //檢查文章是否載入成功(必須成功)
-  if(articleResult.status==='rejected'){
+  if (articleResult.status === 'rejected') {
 
     ElMessage.error("獲取文章資料失敗")
     return;
@@ -1284,13 +1406,13 @@ onMounted(async()=>{
   const article = articleResult.value.data;
   // Article.value = article.article.value;
 
-  const comments = commentsResult.status==='fulfilled'? commentsResult.value.data : [];
+  const comments = commentsResult.status === 'fulfilled' ? commentsResult.value.data : [];
   Article.value = article;
   ArticleContent.value = article.content;
-  artComments.value =comments;
+  artComments.value = comments;
   loading.value = false;
-  console.log("article:",article)
-  console.log("comments:",comments)
+  console.log("article:", article)
+  console.log("comments:", comments)
 
 })
 
@@ -1319,9 +1441,9 @@ const isLiked = ref(false);
 /**
  * 文章點讚處理函數
  */
-const handleArticleLike = function() {
+const handleArticleLike = function () {
   console.log("articleId:", articleId);
-  
+
   http({
     url: http.adornUrl(`/article/articles/${articleId}/like`),
     method: 'get'

@@ -5,7 +5,8 @@
         <div class="reply-modal-container" @click.stop>
 
 
-          <div style="width: 500px; height: 600px; background-color: whitesmoke;">
+          <!-- <div style="width: 500px; height: 600px; background-color: whitesmoke;"> -->
+          <div>
               <slot name="header"/>
           </div>
 
@@ -310,24 +311,30 @@ const editorOptions = {
   placeholder: '撰寫您的回覆...'
 }
 
-// Methods
-const truncateText = (text: string, maxLength: number): string => {
-  if (text.length <= maxLength) return text
-  return text.substring(0, maxLength) + '...'
-}
+// // Methods
+// const truncateText = (text: string, maxLength: number): string => {
+//   if (text.length <= maxLength) return text
+//   return text.substring(0, maxLength) + '...'
+// }
 
 const handleOverlayClick = () => {
   handleCancel()
 }
 
+
+// const resetModal = function(){
+  
+
+// }
+
 const handleCancel = () => {
   if (content.value.trim() && !isSubmitting.value) {
     if (confirm('您有未儲存的內容，確定要關閉嗎？')) {
-      resetModal()
+      // resetModal()
       emit('close')
     }
   } else {
-    resetModal()
+    // resetModal()
     emit('close')
   }
 }
@@ -939,97 +946,8 @@ watch(() => props.visible, (newValue) => {
   }
 }
 
-/* ==========================================
-   Reply Header
-   ========================================== */
-.reply-header {
-  padding: var(--space-5) var(--space-6) var(--space-4);
-  background: var(--surface-primary);
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-  border-bottom: 1px solid var(--border-default);
-  position: relative;
-}
 
-.reply-header::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: var(--space-6);
-  right: var(--space-6);
-  height: 1px;
-  background: var(--gradient-border-subtle);
-}
 
-.reply-info {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-2);
-}
-
-.reply-text {
-  color: var(--text-tertiary);
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.reply-username {
-  color: var(--primary-500);
-  font-size: 14px;
-  font-weight: 600;
-  background: var(--primary-50);
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
-}
-
-.original-comment {
-  color: var(--text-secondary);
-  font-size: 13px;
-  line-height: 1.5;
-  background: var(--surface-tertiary);
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-md);
-  border-left: 3px solid var(--primary-500);
-  border: 1px solid var(--border-subtle);
-  border-left: 3px solid var(--primary-500);
-  position: relative;
-  overflow: hidden;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-
-.original-comment::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, var(--primary-500), transparent);
-}
-
-.close-btn {
-  position: absolute;
-  top: var(--space-4);
-  right: var(--space-5);
-  background: none;
-  border: 1px solid transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  padding: var(--space-2);
-  border-radius: var(--radius-sm);
-  transition: all var(--transition-base);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.close-btn:hover {
-  color: var(--text-primary);
-  background: var(--surface-hover);
-  border-color: var(--border-muted);
-  transform: rotate(90deg);
-  box-shadow: var(--shadow-sm);
-}
 
 /* ==========================================
    Smart Toolbar
