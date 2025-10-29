@@ -158,6 +158,7 @@ import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
 const modalVisible= ref<boolean>(false)
+const content = ref<string>('')
 
 interface Props {
   modalVisible: boolean
@@ -170,13 +171,17 @@ const props = withDefaults(defineProps<Props>(), {
   content: ''
 })
 
+//當props.content變化時，將其同步到content.value
+watch(()=>props.content,(newValue)=>{
+    content.value=newValue
+},{immediate:true,deep:true})
 
 // 使用 computed 來同步 modalVisible
-const isVisible = computed(  
-{
-  get: () => props.modalVisible,
-  set: (value) => emit('update:modalVisible', value)
-})
+
+const isVisible = computed(
+  () => props.modalVisible
+)
+
 const emit = defineEmits<{
 
 (e: 'close'): void,
@@ -185,9 +190,8 @@ const emit = defineEmits<{
 }>()
 //確定按鈕
 const handleSubmit = function(){
-
+    console.log("handleSubmit:content.value:",content.value)
     emit('submit',content.value)
-
 }
 
 
@@ -251,7 +255,7 @@ const editArticleData = ref<editArticleDataInterface>({
 
 
 // Reactive data
-const content = computed(() => props.content || '')
+
 const isSubmitting = ref(false)
 const quillEditor = ref()
 const showMarkdownGuide = ref(false)

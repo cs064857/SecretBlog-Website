@@ -682,18 +682,18 @@ const selectCategoryId = ref<string>()
 
 import editArticleInterface from "@/interface/editorArticleInterface";
 
-const handleEditArticle = async function (content: string) {
+const handleEditArticle = async function (newContent: string) {
   //補上文章 ID
   // editArticleData.articleId=articleId
   console.log("handleEditArticle:editArticleData:articleId:", articleId)
   console.log("handleEditArticle:editArticleData:inputTitle.value:", inputTitle.value)
-  console.log("handleEditArticle:editArticleData:inputTitle.value:", content)
+  console.log("handleEditArticle:editArticleData:newContent:", newContent)
   console.log("handleEditArticle:editArticleData:selectCategoryId.value:", selectCategoryId.value)
   console.log("handleEditArticle:editArticleData:selectTagsValue.value:", selectTagsValue.value)
 
   const updateArticle = ref<editArticleInterface>({
     title: inputTitle.value,
-    content: content,
+    content: newContent,
     categoryId: selectCategoryId.value,
     tagsId: selectTagsValue.value,
   })
