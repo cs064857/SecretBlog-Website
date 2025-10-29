@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed, onMounted, onUpdated, ref, watch} from "vue";
-import {Articles} from "@/interface/front/articleInterface";
+
 import {onBeforeRouteUpdate, useRoute, useRouter} from "vue-router";
 import http from "../utils/httpRequest"
 import {ElMessage} from "element-plus";

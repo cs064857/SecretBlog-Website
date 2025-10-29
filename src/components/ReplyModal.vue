@@ -1,44 +1,23 @@
 <template>
   <Teleport to="body">
     <Transition name="reply-modal" appear>
-      <div v-if="visible" class="reply-modal-overlay" @click="handleOverlayClick">
-        <div class="reply-modal-container" @click.stop>
+      <div v-if="isVisible" class="reply-modal-overlay" @click="handleOverlayClick">
+      <!-- <div v-if="visible" class="reply-modal-overlay" @click="handleOverlayClick"> -->
+        <div  class="reply-modal-container" @click.stop>
 
 
           <!-- <div style="width: 500px; height: 600px; background-color: whitesmoke;"> -->
+          <!-- 對已存在評論進行回覆時所需的原評論使用者名稱以及原評論內容 -->
           <div>
-              <slot name="header"/>
+              <slot name="reply-comment-header"/>
           </div>
 
-          <!-- 新增文章功能：Header(標題、分類、標籤設置)-->
-          <div v-if="props.model == 'createArticle' || props.model == 'editArticle'" class="create-article-header">
-            <div class="create-article-info">
-              <div class="create-article-title">
-                <span class="create-article-title-text">標題</span>
-                <el-input class="create-article-title-input" type="text" placeholder="輸入標題..."
-                  v-model="inputTitle"></el-input>
-                <!-- <el-input class="create-article-title-input" type="text" :placeholder="`輸入標題... (文章ID: ${replyToUser.articleId})`" v-model="inputTitle"></el-input> -->
-
-              </div>
-
-              <div class="create-article-meta">
-                <div class="create-article-category">
-                  <span class="create-article-title-text">分類</span>
-                  <el-tree-select v-model="selectCategoryId" :data="treeCategory" @change="handleChange"
-                    :render-after-expand="false"
-                    style="max-width: 20vh;min-width: 20vh;margin: 2% 2% 2% 0.2%;padding-top: 1%;" value-key="id" />
-                </div>
-                <div class="create-article-tag">
-                  <span class="create-article-title-text">標籤</span>
-                  <el-tree-select v-model="selectTagsValue" :data="tagsSelectData" :props="treeProps" multiple
-                    @change="handleTagsChange" :render-after-expand="false" style="max-width: 20vh;min-width: 20vh;"
-                    value-key="id" />
-                </div>
-              </div>
-
-
-            </div>
+          <!-- 新增文章或者編輯文章時所需的文章標題、文章分類、文章標籤等欄位 -->
+          <div>
+            <slot name="article-editor-header"/>
           </div>
+
+
           <br></br>
           <!-- 智能工具列 -->
           <div class="smart-toolbar">
@@ -178,6 +157,40 @@ import { ref, computed, nextTick, onUnmounted, watch } from 'vue'
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
+const modalVisible= ref<boolean>(false)
+
+interface Props {
+  modalVisible: boolean
+  content? : string
+
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  modalVisible: false,
+  content: ''
+})
+
+
+// 使用 computed 來同步 modalVisible
+const isVisible = computed(  
+{
+  get: () => props.modalVisible,
+  set: (value) => emit('update:modalVisible', value)
+})
+const emit = defineEmits<{
+
+(e: 'close'): void,
+(e: 'submit',data:any): void
+
+}>()
+//確定按鈕
+const handleSubmit = function(){
+
+    emit('submit',content.value)
+
+}
+
+
 // Props
 // interface ReplyToUserInterface {
 //   username: string
@@ -186,26 +199,26 @@ import '@vueup/vue-quill/dist/vue-quill.snow.css'
 //   articleId: string
 // }
 
-interface Props {
-  visible: boolean
-  // replyToUser: ReplyToUserInterface
-  replyToUser: Object
-  model: "replyComment" | "createArticle" | "editArticle"
-}
+// interface Props {
+//   visible: boolean
+//   // replyToUser: ReplyToUserInterface
+//   replyToUser: Object
+//   model: "replyComment" | "createArticle" | "editArticle"
+// }
 
-const props = withDefaults(defineProps<Props>(), {
-  visible: false,
-  model: 'createArticle',
-  // replyToUser: () => ({
-  //   username: '',
-  //   commentContent: '',
-  //   commentId: '',
-  //   articleId: ''
-  // })
-})
+// const props = withDefaults(defineProps<Props>(), {
+//   visible: false,
+//   model: 'createArticle',
+//   // replyToUser: () => ({
+//   //   username: '',
+//   //   commentContent: '',
+//   //   commentId: '',
+//   //   articleId: ''
+//   // })
+// })
 
 import { createArticleDataInterface } from "@/interface/createArticleDataInterface";
-const inputTitle = ref<string>('')
+
 const createArticleData = ref<createArticleDataInterface>({
   title: '',
   content: '',
@@ -232,19 +245,13 @@ const editArticleData = ref<editArticleDataInterface>({
   // title: inputTitle.value,
   // content: content.value,
   // categoryId: selectCategoryId.value,
-  // amsArticleTagsVoList: selectTagsValue.value
+  // amsArtTagsVoList: selectTagsValue.value
 })
 
-// Emits
-const emit = defineEmits<{
-  close: [];
-  submit: [content: string, replyData?: Object]
-  handleCreateArticle: [createArticleData?: createArticleDataInterface]
-  handleEditArticle: [articleId: string, editArticleData?: editArticleDataInterface];
-}>()
+
 
 // Reactive data
-const content = ref('')
+const content = computed(() => props.content || '')
 const isSubmitting = ref(false)
 const quillEditor = ref()
 const showMarkdownGuide = ref(false)
@@ -327,6 +334,16 @@ const handleOverlayClick = () => {
 
 // }
 
+// Emits
+// const emit = defineEmits<{
+//   close: [];
+//   submit: [content: string, replyData?: Object]
+//   handleCreateArticle: [createArticleData?: createArticleDataInterface]
+//   handleEditArticle: [articleId: string, editArticleData?: editArticleDataInterface];
+// }>()
+
+
+
 const handleCancel = () => {
   if (content.value.trim() && !isSubmitting.value) {
     if (confirm('您有未儲存的內容，確定要關閉嗎？')) {
@@ -339,47 +356,47 @@ const handleCancel = () => {
   }
 }
 
-const handleSubmit = async () => {
-  if (!content.value.trim() || isSubmitting.value) return;
+// const handleSubmit = async () => {
+//   if (!content.value.trim() || isSubmitting.value) return;
 
-  isSubmitting.value = true;
+//   isSubmitting.value = true;
 
-  try {
-    console.log("props.model:", props.model);
+//   try {
+//     console.log("props.model:", props.model);
 
-    if (props.model === "replyComment") {
-      // 處理評論回覆
-      emit('submit', content.value, props.replyToUser);
+//     if (props.model === "replyComment") {
+//       // 處理評論回覆
+//       emit('submit', content.value, props.replyToUser);
 
-    } else if (props.model === "createArticle") {
-      // 處理新增文章
-      createArticleData.value = {
-        title: inputTitle.value,
-        content: content.value,
-        categoryId: selectCategoryId.value,
-        tagsId: selectTagsValue.value
-      };
-      emit('handleCreateArticle', createArticleData.value);
+//     } else if (props.model === "createArticle") {
+//       // 處理新增文章
+//       createArticleData.value = {
+//         title: inputTitle.value,
+//         content: content.value,
+//         categoryId: selectCategoryId.value,
+//         tagsId: selectTagsValue.value
+//       };
+//       emit('handleCreateArticle', createArticleData.value);
 
-    } else if (props.model === "editArticle") {
-      // 處理編輯文章
-      editArticleData.value = {
-        title: inputTitle.value,
-        content: content.value,
-        categoryId: selectCategoryId.value,
-        tagsId: selectTagsValue.value,
-        // articleId: props.replyToUser.articleId
-      };
-      emit('handleEditArticle', props.replyToUser.articleId, editArticleData.value);
-    }
+//     } else if (props.model === "editArticle") {
+//       // 處理編輯文章
+//       editArticleData.value = {
+//         title: inputTitle.value,
+//         content: content.value,
+//         categoryId: selectCategoryId.value,
+//         tagsId: selectTagsValue.value,
+//         // articleId: props.replyToUser.articleId
+//       };
+//       emit('handleEditArticle', props.replyToUser.articleId, editArticleData.value);
+//     }
 
-    resetModal();
-  } catch (error) {
-    console.error('提交時出錯:', error);
-  } finally {
-    isSubmitting.value = false;
-  }
-};
+//     resetModal();
+//   } catch (error) {
+//     console.error('提交時出錯:', error);
+//   } finally {
+//     isSubmitting.value = false;
+//   }
+// };
 
 
 // 真正的所見即所得格式應用
@@ -513,25 +530,25 @@ const updateToolStates = () => {
   })
 }
 
-// 監聽 props.visible 變化以重置狀態
-watch(() => props.visible, (newVisible) => {
-  if (newVisible) {
-    // 模態開啟時重置狀態
-    showMarkdownGuide.value = false
-    nextTick(() => {
-      const editor = quillEditor.value?.getQuill()
-      if (editor) {
-        editor.focus()
-        updateToolStates()
-      }
-    })
-  } else {
-    // 模態關閉時清理狀態
-    textFormattingTools.forEach(tool => {
-      tool.active = false
-    })
-  }
-})
+// // 監聽 props.visible 變化以重置狀態
+// watch(() => props.visible, (newVisible) => {
+//   if (newVisible) {
+//     // 模態開啟時重置狀態
+//     showMarkdownGuide.value = false
+//     nextTick(() => {
+//       const editor = quillEditor.value?.getQuill()
+//       if (editor) {
+//         editor.focus()
+//         updateToolStates()
+//       }
+//     })
+//   } else {
+//     // 模態關閉時清理狀態
+//     textFormattingTools.forEach(tool => {
+//       tool.active = false
+//     })
+//   }
+// })
 
 // 擷便的鍵盤快捷鍵提示
 const getShortcutHint = (toolName: string): string => {
@@ -655,106 +672,7 @@ if (typeof window !== 'undefined') {
   onUnmounted(cleanup)
 }
 
-/*
-* 新增文章
-*/
-/**
- * 文章標籤
- */
 
-const selectTagsValue = ref()
-
-interface tagsSelectData {
-  name: string,
-  id: string,
-}
-
-const tagsSelectData = ref<tagsSelectData[]>()
-
-// tagsSelectData.value=[
-//   {
-//     name: "標籤1",
-//     id: "1",
-//   },
-//   {
-//     name: "標籤2",
-//     id: "2",
-//   },
-// ]
-
-const treeProps = {
-  label: 'name', // 指定用數據中的 'name' 屬性作為顯示的標籤
-  value: 'id',   // 指定用數據中的 'id' 屬性作為選項的值
-}
-import { onMounted } from 'vue';
-import http from '@/utils/httpRequest'
-import { ElMessage, useThrottleRender } from "element-plus";
-import { R } from "@/interface/R";
-import { useTreeCategoryStore } from "@/pinia/useTreeCategoryStore"
-
-/**
- * 獲取分類資訊
- */
-const treeCategory = useTreeCategoryStore().getTreeData;
-
-
-const selectCategoryId = ref<string>()
-const handleChange = function (value: string) {
-  //得到樹形選擇器中該分類的ID
-  selectCategoryId.value = value
-  console.log("handleChange.value", value)
-}
-
-onMounted(() => {
-
-  /**
-   * 獲取標籤資訊
-   */
-  http({
-    url: http.adornUrl('/article/tags/list'),
-    method: 'get',
-  }).then(({ data }: { data: R }) => {
-    console.log("data", data)
-    if (data.code == 200) {
-      tagsSelectData.value = data.data
-      console.log("tagsSelectData:", tagsSelectData.value)
-      ElMessage.success("文章標籤獲取成功")
-    } else {
-      ElMessage.error("文章標籤獲取失敗")
-    }
-  });
-})
-const handleTagsChange = function (value: number) {
-
-  selectTagsValue.value = value
-  console.log("handleTagsChange.value", value)
-
-}
-
-/**
- * watch編輯文章內容
- */
-watch(() => props.visible, (newValue) => {
-  if (props.model === "editArticle" && newValue) {
-    console.log("編輯模式，載入文章資料:", props.replyToUser);
-    console.log("編輯模式，載入文章資料amsArticleTagsVoList:", props.replyToUser.amsArticleTagsVoList);
-    // 載入文章資料到表單
-    inputTitle.value = props.replyToUser.title || '';
-    content.value = props.replyToUser.commentContent || '';
-    selectCategoryId.value = props.replyToUser.categoryId || '';
-
-    // 處理標籤資料
-    if (props.replyToUser.amsArticleTagsVoList) {
-      selectTagsValue.value = props.replyToUser.amsArticleTagsVoList.map(
-        (item: any) => item.id
-      );
-    }
-
-    console.log("載入完成 - 標題:", inputTitle.value);
-    console.log("載入完成 - 分類:", selectCategoryId.value);
-    console.log("載入完成 - 標籤:", selectTagsValue.value);
-  }
-});
 
 
 
@@ -1565,55 +1483,5 @@ watch(() => props.visible, (newValue) => {
   }
 }
 
-/**
-* 新增文章
-*/
-.create-article-header {
-  padding: var(--padding-1)
-}
 
-.create-article-info {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-
-}
-
-.create-article-title-text {
-  color: var(--text-tertiary);
-  font-size: 20px;
-  font-weight: 500;
-}
-
-
-.create-article-title-input {
-  width: 90%;
-}
-
-.create-article-title {
-  display: flex;
-  flex-direction: row;
-  gap: 1rem;
-}
-
-.create-article-meta {
-  display: flex;
-  flex-direction: row;
-  justify-content: start;
-}
-
-.create-article-category {
-  display: flex;
-  flex-direction: row;
-  gap: 1rem;
-  flex: 1
-}
-
-.create-article-tag {
-  display: flex;
-  flex-direction: row;
-  gap: 1rem;
-
-  flex: 1
-}
 </style>

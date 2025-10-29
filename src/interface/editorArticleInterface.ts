@@ -2,7 +2,7 @@ export default interface updateArticleInterface{
 
     title:string,
     content:string,
-    categoryId:bigint,
+    categoryId:string,
     tagsId:string[],
     
   }

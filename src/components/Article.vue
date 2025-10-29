@@ -39,7 +39,7 @@
 
                 <div class="article-header-info-edit">
                   <!-- <img @click="handleEditArticle" src="/src/assets/pen-solid-full.svg" alt="edit" style="width: 1.5rem;height: 1.5rem;"></img> -->
-                  <img @click="handleOpenEditArticleModal()" src="/src/assets/pen-solid-full.svg" alt="edit"
+                  <img @click="handleOpenEditArticleModal" src="/src/assets/pen-solid-full.svg" alt="edit"
                     style="width: 1.5rem;height: 1.5rem;"></img>
                   <!-- <el-button @click="handleOpenEditArticleModal()" type="primary">新增文章</el-button> -->
                 </div>
@@ -197,8 +197,9 @@
 
     </div>
 
-    <reply-modal @close="handleCloseReplyModal()" v-if="replyModalVisible" :visible="true" :replyToUser="currentReplyUser">
-      <template  v-slot:header>
+    <reply-modal @close="handleCloseReplyModal()" v-if="replyModalVisible" :modalVisible="replyModalVisible"
+      :replyToUser="currentReplyUser">
+      <template v-slot:reply-comment-header>
         <!-- 評論功能：智能回覆提示區 -->
         <!-- <div v-if="props.model == 'replyComment' ? true : false" class="reply-header"> -->
         <div class="reply-header">
@@ -208,488 +209,68 @@
             <span class="reply-username">{{ currentReplyUser.username }}</span>
           </div>
           <div class="original-comment">
-            
+
             {{ truncateText(currentReplyUser.commentContent, 50) }}
           </div>
           <button class="close-btn" @click="handleCancel">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                        <path
-                            d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                    </svg>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <path
+                d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+            </svg>
           </button>
         </div>
       </template>
     </reply-modal>
 
+    <reply-modal @close="handleCloseEditArticleModal" v-if="createArticleModalVisible" @submit="handleEditArticle"
+      :modalVisible="createArticleModalVisible" :content="Article.content">
+
+      <template #article-editor-header>
+        <!-- 新增文章功能：Header(標題、分類、標籤設置)-->
+        <div class="create-article-header">
+          <div class="create-article-info">
+            <div class="create-article-title">
+              <span class="create-article-title-text">標題</span>
+              <el-input class="create-article-title-input" type="text" placeholder="輸入標題..."
+                v-model="inputTitle"></el-input>
+
+              <!-- <el-input class="create-article-title-input" type="text" :placeholder="`輸入標題... (文章ID: ${replyToUser.articleId})`" v-model="inputTitle"></el-input> -->
+
+            </div>
+
+            <div class="create-article-meta">
+              <div class="create-article-category">
+                <span class="create-article-title-text">分類</span>
+                <el-tree-select v-model="selectCategoryId" :data="treeCategory" @change="handleCategoryChange"
+                  :render-after-expand="false"
+                  style="max-width: 20vh;min-width: 20vh;margin: 2% 2% 2% 0.2%;padding-top: 1%;" value-key="id" />
+              </div>
+              <div class="create-article-tag">
+                <span class="create-article-title-text">標籤</span>
+                <el-tree-select v-model="selectTagsValue" :data="tagsSelectData" :props="treeProps" multiple
+                  @change="handleTagsChange" :render-after-expand="false" style="max-width: 20vh;min-width: 20vh;"
+                  value-key="id" />
+              </div>
+            </div>
+
+
+          </div>
+        </div>
+      </template>
+
+    </reply-modal>
+
     <!-- 編輯文章彈出框 -->
-    <ReplyModal :visible="createArticleModalVisible" model="editArticle" :replyToUser="currentReplyUser"
-      @close="handleCloseEditArticleModal" @handleEditArticle="handleEditArticle" />
+    <!-- <ReplyModal :visible="createArticleModalVisible" model="editArticle" :replyToUser="currentReplyUser"
+      @close="handleCloseEditArticleModal" @handleEditArticle="handleEditArticle" /> -->
     <!-- 回覆評論彈出框 -->
-    <ReplyModal :visible="replyModalVisible" model="replyComment" :replyToUser="currentReplyUser"
-      @close="handleCloseReplyModal" @submit="handleSubmitReply" />
+    <!-- <ReplyModal :visible="replyModalVisible" model="replyComment" :replyToUser="currentReplyUser"
+      @close="handleCloseReplyModal" @submit="handleSubmitReply" /> -->
   </section>
 
   <EmptyOrError v-else />
 </template>
 
-<style scoped>
-/* ==========================================
-   Reply Header
-   ========================================== */
-.reply-header {
-  padding: var(--space-5) var(--space-6) var(--space-4);
-  background: var(--surface-primary);
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-  border-bottom: 1px solid var(--border-default);
-  position: relative;
-}
-
-.reply-header::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: var(--space-6);
-  right: var(--space-6);
-  height: 1px;
-  background: var(--gradient-border-subtle);
-}
-
-.reply-info {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-2);
-}
-
-.reply-text {
-  color: var(--text-tertiary);
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.reply-username {
-  color: var(--primary-500);
-  font-size: 14px;
-  font-weight: 600;
-  background: var(--primary-50);
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
-}
-.original-comment {
-  color: var(--text-secondary);
-  font-size: 13px;
-  line-height: 1.5;
-  background: var(--surface-tertiary);
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-md);
-  border-left: 3px solid var(--primary-500);
-  border: 1px solid var(--border-subtle);
-  border-left: 3px solid var(--primary-500);
-  position: relative;
-  overflow: hidden;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-
-.original-comment::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, var(--primary-500), transparent);
-}
-
-.close-btn {
-  position: absolute;
-  top: var(--space-4);
-  right: var(--space-5);
-  background: none;
-  border: 1px solid transparent;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  padding: var(--space-2);
-  border-radius: var(--radius-sm);
-  transition: all var(--transition-base);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.close-btn:hover {
-  color: var(--text-primary);
-  background: var(--surface-hover);
-  border-color: var(--border-muted);
-  transform: rotate(90deg);
-  box-shadow: var(--shadow-sm);
-}
-
-
-
-.article-metrics {
-  min-width: 100%;
-  max-width: 100%;
-  height: 100px;
-  background-color: #88c847;
-}
-
-.ararticle-comment-context-item-info-metrics {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-
-  justify-content: end;
-}
-
-.user-avatar {
-  display: block;
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 50%;
-}
-
-.user-username {
-  text-align: left;
-
-  flex: 1 1 0;
-}
-
-.article-comment-context-item-avatar {
-  display: flex;
-
-  flex: 1 1 0;
-}
-
-.article-comment-context-item-main {
-  text-align: start;
-  word-break: break-all;
-  flex: 1 1 0;
-}
-
-.article-comment-context-item-info {
-  text-align: end;
-  flex: 1 1 0;
-}
-
-.article-comment-context-avatar {
-  margin: 0 auto;
-  padding: 1rem;
-}
-
-.article-comment-context-item {
-  display: flex;
-  gap: 2rem;
-  flex-direction: column;
-
-  flex-wrap: wrap;
-
-
-  /* border: 0.1px solid rgb(190, 186, 186); */
-  text-align: center;
-  background-color: #1a1d1d;
-  /* min-height: 150px;
-  min-width: 1570px;
-  max-width: 1570px; */
-  margin: 0 auto;
-  padding: 1rem;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box
-}
-
-/* .article-comment-context{
-
-  width: 100px;
-  height: 100px;
-  
-} */
-.article-comment-context {
-  display: flex;
-  flex-direction: row;
-  /* gap: 20px; */
-  background-color: #395c5c;
-  /* min-width: 1570px;
-  max-width: 1570px;
-  width: 1570px; */
-  width: 100%;
-  border: 0.1px solid rgb(190, 186, 186);
-  background-color: #1a1d1d;
-}
-
-.article-comment-button {
-  background-color: #0d9393;
-  min-width: 90%;
-  max-width: 90%;
-  display: flex;
-  justify-content: end;
-  align-items: center;
-  /* 移除高度鎖定，讓內容自然撐開 */
-  /* max-height: 18%; */
-  /* min-height: 18%; */
-}
-
-.article-comment-input {
-  background-color: #98710e;
-  min-width: 90%;
-  max-width: 90%;
-  /* 移除高度鎖定，讓內容自然撐開 */
-  /* max-height: 82%; */
-  /* min-height: 82%; */
-}
-
-.article-comment {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-content: start;
-  background-color: darkslateblue;
-  min-width: 100%;
-  max-width: 100%;
-  /* 讓高度由內容撐開 */
-  /* max-height: 80%; */
-  /* min-height: 80%; */
-}
-
-.article-footer {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  /* footer 內容置中 */
-  align-items: center;
-  background-color: #213547;
-  width: 90%;
-  margin: 40px auto 0;
-  /* 置中並與上方內容留距 */
-  position: static;
-  /* 確保參與正常文流，不覆蓋內容 */
-  /* 移除 left 與高度限制 */
-  /* left: 5%; */
-  /* min-height: 55%; */
-
-  /* gap: 6rem; */
-}
-
-.article-header {
-  border: black 3px solid;
-  max-width: 92%;
-  min-width: 92%;
-  margin: 50px 50px 0 50px;
-  background-color: #88c847;
-  box-shadow: 0px 0px 30px;
-}
-
-.article-header-title {
-
-  background-color: #81156a;
-
-}
-
-.article-header-info {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.article-header-info-user {
-  display: flex;
-  flex-direction: row;
-  justify-content: start;
-  align-items: center;
-  background-color: #03638f;
-
-}
-
-.article-header-info-time {
-
-  /* display: flex; */
-  /* flex-direction: row;
-  justify-content: end;
-  align-items: center; */
-  background-color: #0c038f;
-
-}
-
-.article-header-info-right {
-  display: flex;
-  flex-direction: row;
-  justify-content: end;
-  align-items: center;
-  gap: 1rem;
-  background-color: #332f6b;
-}
-
-.article-title {
-  border: black 3px solid;
-  max-width: 92%;
-  min-width: 92%;
-  margin: 50px 50px 0 50px;
-  background-color: #324222;
-  box-shadow: 0px 0px 30px;
-}
-
-.article-content {
-  border: black 3px solid;
-  max-width: 92%;
-  min-width: 92%;
-  margin: 0 50px 50px 50px;
-  background-color: #d7e6c8;
-  box-shadow: 0px 0px 30px;
-  max-height: none;
-  /* 不裁切內容 */
-  word-wrap: break-word;
-  word-break: break-all;
-}
-
-.article-container {
-  background-color: #d57656;
-  width: 100%;
-  /* 重要：不要限制高度或隱藏溢出，改由整個頁面滾動 */
-  /* height: 100%; */
-  overflow: visible;
-  /* 不顯示容器自身滾軸 */
-}
-
-.Box3 {
-  background-color: darkgreen;
-  flex: 2.5;
-  display: flex;
-  flex-direction: column;
-  justify-items: flex-start;
-  position: relative;
-  /* 移除最小高度限制，避免內容被截斷 */
-  /* min-height: 92%; */
-}
-
-.article-main {
-  background-color: darkgrey;
-  width: 100%;
-  /* 讓內容自然撐開 */
-  /* min-height: 92%; */
-  max-height: none;
-  display: flex;
-  justify-content: center;
-}
-
-.article-content-list {
-  display: flex;
-  flex-direction: row;
-  background-color: darkslategray;
-  justify-content: flex-start;
-  align-content: flex-start;
-  align-items: stretch;
-  /* 讓左右欄高度跟隨中間欄 */
-  width: 90%;
-  margin: 0 auto;
-  /* 置中 */
-  /* 不鎖在視窗高度，讓高度由內容決定 */
-  /* min-height: 92vh; */
-  max-height: none;
-}
-
-.Box1 {
-  background-color: darksalmon;
-  flex: 0.5;
-  /* 移除視窗高度鎖定 */
-  /* height: 92vh; */
-}
-
-.Box2 {
-  background-color: darkmagenta;
-  flex: 0.5;
-  position: relative;
-  display: flex;
-  justify-content: flex-start;
-  align-content: start;
-  /* 移除視窗高度鎖定 */
-  /* height: 92vh; */
-}
-
-.Box4 {
-  background-color: darkblue;
-  width: 100%;
-  height: min-content;
-  position: relative;
-  /* 若要吸頂可改為 sticky */
-  top: 150px;
-}
-
-/**
-* 點讚按鈕
-*/
-.article-metrics {
-  min-width: 100%;
-  max-width: 100%;
-  height: 100px;
-  background-color: #1a1d1d;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 2rem;
-}
-
-.metrics-container {
-  display: flex;
-  gap: 2rem;
-  align-items: center;
-}
-
-.metrics-button-wrapper {
-  display: flex;
-  align-items: center;
-}
-
-.like-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.8rem 1.5rem;
-  background-color: #2c3e50;
-  border: 2px solid #34495e;
-  border-radius: 25px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 1.2rem;
-  color: #ecf0f1;
-}
-
-.like-button:hover {
-  background-color: #34495e;
-  border-color: #e74c3c;
-  transform: scale(1.05);
-}
-
-.like-button.liked {
-  background-color: #e74c3c;
-  border-color: #c0392b;
-}
-
-.like-button.liked:hover {
-  background-color: #c0392b;
-}
-
-.like-icon {
-  width: 1.5rem;
-  height: 1.5rem;
-  transition: transform 0.3s ease;
-}
-
-.like-button:hover .like-icon {
-  transform: scale(1.2);
-}
-
-.like-button.liked .like-icon {
-  filter: brightness(1.2);
-}
-
-.like-count {
-  font-weight: bold;
-  min-width: 2rem;
-  text-align: center;
-}
-</style>
 
 <script setup lang="ts">
 import HomeHeaderNavigation from "./HomeHeaderNavigation.vue";
@@ -874,17 +455,39 @@ const createArticleModalVisible = ref(false);
 // 開啟編輯文章模態框
 const handleOpenEditArticleModal = () => {
   console.log("handleOpenEditArticleModal:Article.value:", Article.value)
-  currentReplyUser.value = {
-    title: Article.value.title,
-    articleId: Article.value.id,
-    categoryId: Article.value.categoryId,
-    commentContent: Article.value.content,
-    amsArticleTagsVoList: Article.value.amsArticleTagsVoList,
-    
-  };
-  console.log("handleOpenEditArticleModal:currentReplyUser.value:", currentReplyUser.value)
-  createArticleModalVisible.value = true;
-};
+
+  inputTitle.value = Article.value.title
+  selectCategoryId.value = String(Article.value.categoryId)
+  selectTagsValue.value = Article.value.amsArtTagsVoList.map((articleTag: any) => {
+    return articleTag.id
+  })
+  
+
+
+// console.log("handleOpenEditArticleModal:Article.value.amsArtTagVoList:", Article.value.amsArtTagVoList)
+// const artTagsIdList = Article.value.amsArtTagsVoList.map(articleTag => {
+//   return articleTag.id
+// })
+// console.log("handleOpenEditArticleModal:artTagsIdList:", artTagsIdList)
+// currentReplyUser.value = {
+//   title: Article.value.title,
+//   categoryId: String(Article.value.categoryId),
+//   content: Article.value.content,
+//   tagsId: artTagsIdList,
+
+// } as editArticleInterface;
+
+// currentReplyUser.value = {
+//   title: Article.value.title,
+//   articleId: Article.value.id,
+//   categoryId: Article.value.categoryId,
+//   commentContent: Article.value.content,
+//   amsArtTagsVoList: Article.value.amsArtTagsVoList,
+
+// };
+console.log("handleOpenEditArticleModal:currentReplyUser.value:", currentReplyUser.value)
+createArticleModalVisible.value = true;
+}
 
 // 關閉編輯文章模態框
 const handleCloseEditArticleModal = () => {
@@ -897,6 +500,8 @@ const handleCloseEditArticleModal = () => {
   createArticleModalVisible.value = false;
 
 };
+
+
 
 // 開啟評論回覆模態框
 const handleOpenReplyModal = (comment: any) => {
@@ -952,21 +557,145 @@ const handleSubmitReply = async (content: string, replyData: any) => {
   }
 };
 
+console.log("初始 replyModalVisible:", replyModalVisible.value);
+console.log("初始 createArticleModalVisible:", createArticleModalVisible.value);
 
-//編輯文章
-import editArticleInterface from "@/interface/editArticleInterface";
-const handleEditArticle = async function (articleId: string, editArticleData: editArticleInterface) {
+watch([replyModalVisible, createArticleModalVisible], ([reply, create]) => {
+  console.log("模態框狀態變化 - reply:", reply, "create:", create);
+  console.trace(); // 顯示調用堆棧
+});
+
+
+/**
+ * 遷移
+ */
+/*
+* 新增文章
+*/
+/**
+ * 文章標籤
+ */
+
+const selectTagsValue = ref()
+
+interface tagsSelectData {
+  name: string,
+  id: string,
+}
+
+const tagsSelectData = ref<tagsSelectData[]>()
+
+// tagsSelectData.value=[
+//   {
+//     name: "標籤1",
+//     id: "1",
+//   },
+//   {
+//     name: "標籤2",
+//     id: "2",
+//   },
+// ]
+
+const treeProps = {
+  label: 'name', // 指定用數據中的 'name' 屬性作為顯示的標籤
+  value: 'id',   // 指定用數據中的 'id' 屬性作為選項的值
+}
+
+import { useTreeCategoryStore } from "@/pinia/useTreeCategoryStore"
+
+/**
+ * 獲取分類資訊
+ */
+const treeCategory = useTreeCategoryStore().getTreeData;
+
+
+
+const handleCategoryChange = function (value: string) {
+  //得到樹形選擇器中該分類的ID
+  selectCategoryId.value = value
+  console.log("handleChange.value", value)
+}
+
+onMounted(() => {
+
+  /**
+   * 獲取標籤資訊
+   */
+  http({
+    url: http.adornUrl('/article/tags/list'),
+    method: 'get',
+  }).then(({ data }: { data: R }) => {
+    console.log("data", data)
+    if (data.code == 200) {
+      tagsSelectData.value = data.data
+      console.log("tagsSelectData:", tagsSelectData.value)
+      ElMessage.success("文章標籤獲取成功")
+    } else {
+      ElMessage.error("文章標籤獲取失敗")
+    }
+  });
+})
+const handleTagsChange = function (value: number) {
+
+  selectTagsValue.value = value
+  console.log("handleTagsChange.value", value)
+
+}
+
+/**
+ * watch編輯文章內容
+ */
+
+/**
+ * 已被被handleOpenEditArticleModal取代
+ */
+
+// watch(() => createArticleModalVisible.value, (newValue) => {
+//   if (newValue) {
+//     console.log("編輯模式，載入文章資料:", currentReplyUser.value.replyToUser);
+//     console.log("編輯模式，載入文章資料amsArtTagsVoList:", currentReplyUser.value.amsArtTagsVoList);
+//     // 載入文章資料到表單
+//     inputTitle.value = currentReplyUser.value.title || '';
+//     // content.value = currentReplyUser.value.commentContent || '';
+//     selectCategoryId.value = currentReplyUser.value.categoryId || '';
+
+//     // 處理標籤資料
+//     if (currentReplyUser.value.replyToUser.amsArtTagsVoList) {
+//       selectTagsValue.value = currentReplyUser.value.amsArtTagsVoList.map(
+//         (item: any) => item.id
+//       );
+//     }
+
+//     console.log("載入完成 - 標題:", inputTitle.value);
+//     console.log("載入完成 - 分類:", selectCategoryId.value);
+//     console.log("載入完成 - 標籤:", selectTagsValue.value);
+//   }
+// });
+
+/**
+ * 編輯文章
+ */
+
+const inputTitle = ref<string>('')
+const selectCategoryId = ref<string>()
+
+
+import editArticleInterface from "@/interface/editorArticleInterface";
+
+const handleEditArticle = async function (content: string) {
   //補上文章 ID
   // editArticleData.articleId=articleId
-  console.log("handleEditArticle:editArticleData:", editArticleData)
-
+  console.log("handleEditArticle:editArticleData:articleId:", articleId)
+  console.log("handleEditArticle:editArticleData:inputTitle.value:", inputTitle.value)
+  console.log("handleEditArticle:editArticleData:inputTitle.value:", content)
+  console.log("handleEditArticle:editArticleData:selectCategoryId.value:", selectCategoryId.value)
+  console.log("handleEditArticle:editArticleData:selectTagsValue.value:", selectTagsValue.value)
 
   const updateArticle = ref<editArticleInterface>({
-
-    title: editArticleData.title,
-    content: editArticleData.content,
-    categoryId: editArticleData.categoryId,
-    tagsId: editArticleData.tagsId,
+    title: inputTitle.value,
+    content: content,
+    categoryId: selectCategoryId.value,
+    tagsId: selectTagsValue.value,
   })
 
   console.log("handleEditArticle:updateArticle.value:", updateArticle.value)
@@ -985,6 +714,38 @@ const handleEditArticle = async function (articleId: string, editArticleData: ed
   }
 
 }
+
+// const handleEditArticle = async function (articleId: string, editArticleData: editArticleInterface) {
+//   //補上文章 ID
+//   // editArticleData.articleId=articleId
+//   console.log("handleEditArticle:editArticleData:", editArticleData)
+
+
+//   const updateArticle = ref<editArticleInterface>({
+
+//     title: editArticleData.title,
+//     content: editArticleData.content,
+//     categoryId: editArticleData.categoryId,
+//     tagsId: editArticleData.tagsId,
+//   })
+
+//   console.log("handleEditArticle:updateArticle.value:", updateArticle.value)
+
+//   const { data } = await http({
+//     url: http.adornUrl(`/article/update/${articleId}`),
+//     method: 'put',
+//     data: http.adornData(updateArticle.value, false)
+//   })
+
+//   if (data.code == 200) {
+//     console.log("handleEditArticle:data.data", data.data)
+//     ElMessage.success("編輯成功")
+//   } else {
+//     ElMessage.error("編輯失敗")
+//   }
+
+// }
+
 //評論
 
 const textarea1 = ref()
@@ -1411,8 +1172,8 @@ onMounted(async () => {
   ArticleContent.value = article.content;
   artComments.value = comments;
   loading.value = false;
-  console.log("article:", article)
-  console.log("comments:", comments)
+  console.log("初始化加載article:", article)
+  console.log("初始化加載comments:", comments)
 
 })
 
@@ -1462,3 +1223,516 @@ const handleArticleLike = function () {
   });
 };
 </script>
+
+<style scoped>
+/**
+* 新增文章或者編輯文章相關
+*/
+.create-article-header {
+  padding: var(--padding-1)
+}
+
+.create-article-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+}
+
+.create-article-title-text {
+  color: var(--text-tertiary);
+  font-size: 20px;
+  font-weight: 500;
+}
+
+
+.create-article-title-input {
+  width: 90%;
+}
+
+.create-article-title {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.create-article-meta {
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+}
+
+.create-article-category {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  flex: 1
+}
+
+.create-article-tag {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+
+  flex: 1
+}
+
+
+/* ==========================================
+   Reply Header
+   ========================================== */
+.reply-header {
+  padding: var(--space-5) var(--space-6) var(--space-4);
+  background: var(--surface-primary);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  border-bottom: 1px solid var(--border-default);
+  position: relative;
+}
+
+.reply-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: var(--space-6);
+  right: var(--space-6);
+  height: 1px;
+  background: var(--gradient-border-subtle);
+}
+
+.reply-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.reply-text {
+  color: var(--text-tertiary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.reply-username {
+  color: var(--primary-500);
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--primary-50);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.original-comment {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+  background: var(--surface-tertiary);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--primary-500);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--primary-500);
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.original-comment::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--primary-500), transparent);
+}
+
+.close-btn {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-5);
+  background: none;
+  border: 1px solid transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  color: var(--text-primary);
+  background: var(--surface-hover);
+  border-color: var(--border-muted);
+  transform: rotate(90deg);
+  box-shadow: var(--shadow-sm);
+}
+
+
+
+.article-metrics {
+  min-width: 100%;
+  max-width: 100%;
+  height: 100px;
+  background-color: #88c847;
+}
+
+.ararticle-comment-context-item-info-metrics {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+
+  justify-content: end;
+}
+
+.user-avatar {
+  display: block;
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.user-username {
+  text-align: left;
+
+  flex: 1 1 0;
+}
+
+.article-comment-context-item-avatar {
+  display: flex;
+
+  flex: 1 1 0;
+}
+
+.article-comment-context-item-main {
+  text-align: start;
+  word-break: break-all;
+  flex: 1 1 0;
+}
+
+.article-comment-context-item-info {
+  text-align: end;
+  flex: 1 1 0;
+}
+
+.article-comment-context-avatar {
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.article-comment-context-item {
+  display: flex;
+  gap: 2rem;
+  flex-direction: column;
+
+  flex-wrap: wrap;
+
+
+  /* border: 0.1px solid rgb(190, 186, 186); */
+  text-align: center;
+  background-color: #1a1d1d;
+  /* min-height: 150px;
+  min-width: 1570px;
+  max-width: 1570px; */
+  margin: 0 auto;
+  padding: 1rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box
+}
+
+/* .article-comment-context{
+
+  width: 100px;
+  height: 100px;
+  
+} */
+.article-comment-context {
+  display: flex;
+  flex-direction: row;
+  /* gap: 20px; */
+  background-color: #395c5c;
+  /* min-width: 1570px;
+  max-width: 1570px;
+  width: 1570px; */
+  width: 100%;
+  border: 0.1px solid rgb(190, 186, 186);
+  background-color: #1a1d1d;
+}
+
+.article-comment-button {
+  background-color: #0d9393;
+  min-width: 90%;
+  max-width: 90%;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  /* 移除高度鎖定，讓內容自然撐開 */
+  /* max-height: 18%; */
+  /* min-height: 18%; */
+}
+
+.article-comment-input {
+  background-color: #98710e;
+  min-width: 90%;
+  max-width: 90%;
+  /* 移除高度鎖定，讓內容自然撐開 */
+  /* max-height: 82%; */
+  /* min-height: 82%; */
+}
+
+.article-comment {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: start;
+  background-color: darkslateblue;
+  min-width: 100%;
+  max-width: 100%;
+  /* 讓高度由內容撐開 */
+  /* max-height: 80%; */
+  /* min-height: 80%; */
+}
+
+.article-footer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* footer 內容置中 */
+  align-items: center;
+  background-color: #213547;
+  width: 90%;
+  margin: 40px auto 0;
+  /* 置中並與上方內容留距 */
+  position: static;
+  /* 確保參與正常文流，不覆蓋內容 */
+  /* 移除 left 與高度限制 */
+  /* left: 5%; */
+  /* min-height: 55%; */
+
+  /* gap: 6rem; */
+}
+
+.article-header {
+  border: black 3px solid;
+  max-width: 92%;
+  min-width: 92%;
+  margin: 50px 50px 0 50px;
+  background-color: #88c847;
+  box-shadow: 0px 0px 30px;
+}
+
+.article-header-title {
+
+  background-color: #81156a;
+
+}
+
+.article-header-info {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.article-header-info-user {
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  align-items: center;
+  background-color: #03638f;
+
+}
+
+.article-header-info-time {
+
+  /* display: flex; */
+  /* flex-direction: row;
+  justify-content: end;
+  align-items: center; */
+  background-color: #0c038f;
+
+}
+
+.article-header-info-right {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  align-items: center;
+  gap: 1rem;
+  background-color: #332f6b;
+}
+
+.article-title {
+  border: black 3px solid;
+  max-width: 92%;
+  min-width: 92%;
+  margin: 50px 50px 0 50px;
+  background-color: #324222;
+  box-shadow: 0px 0px 30px;
+}
+
+.article-content {
+  border: black 3px solid;
+  max-width: 92%;
+  min-width: 92%;
+  margin: 0 50px 50px 50px;
+  background-color: #d7e6c8;
+  box-shadow: 0px 0px 30px;
+  max-height: none;
+  /* 不裁切內容 */
+  word-wrap: break-word;
+  word-break: break-all;
+}
+
+.article-container {
+  background-color: #d57656;
+  width: 100%;
+  /* 重要：不要限制高度或隱藏溢出，改由整個頁面滾動 */
+  /* height: 100%; */
+  overflow: visible;
+  /* 不顯示容器自身滾軸 */
+}
+
+.Box3 {
+  background-color: darkgreen;
+  flex: 2.5;
+  display: flex;
+  flex-direction: column;
+  justify-items: flex-start;
+  position: relative;
+  /* 移除最小高度限制，避免內容被截斷 */
+  /* min-height: 92%; */
+}
+
+.article-main {
+  background-color: darkgrey;
+  width: 100%;
+  /* 讓內容自然撐開 */
+  /* min-height: 92%; */
+  max-height: none;
+  display: flex;
+  justify-content: center;
+}
+
+.article-content-list {
+  display: flex;
+  flex-direction: row;
+  background-color: darkslategray;
+  justify-content: flex-start;
+  align-content: flex-start;
+  align-items: stretch;
+  /* 讓左右欄高度跟隨中間欄 */
+  width: 90%;
+  margin: 0 auto;
+  /* 置中 */
+  /* 不鎖在視窗高度，讓高度由內容決定 */
+  /* min-height: 92vh; */
+  max-height: none;
+}
+
+.Box1 {
+  background-color: darksalmon;
+  flex: 0.5;
+  /* 移除視窗高度鎖定 */
+  /* height: 92vh; */
+}
+
+.Box2 {
+  background-color: darkmagenta;
+  flex: 0.5;
+  position: relative;
+  display: flex;
+  justify-content: flex-start;
+  align-content: start;
+  /* 移除視窗高度鎖定 */
+  /* height: 92vh; */
+}
+
+.Box4 {
+  background-color: darkblue;
+  width: 100%;
+  height: min-content;
+  position: relative;
+  /* 若要吸頂可改為 sticky */
+  top: 150px;
+}
+
+/**
+* 點讚按鈕
+*/
+.article-metrics {
+  min-width: 100%;
+  max-width: 100%;
+  height: 100px;
+  background-color: #1a1d1d;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+}
+
+.metrics-container {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.metrics-button-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.like-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.5rem;
+  background-color: #2c3e50;
+  border: 2px solid #34495e;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
+  color: #ecf0f1;
+}
+
+.like-button:hover {
+  background-color: #34495e;
+  border-color: #e74c3c;
+  transform: scale(1.05);
+}
+
+.like-button.liked {
+  background-color: #e74c3c;
+  border-color: #c0392b;
+}
+
+.like-button.liked:hover {
+  background-color: #c0392b;
+}
+
+.like-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  transition: transform 0.3s ease;
+}
+
+.like-button:hover .like-icon {
+  transform: scale(1.2);
+}
+
+.like-button.liked .like-icon {
+  filter: brightness(1.2);
+}
+
+.like-count {
+  font-weight: bold;
+  min-width: 2rem;
+  text-align: center;
+}
+</style>

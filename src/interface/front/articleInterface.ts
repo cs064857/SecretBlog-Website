@@ -34,7 +34,7 @@ export interface AmsArtTag {
     avatar: string | null;
     accountName: string | null;
     categoryName: string;
-    amsArtTagList: AmsArtTag[];
+    amsArtTagVoList: AmsArtTag[];
     createTime: Date; // 原 create_time
     updateTime: Date; // 原 update_time
     viewsCount: number;
@@ -42,9 +42,9 @@ export interface AmsArtTag {
     bookmarksCount: number;
   
     // --- 原有但新 JSON 中不存在的欄位 (設為可選) ---
-    articleId?: string; // 注意：文章 ID 現在可能存在於 amsArtTagList[].articleId 中
+    articleId?: string; // 注意：文章 ID 現在可能存在於 amsArtTagVoList[].articleId 中
     content?: string;
-    tag_id?: bigint; // 已被 amsArtTagList 取代
+    tag_id?: bigint; // 已被 amsArtTagVoList 取代
     is_show?: number;
   }
   
