@@ -3,6 +3,6 @@ export interface replyCommentDataInterface{
     parentCommentId:String,
     commentContent:String,
     // userId: number,
-    articleId:String,
+    // articleId:String,
     // jwtToken:String
 }

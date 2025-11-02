@@ -197,8 +197,7 @@
 
     </div>
 
-    <reply-modal @close="handleCloseReplyModal()" v-if="replyModalVisible" :modalVisible="replyModalVisible"
-      :replyToUser="currentReplyUser">
+    <reply-modal @close="handleCloseReplyCommentModal()" v-if="replyCommentModalVisible" :modalVisible="replyCommentModalVisible" @submit="handleReplyComment">
       <template v-slot:reply-comment-header>
         <!-- 評論功能：智能回覆提示區 -->
         <!-- <div v-if="props.model == 'replyComment' ? true : false" class="reply-header"> -->
@@ -309,7 +308,7 @@ const commentId = ref()
 const artComments = ref();
 
 // 回覆模態框相關狀態
-const replyModalVisible = ref(false);
+const replyCommentModalVisible = ref(false);
 // const currentReplyUser = ref({
 //   username: '',
 //   commentContent: '',
@@ -423,33 +422,8 @@ const handleClose = (done: () => void) => {
 }
 
 
+// const parentCommentId = ref<string>('')
 
-const handleReplyComment = function (parentCommentId: string) {
-  // console.log("articleId:",articleId)
-  console.log("parentCommentId:", parentCommentId)
-
-  const data: replyCommentDataInterface = {
-    parentCommentId: parentCommentId,
-    commentContent: textarea1.value,
-    articleId: articleId,
-  }
-
-  http({
-    url: http.adornUrl('/article/comment/create'),
-    method: 'post',
-    data: http.adornData(data, false)
-  }).then(({ data }: { data: R }) => {
-    if (data.code == 200) {
-
-      ElMessage.success("成功訊息");
-    } else {
-      ElMessage.error("錯誤訊息");
-    }
-  }).catch(() => {
-    ElMessage.error("請求出錯，請稍後再試");
-  });
-
-}
 
 const createArticleModalVisible = ref(false);
 // 開啟編輯文章模態框
@@ -506,20 +480,23 @@ const handleCloseEditArticleModal = () => {
 // 開啟評論回覆模態框
 const handleOpenReplyModal = (comment: any) => {
   console.log("handleOpenReplyModal:comment:", comment)
+
+  // parentCommentId.value = comment.commentId
+
   currentReplyUser.value = {
     username: comment.username,
     commentContent: comment.commentContent,
     commentId: comment.commentId,
     articleId: articleId as string
   };
-  replyModalVisible.value = true;
+  replyCommentModalVisible.value = true;
 
 };
 
 // 關閉評論回覆模態框
-const handleCloseReplyModal = () => {
+const handleCloseReplyCommentModal = () => {
   console.log("觸發handleCloseReplyModal")
-  replyModalVisible.value = false;
+  replyCommentModalVisible.value = false;
   currentReplyUser.value = {
     username: '',
     commentContent: '',
@@ -528,39 +505,66 @@ const handleCloseReplyModal = () => {
   };
 };
 
+//提交評論回覆
+const handleReplyComment = function (content: string) {
+  // console.log("articleId:",articleId)
+  console.log("handleReplyComment:content:", content)
+  console.log("handleReplyComment:currentReplyUser:", currentReplyUser.value)
+  console.log("handleReplyComment:articleId:", articleId)
 
-// 提交回覆
-const handleSubmitReply = async (content: string, replyData: any) => {
-  console.log("handleSubmitReply:replyData:", replyData)
-  try {
-    const response = await http({
-      url: http.adornUrl('/article/comment/create'),
-      method: 'post',
-      data: http.adornData({
-        commentContent: content,
-        parentCommentId: replyData.commentId,
-        articleId: replyData.articleId
-      }, false)
-    });
-
-    if (response.data.code === 200) {
-      ElMessage.success("回覆發送成功！");
-      handleCloseReplyModal();
-      // 重新加載評論
-      getArtComments();
-    } else {
-      ElMessage.error("回覆發送失敗：" + response.data.msg);
-    }
-  } catch (error) {
-    ElMessage.error("網路錯誤，請稍後再試");
-    console.error('發送回覆時出錯:', error);
+  const replyCommentData: replyCommentDataInterface = {
+    parentCommentId: currentReplyUser.value.commentId,
+    commentContent: content
   }
-};
+  console.log("handleReplyComment:replyCommentData:",replyCommentData)
+  http({
+    url: http.adornUrl(`/article/${articleId}/comments`),
+    method: 'post',
+    data: http.adornData(replyCommentData, false)
+  }).then(({ data }: { data: R}) => {
+    if (data.code == 200) {
 
-console.log("初始 replyModalVisible:", replyModalVisible.value);
+      ElMessage.success("成功訊息");
+    } else {
+      ElMessage.error("錯誤訊息");
+    }
+  }).catch(() => {
+    ElMessage.error("請求出錯，請稍後再試");
+  });
+
+}
+// 提交回覆
+// const handleSubmitReply = async (content: string, replyData: any) => {
+//   console.log("handleSubmitReply:replyData:", replyData)
+//   try {
+//     const response = await http({
+//       url: http.adornUrl('/article/comment/create'),
+//       method: 'post',
+//       data: http.adornData({
+//         commentContent: content,
+//         parentCommentId: replyData.commentId,
+//         articleId: replyData.articleId
+//       }, false)
+//     });
+
+//     if (response.data.code === 200) {
+//       ElMessage.success("回覆發送成功！");
+//       handleCloseReplyCommentModal();
+//       // 重新加載評論
+//       getArtComments();
+//     } else {
+//       ElMessage.error("回覆發送失敗：" + response.data.msg);
+//     }
+//   } catch (error) {
+//     ElMessage.error("網路錯誤，請稍後再試");
+//     console.error('發送回覆時出錯:', error);
+//   }
+// };
+
+console.log("初始 replyModalVisible:", replyCommentModalVisible.value);
 console.log("初始 createArticleModalVisible:", createArticleModalVisible.value);
 
-watch([replyModalVisible, createArticleModalVisible], ([reply, create]) => {
+watch([replyCommentModalVisible, createArticleModalVisible], ([reply, create]) => {
   console.log("模態框狀態變化 - reply:", reply, "create:", create);
   console.trace(); // 顯示調用堆棧
 });
@@ -771,33 +775,33 @@ const textarea1 = ref()
 // }
 
 ///TODO 登入才能評論
-const handleCommitComment = function () {
+// const handleCommitComment = function () {
 
-  const acId = Array.isArray(articleId) ? articleId[0] : articleId
+//   const acId = Array.isArray(articleId) ? articleId[0] : articleId
 
-  // const jwtToken:string|null=getCookieValue("jwtToken");
+//   // const jwtToken:string|null=getCookieValue("jwtToken");
 
 
-  // console.log("jwtToken:",{jwtToken})
-  // console.log("cookie:",{cookie})
-  const commentData: commentDataInterface = {
-    commentContent: textarea1.value,
-    // userId: 1111.,
-    articleId: acId,
-    // jwtToken:jwtToken
-  }
-  http({
-    url: http.adornUrl('/article/comment/create'),
-    method: 'post',
-    data: http.adornData(commentData, false)
-  }).then(({ data }: { data: any }) => {
-    if (data.code == 200) {
-      ElMessage.success("成功發送評論");
-    } else {
-      ElMessage.error("提交評論失敗");
-    }
-  });
-}
+//   // console.log("jwtToken:",{jwtToken})
+//   // console.log("cookie:",{cookie})
+//   const commentData: commentDataInterface = {
+//     commentContent: textarea1.value,
+//     // userId: 1111.,
+//     articleId: acId,
+//     // jwtToken:jwtToken
+//   }
+//   http({
+//     url: http.adornUrl('/article/comment/create'),
+//     method: 'post',
+//     data: http.adornData(commentData, false)
+//   }).then(({ data }: { data: any }) => {
+//     if (data.code == 200) {
+//       ElMessage.success("成功發送評論");
+//     } else {
+//       ElMessage.error("提交評論失敗");
+//     }
+//   });
+// }
 
 //評論/
 
