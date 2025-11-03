@@ -326,10 +326,12 @@ const currentReplyUser = ref(null);
 const handleLikes = function (commentId: string) {
   console.log("commentId:", commentId)
   http({
-    url: http.adornUrl(`/article/comment/${commentId}/like`),
+    url: http.adornUrl(`/article/${articleId}/comments/${commentId}/likes`),
     method: 'post'
   }).then(({ data }: { data: R }) => {
     if (data.code == 200) {
+      //將取得讚數賦值給 renderedComments 中的 likesCount
+      renderedComments.value.find(item => item.commentId == commentId).likesCount = data.data;
       ElMessage.success("成功訊息");
     } else {
       ElMessage.error("錯誤訊息");
@@ -685,6 +687,7 @@ const selectCategoryId = ref<string>()
 
 
 import editArticleInterface from "@/interface/editorArticleInterface";
+import { ITEM_RENDER_EVT } from "element-plus/es/components/virtual-list/src/defaults";
 
 const handleEditArticle = async function (newContent: string) {
   //補上文章 ID
