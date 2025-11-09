@@ -32,7 +32,7 @@
               <div class="article-header-info-user">
                 <el-avatar :size="25"
                   src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"></el-avatar>
-                <span>{{ Article.userName }}</span>
+                <span>{{ Article.nickName }}</span>
               </div>
 
               <div class="article-header-info-right">
@@ -155,11 +155,11 @@
 
           <div class="article-comment-context-item-avatar">
 
-            <div class="user-username">{{ articleComment.username }}</div>
+            <div class="user-username">{{ articleComment.nickName }}</div>
             <div v-if="articleComment.parentCommentId" class="user-parentUsername"><img
                 style="position: relative; top:0.5rem;  width: 3rem; height: 2rem;"
                 src="/src/assets/share-solid-full.svg">{{articleComment.parentCommentId ?
-                  renderedComments.find(item => item.commentId == articleComment.parentCommentId).username : ''}}</div>
+                  renderedComments.find(item => item.commentId == articleComment.parentCommentId).nickName : ''}}</div>
             <!-- <div class="user-parentUsername"><img style="position: relative; top:0.5rem;  width: 3rem; height: 2rem;" src="/src/assets/share-solid-full.svg">{{renderedComments.find(item=>item.commentId==1968026366882635777).username}}</div> -->
             <!-- <div class="user-parentUsername"><img style="position: relative; top:0.5rem;  width: 3rem; height: 2rem;" src="/src/assets/share-solid-full.svg">{{articleComment.parentCommentId}}</div> -->
           </div>

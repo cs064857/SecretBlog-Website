@@ -30,9 +30,9 @@ export interface AmsArtTag {
     userId: bigint;
     categoryId: bigint;
     title: string | null;
-    userName: string | null;
+    nickName: string | null;
     avatar: string | null;
-    accountName: string | null;
+    // accountName: string | null;
     categoryName: string;
     amsArtTagVoList: AmsArtTag[];
     createTime: Date; // 原 create_time
