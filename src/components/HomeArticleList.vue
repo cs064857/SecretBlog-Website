@@ -165,7 +165,7 @@ onMounted(() => {
             </div>
             <div class="article-tags">
               <div v-for="amsArtTag in article.amsArtTagList" class="article-tag">
-                {{ amsArtTag.tagsId }}
+                {{ amsArtTag.name }}
             </div>
             <!-- <div class="article-tag">
                 AI API
