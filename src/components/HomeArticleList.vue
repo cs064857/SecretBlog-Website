@@ -68,7 +68,7 @@ const getArticles = function (categoryId, routePage) {
       params: http.adornParams({routePage: routePage})
     }).then(({data}: {data:R<AmsListRecordsListInterface>}) => {
       
-      if (data.code == 200) {
+      if (data.code == "200") {
         console.log("根據分類ID與頁碼獲得的分頁資料:", data.data)
         articleList.value = data.data.records//要展示的所有文章列表資料
         console.log("根據分類ID與頁碼獲得的文章列表articleList.value:", articleList.value)

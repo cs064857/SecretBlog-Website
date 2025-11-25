@@ -16,7 +16,7 @@ export function putImgToMinioRequest(file: File,userId:string) {
         }
     })
         // .then((response) => {
-        //     if (response.data.code === 200) {
+        //     if (response.data.code === "200") {
 
         //         console.log("response.data:",response.data)
         //         return response.data

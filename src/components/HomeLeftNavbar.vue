@@ -20,7 +20,7 @@ const getTreeCategoryList = function () {
     method: 'get',
     params: http.adornParams({})
   }).then(({data}) => {
-    if (data.code == 200) {
+    if (data.code == "200") {
       // categoryList=data.data
       categoryList.value=data.data
       console.log("categoryList.value",categoryList.value)

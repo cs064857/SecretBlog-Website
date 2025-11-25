@@ -43,7 +43,7 @@ const handleSignOut = function(){
       method: 'post',
       // data: http.adornData(data, false)
   }).then(({data}:{data:R}) => {
-      if (data.code == 200) {
+      if (data.code == "200") {
           isLoginStore.setIsLoginData(false)
           ElMessage.success("成功訊息");
           sessionStorage.removeItem('jwtToken')

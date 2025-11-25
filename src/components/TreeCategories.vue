@@ -37,7 +37,7 @@ const handleDialogConfirm = function () {
       method: 'post',
       data: http.adornData({parentId: 0, categoryName: form.categoryName, categoryLevel: 1}, false)
     }).then(({data}) => {
-      if (data.code == 200) {
+      if (data.code == "200") {
         ElMessage.success("新增分類數據成功")
         getCategoryList()
       } else {
@@ -56,7 +56,7 @@ const handleDialogConfirm = function () {
         //參數1為當前選種節點分類的id,參數2為欲添加輸入的分類名稱
         data: http.adornData({parentId: selectedData.value.id, categoryName: form.categoryName}, false)
       }).then(({data}) => {
-        if (data.code == 200) {
+        if (data.code == "200") {
           ElMessage.success("添加分類數據成功")
           getCategoryList()
         } else {
@@ -80,7 +80,7 @@ const getCategoryList = function () {
     method: 'get',
     params: http.adornParams({})
   }).then(({data}) => {
-    if (data.code == 200) {
+    if (data.code == "200") {
       console.log("data", data)
       //將數據放入樹形控件數據源中展示
       dataSource.value = data.data
@@ -116,7 +116,7 @@ const handleDialogEditLevelOne = function () {
     method: 'put',
     data: http.adornData(form.categoryName, false)
   }).then(({data}: { data: R }) => {
-    if (data.code == 200) {
+    if (data.code == "200") {
       ElMessage.success("修改分類數據成功")
       getCategoryList()
     } else {
@@ -143,7 +143,7 @@ const remove = (node: Node, data: Tree) => {
           method: 'post',
           // data: http.adornData(data.id, false)
         }).then(({data}) => {
-          if (data.code == 200) {
+          if (data.code == "200") {
             ElMessage.success("刪除數據成功")
             getCategoryList()
           } else {

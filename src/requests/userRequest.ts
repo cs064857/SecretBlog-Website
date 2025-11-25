@@ -11,7 +11,7 @@ export function deleteUserDetailRequest (requestPath:string,userId:String){
         method: 'post',
         // params: {id: userId}
     }).then(({data}:{data:R}) => {
-        if (data.code == 200) {
+        if (data.code == "200") {
             ElMessage.success("刪除用戶資料數據成功");
             //重新整理
             window.location.replace(window.location.href);
@@ -28,7 +28,7 @@ export function getTableDataRequest(requestPath:string){
         params: http.adornParams({})
     }).then(({data}:{data:R}) => {
         // console.log("data1:",data)
-        if (data.code == 200) {
+        if (data.code == "200") {
             ElMessage.success("獲取用戶資料數據成功");
 
         } else {
@@ -45,7 +45,7 @@ export function getPreSignedUrlFromMinio(){
         url: http.adornUrl('/sms/minio'),
         method: 'get',
     }).then(({data}:{data:R}) => {
-        if (data.code == 200) {
+        if (data.code == "200") {
             ElMessage.success("成功訊息");
         } else {
             ElMessage.error("錯誤訊息");
@@ -136,7 +136,7 @@ export function saveUserAvatarRequest(preSignedUrl: string, avatar: File) {
 //         }
 //     })
 //     .then((response) => {
-//         if (response.data.code === 200) {
+//         if (response.data.code === "200") {
 //             ElMessage.success("新增使用者數據成功");
 //             window.location.replace(window.location.href);
 //         } else {
@@ -157,7 +157,7 @@ export function saveUserDataRequest(form:any){
         method: 'post',
         data: http.adornData(form, false)
     }).then(({data}:{data:R}) => {
-        if (data.code == 200) {
+        if (data.code == "200") {
             ElMessage.success("新增使用者數據成功");
 
             window.location.replace(window.location.href);

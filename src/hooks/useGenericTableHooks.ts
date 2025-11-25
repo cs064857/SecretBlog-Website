@@ -25,7 +25,7 @@ export function useGenericTableData() {
 
             const data: R<userDetailsDTO> = await getTableDataRequest('/ums/user/userDetails');
             console.log("表格資料請求返回 data:", data);
-            if (data.code === 200) {
+            if (data.code === "200") {
                 tableRawData.value = data.data;
                 filteredData.value = data.data;
                 dataTotalCount.value = tableRawData.value.length;

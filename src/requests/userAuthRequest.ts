@@ -8,7 +8,7 @@ export function isLoginRequest(){
         url: http.adornUrl('/ums/user/is-login'),
         method: 'get',
     }).then(({data}:{data:R}) => {
-        if (data.code == 200) {
+        if (data.code == "200") {
 
             isLoginStore.setIsLoginData(true)
             ElMessage.success("已登入");

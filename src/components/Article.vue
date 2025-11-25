@@ -118,7 +118,7 @@
 
       <div class="metrics-container">
         <div class="metrics-button-wrapper">
-          <button @click="handleArticleLike" class="like-button" :class="{ 'liked': isLiked }">
+          <button @click="handleArticleLike" class="like-button" :class="{ 'liked': isBooksMarked }">
             <img class="like-icon" src="/src/assets/bookmark-solid-full.svg" alt="like">
 
             <span class="like-count">{{ Article?.bookmarksCount ?? 0 }}</span>
@@ -329,7 +329,7 @@ const handleLikes = function (commentId: string) {
     url: http.adornUrl(`/article/${articleId}/comments/${commentId}/likes`),
     method: 'post'
   }).then(({ data }: { data: R }) => {
-    if (data.code == 200) {
+    if (data.code == "200") {
       //將取得讚數賦值給 renderedComments 中的 likesCount
       renderedComments.value.find(item => item.commentId == commentId).likesCount = data.data;
       ElMessage.success("成功訊息");
@@ -524,7 +524,7 @@ const handleReplyComment = function (content: string) {
     method: 'post',
     data: http.adornData(replyCommentData, false)
   }).then(({ data }: { data: R}) => {
-    if (data.code == 200) {
+    if (data.code == "200") {
 
       ElMessage.success("成功訊息");
     } else {
@@ -549,7 +549,7 @@ const handleReplyComment = function (content: string) {
 //       }, false)
 //     });
 
-//     if (response.data.code === 200) {
+//     if (response.data.code === "200") {
 //       ElMessage.success("回覆發送成功！");
 //       handleCloseReplyCommentModal();
 //       // 重新加載評論
@@ -632,7 +632,7 @@ onMounted(() => {
     method: 'get',
   }).then(({ data }: { data: R }) => {
     console.log("data", data)
-    if (data.code == 200) {
+    if (data.code == "200") {
       tagsSelectData.value = data.data
       console.log("tagsSelectData:", tagsSelectData.value)
       ElMessage.success("文章標籤獲取成功")
@@ -713,7 +713,7 @@ const handleEditArticle = async function (newContent: string) {
     data: http.adornData(updateArticle.value, false)
   })
 
-  if (data.code == 200) {
+  if (data.code == "200") {
     console.log("handleEditArticle:data.data", data.data)
     ElMessage.success("編輯成功")
   } else {
@@ -744,7 +744,7 @@ const handleEditArticle = async function (newContent: string) {
 //     data: http.adornData(updateArticle.value, false)
 //   })
 
-//   if (data.code == 200) {
+//   if (data.code == "200") {
 //     console.log("handleEditArticle:data.data", data.data)
 //     ElMessage.success("編輯成功")
 //   } else {
@@ -769,7 +769,7 @@ const textarea1 = ref()
 //     method: 'post',
 //     data: http.adornData(artInfo, false)
 //   }).then(({data}:{data:any}) => {
-//     if (data.code == 200) {
+//     if (data.code == "200") {
 //       ElMessage.success("成功發送評論");
 //     } else {
 //       ElMessage.error("提交評論失敗");
@@ -798,7 +798,7 @@ const textarea1 = ref()
 //     method: 'post',
 //     data: http.adornData(commentData, false)
 //   }).then(({ data }: { data: any }) => {
-//     if (data.code == 200) {
+//     if (data.code == "200") {
 //       ElMessage.success("成功發送評論");
 //     } else {
 //       ElMessage.error("提交評論失敗");
@@ -1073,7 +1073,7 @@ onUnmounted(() => {// 在組件卸載後移除滾動事件監聽器
 //     params: http.adornParams({})
 //   }).then(({data}: { data: R }) => {
 //     console.log("data:", data);
-//     if (data.code == 200) {
+//     if (data.code == "200") {
 //       Article.value = data.data;
 //       if (Article.value != null) {
 //         ArticleContent.value = Article.value.content;
@@ -1121,7 +1121,7 @@ const getArticle = (async () => {
 
     console.log("data:", data);
 
-    if (data.code == 200 && data.data) {
+    if (data.code == "200" && data.data) {
       // Article.value = data.data;
       // ArticleContent.value = Article.value.content;
       // console.log("ArticleContent.value:", ArticleContent.value);
@@ -1140,7 +1140,7 @@ const getArtComments = async function () {
       method: 'get',
     }) as { data: R }
 
-    if (data.code == 200) {
+    if (data.code == "200") {
       // artComments.value=data.data
 
       // console.log("文章留言區artComments.value:",artComments.value)
@@ -1205,7 +1205,7 @@ const handleChange = (href: string) => {
 // 文章點讚相關狀態
 // const articleLikesCount = ref(0);
 const isLiked = ref(false);
-
+const isBooksMarked = ref(false);
 /**
  * 文章點讚處理函數
  */
@@ -1216,9 +1216,13 @@ const handleArticleLike = function () {
     url: http.adornUrl(`/article/articles/${articleId}/like`),
     method: 'get'
   }).then(({ data }: { data: R }) => {
-    if (data.code === 200) {
+    // console.log("handleArticleLike data:", data);
+    if (data.code === "200") {
+      // console.log("handleArticleLike更新點讚數前 Article.value:", Article.value);
       // 更新點讚數
       Article.value.likesCount = data.data;
+      // console.log("handleArticleLike更新點讚數後 Article.value:", Article.value);
+
       // 標記為已點讚
       isLiked.value = true;
       ElMessage.success("點讚成功！");

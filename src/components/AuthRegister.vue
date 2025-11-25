@@ -121,7 +121,7 @@
                     ElMessage.error("發送驗證碼失敗，請稍後再試");
                     break;
             }
-            // if (data.code == 200) {
+            // if (data.code == "200") {
             //     ElMessage.success("發送驗證碼成功");
             //     console.log("getemailValidCode",data)
 
@@ -163,7 +163,7 @@
                     ElMessage.error("註冊失敗，請稍後再試");
                     break;
             }
-            // if (data.code == 200) {
+            // if (data.code == "200") {
             //     ElMessage.success("註冊成功");
             //     ///TODO 註冊成功後跳轉到登入頁面
             //     window.location.replace(window.location.href);

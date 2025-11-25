@@ -55,7 +55,7 @@ export const saveUserData = function (form:Ref<Object>,dialogVisible:Ref<boolean
     console.log("新增資料...")
     // console.log("form.value",form.value)
     saveUserDataRequest(form.value).then(({data}:{data:R}) => {
-        if (data.code == 200) {
+        if (data.code == "200") {
 
             // emit('dialogVisible', dialogVisible.value);
             dialogVisibleStore.setDialogVisible(false)
@@ -136,7 +136,7 @@ export const updateUserData = async function (form: Ref<formUserInterface>){
     if (!(Object.keys(modifiedFieldsJson).length === 1 && 'avatar' in modifiedFieldsJson)) {
         console.log("除了avatar外有其他修改，則更新資料")
         await updateUserDataRequest(props, modifiedFieldsJson).then((data: R) => {
-            if (data.code == 200) {
+            if (data.code == "200") {
                 // emit('dialogVisible', dialogVisible.value);
                 closeDialog.value=true
             }else{

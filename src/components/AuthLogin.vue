@@ -94,7 +94,7 @@ const getemailValidCode = function(){
                 ElMessage.error("發送驗證碼失敗，請稍後再試");
                 break;
         }
-        // if (data.code == 200) {
+        // if (data.code == "200") {
         //     ElMessage.success("發送驗證碼成功");
         //     console.log("getemailValidCode",data)
 
