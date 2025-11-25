@@ -8,7 +8,7 @@ export function genericBatchDeleteRequest(resourcePath: string, idList: any[]): 
         url: http.adornUrl(`${resourcePath}/${idList}`),  // 拼接ID列表
         method: 'delete',
     }).then(({ data }: { data: R }) => {
-        if (data.code === "200") {
+        if (data.code == "200") {
             ElMessage.success("刪除成功");
             window.location.replace(window.location.href);  // 重新整理頁面
         } else {

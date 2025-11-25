@@ -101,7 +101,7 @@ http.interceptors.response.use(response => {
   console.log('Response headers:', response.headers);
 
   // 檢查是否是重定向到登入頁面的響應（防止 API 返回 HTML 或內部代碼 401）
-  if ((response.status === 302 || (response.data && response.data.code === 401)) && !isOnAuthPage()) {
+  if ((response.status === 302 || (response.data && response.data.code == 401)) && !isOnAuthPage()) {
     console.warn('認證失效，重定向到登入頁面');
     doLogoutAndRedirect(response.config?.url)
   }

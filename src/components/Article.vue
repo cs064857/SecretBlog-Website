@@ -549,7 +549,7 @@ const handleReplyComment = function (content: string) {
 //       }, false)
 //     });
 
-//     if (response.data.code === "200") {
+//     if (response.data.code == "200") {
 //       ElMessage.success("回覆發送成功！");
 //       handleCloseReplyCommentModal();
 //       // 重新加載評論
@@ -1217,7 +1217,7 @@ const handleArticleLike = function () {
     method: 'get'
   }).then(({ data }: { data: R }) => {
     // console.log("handleArticleLike data:", data);
-    if (data.code === "200") {
+    if (data.code == "200") {
       // console.log("handleArticleLike更新點讚數前 Article.value:", Article.value);
       // 更新點讚數
       Article.value.likesCount = data.data;

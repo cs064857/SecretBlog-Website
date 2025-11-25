@@ -136,7 +136,7 @@ export function saveUserAvatarRequest(preSignedUrl: string, avatar: File) {
 //         }
 //     })
 //     .then((response) => {
-//         if (response.data.code === "200") {
+//         if (response.data.code == "200") {
 //             ElMessage.success("新增使用者數據成功");
 //             window.location.replace(window.location.href);
 //         } else {
