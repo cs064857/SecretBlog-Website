@@ -100,7 +100,7 @@
 
       <div class="metrics-container">
         <div class="metrics-button-wrapper">
-          <button @click="handleArticleLike" class="like-button" :class="{ 'liked': isLiked }">
+          <button @click="isLiked? handleCancelArticleLike() : handleArticleLike()" class="like-button" :class="{ 'liked': isLiked }">
             <img class="like-icon" src="/src/assets/heart-solid-full.svg" alt="like">
             <span class="like-count">{{ Article?.likesCount ?? 0 }}</span>
 
@@ -1158,8 +1158,8 @@ const getArtComments = async function () {
 }
 const loading = ref(true);
 
-//加載文章以及留言
-onMounted(async () => {
+
+const getArticleAndComments = async function () {
   const [articleResult, commentsResult] = await Promise.allSettled([getArticle(), getArtComments()]);
   console.log("artComments:", artComments)
   console.log("commentsResult:", commentsResult)
@@ -1181,7 +1181,59 @@ onMounted(async () => {
   loading.value = false;
   console.log("初始化加載article:", article)
   console.log("初始化加載comments:", comments)
+}
 
+const getActionHistory = async function () {
+  try {
+  const { data } = await http({
+    url: http.adornUrl(`/article/${articleId}/action-status`),
+    method: 'get',
+  }) as { data: R };
+
+  console.log("getActionHistory data:", data);
+
+  if (data.code == "200" && data.data) {
+    isBooksMarked.value = data.data.isBooksMarked==1? true:false;
+    isLiked.value = data.data.isLiked==1? true:false;
+    // Article.value = data.data;
+    // ArticleContent.value = Article.value.content;
+    // console.log("ArticleContent.value:", ArticleContent.value);
+    return data;
+  }
+} catch (error) {
+  console.error("獲取文章資料失敗:", error);
+}
+
+}
+
+const getCommentActionHistory = async function () {
+  try {
+  const { data } = await http({
+    url: http.adornUrl(`/article/comments/${articleId}/action-status`),
+    method: 'get',
+  }) as { data: R };
+
+  console.log("getCommentActionHistory data:", data);
+
+  if (data.code == "200" && data.data) {
+    isBooksMarked.value = data.data.isBooksMarked==1? true:false;
+    isLiked.value = data.data.isLiked==1? true:false;
+    // Article.value = data.data;
+    // ArticleContent.value = Article.value.content;
+    // console.log("ArticleContent.value:", ArticleContent.value);
+    return data;
+  }
+} catch (error) {
+  console.error("獲取文章資料失敗:", error);
+}
+
+}
+
+//加載文章以及留言
+onMounted(async () => {
+  getArticleAndComments()
+  getActionHistory()
+  getCommentActionHistory()
 })
 
 
@@ -1233,6 +1285,33 @@ const handleArticleLike = function () {
     ElMessage.error("請求出錯，請稍後再試");
   });
 };
+
+/**
+ * 取消文章點讚函數
+ */
+const handleCancelArticleLike = async function () {
+
+  try {
+      const { data } = await http({
+        url: http.adornUrl(`/article/articles/${articleId}/unlike`),
+        method: 'post',
+      }) as { data: R };
+
+      console.log("getActionHistory data:", data);
+
+      if (data.code == "200" && data.data) {
+        // 更新點讚數
+        Article.value.likesCount = data.data;
+        isBooksMarked.value = data.data.isBooksMarked==1? true:false;
+        isLiked.value = data.data.isLiked==1? true:false;
+        // Article.value = data.data;
+        // ArticleContent.value = Article.value.content;
+        // console.log("ArticleContent.value:", ArticleContent.value);
+        return data;
+      }
+} catch (error) {
+  console.error("獲取文章資料失敗:", error);
+}};
 </script>
 
 <style scoped>
