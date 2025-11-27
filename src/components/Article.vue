@@ -205,6 +205,7 @@
                   @click="handleOpenReplyModal(articleComment)" type="primary"><img
                     style=" cursor: pointer;position: relative;right:0.5rem;width: 1.5rem; height: 1.5rem;"
                     src="/src/assets/reply-solid-full.svg">回覆</el-button></div>
+
               <div v-if="isCommentOwner(articleComment.userId)" class="article-comment-context-item-info-metrics-delete">
                 <img @click="handleDeleteComment(articleComment.commentId)"
                     class="svg-icon delete-icon"
@@ -604,6 +605,8 @@ const handleReplyComment = function (content: string) {
     if (data.code == "200") {
 
       ElMessage.success("成功訊息");
+      //關閉模態框
+      replyCommentModalVisible.value = false;
     } else {
       ElMessage.error("錯誤訊息");
     }
@@ -633,6 +636,8 @@ const handleReplyArticle = function (content: string) {
     if (data.code == "200") {
 
       ElMessage.success("成功訊息");
+      //關閉模態框
+      replyArticleModalVisible.value = false;
     } else {
       ElMessage.error("錯誤訊息");
     }
@@ -824,6 +829,8 @@ const handleEditArticle = async function (newContent: string) {
   if (data.code == "200") {
     console.log("handleEditArticle:data.data", data.data)
     ElMessage.success("編輯成功")
+    //關閉模態框
+    createArticleModalVisible.value = false;
   } else {
     ElMessage.error("編輯失敗")
   }
