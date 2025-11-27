@@ -607,6 +607,8 @@ const handleReplyComment = function (content: string) {
       ElMessage.success("成功訊息");
       //關閉模態框
       replyCommentModalVisible.value = false;
+      //將新創回覆的評論加入到renderedComments中
+      renderedComments.value.push(replyCommentData)
     } else {
       ElMessage.error("錯誤訊息");
     }
