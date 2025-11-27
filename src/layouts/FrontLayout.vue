@@ -33,12 +33,12 @@
                   <div>最新3</div>
               </div>
               <div class="home-article-header-main-controls">
-                  <el-button @click="handleOpenReplyModal()" type="primary">新增文章</el-button>
+                  <el-button @click="handleOpenCreateArticleModal()" type="primary">新增文章</el-button>
 
               </div>
             </div>
           </div>
-
+ 
           <div class="home-article-list-middle">
             <HomeArticleList ref="articleList"></HomeArticleList>
             <div ref="bottomSentinel" style="height: 20px;"></div>
@@ -71,12 +71,9 @@
 
   <!-- 回覆評論彈出框 -->
   <ReplyModal
-    :visible="createArticleModalVisible"
-    model="createArticle"
-    :replyToUser="currentReplyUser"
+    :modalVisible="createArticleModalVisible"
     @close="handleCloseReplyModal"
-    
-    @handleCreateArticle="handleCreateArticle"
+    @submit="handleCreateArticle"
   />
 </template>
 
@@ -218,7 +215,7 @@ const currentReplyUser = ref({
   commentId: '',
   articleId: ''
 });
-const handleOpenReplyModal = () => {
+const handleOpenCreateArticleModal = () => {
   // 為了測試，提供一組模擬數據
   // currentReplyUser.value = {
   //   username: '測試用戶',

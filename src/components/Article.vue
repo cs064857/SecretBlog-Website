@@ -126,11 +126,30 @@
         </div>
 
       </div>
+
+      <div class="metrics-container">
+        <div class="metrics-button-wrapper">
+          <div class="article-comment-context-item-info-metrics-reply"><el-button
+                  @click="handleOpenArticleReplyModal()" type="primary"><img
+                    style=" cursor: pointer;position: relative;right:0.5rem;width: 1.5rem; height: 1.5rem;"
+                    src="/src/assets/reply-solid-full.svg">發表評論</el-button></div>
+        </div>
+
+      </div>
+
     </div>
 
 
 
-    <div class="article-comment">
+
+
+
+
+
+
+
+
+    <!-- <div class="article-comment">
 
 
       <div class="article-comment-input">
@@ -141,7 +160,7 @@
       <div class="article-comment-button">
         <el-button @click="handleCommitComment" size="large" type="primary" round>發表評論</el-button>
       </div>
-    </div>
+    </div> -->
 
     <div class="article-footer">
       <div v-for="(articleComment, index) in renderedComments" :key="index" class="article-comment-context">
@@ -168,25 +187,25 @@
           <div v-html="articleComment.commentContent" class="article-comment-context-item-main"></div>
           <div class="article-comment-context-item-info">
 
-            <div class="ararticle-comment-context-item-info-metrics">
-              <div class="ararticle-comment-context-item-info-metrics-likesCount"><img
-                  @click="handleLikes(articleComment.commentId)"
-                  style="cursor: pointer; position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;"
+            <div class="article-comment-context-item-info-metrics">
+              <div class="article-comment-context-item-info-metrics-likesCount" ><img
+                  @click="handleIsCommentLiked(articleComment.commentId) ?  handleCancelCommentLikes(articleComment.commentId):handleCommentLikes(articleComment.commentId)"
+                  class="svg-icon" :class="{'active': handleIsCommentLiked(articleComment.commentId)}" 
                   src="/src/assets/heart-solid-full.svg">{{ articleComment.likesCount }}</div>
 
-              <!-- <div class="ararticle-comment-context-item-info-metrics-replysCount"><img style=" cursor: pointer;position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/reply-solid-full.svg">{{articleComment.replysCount}}</div> -->
+              <!-- <div class="article-comment-context-item-info-metrics-replysCount"><img style=" cursor: pointer;position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/reply-solid-full.svg">{{articleComment.replysCount}}</div> -->
 
-              <div class="ararticle-comment-context-item-info-metrics-createAt"><img
-                  style="position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;"
+              <div class="article-comment-context-item-info-metrics-createAt"><img
+                  class="svg-icon"
                   src="/src/assets/calendar-days-solid-full.svg">{{ articleComment.createAt }}</div>
-              <div class="ararticle-comment-context-item-info-metrics-updateAt"><img
-                  style="position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;"
+              <div class="article-comment-context-item-info-metrics-updateAt"><img
+                  class="svg-icon"
                   src="/src/assets/pen-solid-full.svg">{{ articleComment.updateAt }}</div>
-              <div class="ararticle-comment-context-item-info-metrics-reply"><el-button
+              <div class="article-comment-context-item-info-metrics-reply"><el-button
                   @click="handleOpenReplyModal(articleComment)" type="primary"><img
                     style=" cursor: pointer;position: relative;right:0.5rem;width: 1.5rem; height: 1.5rem;"
                     src="/src/assets/reply-solid-full.svg">回覆</el-button></div>
-              <!-- <div class="ararticle-comment-context-item-info-metrics-reply"><el-button v-click="handleReplyComment(articleComment.articleId,articleComment.commentId)" type="primary">回覆</el-button></div> -->
+              <!-- <div class="article-comment-context-item-info-metrics-reply"><el-button v-click="handleReplyComment(articleComment.articleId,articleComment.commentId)" type="primary">回覆</el-button></div> -->
 
             </div>
 
@@ -196,6 +215,10 @@
       </div>
 
     </div>
+
+    <reply-modal @close="handleCloseModal()" v-if="replyArticleModalVisible" :modalVisible="replyArticleModalVisible" @submit="handleReplyArticle">
+
+    </reply-modal>
 
     <reply-modal @close="handleCloseReplyCommentModal()" v-if="replyCommentModalVisible" :modalVisible="replyCommentModalVisible" @submit="handleReplyComment">
       <template v-slot:reply-comment-header>
@@ -309,6 +332,8 @@ const artComments = ref();
 
 // 回覆模態框相關狀態
 const replyCommentModalVisible = ref(false);
+const replyArticleModalVisible = ref(false);
+
 // const currentReplyUser = ref({
 //   username: '',
 //   commentContent: '',
@@ -323,7 +348,7 @@ const currentReplyUser = ref(null);
 /**
  * 評論點讚
  */
-const handleLikes = function (commentId: string) {
+const handleCommentLikes = function (commentId: string) {
   console.log("commentId:", commentId)
   http({
     url: http.adornUrl(`/article/${articleId}/comments/${commentId}/likes`),
@@ -331,7 +356,22 @@ const handleLikes = function (commentId: string) {
   }).then(({ data }: { data: R }) => {
     if (data.code == "200") {
       //將取得讚數賦值給 renderedComments 中的 likesCount
-      renderedComments.value.find(item => item.commentId == commentId).likesCount = data.data;
+      // 更新 renderedComments (評論列表) 的點讚數
+      const targetComment = renderedComments.value.find(item => item.commentId == commentId);
+ 
+      console.log("targetComment:", targetComment); 
+      if (targetComment) {
+        targetComment.likesCount = data.data;
+      }
+      // 更新狀態為 0 (已點讚)
+      const statusItem = commentsActionStatus.value.find(item => item.commentId == commentId);
+      console.log("statusItem:", statusItem);
+      if (statusItem) {
+        statusItem.isLiked = 1;
+      }
+
+
+
       ElMessage.success("成功訊息");
     } else {
       ElMessage.error("錯誤訊息");
@@ -477,9 +517,23 @@ const handleCloseEditArticleModal = () => {
 
 };
 
+// 開啟對文章回覆模態框
+const handleOpenArticleReplyModal = () => {
+  console.log("handleOpenArticleReplyModal:articleId:", articleId)
 
+  // parentCommentId.value = comment.commentId
 
-// 開啟評論回覆模態框
+  currentReplyUser.value = {
+    // username: comment.username,
+    // commentContent: "",
+    // commentId: comment.commentId,
+    articleId: articleId as string
+  };
+  replyArticleModalVisible.value = true;
+
+};
+
+// 開啟對留言回覆的模態框
 const handleOpenReplyModal = (comment: any) => {
   console.log("handleOpenReplyModal:comment:", comment)
 
@@ -506,7 +560,14 @@ const handleCloseReplyCommentModal = () => {
     articleId: ''
   };
 };
-
+// 關閉所有回覆模態框
+const handleCloseModal = () => {
+  console.log("觸發handleCloseReplyModal")
+  replyCommentModalVisible.value = false;
+  replyArticleModalVisible.value = false;
+  createArticleModalVisible.value = false;
+  currentReplyUser.value = {};
+};
 //提交評論回覆
 const handleReplyComment = function (content: string) {
   // console.log("articleId:",articleId)
@@ -535,6 +596,37 @@ const handleReplyComment = function (content: string) {
   });
 
 }
+
+//對文章回覆
+const handleReplyArticle = function (content: string) {
+  // console.log("articleId:",articleId)
+  console.log("handleReplyArticle:content:", content)
+  console.log("handleReplyArticle:currentReplyUser:", currentReplyUser.value)
+  console.log("handleReplyArticle:articleId:", articleId)
+
+  const replyCommentData: replyCommentDataInterface = {
+    parentCommentId: null,
+    commentContent: content
+  }
+  console.log("handleReplyArticle:replyCommentData:",replyCommentData)
+  http({
+    url: http.adornUrl(`/article/${articleId}/comments`),
+    method: 'post',
+    data: http.adornData(replyCommentData, false)
+  }).then(({ data }: { data: R}) => {
+    if (data.code == "200") {
+
+      ElMessage.success("成功訊息");
+    } else {
+      ElMessage.error("錯誤訊息");
+    }
+  }).catch(() => {
+    ElMessage.error("請求出錯，請稍後再試");
+  });
+
+}
+
+
 // 提交回覆
 // const handleSubmitReply = async (content: string, replyData: any) => {
 //   console.log("handleSubmitReply:replyData:", replyData)
@@ -1206,6 +1298,9 @@ const getActionHistory = async function () {
 
 }
 
+import {amsCommentActionStatusInterfaceList} from "@/interface/amsCommentActionStatusInterface.ts";
+const commentsActionStatus = ref<amsCommentActionStatusInterfaceList>([]);
+
 const getCommentActionHistory = async function () {
   try {
   const { data } = await http({
@@ -1216,8 +1311,19 @@ const getCommentActionHistory = async function () {
   console.log("getCommentActionHistory data:", data);
 
   if (data.code == "200" && data.data) {
-    isBooksMarked.value = data.data.isBooksMarked==1? true:false;
-    isLiked.value = data.data.isLiked==1? true:false;
+
+
+    commentsActionStatus.value = data.data.map(({commentId,isLiked}) =>({
+        commentId:commentId,
+        isLiked:isLiked
+
+    }));
+
+    console.log("commentsActionStatus.value:", commentsActionStatus.value);
+
+    // isBooksMarked.value = data.data.isBooksMarked==1? true:false;
+    // isLiked.value = data.data.isLiked==1? true:false;
+
     // Article.value = data.data;
     // ArticleContent.value = Article.value.content;
     // console.log("ArticleContent.value:", ArticleContent.value);
@@ -1228,6 +1334,64 @@ const getCommentActionHistory = async function () {
 }
 
 }
+
+const handleIsCommentLiked = function (commentId: string): boolean {
+  console.log("handleIsCommentLiked commentId:", commentId)
+  const status = commentsActionStatus.value.find(
+    item=>item.commentId==commentId
+
+  );
+  console.log("handleIsCommentLiked status:", status)
+
+  return status?.isLiked==1? true:false;
+}
+
+/**
+ * 取消留言點讚函數
+ */
+ const handleCancelCommentLikes = async function (commentId: string) {
+  console.log("handleCancelCommentLikes commentId:", commentId)
+
+try {
+    const { data } = await http({
+      url: http.adornUrl(`/article/${articleId}/comments/${commentId}/unlikes`),
+      method: 'post',
+    }) as { data: R };
+
+    console.log("handleCancelCommentLikes data:", data);
+
+    if (data.code == "200") {
+      // 更新點讚數
+      // 更新 renderedComments (評論列表) 的點讚數
+      const targetComment = renderedComments.value.find(item => item.commentId == commentId);
+ 
+      console.log("targetComment:", targetComment); 
+      if (targetComment) {
+        targetComment.likesCount = data.data;
+      }
+      // 更新狀態為 0 (未點讚)
+      const statusItem = commentsActionStatus.value.find(item => item.commentId == commentId);
+      console.log("statusItem:", statusItem);
+      if (statusItem) {
+        statusItem.isLiked = 0;
+      }
+
+
+      // Article.value.likesCount = data.data;
+      // isBooksMarked.value = data.data.isBooksMarked==1? true:false;
+      // isLiked.value = data.data.isLiked==1? true:false;
+
+
+      // isBooksMarked.value = data.data.isBooksMarked==1? true:false;
+      // isLiked.value = data.data.isLiked==1? true:false;
+      // Article.value = data.data;
+      // ArticleContent.value = Article.value.content;
+      // console.log("ArticleContent.value:", ArticleContent.value);
+      return data;
+    }
+} catch (error) {
+console.error("獲取文章資料失敗:", error);
+}};
 
 //加載文章以及留言
 onMounted(async () => {
@@ -1469,7 +1633,7 @@ const handleCancelArticleLike = async function () {
   background-color: #88c847;
 }
 
-.ararticle-comment-context-item-info-metrics {
+.article-comment-context-item-info-metrics {
   display: flex;
   gap: 1rem;
   align-items: center;
@@ -1565,6 +1729,40 @@ const handleCancelArticleLike = async function () {
   /* min-height: 18%; */
 }
 
+
+/* .article-comment-context-item-info-metrics-likesCount.liked{
+} */
+
+.svg-icon{
+  cursor: pointer;
+  position: relative;
+  top:0.45rem;
+  width: 1.5rem;
+  height: 1.5rem;
+
+  /* CSS濾鏡效果，將黑色轉為灰色 */
+  filter: invert(44%) sepia(0%) saturate(2199%) hue-rotate(326deg) brightness(95%) contrast(78%);
+
+
+}
+.svg-icon.active{
+    /* CSS濾鏡效果，將灰色轉為紅色 */
+
+
+  filter: invert(30%) sepia(90%) saturate(5564%) hue-rotate(336deg) brightness(99%) contrast(104%);
+
+
+}
+
+.article-comment-context-item-info-metrics-likesCount.liked img{
+  /* CSS濾鏡效果，將黑色轉為紅色 */
+  /* filter: invert(16%) sepia(79%) saturate(6098%) hue-rotate(341deg) brightness(98%) contrast(115%); */
+
+  /* CSS濾鏡效果，將白色轉為紅色 */
+  filter: invert(30%) sepia(90%) saturate(5564%) hue-rotate(336deg) brightness(99%) contrast(104%);
+
+
+}
 .article-comment-input {
   background-color: #98710e;
   min-width: 90%;
