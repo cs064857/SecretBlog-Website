@@ -1,15 +1,12 @@
 export function getCookieValue(key:string):string | null{
-
+    console.log("getCookieValue...key:",key)
     const cookieArray=document.cookie.split(";")
+    console.log("cookieArray:",cookieArray)
     let cookieValue:string|null=null;
     cookieArray.forEach(cookieString=>{
-        
-        
-
         const cookie =cookieString.trim();
-        if(cookie.startsWith("jwtToken"+'=')){
+        if(cookie.startsWith(key+'=')){
             cookieValue=cookie.substring(key.length+1)
-
         }
     })
 

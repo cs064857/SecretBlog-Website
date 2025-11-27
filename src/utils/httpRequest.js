@@ -44,6 +44,7 @@ function doLogoutAndRedirect (triggerUrl) {
   const isLoginStore = useIsLoginStore()
   isLoginStore.setIsLoginData(false)
   document.cookie = 'jwtToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+  document.cookie = 'userId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
   if (!isOnAuthPage()) {
     sessionStorage.setItem('redirect', window.location.pathname + window.location.search)
   }

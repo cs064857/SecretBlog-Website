@@ -205,6 +205,12 @@
                   @click="handleOpenReplyModal(articleComment)" type="primary"><img
                     style=" cursor: pointer;position: relative;right:0.5rem;width: 1.5rem; height: 1.5rem;"
                     src="/src/assets/reply-solid-full.svg">回覆</el-button></div>
+              <div v-if="isCommentOwner(articleComment.userId)" class="article-comment-context-item-info-metrics-delete">
+                <img @click="handleDeleteComment(articleComment.commentId)"
+                    class="svg-icon delete-icon"
+                    src="/src/assets/trash-can-solid-full.svg"
+                    title="刪除留言">
+              </div>
               <!-- <div class="article-comment-context-item-info-metrics-reply"><el-button v-click="handleReplyComment(articleComment.articleId,articleComment.commentId)" type="primary">回覆</el-button></div> -->
 
             </div>
@@ -343,6 +349,16 @@ const replyArticleModalVisible = ref(false);
 
 const currentReplyUser = ref(null);
 
+// 當前登入用戶的 userId（從 Cookie 獲取）
+const currentUserId = getCookieValue('userId');
+
+/**
+ * 判斷當前用戶是否為評論作者
+ */
+const isCommentOwner = (commentUserId: string): boolean => {
+  console.log("isCommentOwner...currentUserId:",currentUserId)
+  return currentUserId !== null && currentUserId === commentUserId;
+};
 
 
 /**
@@ -1393,6 +1409,47 @@ try {
 console.error("獲取文章資料失敗:", error);
 }};
 
+/**
+ * 刪除評論
+ */
+const handleDeleteComment = async function (commentId: string) {
+  try {
+    await ElMessageBox.confirm(
+      '確定要刪除這則留言嗎？此操作無法復原。',
+      '刪除確認',
+      {
+        confirmButtonText: '確定刪除',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+    );
+
+    const { data } = await http({
+      url: http.adornUrl(`/article/${articleId}/comments/${commentId}`),
+      method: 'post',
+    }) as { data: R };
+
+    if (data.code == "200") {
+      // 從 renderedComments 中移除已刪除的評論
+      renderedComments.value = renderedComments.value.filter(
+        item => item.commentId != commentId
+      );
+      // 同時從 artComments 中移除
+      artComments.value = artComments.value.filter(
+        item => item.commentId != commentId
+      );
+      ElMessage.success("留言已刪除");
+    } else {
+      ElMessage.error(data.msg || "刪除失敗，您可能沒有權限刪除此留言");
+    }
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error("刪除評論失敗:", error);
+      ElMessage.error("刪除失敗，請稍後再試");
+    }
+  }
+};
+
 //加載文章以及留言
 onMounted(async () => {
   getArticleAndComments()
@@ -1752,6 +1809,22 @@ const handleCancelArticleLike = async function () {
   filter: invert(30%) sepia(90%) saturate(5564%) hue-rotate(336deg) brightness(99%) contrast(104%);
 
 
+}
+
+/* 刪除圖標樣式 */
+.article-comment-context-item-info-metrics-delete {
+  display: flex;
+  align-items: center;
+}
+
+.delete-icon {
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+.delete-icon:hover {
+  /* CSS濾鏡效果，hover 時變紅色 */
+  filter: invert(30%) sepia(90%) saturate(5564%) hue-rotate(336deg) brightness(99%) contrast(104%);
 }
 
 .article-comment-context-item-info-metrics-likesCount.liked img{
