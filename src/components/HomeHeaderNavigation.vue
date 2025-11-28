@@ -6,6 +6,7 @@ import { ElMessage } from 'element-plus'
 import {R} from "@/interface/R";
 import http from "@/utils/httpRequest.js";
 import {useIsLoginStore} from "@/pinia/useIsLoginStore"
+import { getCookieValue } from "@/utils/jwtUtils";
 const router = useRouter()
 const route = useRoute()
 const isLoginStore =useIsLoginStore()
@@ -85,6 +86,14 @@ const handleGoHome = function(){
             <el-avatar :size="50" src="https://linux.do/user_avatar/linux.do/j3n5en/144/305927_2.gif" />
             <template #dropdown>
               <el-dropdown-menu>
+                <el-dropdown-item >
+
+                  <router-link :to="{name: 'UserSummary' , params:{userId: getCookieValue('userId')}}">
+                    個人資料
+                  </router-link>
+                  
+                
+                </el-dropdown-item>
                 <el-dropdown-item @click="handleSignOut">登出</el-dropdown-item>
                 <el-dropdown-item disabled>暫無選項</el-dropdown-item>
                 

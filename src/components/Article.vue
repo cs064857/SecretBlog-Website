@@ -37,6 +37,13 @@
 
               <div class="article-header-info-right">
 
+                <div v-if="isArticleOwner()" class="article-header-info-delete">
+                  <img @click="handleDeleteArticle"
+                       class="svg-icon delete-icon"
+                       src="/src/assets/trash-can-solid-full.svg"
+                       title="刪除文章">
+                </div>
+
                 <div class="article-header-info-edit">
                   <!-- <img @click="handleEditArticle" src="/src/assets/pen-solid-full.svg" alt="edit" style="width: 1.5rem;height: 1.5rem;"></img> -->
                   <img @click="handleOpenEditArticleModal" src="/src/assets/pen-solid-full.svg" alt="edit"
@@ -383,6 +390,13 @@ const currentUserId = getCookieValue('userId');
 const isCommentOwner = (commentUserId: string): boolean => {
   console.log("isCommentOwner...currentUserId:",currentUserId)
   return currentUserId !== null && currentUserId === commentUserId;
+};
+
+/**
+ * 判斷當前用戶是否為文章作者
+ */
+const isArticleOwner = (): boolean => {
+  return currentUserId !== null && currentUserId === String(Article.value.userId);
 };
 
 
@@ -1552,6 +1566,41 @@ const handleDeleteComment = async function (commentId: string) {
   }
 };
 
+/**
+ * 刪除文章
+ */
+const handleDeleteArticle = async function () {
+  try {
+    await ElMessageBox.confirm(
+      '確定要刪除這篇文章嗎？此操作無法復原。',
+      '刪除確認',
+      {
+        confirmButtonText: '確定刪除',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+    );
+
+    const { data } = await http({
+      url: http.adornUrl(`/article/delete/${articleId}`),
+      method: 'post',
+    }) as { data: R };
+
+    if (data.code == "200") {
+      ElMessage.success("文章已刪除");
+      // 導向首頁
+      router.push('/');
+    } else {
+      ElMessage.error(data.msg || "刪除失敗，您可能沒有權限刪除此文章");
+    }
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error("刪除文章失敗:", error);
+      ElMessage.error("刪除失敗，請稍後再試");
+    }
+  }
+};
+
 //加載文章以及留言
 onMounted(async () => {
   getArticleAndComments()
@@ -2028,6 +2077,23 @@ const handleCancelArticleLike = async function () {
   align-items: center;
   gap: 1rem;
   background-color: #332f6b;
+}
+
+.article-header-info-delete {
+  display: flex;
+  align-items: center;
+}
+
+.article-header-info-delete .delete-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+.article-header-info-delete .delete-icon:hover {
+  filter: invert(30%) sepia(90%) saturate(5564%)
+          hue-rotate(336deg) brightness(99%) contrast(104%);
 }
 
 .article-title {

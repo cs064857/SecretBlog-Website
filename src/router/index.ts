@@ -12,6 +12,7 @@ import TinyMceEditManagement from "@/components/admin/TinyMceEditManagement.vue"
 import ArticleManagement from "@/components/admin/ArticleManagement.vue";
 import HomePage from "@/components/HomePage.vue";
 import AuthForgotPassword from "@/components/AuthForgotPassword.vue";
+import UserSummary from '@/components/UserSummary.vue';
 const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -126,7 +127,11 @@ const router = createRouter({
         //     path:'/',
         //     redirect: "/home"
         // }
-        
+        {
+            path: '/user/summary/:userId',
+            name: 'UserSummary',
+            component: UserSummary
+        }
     ]
 })
 //全局路由守衛
