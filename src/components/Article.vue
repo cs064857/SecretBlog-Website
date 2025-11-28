@@ -199,7 +199,8 @@
                   class="svg-icon"
                   src="/src/assets/calendar-days-solid-full.svg">{{ articleComment.createAt }}</div>
               <div class="article-comment-context-item-info-metrics-updateAt"><img
-                  class="svg-icon"
+                  @click="handleOpenEditCommentModal(articleComment)"
+                class="svg-icon"
                   src="/src/assets/pen-solid-full.svg">{{ articleComment.updateAt }}</div>
               <div class="article-comment-context-item-info-metrics-reply"><el-button
                   @click="handleOpenReplyModal(articleComment)" type="primary"><img
@@ -227,7 +228,7 @@
 
     </reply-modal>
 
-    <reply-modal @close="handleCloseReplyCommentModal()" v-if="replyCommentModalVisible" :modalVisible="replyCommentModalVisible" @submit="handleReplyComment">
+    <reply-modal @close="handleCloseModal()" v-if="replyCommentModalVisible" :modalVisible="replyCommentModalVisible" @submit="handleReplyComment">
       <template v-slot:reply-comment-header>
         <!-- 評論功能：智能回覆提示區 -->
         <!-- <div v-if="props.model == 'replyComment' ? true : false" class="reply-header"> -->
@@ -241,7 +242,7 @@
 
             {{ truncateText(currentReplyUser.commentContent, 50) }}
           </div>
-          <button class="close-btn" @click="handleCancel">
+          <button class="close-btn" @click="handleCloseModal">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
               <path
                 d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
@@ -251,7 +252,8 @@
       </template>
     </reply-modal>
 
-    <reply-modal @close="handleCloseEditArticleModal" v-if="createArticleModalVisible" @submit="handleEditArticle"
+
+    <reply-modal @close="handleCloseModal()" v-if="createArticleModalVisible" @submit="handleEditArticle"
       :modalVisible="createArticleModalVisible" :content="Article.content">
 
       <template #article-editor-header>
@@ -288,6 +290,23 @@
       </template>
 
     </reply-modal>
+
+    
+    <reply-modal @close="handleCloseModal()" v-if="editCommentModalVisible" :modalVisible="editCommentModalVisible" @submit="handleEditComment" :content="currentReplyUser.commentContent">
+      <template v-slot:reply-comment-header>
+        <!-- 編輯留言模態框 -->
+
+          <!-- <button class="close-btn" @click="handleCloseModal()">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <path
+                d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+            </svg>
+          </button> -->
+
+      </template>
+    </reply-modal>
+
+
 
     <!-- 編輯文章彈出框 -->
     <!-- <ReplyModal :visible="createArticleModalVisible" model="editArticle" :replyToUser="currentReplyUser"
@@ -340,6 +359,11 @@ const artComments = ref();
 // 回覆模態框相關狀態
 const replyCommentModalVisible = ref(false);
 const replyArticleModalVisible = ref(false);
+//編輯模態框
+const editCommentModalVisible = ref(false);
+
+
+
 
 // const currentReplyUser = ref({
 //   username: '',
@@ -522,17 +546,7 @@ console.log("handleOpenEditArticleModal:currentReplyUser.value:", currentReplyUs
 createArticleModalVisible.value = true;
 }
 
-// 關閉編輯文章模態框
-const handleCloseEditArticleModal = () => {
-  currentReplyUser.value = {
-    username: '',
-    commentContent: '',
-    commentId: '',
-    articleId: ''
-  };
-  createArticleModalVisible.value = false;
 
-};
 
 // 開啟對文章回覆模態框
 const handleOpenArticleReplyModal = () => {
@@ -565,26 +579,59 @@ const handleOpenReplyModal = (comment: any) => {
   replyCommentModalVisible.value = true;
 
 };
+// 開啟編輯留言的模態框
+const handleOpenEditCommentModal = (comment: any) => {
+  console.log("handleOpenEditCommentModal:comment:", comment)
 
-// 關閉評論回覆模態框
-const handleCloseReplyCommentModal = () => {
-  console.log("觸發handleCloseReplyModal")
-  replyCommentModalVisible.value = false;
+  // parentCommentId.value = comment.commentId
+
   currentReplyUser.value = {
-    username: '',
-    commentContent: '',
-    commentId: '',
-    articleId: ''
+    username: comment.username,
+    commentContent: comment.commentContent,
+    commentId: comment.commentId,
+    articleId: articleId as string
   };
+  editCommentModalVisible.value = true;
+
 };
+
+/**
+ * 關閉模態框
+ */
 // 關閉所有回覆模態框
 const handleCloseModal = () => {
   console.log("觸發handleCloseReplyModal")
   replyCommentModalVisible.value = false;
+  editCommentModalVisible.value = false;
   replyArticleModalVisible.value = false;
   createArticleModalVisible.value = false;
   currentReplyUser.value = {};
 };
+
+// // 關閉編輯文章模態框
+// const handleCloseEditArticleModal = () => {
+//   currentReplyUser.value = {
+//     username: '',
+//     commentContent: '',
+//     commentId: '',
+//     articleId: ''
+//   };
+//   createArticleModalVisible.value = false;
+
+// };
+
+// 關閉評論回覆模態框
+// const handleCloseReplyCommentModal = () => {
+//   console.log("觸發handleCloseReplyModal")
+//   replyCommentModalVisible.value = false;
+//   currentReplyUser.value = {
+//     username: '',
+//     commentContent: '',
+//     commentId: '',
+//     articleId: ''
+//   };
+// };
+
 //提交評論回覆
 const handleReplyComment = function (content: string) {
   // console.log("articleId:",articleId)
@@ -608,7 +655,53 @@ const handleReplyComment = function (content: string) {
       //關閉模態框
       replyCommentModalVisible.value = false;
       //將新創回覆的評論加入到renderedComments中
+      ///TODO 待修復
       renderedComments.value.push(replyCommentData)
+    } else {
+      ElMessage.error("錯誤訊息");
+    }
+  }).catch(() => {
+    ElMessage.error("請求出錯，請稍後再試");
+  });
+
+}
+//編輯留言
+const handleEditComment = function (content: string) {
+  // console.log("articleId:",articleId)
+  console.log("handleEditComment:content:", content)
+  console.log("handleEditComment:currentReplyUser:", currentReplyUser.value)
+  console.log("handleEditComment:articleId:", articleId)
+
+  const replyCommentData: replyCommentDataInterface = {
+    parentCommentId: currentReplyUser.value.commentId,
+    commentContent: content
+  }
+  console.log("handleEditComment:replyCommentData:",replyCommentData)
+  http({
+    url: http.adornUrl(`/article/${articleId}/comments`),
+    method: 'post',
+    data: http.adornData(replyCommentData, false)
+  }).then(({ data }: { data: R}) => {
+    if (data.code == "200") {
+
+      ElMessage.success("成功訊息");
+
+
+      //替換新留言內容
+      const foundItem = renderedComments.value.find(
+          item => item.commentId == currentReplyUser.value.commentId
+      );
+      console.log('Found Item:', foundItem); 
+      if (foundItem) {
+          foundItem.commentContent = replyCommentData.commentContent;
+
+      }
+
+      //關閉模態框
+            // editCommentModalVisible.value = false;
+      handleCloseModal();
+
+
     } else {
       ElMessage.error("錯誤訊息");
     }
