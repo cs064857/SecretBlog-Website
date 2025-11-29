@@ -78,7 +78,7 @@ const handleGoHome = function(){
         <div class="home-header-navigation">
           
           <!-- <el-image class="home-header-navigation-logo" src="https://element-plus.org/images/element-plus-logo.svg"></el-image> -->
-          <img class="home-header-navigation-logo" style="cursor:pointer" alt="SecretBlog" v-on:click="handleGoHome" src="../assets/SecretBlog.svg"></img>
+          <img class="home-header-navigation-logo" alt="SecretBlog" v-on:click="handleGoHome" src="../assets/SecretBlog.svg"></img>
           <!--        <el-button style="height: 6vh;width: 6vh" @click="handleGoCategory" type="primary" :icon="Menu"/>-->
           <!--        <el-button style="height: 6vh;width: 6vh" @click="handleGoUser" type="primary" :icon="User"/>-->
           
@@ -88,7 +88,7 @@ const handleGoHome = function(){
               <el-dropdown-menu>
                 <el-dropdown-item >
 
-                  <router-link :to="{name: 'UserSummary' , params:{userId: getCookieValue('userId')}}">
+                  <router-link :to="{name: 'User' , params:{userId: getCookieValue('userId')}}">
                     個人資料
                   </router-link>
                   
@@ -118,12 +118,15 @@ const handleGoHome = function(){
   /* background-color: #DD4A68; */
 
   height: 27vh;
-
+  cursor: pointer;
   width:auto;
   /*position:absolute;*/
   position:relative;
   right:75%;
-  top:10%
+  top:10%;
+
+  /* 裁切圖片,將圖片底部略為裁減, 避免誤觸 */
+  clip-path: inset(0% 0 37% 0);
 }
 
 .dark .home-header-navigation {

@@ -1345,7 +1345,7 @@ const getArticle = (async () => {
 
     console.log("data:", data);
 
-    if (data.code == "200" && data.data) {
+    if (data.code == "200") {
       // Article.value = data.data;
       // ArticleContent.value = Article.value.content;
       // console.log("ArticleContent.value:", ArticleContent.value);
@@ -1416,7 +1416,7 @@ const getActionHistory = async function () {
 
   console.log("getActionHistory data:", data);
 
-  if (data.code == "200" && data.data) {
+  if (data.code == "200") {
     isBooksMarked.value = data.data.isBooksMarked==1? true:false;
     isLiked.value = data.data.isLiked==1? true:false;
     // Article.value = data.data;
@@ -1442,7 +1442,7 @@ const getCommentActionHistory = async function () {
 
   console.log("getCommentActionHistory data:", data);
 
-  if (data.code == "200" && data.data) {
+  if (data.code == "200") {
 
 
     commentsActionStatus.value = data.data.map(({commentId,isLiked}) =>({
@@ -1669,16 +1669,20 @@ const handleCancelArticleLike = async function () {
         method: 'post',
       }) as { data: R };
 
-      console.log("getActionHistory data:", data);
+      console.log("handleCancelArticleLike data:", data);
 
-      if (data.code == "200" && data.data) {
+      if (data.code == "200") {
         // 更新點讚數
         Article.value.likesCount = data.data;
-        isBooksMarked.value = data.data.isBooksMarked==1? true:false;
-        isLiked.value = data.data.isLiked==1? true:false;
+        // isBooksMarked.value = data.data==1? true:false;
+        isLiked.value = data.data==1? true:false;
+        console.log("handleCancelArticleLike isLiked:", isLiked.value);
+
+
         // Article.value = data.data;
         // ArticleContent.value = Article.value.content;
         // console.log("ArticleContent.value:", ArticleContent.value);
+        ElMessage.success("取消讚成功！");
         return data;
       }
 } catch (error) {

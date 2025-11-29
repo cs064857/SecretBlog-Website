@@ -13,6 +13,9 @@ import ArticleManagement from "@/components/admin/ArticleManagement.vue";
 import HomePage from "@/components/HomePage.vue";
 import AuthForgotPassword from "@/components/AuthForgotPassword.vue";
 import UserSummary from '@/components/UserSummary.vue';
+import UserLikes from "@/components/UserLikes.vue";
+import UserInformation from "@/components/UserInformation.vue";
+
 const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -128,9 +131,26 @@ const router = createRouter({
         //     redirect: "/home"
         // }
         {
-            path: '/user/summary/:userId',
-            name: 'UserSummary',
-            component: UserSummary
+            path: '/user/:userId',
+            name: 'User',
+            redirect: { name: 'UserLikes' }, // 預設跳轉到 UserLikes 頁面
+            components: {
+                app: UserSummary
+            },
+            children: [
+
+                {
+                    path: 'likes',
+                    name: 'UserLikes',
+                    component: UserLikes
+                },
+                {
+                    path: 'information',
+                    name: 'UserInformation',
+                    component: UserInformation
+                },
+
+            ]
         }
     ]
 })

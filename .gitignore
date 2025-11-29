@@ -28,3 +28,4 @@ MyProgram/Convert/dmxapi/dmxapi8.py
 .tmp.driveupload/*
 src/components/ReplyTest.vueslot
 src/components/ReplyTest.vue
+.agent/*
