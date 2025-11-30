@@ -13,6 +13,10 @@ import { ElMessage } from 'element-plus'
 import { store } from "@/pinia/index";    // 引入創建好的pinia
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'//自動持久化pinia中的數據,儲存在localStorage 或 sessionStorage中
 
+// 引入 vue-advanced-cropper 及其樣式
+import { Cropper } from 'vue-advanced-cropper'
+import 'vue-advanced-cropper/dist/style.css'
+
 
 const app = createApp(App)
 // import httpRequest from '/utils/httpRequest';
@@ -24,6 +28,10 @@ app.use(ElementPlus, {
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component)
 }
+
+//vue-advanced-cropper
+app.component('Cropper', Cropper)
+
 app.config.globalProperties.$message=ElMessage
 // app.config.globalProperties.$http=httpRequest
 

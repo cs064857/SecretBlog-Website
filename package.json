@@ -25,6 +25,7 @@
     "tinymce": "^6.8.4",
     "tinymce-i18n": "^24.7.29",
     "vue": "^3.4.37",
+    "vue-advanced-cropper": "^2.8.9",
     "vue-router": "^4.4.3"
   },
   "devDependencies": {
