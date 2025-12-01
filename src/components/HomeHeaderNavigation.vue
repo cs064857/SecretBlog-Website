@@ -7,6 +7,7 @@ import {R} from "@/interface/R";
 import http from "@/utils/httpRequest.js";
 import {useIsLoginStore} from "@/pinia/useIsLoginStore"
 import { getCookieValue } from "@/utils/jwtUtils";
+import { on } from "events";
 const router = useRouter()
 const route = useRoute()
 const isLoginStore =useIsLoginStore()
@@ -72,6 +73,16 @@ const handleGoHome = function(){
   router.push('/Home')
 
 }
+const avatar = ref<string>('')
+
+const getAvatarUrl=function(){
+  console.log("getAvatarUrl")
+  avatar.value = getCookieValue('avatar')
+  console.log("getAvatarUrl avatar.value:",avatar.value)
+}
+onMounted(() => {
+  getAvatarUrl()
+})
 </script>
 
 <template>
@@ -83,7 +94,7 @@ const handleGoHome = function(){
           <!--        <el-button style="height: 6vh;width: 6vh" @click="handleGoUser" type="primary" :icon="User"/>-->
           
           <el-dropdown @command="handleCommand" v-if="isLoggedIn">
-            <el-avatar :size="50" src="https://linux.do/user_avatar/linux.do/j3n5en/144/305927_2.gif" />
+            <el-avatar :size="50" :src="avatar" />
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item >

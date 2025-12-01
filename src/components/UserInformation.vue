@@ -267,10 +267,15 @@ const handleConfirmEditAvatar = function () {
             }).then(({ data }: { data: any }) => {
                  if (data.code === "200") {
                     ElMessage.success("頭像修改成功");
+
                     if (userInformation.value) {
                         userInformation.value.avatar = data.data; 
                     }
                     editAvatar.value = false;
+
+                    //更新cookie中頭像的URL值
+                    document.cookie = "avatar=" + data.data + "; path=/;";
+
                  } else {
                     ElMessage.error(data.msg || "頭像修改失敗");
                  }
