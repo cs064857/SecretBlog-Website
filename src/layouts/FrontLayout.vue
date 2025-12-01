@@ -7,9 +7,13 @@
 
     </div>
 
+    <div v-if="!isSmallScreen" class="mobile-menu-bar">
+      <el-button @click="showMobileMenu = !showMobileMenu" :icon="Menu" type="primary">展開選單</el-button>
+    </div>
 
     <div class="home-main" ref="scrollContainer">
-      <div class="fixed-home-left-navbar">
+
+      <div v-if="isSmallScreen || showMobileMenu" class="fixed-home-left-navbar">
         <div class="home-left-navbar">
           <HomeLeftNavbar></HomeLeftNavbar>
         </div>
@@ -80,24 +84,6 @@
 <style scoped>
 
 
-.scroll-info {
-  color: #ffffff;
-}
-
-.scroll-info h3 {
-  margin-bottom: 10px;
-  font-size: 16px;
-}
-
-.scroll-info p {
-  margin: 5px 0;
-  font-size: 14px;
-}
-.main-content-area{
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
 
 </style>
 
@@ -363,7 +349,7 @@ http({
 // onBeforeRouteUpdate((to, from) => {
 //   if (to.path !== from.path) {
 //     const categoryId = to.params.categoryId;
-//     const routePage = to.query.page
+//     const routePage = to.query.page;
 //     console.log("檢測到Home路由改變:categoryId=" + categoryId + ",routePage=" + routePage)
 //     getArticles(categoryId, routePage)
 //   }
@@ -420,6 +406,46 @@ http({
 // //   }
 // // })
 // //根據categoryId篩選與分頁/
+
+
+/**
+ * 響應式
+ */
+
+import { useMediaQuery } from '@vueuse/core';
+
+
+const isSmallScreen = useMediaQuery('(min-width: 959px)');
+const showMobileMenu = ref(false);
+
+
+// const matches = ref(false)
+// let mediaQueryList = null;
+
+// const updateMatch = (e) =>{
+//   console.log('updateMatch',e)
+//   matches.value = e.matches;
+//   if (e.matches) {
+//       console.log('小型螢幕');
+//     } else {
+//       console.log('中型螢幕');
+//     }
+// }
+
+// const matchMedia = function(){
+
+//   mediaQueryList = window.matchMedia('(max-width: 768px)');
+
+//   mediaQueryList.addEventListener('change', updateMatch)
+
+
+// }
+// onMounted(() => {
+//   matchMedia();
+// })
+// onUnmounted(() => {
+//   if(mediaQueryList){
+//     mediaQueryList.removeEventListener('change', updateMatch)
+//   }
+// })
 </script>
-
-
