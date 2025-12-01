@@ -47,13 +47,32 @@ onMounted(() => {
   <el-scrollbar
        height="100%" always
   >
-    <p style="word-break: break-all;margin: 20px 20px 20px 20px;font-family: 'Noto Sans TC',sans-serif;font-weight: bold;font-size: 22px" v-for="item in categoryList" :key="item.id">
+    <p class="category-item" v-for="item in categoryList" :key="item.id">
       {{item.label}}
-      <a href="#" @click="handleCategoryRouterLink(children)" style="color: darksalmon; font-size: 16px;text-decoration: none;" v-for="children in item.children"><br><span style=";padding-left: 1em;">{{ children.label }}</span></a>
+      <a href="#" @click="handleCategoryRouterLink(children)" class="category-link" v-for="children in item.children"><br><span style="padding-left: 1em;">{{ children.label }}</span></a>
     </p>
   </el-scrollbar>
 </template>
 
 <style scoped>
+.category-item {
+  word-break: break-all;
+  margin: 20px;
+  font-family: 'Noto Sans TC', sans-serif;
+  font-weight: bold;
+  font-size: 22px;
+}
 
+.category-link {
+  color: darksalmon;
+  font-size: 16px;
+  text-decoration: none;
+}
+
+@media screen and (max-width: 959px) {
+  .category-item {
+    margin: 10px; /* Reduce margin on mobile */
+    font-size: 18px; /* Slightly smaller font for mobile */
+  }
+}
 </style>

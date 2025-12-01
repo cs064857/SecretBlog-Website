@@ -1,4 +1,4 @@
-.dark .home-container {
+.home-container {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -6,7 +6,7 @@
     background-color: rgba(35, 38, 40, 0.8);
 }
 
-.dark .home-header {
+.home-header {
     display: flex;
     justify-items: center;
     align-items: center;
@@ -34,7 +34,7 @@
     z-index: 90;
 }
 
-.dark .home-main {
+.home-main {
     display: flex;
     flex-direction: row;
     gap: 10px;
@@ -53,12 +53,7 @@
     place-content: flex-start;
 }
 
-@media screen and (max-width: 959px) {
-    .dark .home-main {
-        top: 14vh;
-        height: 86vh;
-    }
-}
+
 
 .home-footer {
     min-height: 8%;
@@ -73,7 +68,7 @@
 
 }
 
-.dark .home-left-navbar {
+.home-left-navbar {
     background-color: rgb(42,45,47);
     flex: 1;
     margin-left: 50px;
@@ -105,7 +100,7 @@
     justify-content: center;
 }
 
-.dark .home-right-article {
+.home-right-article {
     background-color: rgb(42,45,47);
     width: 16vw;
     height: 70vh;
@@ -166,7 +161,7 @@
 }
 
 /* Update home-article-list to fit within the new layout */
-.dark .home-article-list {
+.home-article-list {
     width: calc(100% - 18vw); /* Adjust based on the width of your right sidebar plus margins */
     margin-left: 0; /* Remove the margin since we're using the parent container for positioning */
     display: grid;
@@ -197,20 +192,39 @@
   }
   
   @media screen and (max-width: 959px) {
-    .home-left-navbar,
-    .fixed-home-left-navbar{
-      background-color: rgb(97, 148, 148);
-      min-width: 100px;
-  
+    .home-main {
+        top: 14vh;
+        height: 86vh;
     }
-  }
 
+    .main-content-area {
+        margin-left: 0;
+        width: 100%;
+    }
 
+    .home-article-list {
+        width: 100%;
+    }
 
+    .home-article-header-main {
+        margin-left: 0;
+        margin-right: 0;
+    }
 
+    .home-article-list-right {
+        display: none;
+    }
 
+    .fixed-home-left-navbar {
+        top: 14vh;
+        height: 86vh;
+        background-color: rgba(35, 38, 40, 0.95); 
+        width: 250px; 
+    }
 
-/*/*.home-rightMain {*/
-/*    background-color: darkmagenta;*/
-/*    grid-area: home-rightMain;*/
-/*}*/
+    .home-left-navbar {
+        width: 100%;
+        margin-left: 0;
+        height: 100%;
+    }
+}

@@ -7,13 +7,13 @@
 
     </div>
 
-    <div v-if="!isSmallScreen" class="mobile-menu-bar">
+    <div v-if="!isLargeScreen" class="mobile-menu-bar">
       <el-button @click="showMobileMenu = !showMobileMenu" :icon="Menu" type="primary">展開選單</el-button>
     </div>
 
     <div class="home-main" ref="scrollContainer">
 
-      <div v-if="isSmallScreen || showMobileMenu" class="fixed-home-left-navbar">
+      <div v-if="isLargeScreen || showMobileMenu" class="fixed-home-left-navbar">
         <div class="home-left-navbar">
           <HomeLeftNavbar></HomeLeftNavbar>
         </div>
@@ -415,7 +415,7 @@ http({
 import { useMediaQuery } from '@vueuse/core';
 
 
-const isSmallScreen = useMediaQuery('(min-width: 959px)');
+const isLargeScreen = useMediaQuery('(min-width: 960px)');
 const showMobileMenu = ref(false);
 
 
