@@ -13,6 +13,8 @@
 
     <div class="home-main" ref="scrollContainer">
 
+      <div v-if="(!isLargeScreen && showMobileMenu)" class="mobile-menu-overlay" @click="showMobileMenu = false"></div>
+
       <div v-if="isLargeScreen || showMobileMenu" class="fixed-home-left-navbar">
         <div class="home-left-navbar">
           <HomeLeftNavbar></HomeLeftNavbar>
@@ -58,11 +60,11 @@
 
         </div>
 
-        <div style="width: 100px;height: 100px;background-color: #395c5c;" class="home-article-list-right">
+        <!-- <div style="width: 100px;height: 100px;background-color: #395c5c;" class="home-article-list-right">
 
           123
           
-        </div>
+        </div> -->
 
         
       </div>

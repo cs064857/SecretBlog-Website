@@ -397,7 +397,7 @@ hr{
   /*border-radius: 30px 30px 30px 30px;*/
   /*box-shadow: deeppink 0 0 5px;*/
   /*background-color: white;*/
-  margin: 0% 5% 2% 5%;
+  margin: 0% 0 2% 0;
   /*width: 60%;*/
   /*max-height: 100vh;*/
   /*min-height: auto;*/
