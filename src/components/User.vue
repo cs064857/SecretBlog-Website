@@ -102,6 +102,7 @@ const handleGoInformation = function(){
     flex-direction: column;
     justify-content: start;
     align-items: center;
+    overflow-y: auto; 
 }
 
 .user-summary-container-main{

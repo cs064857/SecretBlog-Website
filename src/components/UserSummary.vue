@@ -54,6 +54,25 @@
                 </div>
             </div>
 
+            <div class="user-summary-main-content-comments">
+                <h2>留言列表</h2>
+                <div v-if="userComments.length === 0" class="empty-message">
+                    <p>目前沒有留言</p>
+                </div>
+                <div v-else class="article-list">
+                    <div v-for="comment in userComments" :key="comment.commentId" class="article-item">
+                        <h3>{{ comment.articleTitle }}</h3>
+                        <p class="article-meta">
+                            <span>文章 ID: {{ comment.articleId }}</span>
+                            <span>留言時間: {{ formatDate(comment.createAt) }}</span>
+                        </p>
+                        <div class="article-content">
+                            <p>{{ comment.commentContent }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </div>
@@ -66,6 +85,8 @@ import { ElMessage } from "element-plus";
 import type { R } from "@/interface/R.ts";
 import { getCookieValue } from "@/utils/jwtUtils.ts";
 import { useRouter, useRoute } from "vue-router";
+import { getUserCommentsRequest } from "@/requests/userRequest";
+import { AmsUserCommentVo } from "@/interface/amsUserCommentVo";
 
 // 定義文章互動資料介面（與後端 UserLikedArticleVo 對應）
 interface ArtActionInter {
@@ -78,6 +99,7 @@ interface ArtActionInter {
 
 // 存儲所有文章互動資料
 const artActionData = ref<ArtActionInter[]>([]);
+const userComments = ref<AmsUserCommentVo[]>([]);
 
 // 計算屬性：篩選出點讚的文章
 const likedArticles = computed(() => {
@@ -103,6 +125,23 @@ const formatDate = (dateStr: string): string => {
 };
 const router = useRouter();;
 const route = useRoute();;
+
+// 獲取用戶留言列表
+const fetchUserComments = () => {
+    const userId = route.params.userId as string;
+    if (!userId) return;
+
+    getUserCommentsRequest(userId).then((data) => {
+        if (data.code === "200" && data.data) {
+            userComments.value = data.data;
+        } else {
+            ElMessage.error(data.msg || "獲取用戶留言失敗");
+        }
+    }).catch((error) => {
+        console.error("獲取用戶留言失敗:", error);
+        ElMessage.error("獲取用戶留言失敗");
+    });
+};
 
 // 獲取用戶點讚文章列表
 const fetchLikedArticles = () => {
@@ -143,6 +182,7 @@ const fetchLikedArticles = () => {
 onMounted(() => {
     console.log("UserSummary 組件已掛載，準備獲取資料");
     fetchLikedArticles();
+    fetchUserComments();
 });
 </script>
 <style lang="css" scoped>
@@ -150,7 +190,7 @@ onMounted(() => {
 .user-summary-main-content {
     display: flex;
     flex-direction: column;
-
+    min-height: 100%;
 }
 
 /* 第一層 */
@@ -167,12 +207,17 @@ onMounted(() => {
 }
 
 .user-summary-main-content-likes,
-.user-summary-main-content-bookmarks {
+.user-summary-main-content-bookmarks,
+.user-summary-main-content-comments {
     flex: 1;
     min-height: 300px;
+    max-height: 800px;
     padding: 20px;
     border-radius: 8px;
-    overflow-y: auto;
+    background-color: #2c3e50;
+    margin-bottom: 100px;
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
 
 .user-summary-main-content-likes {
@@ -182,6 +227,7 @@ onMounted(() => {
 .user-summary-main-content-bookmarks {
     background-color: #812781;
 }
+
 
 .article-list {
     display: flex;
@@ -243,7 +289,8 @@ onMounted(() => {
 
 /* 標題樣式優化 */
 .user-summary-main-content-likes h2,
-.user-summary-main-content-bookmarks h2 {
+.user-summary-main-content-bookmarks h2,
+.user-summary-main-content-comments h2 {
     color: #ffffff;
     margin-bottom: 20px;
     padding-bottom: 10px;

@@ -3,6 +3,7 @@ import http from "@/utils/httpRequest.js";
 import {R} from "@/interface/R";
 import {Ref} from "vue";
 import {formUserInterface} from "@/interface/admin/formUserInterface";//㊣
+import {AmsUserCommentVo} from "@/interface/amsUserCommentVo";
 import axios from "axios";
 export function deleteUserDetailRequest (requestPath:string,userId:String){
     
@@ -124,11 +125,6 @@ export function saveUserAvatarRequest(preSignedUrl: string, avatar: File) {
 //     // 驗證FormData內容
 //     console.log('FormData entries:');
 
-//     // formData.forEach((value, key) => {
-//     //     console.log(key + ': ' + value);
-//     // });
-
-
 
 //     return axios.put(preSignedUrl, formData, {
 //         headers: {
@@ -184,5 +180,14 @@ export function getOptionsRequest(requestPath:string){
         }
         return data
     })
+}
+
+export function getUserCommentsRequest(userId: string) {
+    return http({
+        url: http.adornUrl(`/article/user/${userId}/comments`),
+        method: 'get'
+    }).then(({data}: { data: R<AmsUserCommentVo[]> }) => {
+        return data;
+    });
 }
 
