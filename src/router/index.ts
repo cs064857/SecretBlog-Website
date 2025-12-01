@@ -1,4 +1,4 @@
-import {createRouter, createWebHistory} from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import UserManagement from '@/components/admin/UserManagement.vue'
 // import MainGrid from '../components/MainGrid.vue'
 import Home from '../layouts/FrontLayout.vue'
@@ -12,18 +12,18 @@ import TinyMceEditManagement from "@/components/admin/TinyMceEditManagement.vue"
 import ArticleManagement from "@/components/admin/ArticleManagement.vue";
 import HomePage from "@/components/HomePage.vue";
 import AuthForgotPassword from "@/components/AuthForgotPassword.vue";
-import UserSummary from '@/components/UserSummary.vue';
-import UserLikes from "@/components/UserLikes.vue";
+import User from '@/components/User.vue';
+import UserSummary from "@/components/UserSummary.vue";
 import UserInformation from "@/components/UserInformation.vue";
 
 const router = createRouter({
     history: createWebHistory(),
     routes: [
         {//文章展示頁面
-            name:'Article',
-            path:'/Article/:articleId',
-            components:{
-                app:Article
+            name: 'Article',
+            path: '/Article/:articleId',
+            components: {
+                app: Article
             }
         },
         {//後臺系統
@@ -52,16 +52,16 @@ const router = createRouter({
                 //     }
                 // },
                 {
-                    name:'TreeCategories',
-                    path:'/AdminVue/TreeCategories',
-                    components:{
+                    name: 'TreeCategories',
+                    path: '/AdminVue/TreeCategories',
+                    components: {
                         AdminVueRouter: TreeCategories
                     }
                 },
                 {
-                    name:'ArticleManagement',
-                    path:'/AdminVue/ArticleManagement',
-                    components:{
+                    name: 'ArticleManagement',
+                    path: '/AdminVue/ArticleManagement',
+                    components: {
                         AdminVueRouter: ArticleManagement
                     }
                 }
@@ -92,10 +92,10 @@ const router = createRouter({
 
         },
         {
-            name:'Auth',
-            path:'/auth',
+            name: 'Auth',
+            path: '/auth',
             redirect: "/auth/login",
-            components:{
+            components: {
                 app: AuthLayout
             },
             children: [
@@ -117,13 +117,13 @@ const router = createRouter({
             ]
         },
         {
-            name:'HomePage',
-            path:'/Homepage',
+            name: 'HomePage',
+            path: '/Homepage',
 
-            components:{
+            components: {
                 app: HomePage
             },
-  
+
         },
         // {
         //     name:'Home',
@@ -133,16 +133,16 @@ const router = createRouter({
         {
             path: '/user/:userId',
             name: 'User',
-            redirect: { name: 'UserLikes' }, // 預設跳轉到 UserLikes 頁面
+            redirect: { name: 'UserSummary' }, // 預設跳轉到 UserSummary 頁面
             components: {
-                app: UserSummary
+                app: User
             },
             children: [
 
                 {
                     path: 'likes',
-                    name: 'UserLikes',
-                    component: UserLikes
+                    name: 'UserSummary',
+                    component: UserSummary
                 },
                 {
                     path: 'information',
@@ -160,11 +160,11 @@ router.beforeEach((to, from, next) => {
     const pageValue = to.query?.page;
     // const hasPageParam = to.matched.some(route=>route.path.includes(':page'));
     //若路由地址包含:Page、沒有Page值、categoryId有值的話
-    if(!pageValue && !to.params.page && to.params.categoryId){
+    if (!pageValue && !to.params.page && to.params.categoryId) {
         console.log("頁碼不存在")
         next({
-            name:to.name,
-            params:{
+            name: to.name,
+            params: {
                 ...to.params, //保留其他原本的params參數
             },
             // query: to.query//保留其他query參數
@@ -172,7 +172,7 @@ router.beforeEach((to, from, next) => {
                 page: 1, //默認頁碼為1
             }
         });
-    }else {
+    } else {
         next();//正常導航
     }
 });
