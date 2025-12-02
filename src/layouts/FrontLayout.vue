@@ -316,8 +316,13 @@ watch(() => route.params.categoryId, (newVal) => {
   filterCategoryId.value = newVal ? String(newVal) : undefined
 }, { immediate: true })
 
-watch(() => route.query.tagsId, (newVal) => {
-  if (Array.isArray(newVal)) {
+watch(() => route.query.tagsId, (newVal,oldVal) => {
+  console.log("watch route.query.tagsId , newValue",newVal)
+  if (typeof newVal === 'string') {
+    // 處理逗號分隔的字串 "1,2"
+    filterTagsId.value = newVal.split(',').map(id => String(id))
+  } else if (Array.isArray(newVal)) {
+    // 兼容舊格式或數組格式
     filterTagsId.value = newVal.map(id => String(id))
   } else if (newVal) {
     filterTagsId.value = [String(newVal)]
@@ -335,10 +340,11 @@ const handleFilterCategoryChange = (val: string) => {
 }
 
 const handleFilterTagsChange = (val: string[]) => {
+  const tagsIdParam = val.length > 0 ? val.join(',') : undefined
   router.push({
     name: 'Home',
     params: { ...route.params },
-    query: { ...route.query, tagsId: val, page: 1 }
+    query: { ...route.query, tagsId: tagsIdParam, page: 1 }
   })
 }
 const articleContent = ref<string>('')

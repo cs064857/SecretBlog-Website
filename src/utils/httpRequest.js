@@ -11,9 +11,9 @@ const http = axios.create({
   headers: {
     'Content-Type': 'application/json; charset=utf-8'
   },
-  //避免陣列參數被序列化為 tagsId[]=1 的格式, 達成目標是 tagsId=1&tagsId=2
+  //避免陣列參數被序列化為 tagsId[]=1 的格式, 達成目標是 tagsId=1,2
   paramsSerializer: params => {
-    return qs.stringify(params, { arrayFormat: 'repeat' })
+    return qs.stringify(params, { arrayFormat: 'comma' })
   }
 })
 
