@@ -78,15 +78,92 @@
   <!-- 回覆評論彈出框 -->
   <ReplyModal
     :modalVisible="createArticleModalVisible"
+    :content="articleContent"
     @close="handleCloseReplyModal"
     @submit="handleCreateArticle"
-  />
+  >
+      <template #article-editor-header>
+        <!-- 新增文章功能：Header(標題、分類、標籤設置)-->
+        <div class="create-article-header">
+          <div class="create-article-info">
+            <div class="create-article-title">
+              <span class="create-article-title-text">標題</span>
+              <el-input class="create-article-title-input" type="text" placeholder="輸入標題..."
+                v-model="inputTitle"></el-input>
+            </div>
+
+            <div class="create-article-meta">
+              <div class="create-article-category">
+                <span class="create-article-title-text">分類</span>
+                <el-tree-select v-model="selectCategoryId" :data="treeCategory" @change="handleCategoryChange"
+                  :render-after-expand="false"
+                  style="max-width: 20vh;min-width: 20vh;margin: 2% 2% 2% 0.2%;padding-top: 1%;" value-key="id" />
+              </div>
+              <div class="create-article-tag">
+                <span class="create-article-title-text">標籤</span>
+                <el-tree-select v-model="selectTagsValue" :data="tagsSelectData" :props="treeProps" multiple
+                  @change="handleTagsChange" :render-after-expand="false" style="max-width: 20vh;min-width: 20vh;"
+                  value-key="id" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+  </ReplyModal>
 </template>
 
 <style scoped>
+/**
+* 新增文章或者編輯文章相關
+*/
+.create-article-header {
+  padding: 1rem;
+}
+
+.create-article-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+}
+
+.create-article-title-text {
+  color: #999999; /* var(--text-tertiary) fallback */
+  font-size: 20px;
+  font-weight: 500;
+}
 
 
+.create-article-title-input {
+  width: 90%;
+}
 
+.create-article-title {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.create-article-meta {
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+}
+
+.create-article-category {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  flex: 1
+}
+
+.create-article-tag {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+
+  flex: 1
+}
 </style>
 
 <script setup lang="ts" name="Home">
@@ -203,14 +280,50 @@ const currentReplyUser = ref({
   commentId: '',
   articleId: ''
 });
+
+// 新增文章相關狀態
+const inputTitle = ref<string>('')
+const selectCategoryId = ref<string>()
+const selectTagsValue = ref()
+const tagsSelectData = ref<any[]>()
+const articleContent = ref<string>('')
+
+const treeProps = {
+  label: 'name',
+  value: 'id',
+}
+
+const treeCategory = useTreeCategoryStore().getTreeData;
+
+const handleCategoryChange = function (value: string) {
+  selectCategoryId.value = value
+}
+
+const handleTagsChange = function (value: number) {
+  selectTagsValue.value = value
+}
+
+// 獲取標籤資訊
+onMounted(() => {
+  http({
+    url: http.adornUrl('/article/tags/list'),
+    method: 'get',
+  }).then(({ data }: { data: R }) => {
+    if (data.code == "200") {
+      tagsSelectData.value = data.data
+    } else {
+      ElMessage.error("文章標籤獲取失敗")
+    }
+  });
+})
+
 const handleOpenCreateArticleModal = () => {
-  // 為了測試，提供一組模擬數據
-  // currentReplyUser.value = {
-  //   username: '測試用戶',
-  //   commentContent: '這是一條等待被回覆的原始評論內容...',
-  //   commentId: 'mock-comment-id-123',
-  //   articleId: 'mock-article-id-456'
-  // };
+  // 重置表單
+  inputTitle.value = ''
+  selectCategoryId.value = ''
+  selectTagsValue.value = []
+  articleContent.value = ''
+  
   createArticleModalVisible.value = true;
 };
 
@@ -227,41 +340,37 @@ const handleCloseReplyModal = () => {
 
 // 提交回覆
 import {createArticleDataInterface} from "@/interface/createArticleDataInterface";
-const handleCreateArticle = function (createArticle: createArticleDataInterface) {
+const handleCreateArticle = function (content: string) {
 
-// const save = ref(
-//   {
-//     title: inputTitle.value,
-//     content: content.value,
-//     categoryId:selectCategoryId.value,
-//     tagsId: selectTagsValue.value
-//   },
-// )
-// console.log("selectTagsValue:",selectTagsValue)
-
-// console.log("save:", save)
-if(createArticle == null){
-  ElMessage.error("文章發布失敗")
-  return
-}
-console.log("createArticle:", createArticle)
-http({
-  url: http.adornUrl('/article/save'),
-  method: 'post',
-  data: http.adornData(createArticle, false)
-}).then(({data}:{ data: R }) => {
-  console.log("data",data)
-  if(data.code==200){
-    createArticleModalVisible.value = false;
-    ElMessage.success("文章發布成功")
-    //刷新頁面
-    window.location.reload();
-  }else {
-    ElMessage.error("文章發布失敗")
+  const createArticle: createArticleDataInterface = {
+    title: inputTitle.value,
+    content: content,
+    categoryId: selectCategoryId.value,
+    tagsId: selectTagsValue.value
   }
-});
 
-}// 處理送出至資料庫中
+  if(!createArticle.title || !createArticle.content || !createArticle.categoryId){
+    ElMessage.warning("請填寫完整文章資訊")
+    return
+  }
+
+  http({
+    url: http.adornUrl('/article/save'),
+    method: 'post',
+    data: http.adornData(createArticle, false)
+  }).then(({data}:{ data: R }) => {
+    console.log("data",data)
+    if(data.code==200){
+      createArticleModalVisible.value = false;
+      ElMessage.success("文章發布成功")
+      //刷新頁面
+      window.location.reload();
+    }else {
+      ElMessage.error("文章發布失敗")
+    }
+  });
+
+}
 
 
 
