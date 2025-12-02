@@ -10,6 +10,10 @@ const http = axios.create({
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json; charset=utf-8'
+  },
+  //避免陣列參數被序列化為 tagsId[]=1 的格式, 達成目標是 tagsId=1&tagsId=2
+  paramsSerializer: params => {
+    return qs.stringify(params, { arrayFormat: 'repeat' })
   }
 })
 
@@ -24,12 +28,12 @@ const AUTH_API_WHITELIST = [
   '/api/ums/user/email-verify-code'
 ]
 
-function isOnAuthPage () {
+function isOnAuthPage() {
   const p = window.location.pathname || ''
   return p === LOGIN_PATH || p.startsWith(AUTH_PAGE_PREFIX)
 }
 
-function isAuthApi (url) {
+function isAuthApi(url) {
   if (!url) return false
   try {
     const u = new URL(url, window.location.origin)
@@ -40,7 +44,7 @@ function isAuthApi (url) {
   }
 }
 
-function doLogoutAndRedirect (triggerUrl) {
+function doLogoutAndRedirect(triggerUrl) {
   const isLoginStore = useIsLoginStore()
   isLoginStore.setIsLoginData(false)
   document.cookie = 'jwtToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
@@ -49,15 +53,15 @@ function doLogoutAndRedirect (triggerUrl) {
     sessionStorage.setItem('redirect', window.location.pathname + window.location.search)
   }
   if (window.location.pathname !== LOGIN_PATH) {
-        // window.location.href = LOGIN_PATH // <--- 暫時註解掉，防止跳轉
-        console.error('偵測到認證失效，已阻止自動跳轉以便調適。觸發來源:', triggerUrl); // 可以加一行日誌方便觀察
+    // window.location.href = LOGIN_PATH // <--- 暫時註解掉，防止跳轉
+    console.error('偵測到認證失效，已阻止自動跳轉以便調適。觸發來源:', triggerUrl); // 可以加一行日誌方便觀察
   }
 }
 
 /**
  * 請求攔截
  */
-import {useIsLoginStore} from "@/pinia/useIsLoginStore.ts"
+import { useIsLoginStore } from "@/pinia/useIsLoginStore.ts"
 http.interceptors.request.use(config => {
   // 從 Cookie 中獲取 JWT token
   const cookies = document.cookie.split(';');

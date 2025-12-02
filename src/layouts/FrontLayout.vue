@@ -29,9 +29,29 @@
           <div class="home-article-header">
             <div class="home-article-header-main">
               <div class="home-article-header-main-tags">
-                  <div>標籤列表</div>
-                  <div>分類列表</div>
-
+                  <el-tree-select
+                    v-model="filterCategoryId"
+                    :data="treeCategory || []"
+                    placeholder="分類篩選"
+                    clearable
+                    check-strictly
+                    :render-after-expand="false"
+                    style="width: 200px; margin-right: 10px;"
+                    value-key="id"
+                    @change="handleFilterCategoryChange"
+                  />
+                  <el-select-v2
+                    v-model="filterTagsId"
+                    :options="tagsSelectData"
+                    :props="{ label: 'name', value: 'id' }"
+                    placeholder="標籤篩選"
+                    style="width: 240px;"
+                    multiple
+                    clearable
+                    collapse-tags
+                    collapse-tags-tooltip
+                    @change="handleFilterTagsChange"
+                  />
               </div>
               <div class="home-article-header-main-nav-pills">
                   <div>最新1</div>
@@ -168,7 +188,7 @@
 
 <script setup lang="ts" name="Home">
 import '../assets/css/Home.css';
-import {computed, onMounted, ref, toRefs, onUnmounted, nextTick} from 'vue';
+import {computed, onMounted, ref, toRefs, onUnmounted, nextTick, watch} from 'vue';
 import {useRouter, useRoute} from 'vue-router'
 import http from '../utils/httpRequest'
 
@@ -285,7 +305,42 @@ const currentReplyUser = ref({
 const inputTitle = ref<string>('')
 const selectCategoryId = ref<string>()
 const selectTagsValue = ref()
-const tagsSelectData = ref<any[]>()
+const tagsSelectData = ref<any[]>([])
+
+// 篩選相關狀態
+const filterCategoryId = ref()
+const filterTagsId = ref<number[]>([])
+
+// 監聽路由變化同步篩選狀態
+watch(() => route.params.categoryId, (newVal) => {
+  filterCategoryId.value = newVal ? String(newVal) : undefined
+}, { immediate: true })
+
+watch(() => route.query.tagsId, (newVal) => {
+  if (Array.isArray(newVal)) {
+    filterTagsId.value = newVal.map(id => Number(id))
+  } else if (newVal) {
+    filterTagsId.value = [Number(newVal)]
+  } else {
+    filterTagsId.value = []
+  }
+}, { immediate: true })
+
+const handleFilterCategoryChange = (val: string) => {
+  router.push({
+    name: 'Home',
+    params: { categoryId: val },
+    query: { ...route.query, page: 1 }
+  })
+}
+
+const handleFilterTagsChange = (val: number[]) => {
+  router.push({
+    name: 'Home',
+    params: { ...route.params },
+    query: { ...route.query, tagsId: val, page: 1 }
+  })
+}
 const articleContent = ref<string>('')
 
 const treeProps = {

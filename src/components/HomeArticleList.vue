@@ -28,13 +28,14 @@ const handleCurrentPageChange = async function (CurrentPage) {
   try {
     // 阻塞等待路由更新完畢
     await router.push({
-      name: "Home", params: {categoryId: route.params.categoryId}, query: {page: CurrentPage}
+      name: "Home", params: {categoryId: route.params.categoryId}, query: {page: CurrentPage, tagsId: route.query.tagsId}
     })
     //路由更新完畢後
     const categoryId = route.params.categoryId;
     const routePage = route.query.page;
-    console.log("手動觸發: categoryId=" + categoryId + ", routePage=" + routePage)
-    getArticles(categoryId,routePage)
+    const tagsId = route.query.tagsId;
+    console.log("手動觸發: categoryId=" + categoryId + ", routePage=" + routePage + ", tagsId=" + tagsId)
+    getArticles(categoryId,routePage, tagsId)
 
   } catch (e) {
     console.error("路由更新失敗:",e)
@@ -59,13 +60,14 @@ const articleList = ref<Articles | null>(null)
 
 import { AmsListRecordsListInterface } from "@/interface/amsListRecordsInterface"
 import {R} from "@/interface/R"
-const getArticles = function (categoryId, routePage) {
+import { ca } from "element-plus/es/locale";
+const getArticles = function (categoryId, routePage, tagsId) {
 
-    console.log("getArticles:categoryId=" + categoryId + ",routePage=" + routePage)
+    console.log("getArticles:categoryId=" + categoryId + ",routePage=" + routePage + ",tagsId=" + tagsId)
     http({
-      url: http.adornUrl(`/article/categories/${categoryId}/articles`),
+      url: http.adornUrl(`/article/categories/articles`),
       method: 'get',
-      params: http.adornParams({routePage: routePage})
+      params: http.adornParams({routePage: routePage,categoryId: categoryId, tagsId: tagsId})
     }).then(({data}: {data:R<AmsListRecordsListInterface>}) => {
       
       if (data.code == "200") {
@@ -82,17 +84,18 @@ const getArticles = function (categoryId, routePage) {
 }
 
 onBeforeRouteUpdate((to, from) => {
-  if (to.path !== from.path) {
+  if (to.path !== from.path || to.query.tagsId !== from.query.tagsId) {
     const categoryId = to.params.categoryId;
     const routePage = to.query.page
-    console.log("檢測到Home路由改變:categoryId=" + categoryId + ",routePage=" + routePage)
-    getArticles(categoryId, routePage)
+    const tagsId = to.query.tagsId
+    console.log("檢測到Home路由改變:categoryId=" + categoryId + ",routePage=" + routePage + ",tagsId=" + tagsId)
+    getArticles(categoryId, routePage, tagsId)
   }
 })
 
 onMounted(() => {
 
-  getArticles(route.params.categoryId, route.query.page)
+  getArticles(route.params.categoryId, route.query.page, route.query.tagsId)
 
 
   // {
