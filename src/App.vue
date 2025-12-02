@@ -25,6 +25,7 @@ import Main from "./layouts/AdminLayout.vue"
 // import MainGrid from "./components/MainGrid.vue";
 import Home from "./layouts/FrontLayout.vue";
 import TinyMceEditManagement from "@/components/admin/TinyMceEditManagement.vue"
+
 import AdminVue from "./layouts/AdminLayout.vue";
 export default {
   components:{AdminVue,MinioUpload,Main,Home,TinyMceEditManagement}

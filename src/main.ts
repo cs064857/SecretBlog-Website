@@ -2,11 +2,17 @@ import { createApp } from 'vue'
 // import './style.css'
 import App from './App.vue'
 import zhTw from 'element-plus/es/locale/lang/zh-tw'
+import router from './router'
+
+/**
+ * 引入 Element Plus 及其樣式
+ */
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
-import router from './router'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+//深色模式
+import 'element-plus/theme-chalk/dark/css-vars.css'
 
 
 // import { createPinia } from 'pinia'

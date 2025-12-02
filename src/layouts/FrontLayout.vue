@@ -36,7 +36,7 @@
                     clearable
                     check-strictly
                     :render-after-expand="false"
-                    style="width: 200px; margin-right: 10px;"
+                    style="max-width: auto; min-width: 10rem; margin-right: 10px;"
                     value-key="id"
                     @change="handleFilterCategoryChange"
                   />
@@ -45,7 +45,7 @@
                     :options="tagsSelectData"
                     :props="{ label: 'name', value: 'id' }"
                     placeholder="標籤篩選"
-                    style="width: 240px;"
+                    style="max-width: auto; min-width: 10rem;"
                     multiple
                     clearable
                     collapse-tags
@@ -309,7 +309,7 @@ const tagsSelectData = ref<any[]>([])
 
 // 篩選相關狀態
 const filterCategoryId = ref()
-const filterTagsId = ref<number[]>([])
+const filterTagsId = ref<string[]>([])
 
 // 監聽路由變化同步篩選狀態
 watch(() => route.params.categoryId, (newVal) => {
@@ -318,9 +318,9 @@ watch(() => route.params.categoryId, (newVal) => {
 
 watch(() => route.query.tagsId, (newVal) => {
   if (Array.isArray(newVal)) {
-    filterTagsId.value = newVal.map(id => Number(id))
+    filterTagsId.value = newVal.map(id => String(id))
   } else if (newVal) {
-    filterTagsId.value = [Number(newVal)]
+    filterTagsId.value = [String(newVal)]
   } else {
     filterTagsId.value = []
   }
@@ -334,7 +334,7 @@ const handleFilterCategoryChange = (val: string) => {
   })
 }
 
-const handleFilterTagsChange = (val: number[]) => {
+const handleFilterTagsChange = (val: string[]) => {
   router.push({
     name: 'Home',
     params: { ...route.params },

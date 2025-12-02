@@ -146,7 +146,7 @@ const handleSelect =function (index:string){
  * 黑暗模式開關
  */
 
-import 'element-plus/theme-chalk/dark/css-vars.css'
+// import 'element-plus/theme-chalk/dark/css-vars.css'
  
 onMounted(()=>{
   document.documentElement.className = 'dark';
