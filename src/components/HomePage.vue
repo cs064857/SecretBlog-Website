@@ -124,6 +124,7 @@ const getTreeCategoryList = function () {
     params: http.adornParams({})
   }).then(({data}) => {
     if (data.code == "200") {
+      console.log("HomePage getTreeCategoryList執行成功")
       // categoryList=data.data
       categoryList.value=data.data
       console.log("categoryList.value",categoryList.value)

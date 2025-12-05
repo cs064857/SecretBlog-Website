@@ -364,8 +364,11 @@ const handleTagsChange = function (value: number) {
   selectTagsValue.value = value
 }
 
-// 獲取標籤資訊
-onMounted(() => {
+
+/**
+ * 獲取標籤資訊
+ */
+const getTagsList = function () {
   http({
     url: http.adornUrl('/article/tags/list'),
     method: 'get',
@@ -376,7 +379,19 @@ onMounted(() => {
       ElMessage.error("文章標籤獲取失敗")
     }
   });
+}
+onMounted(() => {
+  getTagsList()
 })
+// 重試
+import emitter from "@/utils/eventBusMitt";
+
+
+emitter.on('retry-home-apis', () => {
+  console.log("FrontLayout接收到retry-home-apis")
+  getTagsList()
+})
+
 
 const handleOpenCreateArticleModal = () => {
   // 重置表單
