@@ -206,13 +206,20 @@
                   class="svg-icon"
                   src="/src/assets/calendar-days-solid-full.svg">{{ articleComment.createAt }}</div>
               <div class="article-comment-context-item-info-metrics-updateAt"><img
-                  @click="handleOpenEditCommentModal(articleComment)"
                 class="svg-icon"
-                  src="/src/assets/pen-solid-full.svg">{{ articleComment.updateAt }}</div>
+                  src="/src/assets/calendar-days-solid-full.svg">{{ articleComment.updateAt }}</div>
               <div class="article-comment-context-item-info-metrics-reply"><el-button
                   @click="handleOpenReplyModal(articleComment)" type="primary"><img
                     style=" cursor: pointer;position: relative;right:0.5rem;width: 1.5rem; height: 1.5rem;"
                     src="/src/assets/reply-solid-full.svg">回覆</el-button></div>
+
+              <!-- 編輯留言按鈕：只有留言作者才能編輯 -->
+              <div v-if="isCommentOwner(articleComment.userId)" class="article-comment-context-item-info-metrics-edit">
+                <img @click="handleOpenEditCommentModal(articleComment)"
+                    class="svg-icon edit-icon"
+                    src="/src/assets/pen-solid-full.svg"
+                    title="編輯留言">
+              </div>
 
               <div v-if="isCommentOwner(articleComment.userId)" class="article-comment-context-item-info-metrics-delete">
                 <img @click="handleDeleteComment(articleComment.commentId)"
@@ -681,43 +688,39 @@ const handleReplyComment = function (content: string) {
 }
 //編輯留言
 const handleEditComment = function (content: string) {
-  // console.log("articleId:",articleId)
   console.log("handleEditComment:content:", content)
   console.log("handleEditComment:currentReplyUser:", currentReplyUser.value)
   console.log("handleEditComment:articleId:", articleId)
 
-  const replyCommentData: replyCommentDataInterface = {
-    parentCommentId: currentReplyUser.value.commentId,
+  // 編輯留言的資料結構（符合後端 AmsCommentEditDTO）
+  const editCommentData = {
+    commentId: currentReplyUser.value.commentId,
     commentContent: content
   }
-  console.log("handleEditComment:replyCommentData:",replyCommentData)
+  console.log("handleEditComment:editCommentData:", editCommentData)
   http({
     url: http.adornUrl(`/article/${articleId}/comments`),
-    method: 'post',
-    data: http.adornData(replyCommentData, false)
+    method: 'put',  // 使用 PUT 方法對應後端的 editComment 端點
+    data: http.adornData(editCommentData, false)
   }).then(({ data }: { data: R}) => {
     if (data.code == "200") {
 
-      ElMessage.success("成功訊息");
+      ElMessage.success("留言編輯成功");
 
-
-      //替換新留言內容
+      // 將編輯後的內容更新到 renderedComments 中
       const foundItem = renderedComments.value.find(
           item => item.commentId == currentReplyUser.value.commentId
       );
       console.log('Found Item:', foundItem); 
       if (foundItem) {
-          foundItem.commentContent = replyCommentData.commentContent;
-
+          foundItem.commentContent = editCommentData.commentContent;
       }
 
-      //關閉模態框
-            // editCommentModalVisible.value = false;
+      // 關閉模態框
       handleCloseModal();
 
-
     } else {
-      ElMessage.error("錯誤訊息");
+      ElMessage.error(data.msg || "編輯留言失敗");
     }
   }).catch(() => {
     ElMessage.error("請求出錯，請稍後再試");
