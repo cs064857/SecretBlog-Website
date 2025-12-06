@@ -125,8 +125,8 @@
 
       <div class="metrics-container">
         <div class="metrics-button-wrapper">
-          <button @click="handleArticleLike" class="like-button" :class="{ 'liked': isBooksMarked }">
-            <img class="like-icon" src="/src/assets/bookmark-solid-full.svg" alt="like">
+          <button @click="isBooksMarked ? handleCancelArticleBookmark() : handleArticleBookmark()" class="like-button" :class="{ 'liked': isBooksMarked }">
+            <img class="like-icon" src="/src/assets/bookmark-solid-full.svg" alt="bookmark">
 
             <span class="like-count">{{ Article?.bookmarksCount ?? 0 }}</span>
           </button>
@@ -1417,7 +1417,7 @@ const getActionHistory = async function () {
   console.log("getActionHistory data:", data);
 
   if (data.code == "200") {
-    isBooksMarked.value = data.data.isBooksMarked==1? true:false;
+    isBooksMarked.value = data.data.isBookmarked==1? true:false;
     isLiked.value = data.data.isLiked==1? true:false;
     // Article.value = data.data;
     // ArticleContent.value = Article.value.content;
@@ -1688,6 +1688,64 @@ const handleCancelArticleLike = async function () {
 } catch (error) {
   console.error("獲取文章資料失敗:", error);
 }};
+
+/**
+ * 加入文章書籤處理函數
+ */
+const handleArticleBookmark = async function () {
+  console.log("handleArticleBookmark - articleId:", articleId);
+
+  try {
+    const { data } = await http({
+      url: http.adornUrl(`/article/articles/${articleId}/bookmark`),
+      method: 'get'
+    }) as { data: R };
+
+    console.log("handleArticleBookmark data:", data);
+
+    if (data.code == "200") {
+      // 更新書籤數
+      Article.value.bookmarksCount = data.data;
+      // 標記為已加入書籤
+      isBooksMarked.value = true;
+      ElMessage.success("加入書籤成功！");
+    } else {
+      ElMessage.error("加入書籤失敗：" + data.msg);
+    }
+  } catch (error) {
+    console.error("加入書籤失敗:", error);
+    ElMessage.error("請求出錯，請稍後再試");
+  }
+};
+
+/**
+ * 移除文章書籤處理函數
+ */
+const handleCancelArticleBookmark = async function () {
+  console.log("handleCancelArticleBookmark - articleId:", articleId);
+
+  try {
+    const { data } = await http({
+      url: http.adornUrl(`/article/articles/${articleId}/unbookmark`),
+      method: 'post',
+    }) as { data: R };
+
+    console.log("handleCancelArticleBookmark data:", data);
+
+    if (data.code == "200") {
+      // 更新書籤數
+      Article.value.bookmarksCount = data.data;
+      // 標記為未加入書籤
+      isBooksMarked.value = false;
+      ElMessage.success("移除書籤成功！");
+    } else {
+      ElMessage.error("移除書籤失敗：" + data.msg);
+    }
+  } catch (error) {
+    console.error("移除書籤失敗:", error);
+    ElMessage.error("請求出錯，請稍後再試");
+  }
+};
 </script>
 
 <style scoped>
