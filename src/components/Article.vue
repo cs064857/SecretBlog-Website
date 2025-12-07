@@ -1,5 +1,5 @@
 <template>
-  <ArticleSkeleton v-if="loading" />
+  <LoadingSpinner v-if="loading" text="載入中..." />
 
   <section v-else-if="Article">
 
@@ -337,6 +337,7 @@
 import HomeHeaderNavigation from "./HomeHeaderNavigation.vue";
 import ReplyModal from "./ReplyModal.vue";
 import ArticleSkeleton from "./ArticleSkeleton.vue";
+import LoadingSpinner from "./LoadingSpinner.vue";
 import EmptyOrError from "./EmptyOrError.vue";
 import { ElMessageBox } from "element-plus";
 import http from '@/utils/httpRequest'

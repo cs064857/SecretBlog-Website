@@ -4,6 +4,7 @@ import { computed, onMounted, onUpdated, ref, watch } from "vue";
 import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
 import http from "../utils/httpRequest"
 import { ElMessage } from "element-plus";
+import LoadingSpinner from "./LoadingSpinner.vue";
 // 時間組件
 // import dayjs from 'dayjs'
 
@@ -179,29 +180,8 @@ onMounted(() => {
 
 <template>
 
-  <!-- 狀態 1：載入中 - 顯示骨架屏 -->
-  <div v-if="isLoading" class="skeleton-container">
-    <div class="skeleton-article-box" v-for="n in 5" :key="n">
-      <!-- 骨架屏：標題區域 -->
-      <div class="skeleton-title">
-        <el-skeleton :rows="1" animated />
-      </div>
-      <!-- 骨架屏：資訊區域 -->
-      <div class="skeleton-info">
-        <div class="skeleton-category">
-          <el-skeleton :rows="1" animated style="width: 80px" />
-        </div>
-        <div class="skeleton-tags">
-          <el-skeleton :rows="1" animated style="width: 60px" />
-          <el-skeleton :rows="1" animated style="width: 50px" />
-          <el-skeleton :rows="1" animated style="width: 70px" />
-        </div>
-        <div class="skeleton-metrics">
-          <el-skeleton :rows="2" animated />
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- 狀態 1：載入中 - 顯示 Loading -->
+  <LoadingSpinner v-if="isLoading" text="載入文章中..." />
 
   <!-- 狀態 2：錯誤狀態 - 顯示錯誤訊息和重試按鈕 -->
   <div v-else-if="error" class="error-state">

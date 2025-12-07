@@ -3,6 +3,7 @@ import { useRouter } from "vue-router";
 import { onMounted, ref } from "vue";
 import { ElMessage } from "element-plus";
 import http from '../utils/httpRequest'
+import LoadingSpinner from "./LoadingSpinner.vue";
 const router = useRouter()
 
 const handleCategoryRouterLink = function (children) {
@@ -78,17 +79,8 @@ onMounted(() => {
 
 <template>
   <el-scrollbar height="100%" always>
-    <!-- 狀態 1：載入中 - 顯示骨架屏 -->
-    <div v-if="isLoading" class="skeleton-nav-container">
-      <div class="skeleton-nav-group" v-for="n in 3" :key="n">
-        <el-skeleton :rows="1" animated class="skeleton-nav-title" />
-        <div class="skeleton-nav-links">
-          <el-skeleton :rows="1" animated style="width: 80%" />
-          <el-skeleton :rows="1" animated style="width: 60%" />
-          <el-skeleton :rows="1" animated style="width: 70%" />
-        </div>
-      </div>
-    </div>
+    <!-- 狀態 1：載入中 - 顯示 Loading -->
+    <LoadingSpinner v-if="isLoading" />
 
     <!-- 狀態 2：錯誤狀態 -->
     <div v-else-if="error" class="nav-error-state">
