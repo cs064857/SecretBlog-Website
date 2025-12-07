@@ -1,5 +1,5 @@
 <template>
-  <LoadingSpinner v-if="loading" text="載入中..." />
+  <LoadingSpinner v-if="loading || error" :text="'載入中...'" :error="error" :showRetry="true" @retry="handleRetryLoad" />
 
   <section v-else-if="Article">
 
@@ -1386,30 +1386,48 @@ const getArtComments = async function () {
   ;
 }
 const loading = ref(true);
+const error = ref<string | null>(null);
 
 
 const getArticleAndComments = async function () {
-  const [articleResult, commentsResult] = await Promise.allSettled([getArticle(), getArtComments()]);
-  console.log("artComments:", artComments)
-  console.log("commentsResult:", commentsResult)
+  // 重置狀態
+  error.value = null;
 
-  //檢查文章是否載入成功(必須成功)
-  if (articleResult.status === 'rejected') {
+  try {
+    const [articleResult, commentsResult] = await Promise.allSettled([getArticle(), getArtComments()]);
+    console.log("artComments:", artComments)
+    console.log("commentsResult:", commentsResult)
 
-    ElMessage.error("獲取文章資料失敗")
-    return;
+    // 檢查文章是否載入成功(必須成功)
+    if (articleResult.status === 'rejected') {
+      error.value = '伺服器暫時不可用，請稍後再試';
+      loading.value = false;
+      return;
+    }
+
+    // 檢查 articleResult.value 是否存在
+    if (!articleResult.value || !articleResult.value.data) {
+      error.value = '無法獲取文章資料';
+      loading.value = false;
+      return;
+    }
+
+    // 評論加載失敗也無訪
+    const article = articleResult.value.data;
+    const comments = commentsResult.status === 'fulfilled' && commentsResult.value ? commentsResult.value.data : [];
+
+    Article.value = article;
+    ArticleContent.value = article.content;
+    artComments.value = comments;
+    loading.value = false;
+
+    console.log("初始化加載article:", article)
+    console.log("初始化加載comments:", comments)
+  } catch (err) {
+    console.error('獲取文章資料失敗:', err);
+    error.value = '伺服器暫時不可用，請稍後再試';
+    loading.value = false;
   }
-  //評論加載失敗也無訪
-  const article = articleResult.value.data;
-  // Article.value = article.article.value;
-
-  const comments = commentsResult.status === 'fulfilled' ? commentsResult.value.data : [];
-  Article.value = article;
-  ArticleContent.value = article.content;
-  artComments.value = comments;
-  loading.value = false;
-  console.log("初始化加載article:", article)
-  console.log("初始化加載comments:", comments)
 }
 
 const getActionHistory = async function () {
@@ -1607,9 +1625,10 @@ const handleDeleteArticle = async function () {
   }
 };
 
-// 重試載入所有資料（用於 EmptyOrError 元件的重試按鈕）
+// 重試載入所有資料（用於 LoadingSpinner 元件的重試按鈕）
 const handleRetryLoad = () => {
   loading.value = true;
+  error.value = null;
   getArticleAndComments();
   getActionHistory();
   getCommentActionHistory();
