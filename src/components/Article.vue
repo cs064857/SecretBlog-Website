@@ -329,13 +329,15 @@
       @close="handleCloseReplyModal" @submit="handleSubmitReply" /> -->
   </section>
 
-  <EmptyOrError v-else />
+  <EmptyOrError v-else :showRetry="true" @retry="handleRetryLoad" />
 </template>
 
 
 <script setup lang="ts">
 import HomeHeaderNavigation from "./HomeHeaderNavigation.vue";
 import ReplyModal from "./ReplyModal.vue";
+import ArticleSkeleton from "./ArticleSkeleton.vue";
+import EmptyOrError from "./EmptyOrError.vue";
 import { ElMessageBox } from "element-plus";
 import http from '@/utils/httpRequest'
 import { ArticleInter, Articles } from "@/interface/front/articleInterface";
@@ -1604,12 +1606,20 @@ const handleDeleteArticle = async function () {
   }
 };
 
-//加載文章以及留言
+// 重試載入所有資料（用於 EmptyOrError 元件的重試按鈕）
+const handleRetryLoad = () => {
+  loading.value = true;
+  getArticleAndComments();
+  getActionHistory();
+  getCommentActionHistory();
+};
+
+// 加載文章以及留言
 onMounted(async () => {
-  getArticleAndComments()
-  getActionHistory()
-  getCommentActionHistory()
-})
+  getArticleAndComments();
+  getActionHistory();
+  getCommentActionHistory();
+});
 
 
 
