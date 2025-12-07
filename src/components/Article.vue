@@ -38,16 +38,14 @@
               <div class="article-header-info-right">
 
                 <div v-if="isArticleOwner()" class="article-header-info-delete">
-                  <img @click="handleDeleteArticle"
-                       class="svg-icon delete-icon"
-                       src="/src/assets/trash-can-solid-full.svg"
-                       title="刪除文章">
+                  <img @click="handleDeleteArticle" class="svg-icon delete-icon"
+                    src="/src/assets/trash-can-solid-full.svg" title="刪除文章">
                 </div>
 
                 <div class="article-header-info-edit">
                   <!-- <img @click="handleEditArticle" src="/src/assets/pen-solid-full.svg" alt="edit" style="width: 1.5rem;height: 1.5rem;"></img> -->
                   <img @click="handleOpenEditArticleModal" src="/src/assets/pen-solid-full.svg" alt="edit"
-                    style="width: 1.5rem;height: 1.5rem;"></img>
+                    style="width: 1.5rem;height: 1.5rem;cursor: pointer">{{ Article?.editCount ?? 0 }}</img>
                   <!-- <el-button @click="handleOpenEditArticleModal()" type="primary">新增文章</el-button> -->
                 </div>
 
@@ -107,7 +105,8 @@
 
       <div class="metrics-container">
         <div class="metrics-button-wrapper">
-          <button @click="isLiked? handleCancelArticleLike() : handleArticleLike()" class="like-button" :class="{ 'liked': isLiked }">
+          <button @click="isLiked ? handleCancelArticleLike() : handleArticleLike()" class="like-button"
+            :class="{ 'liked': isLiked }">
             <img class="like-icon" src="/src/assets/heart-solid-full.svg" alt="like">
             <span class="like-count">{{ Article?.likesCount ?? 0 }}</span>
 
@@ -125,7 +124,8 @@
 
       <div class="metrics-container">
         <div class="metrics-button-wrapper">
-          <button @click="isBooksMarked ? handleCancelArticleBookmark() : handleArticleBookmark()" class="like-button" :class="{ 'liked': isBooksMarked }">
+          <button @click="isBooksMarked ? handleCancelArticleBookmark() : handleArticleBookmark()" class="like-button"
+            :class="{ 'liked': isBooksMarked }">
             <img class="like-icon" src="/src/assets/bookmark-solid-full.svg" alt="bookmark">
 
             <span class="like-count">{{ Article?.bookmarksCount ?? 0 }}</span>
@@ -134,12 +134,13 @@
 
       </div>
 
+
       <div class="metrics-container">
         <div class="metrics-button-wrapper">
-          <div class="article-comment-context-item-info-metrics-reply"><el-button
-                  @click="handleOpenArticleReplyModal()" type="primary"><img
-                    style=" cursor: pointer;position: relative;right:0.5rem;width: 1.5rem; height: 1.5rem;"
-                    src="/src/assets/reply-solid-full.svg">發表評論</el-button></div>
+          <div class="article-comment-context-item-info-metrics-reply"><el-button @click="handleOpenArticleReplyModal()"
+              type="primary"><img
+                style=" cursor: pointer;position: relative;right:0.5rem;width: 1.5rem; height: 1.5rem;"
+                src="/src/assets/reply-solid-full.svg">發表評論</el-button></div>
         </div>
 
       </div>
@@ -195,18 +196,16 @@
           <div class="article-comment-context-item-info">
 
             <div class="article-comment-context-item-info-metrics">
-              <div class="article-comment-context-item-info-metrics-likesCount" ><img
-                  @click="handleIsCommentLiked(articleComment.commentId) ?  handleCancelCommentLikes(articleComment.commentId):handleCommentLikes(articleComment.commentId)"
-                  class="svg-icon" :class="{'active': handleIsCommentLiked(articleComment.commentId)}" 
+              <div class="article-comment-context-item-info-metrics-likesCount"><img
+                  @click="handleIsCommentLiked(articleComment.commentId) ? handleCancelCommentLikes(articleComment.commentId) : handleCommentLikes(articleComment.commentId)"
+                  class="svg-icon" :class="{ 'active': handleIsCommentLiked(articleComment.commentId) }"
                   src="/src/assets/heart-solid-full.svg">{{ articleComment.likesCount }}</div>
 
               <!-- <div class="article-comment-context-item-info-metrics-replysCount"><img style=" cursor: pointer;position: relative;top:0.45rem;width: 1.5rem; height: 1.5rem;" src="/src/assets/reply-solid-full.svg">{{articleComment.replysCount}}</div> -->
 
-              <div class="article-comment-context-item-info-metrics-createAt"><img
-                  class="svg-icon"
+              <div class="article-comment-context-item-info-metrics-createAt"><img class="svg-icon"
                   src="/src/assets/calendar-days-solid-full.svg">{{ articleComment.createAt }}</div>
-              <div class="article-comment-context-item-info-metrics-updateAt"><img
-                class="svg-icon"
+              <div class="article-comment-context-item-info-metrics-updateAt"><img class="svg-icon"
                   src="/src/assets/calendar-days-solid-full.svg">{{ articleComment.updateAt }}</div>
               <div class="article-comment-context-item-info-metrics-reply"><el-button
                   @click="handleOpenReplyModal(articleComment)" type="primary"><img
@@ -215,17 +214,14 @@
 
               <!-- 編輯留言按鈕：只有留言作者才能編輯 -->
               <div v-if="isCommentOwner(articleComment.userId)" class="article-comment-context-item-info-metrics-edit">
-                <img @click="handleOpenEditCommentModal(articleComment)"
-                    class="svg-icon edit-icon"
-                    src="/src/assets/pen-solid-full.svg"
-                    title="編輯留言">
+                <img @click="handleOpenEditCommentModal(articleComment)" class="svg-icon edit-icon"
+                  src="/src/assets/pen-solid-full.svg" title="編輯留言">
               </div>
 
-              <div v-if="isCommentOwner(articleComment.userId)" class="article-comment-context-item-info-metrics-delete">
-                <img @click="handleDeleteComment(articleComment.commentId)"
-                    class="svg-icon delete-icon"
-                    src="/src/assets/trash-can-solid-full.svg"
-                    title="刪除留言">
+              <div v-if="isCommentOwner(articleComment.userId)"
+                class="article-comment-context-item-info-metrics-delete">
+                <img @click="handleDeleteComment(articleComment.commentId)" class="svg-icon delete-icon"
+                  src="/src/assets/trash-can-solid-full.svg" title="刪除留言">
               </div>
               <!-- <div class="article-comment-context-item-info-metrics-reply"><el-button v-click="handleReplyComment(articleComment.articleId,articleComment.commentId)" type="primary">回覆</el-button></div> -->
 
@@ -238,11 +234,13 @@
 
     </div>
 
-    <reply-modal @close="handleCloseModal()" v-if="replyArticleModalVisible" :modalVisible="replyArticleModalVisible" @submit="handleReplyArticle">
+    <reply-modal @close="handleCloseModal()" v-if="replyArticleModalVisible" :modalVisible="replyArticleModalVisible"
+      @submit="handleReplyArticle">
 
     </reply-modal>
 
-    <reply-modal @close="handleCloseModal()" v-if="replyCommentModalVisible" :modalVisible="replyCommentModalVisible" @submit="handleReplyComment">
+    <reply-modal @close="handleCloseModal()" v-if="replyCommentModalVisible" :modalVisible="replyCommentModalVisible"
+      @submit="handleReplyComment">
       <template v-slot:reply-comment-header>
         <!-- 評論功能：智能回覆提示區 -->
         <!-- <div v-if="props.model == 'replyComment' ? true : false" class="reply-header"> -->
@@ -305,12 +303,13 @@
 
     </reply-modal>
 
-    
-    <reply-modal @close="handleCloseModal()" v-if="editCommentModalVisible" :modalVisible="editCommentModalVisible" @submit="handleEditComment" :content="currentReplyUser.commentContent">
+
+    <reply-modal @close="handleCloseModal()" v-if="editCommentModalVisible" :modalVisible="editCommentModalVisible"
+      @submit="handleEditComment" :content="currentReplyUser.commentContent">
       <template v-slot:reply-comment-header>
         <!-- 編輯留言模態框 -->
 
-          <!-- <button class="close-btn" @click="handleCloseModal()">
+        <!-- <button class="close-btn" @click="handleCloseModal()">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
               <path
                 d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
@@ -395,7 +394,7 @@ const currentUserId = getCookieValue('userId');
  * 判斷當前用戶是否為評論作者
  */
 const isCommentOwner = (commentUserId: string): boolean => {
-  console.log("isCommentOwner...currentUserId:",currentUserId)
+  console.log("isCommentOwner...currentUserId:", currentUserId)
   return currentUserId !== null && currentUserId === commentUserId;
 };
 
@@ -420,8 +419,8 @@ const handleCommentLikes = function (commentId: string) {
       //將取得讚數賦值給 renderedComments 中的 likesCount
       // 更新 renderedComments (評論列表) 的點讚數
       const targetComment = renderedComments.value.find(item => item.commentId == commentId);
- 
-      console.log("targetComment:", targetComment); 
+
+      console.log("targetComment:", targetComment);
       if (targetComment) {
         targetComment.likesCount = data.data;
       }
@@ -539,32 +538,32 @@ const handleOpenEditArticleModal = () => {
   selectTagsValue.value = Article.value.amsArtTagsVoList.map((articleTag: any) => {
     return articleTag.id
   })
-  
 
 
-// console.log("handleOpenEditArticleModal:Article.value.amsArtTagVoList:", Article.value.amsArtTagVoList)
-// const artTagsIdList = Article.value.amsArtTagsVoList.map(articleTag => {
-//   return articleTag.id
-// })
-// console.log("handleOpenEditArticleModal:artTagsIdList:", artTagsIdList)
-// currentReplyUser.value = {
-//   title: Article.value.title,
-//   categoryId: String(Article.value.categoryId),
-//   content: Article.value.content,
-//   tagsId: artTagsIdList,
 
-// } as editArticleInterface;
+  // console.log("handleOpenEditArticleModal:Article.value.amsArtTagVoList:", Article.value.amsArtTagVoList)
+  // const artTagsIdList = Article.value.amsArtTagsVoList.map(articleTag => {
+  //   return articleTag.id
+  // })
+  // console.log("handleOpenEditArticleModal:artTagsIdList:", artTagsIdList)
+  // currentReplyUser.value = {
+  //   title: Article.value.title,
+  //   categoryId: String(Article.value.categoryId),
+  //   content: Article.value.content,
+  //   tagsId: artTagsIdList,
 
-// currentReplyUser.value = {
-//   title: Article.value.title,
-//   articleId: Article.value.id,
-//   categoryId: Article.value.categoryId,
-//   commentContent: Article.value.content,
-//   amsArtTagsVoList: Article.value.amsArtTagsVoList,
+  // } as editArticleInterface;
 
-// };
-console.log("handleOpenEditArticleModal:currentReplyUser.value:", currentReplyUser.value)
-createArticleModalVisible.value = true;
+  // currentReplyUser.value = {
+  //   title: Article.value.title,
+  //   articleId: Article.value.id,
+  //   categoryId: Article.value.categoryId,
+  //   commentContent: Article.value.content,
+  //   amsArtTagsVoList: Article.value.amsArtTagsVoList,
+
+  // };
+  console.log("handleOpenEditArticleModal:currentReplyUser.value:", currentReplyUser.value)
+  createArticleModalVisible.value = true;
 }
 
 
@@ -664,12 +663,12 @@ const handleReplyComment = function (content: string) {
     parentCommentId: currentReplyUser.value.commentId,
     commentContent: content
   }
-  console.log("handleReplyComment:replyCommentData:",replyCommentData)
+  console.log("handleReplyComment:replyCommentData:", replyCommentData)
   http({
     url: http.adornUrl(`/article/${articleId}/comments`),
     method: 'post',
     data: http.adornData(replyCommentData, false)
-  }).then(({ data }: { data: R}) => {
+  }).then(({ data }: { data: R }) => {
     if (data.code == "200") {
 
       ElMessage.success("成功訊息");
@@ -702,18 +701,18 @@ const handleEditComment = function (content: string) {
     url: http.adornUrl(`/article/${articleId}/comments`),
     method: 'put',  // 使用 PUT 方法對應後端的 editComment 端點
     data: http.adornData(editCommentData, false)
-  }).then(({ data }: { data: R}) => {
+  }).then(({ data }: { data: R }) => {
     if (data.code == "200") {
 
       ElMessage.success("留言編輯成功");
 
       // 將編輯後的內容更新到 renderedComments 中
       const foundItem = renderedComments.value.find(
-          item => item.commentId == currentReplyUser.value.commentId
+        item => item.commentId == currentReplyUser.value.commentId
       );
-      console.log('Found Item:', foundItem); 
+      console.log('Found Item:', foundItem);
       if (foundItem) {
-          foundItem.commentContent = editCommentData.commentContent;
+        foundItem.commentContent = editCommentData.commentContent;
       }
 
       // 關閉模態框
@@ -739,12 +738,12 @@ const handleReplyArticle = function (content: string) {
     parentCommentId: null,
     commentContent: content
   }
-  console.log("handleReplyArticle:replyCommentData:",replyCommentData)
+  console.log("handleReplyArticle:replyCommentData:", replyCommentData)
   http({
     url: http.adornUrl(`/article/${articleId}/comments`),
     method: 'post',
     data: http.adornData(replyCommentData, false)
-  }).then(({ data }: { data: R}) => {
+  }).then(({ data }: { data: R }) => {
     if (data.code == "200") {
 
       ElMessage.success("成功訊息");
@@ -1412,82 +1411,82 @@ const getArticleAndComments = async function () {
 
 const getActionHistory = async function () {
   try {
-  const { data } = await http({
-    url: http.adornUrl(`/article/${articleId}/action-status`),
-    method: 'get',
-  }) as { data: R };
+    const { data } = await http({
+      url: http.adornUrl(`/article/${articleId}/action-status`),
+      method: 'get',
+    }) as { data: R };
 
-  console.log("getActionHistory data:", data);
+    console.log("getActionHistory data:", data);
 
-  if (data.code == "200") {
-    isBooksMarked.value = data.data.isBookmarked==1? true:false;
-    isLiked.value = data.data.isLiked==1? true:false;
-    // Article.value = data.data;
-    // ArticleContent.value = Article.value.content;
-    // console.log("ArticleContent.value:", ArticleContent.value);
-    return data;
+    if (data.code == "200") {
+      isBooksMarked.value = data.data.isBookmarked == 1 ? true : false;
+      isLiked.value = data.data.isLiked == 1 ? true : false;
+      // Article.value = data.data;
+      // ArticleContent.value = Article.value.content;
+      // console.log("ArticleContent.value:", ArticleContent.value);
+      return data;
+    }
+  } catch (error) {
+    console.error("獲取文章資料失敗:", error);
   }
-} catch (error) {
-  console.error("獲取文章資料失敗:", error);
-}
 
 }
 
-import {amsCommentActionStatusInterfaceList} from "@/interface/amsCommentActionStatusInterface.ts";
+import { amsCommentActionStatusInterfaceList } from "@/interface/amsCommentActionStatusInterface.ts";
 const commentsActionStatus = ref<amsCommentActionStatusInterfaceList>([]);
 
 const getCommentActionHistory = async function () {
   try {
-  const { data } = await http({
-    url: http.adornUrl(`/article/comments/${articleId}/action-status`),
-    method: 'get',
-  }) as { data: R };
+    const { data } = await http({
+      url: http.adornUrl(`/article/comments/${articleId}/action-status`),
+      method: 'get',
+    }) as { data: R };
 
-  console.log("getCommentActionHistory data:", data);
+    console.log("getCommentActionHistory data:", data);
 
-  if (data.code == "200") {
+    if (data.code == "200") {
 
 
-    commentsActionStatus.value = data.data.map(({commentId,isLiked}) =>({
-        commentId:commentId,
-        isLiked:isLiked
+      commentsActionStatus.value = data.data.map(({ commentId, isLiked }) => ({
+        commentId: commentId,
+        isLiked: isLiked
 
-    }));
+      }));
 
-    console.log("commentsActionStatus.value:", commentsActionStatus.value);
+      console.log("commentsActionStatus.value:", commentsActionStatus.value);
 
-    // isBooksMarked.value = data.data.isBooksMarked==1? true:false;
-    // isLiked.value = data.data.isLiked==1? true:false;
+      // isBooksMarked.value = data.data.isBooksMarked==1? true:false;
+      // isLiked.value = data.data.isLiked==1? true:false;
 
-    // Article.value = data.data;
-    // ArticleContent.value = Article.value.content;
-    // console.log("ArticleContent.value:", ArticleContent.value);
-    return data;
+      // Article.value = data.data;
+      // ArticleContent.value = Article.value.content;
+      // console.log("ArticleContent.value:", ArticleContent.value);
+      return data;
+    }
+  } catch (error) {
+    console.error("獲取文章資料失敗:", error);
   }
-} catch (error) {
-  console.error("獲取文章資料失敗:", error);
-}
 
 }
 
 const handleIsCommentLiked = function (commentId: string): boolean {
   console.log("handleIsCommentLiked commentId:", commentId)
   const status = commentsActionStatus.value.find(
-    item=>item.commentId==commentId
+    item => item.commentId == commentId
 
   );
   console.log("handleIsCommentLiked status:", status)
 
-  return status?.isLiked==1? true:false;
+  return status?.isLiked == 1 ? true : false;
 }
 
 /**
  * 取消留言點讚函數
  */
- const handleCancelCommentLikes = async function (commentId: string) {
+const handleCancelCommentLikes = async function (commentId: string) {
   console.log("handleCancelCommentLikes commentId:", commentId)
 
-try {
+  try {
     const { data } = await http({
       url: http.adornUrl(`/article/${articleId}/comments/${commentId}/unlikes`),
       method: 'post',
@@ -1499,8 +1498,8 @@ try {
       // 更新點讚數
       // 更新 renderedComments (評論列表) 的點讚數
       const targetComment = renderedComments.value.find(item => item.commentId == commentId);
- 
-      console.log("targetComment:", targetComment); 
+
+      console.log("targetComment:", targetComment);
       if (targetComment) {
         targetComment.likesCount = data.data;
       }
@@ -1524,9 +1523,10 @@ try {
       // console.log("ArticleContent.value:", ArticleContent.value);
       return data;
     }
-} catch (error) {
-console.error("獲取文章資料失敗:", error);
-}};
+  } catch (error) {
+    console.error("獲取文章資料失敗:", error);
+  }
+};
 
 /**
  * 刪除評論
@@ -1667,30 +1667,31 @@ const handleArticleLike = function () {
 const handleCancelArticleLike = async function () {
 
   try {
-      const { data } = await http({
-        url: http.adornUrl(`/article/articles/${articleId}/unlike`),
-        method: 'post',
-      }) as { data: R };
+    const { data } = await http({
+      url: http.adornUrl(`/article/articles/${articleId}/unlike`),
+      method: 'post',
+    }) as { data: R };
 
-      console.log("handleCancelArticleLike data:", data);
+    console.log("handleCancelArticleLike data:", data);
 
-      if (data.code == "200") {
-        // 更新點讚數
-        Article.value.likesCount = data.data;
-        // isBooksMarked.value = data.data==1? true:false;
-        isLiked.value = data.data==1? true:false;
-        console.log("handleCancelArticleLike isLiked:", isLiked.value);
+    if (data.code == "200") {
+      // 更新點讚數
+      Article.value.likesCount = data.data;
+      // isBooksMarked.value = data.data==1? true:false;
+      isLiked.value = data.data == 1 ? true : false;
+      console.log("handleCancelArticleLike isLiked:", isLiked.value);
 
 
-        // Article.value = data.data;
-        // ArticleContent.value = Article.value.content;
-        // console.log("ArticleContent.value:", ArticleContent.value);
-        ElMessage.success("取消讚成功！");
-        return data;
-      }
-} catch (error) {
-  console.error("獲取文章資料失敗:", error);
-}};
+      // Article.value = data.data;
+      // ArticleContent.value = Article.value.content;
+      // console.log("ArticleContent.value:", ArticleContent.value);
+      ElMessage.success("取消讚成功！");
+      return data;
+    }
+  } catch (error) {
+    console.error("獲取文章資料失敗:", error);
+  }
+};
 
 /**
  * 加入文章書籤處理函數
@@ -2006,10 +2007,10 @@ const handleCancelArticleBookmark = async function () {
 /* .article-comment-context-item-info-metrics-likesCount.liked{
 } */
 
-.svg-icon{
+.svg-icon {
   cursor: pointer;
   position: relative;
-  top:0.45rem;
+  top: 0.45rem;
   width: 1.5rem;
   height: 1.5rem;
 
@@ -2018,8 +2019,9 @@ const handleCancelArticleBookmark = async function () {
 
 
 }
-.svg-icon.active{
-    /* CSS濾鏡效果，將灰色轉為紅色 */
+
+.svg-icon.active {
+  /* CSS濾鏡效果，將灰色轉為紅色 */
 
 
   filter: invert(30%) sepia(90%) saturate(5564%) hue-rotate(336deg) brightness(99%) contrast(104%);
@@ -2043,7 +2045,7 @@ const handleCancelArticleBookmark = async function () {
   filter: invert(30%) sepia(90%) saturate(5564%) hue-rotate(336deg) brightness(99%) contrast(104%);
 }
 
-.article-comment-context-item-info-metrics-likesCount.liked img{
+.article-comment-context-item-info-metrics-likesCount.liked img {
   /* CSS濾鏡效果，將黑色轉為紅色 */
   /* filter: invert(16%) sepia(79%) saturate(6098%) hue-rotate(341deg) brightness(98%) contrast(115%); */
 
@@ -2052,6 +2054,7 @@ const handleCancelArticleBookmark = async function () {
 
 
 }
+
 .article-comment-input {
   background-color: #98710e;
   min-width: 90%;
@@ -2157,8 +2160,7 @@ const handleCancelArticleBookmark = async function () {
 }
 
 .article-header-info-delete .delete-icon:hover {
-  filter: invert(30%) sepia(90%) saturate(5564%)
-          hue-rotate(336deg) brightness(99%) contrast(104%);
+  filter: invert(30%) sepia(90%) saturate(5564%) hue-rotate(336deg) brightness(99%) contrast(104%);
 }
 
 .article-title {

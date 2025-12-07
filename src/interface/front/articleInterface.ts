@@ -40,6 +40,7 @@ export interface AmsArtTag {
     viewsCount: number;
     likesCount: number;
     bookmarksCount: number;
+    editCount: number; // 文章編輯次數
   
     // --- 原有但新 JSON 中不存在的欄位 (設為可選) ---
     articleId?: string; // 注意：文章 ID 現在可能存在於 amsArtTagVoList[].articleId 中
@@ -63,4 +64,4 @@ export interface AmsArtTag {
     current: number;
     pages: number;
   }
-  
+ 
