@@ -1,6 +1,9 @@
 <template>
   <LoadingSpinner v-if="loading || error" :text="'載入中...'" :error="error" :showRetry="true" @retry="handleRetryLoad" />
 
+  <!-- 文章不存在或載入失敗 -->
+  <NotFound v-else-if="isArticleNotFound" />
+
   <section v-else-if="Article">
 
     <div ref="scrollContainer" class="article-container">
@@ -1339,6 +1342,8 @@ onUnmounted(() => {// 在組件卸載後移除滾動事件監聽器
 
 // });
 
+const isArticleNotFound = ref(false);
+
 const getArticle = (async () => {
 
   try {
@@ -1358,6 +1363,11 @@ const getArticle = (async () => {
     }
   } catch (error) {
     console.error("獲取文章資料失敗:", error);
+    if(error.response.status === 404){
+      loading.value = false
+      isArticleNotFound.value=true
+    }
+  
   }
 })
 
@@ -1389,45 +1399,72 @@ const loading = ref(true);
 const error = ref<string | null>(null);
 
 
+// const getArticleAndComments = async function () {
+//   // 重置狀態
+//   error.value = null;
+
+//   try {
+//     const [articleResult, commentsResult] = await Promise.allSettled([getArticle(), getArtComments()]);
+//     console.log("artComments:", artComments)
+//     console.log("commentsResult:", commentsResult)
+
+//     console.log("getArticleAndComments articleResult:", articleResult)
+
+//   // 檢查文章是否載入成功(必須成功)
+//     if (articleResult.status === 'rejected') {
+//       error.value = '伺服器暫時不可用，請稍後再試';
+//       loading.value = false;
+//       return;
+//     }
+
+//     // 檢查 articleResult.value 是否存在
+//     if (!articleResult.value || !articleResult.value.data) {
+//       error.value = '無法獲取文章資料';
+//       loading.value = false;
+//       return;
+//     }
+
+//     // 評論加載失敗也無訪
+//     const article = articleResult.value.data;
+//     const comments = commentsResult.status === 'fulfilled' && commentsResult.value ? commentsResult.value.data : [];
+
+//     Article.value = article;
+//     ArticleContent.value = article.content;
+//     artComments.value = comments;
+//     loading.value = false;
+
+//     console.log("初始化加載article:", article)
+//     console.log("初始化加載comments:", comments)
+//   } catch (err) {
+//     console.error('獲取文章資料失敗:', err);
+//     error.value = '伺服器暫時不可用，請稍後再試';
+//     loading.value = false;
+//   }
+// }
+
 const getArticleAndComments = async function () {
-  // 重置狀態
-  error.value = null;
+  const [articleResult, commentsResult] = await Promise.allSettled([getArticle(), getArtComments()]);
+  console.log("artComments:", artComments)
+  console.log("commentsResult:", commentsResult)
 
-  try {
-    const [articleResult, commentsResult] = await Promise.allSettled([getArticle(), getArtComments()]);
-    console.log("artComments:", artComments)
-    console.log("commentsResult:", commentsResult)
+  //檢查文章是否載入成功(必須成功)
+  if (articleResult.status === 'rejected') {
 
-    // 檢查文章是否載入成功(必須成功)
-    if (articleResult.status === 'rejected') {
-      error.value = '伺服器暫時不可用，請稍後再試';
-      loading.value = false;
-      return;
-    }
-
-    // 檢查 articleResult.value 是否存在
-    if (!articleResult.value || !articleResult.value.data) {
-      error.value = '無法獲取文章資料';
-      loading.value = false;
-      return;
-    }
-
-    // 評論加載失敗也無訪
-    const article = articleResult.value.data;
-    const comments = commentsResult.status === 'fulfilled' && commentsResult.value ? commentsResult.value.data : [];
-
-    Article.value = article;
-    ArticleContent.value = article.content;
-    artComments.value = comments;
-    loading.value = false;
-
-    console.log("初始化加載article:", article)
-    console.log("初始化加載comments:", comments)
-  } catch (err) {
-    console.error('獲取文章資料失敗:', err);
-    error.value = '伺服器暫時不可用，請稍後再試';
-    loading.value = false;
+    ElMessage.error("獲取文章資料失敗")
+    return;
   }
+  //評論加載失敗也無訪
+  const article = articleResult.value.data;
+  // Article.value = article.article.value;
+
+  //留言加載則輸出空陣列，避免影響主頁面
+  const comments = commentsResult.status === 'fulfilled' ? commentsResult.value.data : [];
+  Article.value = article;
+  ArticleContent.value = article.content;
+  artComments.value = comments;
+  loading.value = false;
+  console.log("初始化加載article:", article)
+  console.log("初始化加載comments:", comments)
 }
 
 const getActionHistory = async function () {
@@ -1454,6 +1491,7 @@ const getActionHistory = async function () {
 }
 
 import { amsCommentActionStatusInterfaceList } from "@/interface/amsCommentActionStatusInterface.ts";
+import NotFound from "./NotFound.vue";
 const commentsActionStatus = ref<amsCommentActionStatusInterfaceList>([]);
 
 const getCommentActionHistory = async function () {

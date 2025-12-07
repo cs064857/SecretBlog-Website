@@ -15,7 +15,7 @@ import AuthForgotPassword from "@/components/AuthForgotPassword.vue";
 import User from '@/components/User.vue';
 import UserSummary from "@/components/UserSummary.vue";
 import UserInformation from "@/components/UserInformation.vue";
-
+import NotFound from "@/components/NotFound.vue";
 const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -151,6 +151,14 @@ const router = createRouter({
                 },
 
             ]
+        }
+        ,
+        {//處理404
+            name: 'NotFound',
+            path: '/:pathMatch(.*)*',
+            components: {
+                app: NotFound
+            }
         }
     ]
 })
