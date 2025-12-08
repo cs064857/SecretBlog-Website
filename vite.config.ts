@@ -12,6 +12,15 @@ export default defineConfig({
         target: 'http://localhost:88',
         changeOrigin: true,
       },
+      // 將網站地圖 SEO 端點代理到 Gateway
+      '/sitemap.xml': {
+        target: 'http://localhost:88',
+        changeOrigin: true,
+      },
+      '/robots.txt': {
+        target: 'http://localhost:88',
+        changeOrigin: true,
+      },
     },
   },
   resolve: {
