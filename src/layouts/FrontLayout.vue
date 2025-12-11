@@ -354,7 +354,8 @@ const treeProps = {
   value: 'id',
 }
 
-const treeCategory = useTreeCategoryStore().getTreeData;
+const treeCategoryStore = useTreeCategoryStore();
+const treeCategory = treeCategoryStore.getTreeData;
 
 const handleCategoryChange = function (value: string) {
   selectCategoryId.value = value
@@ -381,6 +382,7 @@ const getTagsList = function () {
   });
 }
 onMounted(() => {
+  treeCategoryStore.fetchTreeData() // 確保分類資料載入
   getTagsList()
 })
 // 重試

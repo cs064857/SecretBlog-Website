@@ -842,7 +842,8 @@ import { useTreeCategoryStore } from "@/pinia/useTreeCategoryStore"
 /**
  * 獲取分類資訊
  */
-const treeCategory = useTreeCategoryStore().getTreeData;
+const treeCategoryStore = useTreeCategoryStore();
+const treeCategory = treeCategoryStore.getTreeData;
 
 
 
@@ -853,6 +854,7 @@ const handleCategoryChange = function (value: string) {
 }
 
 onMounted(() => {
+  treeCategoryStore.fetchTreeData() // 確保分類資料載入
 
   /**
    * 獲取標籤資訊
@@ -1363,11 +1365,11 @@ const getArticle = (async () => {
     }
   } catch (error) {
     console.error("獲取文章資料失敗:", error);
-    if(error.response.status === 404){
+    if (error.response.status === 404) {
       loading.value = false
-      isArticleNotFound.value=true
+      isArticleNotFound.value = true
     }
-  
+
   }
 })
 
