@@ -27,6 +27,10 @@
 
         <!-- 狀態 4：正常顯示搜尋結果 -->
         <div v-else class="home-article">
+          <!-- 顯示搜尋結果總筆數 -->
+          <div v-if="totalElements > 0" class="search-total-count">
+            共搜尋到 <span class="total-number">{{ totalElements }}</span> 筆資料
+          </div>
           <div v-for="article in articles" :key="article.articleId" class="article-box">
             <div class="article-title">
               <router-link v-if="article.userId" :to="{ name: 'UserInformation', params: { userId: article.userId } }"
@@ -137,6 +141,7 @@ interface SearchPageData {
   last: boolean
   number: number
   size: number
+  totalElements: number
 }
 
 const route = useRoute()
@@ -146,6 +151,7 @@ const articles = ref<(SearchArticle & { safeTitle: string; safeContent: string }
 const pageNumber = ref(0)
 const pageSize = ref(10)
 const isLoading = ref(false)
+const totalElements = ref(0)
 const error = ref<string | null>(null)
 const isLast = ref(false)
 
@@ -156,6 +162,7 @@ const resetSearch = () => {
   pageNumber.value = 0
   isLast.value = false
   error.value = null
+  totalElements.value = 0
 }
 
 const fetchSearch = async () => {
@@ -186,6 +193,7 @@ const fetchSearch = async () => {
 
       articles.value.push(...processed)
       isLast.value = !!data.data.last
+      totalElements.value = data.data.totalElements ?? 0
       //假設搜索的內容還存在下一頁資料
       if (!isLast.value) {
         pageNumber.value = currentPage + 1
@@ -370,5 +378,19 @@ watch(keyword, () => {
 .no-more {
   text-align: center;
   padding: 1rem;
+}
+
+.search-total-count {
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+  color: #b0b0b0;
+  font-size: 14px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.total-number {
+  color: #67c23a;
+  font-weight: 600;
 }
 </style>
