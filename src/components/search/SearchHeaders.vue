@@ -58,9 +58,9 @@
 </style>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { Search } from '@element-plus/icons-vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 interface SearchSuggestion {
 	value: string
@@ -69,6 +69,7 @@ interface SearchSuggestion {
 
 const searchQuery = ref('')
 const router = useRouter()
+const route = useRoute()
 
 const fetchSuggestions = (queryString: string, cb: (suggestions: SearchSuggestion[]) => void) => {
 	const suggestions: SearchSuggestion[] = []
@@ -89,35 +90,19 @@ const fetchSuggestions = (queryString: string, cb: (suggestions: SearchSuggestio
 
 	cb(suggestions)
 }
-import http from '@/utils/httpRequest'
-import { ElMessage } from 'element-plus'
-import R from '@/interface/requestInterface'
+
+// 同步路由中的 keyword 到輸入框，方便返回/重整時顯示
+watch(() => route.params.keyword, (newVal) => {
+	if (typeof newVal === 'string') {
+		searchQuery.value = newVal
+	}
+}, { immediate: true })
+
 const handleSearch = () => {
 	if (searchQuery.value.trim()) {
-		console.log('搜尋:', searchQuery.value)
-
-		http({
-			url: http.adornUrl('/search/highlight'),
-			method: 'get',
-			params: {
-				keyword: searchQuery.value,
-				page: 0,
-				size: 10
-			}
-		}).then(({ data }: { data: R }) => {
-			if (data.code == "200") {
-				console.log('搜尋結果:', data.data);
-				ElMessage.success("搜尋成功");
-				// TODO: 處理搜尋結果，例如導航到搜尋結果頁面
-				// router.push({ name: 'SearchResults', query: { keyword: searchQuery.value } })
-			} else {
-				ElMessage.error("搜尋失敗: " + data.msg);
-			}
-			return data
-		}).catch((error) => {
-			console.error('搜尋錯誤:', error);
-			ElMessage.error("搜尋請求失敗");
-		});
+		const keyword = searchQuery.value.trim()
+		// 導航到搜尋結果頁面，由 SearchLayout 負責實際請求與展示
+		router.push({ name: 'SearchResults', params: { keyword } }).catch(() => { })
 	}
 }
 

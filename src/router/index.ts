@@ -16,7 +16,7 @@ import User from '@/components/User.vue';
 import UserSummary from "@/components/UserSummary.vue";
 import UserInformation from "@/components/UserInformation.vue";
 import NotFound from "@/components/NotFound.vue";
-import SearchResults from "@/components/search/SearchResults.vue";
+import SearchLayout from "@/layouts/SearchLayout.vue";
 import HomeArticleList from "@/components/HomeArticleList.vue";
 const router = createRouter({
     history: createWebHistory(),
@@ -98,7 +98,8 @@ const router = createRouter({
                 {
                     name:'SearchResults',
                     path:'/search/:keyword',
-                    component: SearchResults
+                    component: SearchLayout,
+                    meta: { hideNavSearch: true } //控制是否顯示頂部搜索框
                 }
             ]
 

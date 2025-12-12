@@ -14,17 +14,9 @@ const route = useRoute()
 const isLoginStore = useIsLoginStore()
 // 已經調用後端判斷是否成功登入,從pinia中獲取登入資訊
 const isLoggedIn = computed(() => isLoginStore.getIsLoginData) // 綁定 Pinia
-// onMounted(() => {
-//   // 檢查 cookie 中是否有 jwtToken
-//   // const cookies = document.cookie.split(';')
-//   // console.log("cookies",cookies)
-//   // isLoggedIn.value = cookies.some(cookie => cookie.startsWith('jwtToken'))
 
-
-
-//   isLoggedIn.value=isLoginStore.getIsLoginData;
-
-// })
+// 判斷是否隱藏導航列搜尋區塊（根據路由 meta 欄位）
+const hideNavSearch = computed(() => route.meta.hideNavSearch === true)
 
 const handleGoBackend = function () {//進入後台管理系統
   router.push('/AdminVue')
@@ -53,7 +45,6 @@ const handleSignOut = function () {
 
       //登出時使jwtToken過期並且清空,
       document.cookie = "jwtToken=; max-age=0; path=/;";
-
 
 
       router.push('/home')
@@ -98,8 +89,9 @@ onMounted(() => {
     <!--        <el-button style="height: 6vh;width: 6vh" @click="handleGoCategory" type="primary" :icon="Menu"/>-->
     <!--        <el-button style="height: 6vh;width: 6vh" @click="handleGoUser" type="primary" :icon="User"/>-->
 
+    <!-- 搜尋框區塊 - 使用 v-show 保持佈局穩定 -->
     <div class="home-header-navigation-search">
-      <SearchHeaders />
+      <SearchHeaders v-if="!hideNavSearch" />
     </div>
 
     <div class="home-header-navigation-user-container">
