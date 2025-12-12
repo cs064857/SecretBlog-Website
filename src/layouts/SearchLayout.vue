@@ -1,7 +1,7 @@
 <template>
   <div class="search-layout">
     <div class="search-header">
-      <!-- 搜尋輸入框 -->
+      <!-- 搜尋輸入框與高級篩選器 -->
       <SearchResults />
     </div>
 
@@ -240,7 +240,9 @@ watch(keyword, () => {
 }
 
 .search-header {
+
   padding: 1rem;
+
 }
 
 .search-scrollbar {
