@@ -16,6 +16,8 @@ import User from '@/components/User.vue';
 import UserSummary from "@/components/UserSummary.vue";
 import UserInformation from "@/components/UserInformation.vue";
 import NotFound from "@/components/NotFound.vue";
+import SearchResults from "@/components/search/SearchResults.vue";
+import HomeArticleList from "@/components/HomeArticleList.vue";
 const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -81,13 +83,23 @@ const router = createRouter({
                 app: Home
             },
             children: [
-
+                {
+                    // 預設子路由：顯示文章列表
+                    path: '',
+                    name: 'HomeArticleList',
+                    component: HomeArticleList
+                },
                 // {
                 //     path: '/Home/News2Test',
                 //     components: {
                 //         HomeRouter: UserManagement
                 //     }
                 // },
+                {
+                    name:'SearchResults',
+                    path:'/search/:keyword',
+                    component: SearchResults
+                }
             ]
 
         },
@@ -152,6 +164,14 @@ const router = createRouter({
 
             ]
         }
+        // ,
+        // {
+        //     name: 'Search',
+        //     path: '/search/:keyword',
+        //     components: {
+        //         app: SearchResults
+        //     }
+        // }
         ,
         {//處理404
             name: 'NotFound',

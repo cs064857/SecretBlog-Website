@@ -14,6 +14,9 @@ import 'dayjs/locale/zh-tw' // 引入繁體中文語系
 dayjs.extend(relativeTime)
 dayjs.locale('zh-tw') // 設定預設語系為繁體中文
 
+// 引入分類和標籤相關
+import { useTreeCategoryStore } from "../pinia/useTreeCategoryStore";
+import { R } from "@/interface/R"
 
 const route = useRoute()
 const router = useRouter();
@@ -26,6 +29,65 @@ let limitItems = ref<number>(20)//默認顯示20個項目,limitItems與頁數掛
 // 骨架屏相關狀態
 const isLoading = ref(true)  // 載入狀態
 const error = ref<string | null>(null)  // 錯誤訊息
+
+// 分類與標籤篩選相關狀態
+const treeCategoryStore = useTreeCategoryStore();
+const treeCategory = treeCategoryStore.getTreeData;
+const tagsSelectData = ref<any[]>([])
+const filterCategoryId = ref()
+const filterTagsId = ref<string[]>([])
+
+// 監聽路由變化同步篩選狀態
+watch(() => route.params.categoryId, (newVal) => {
+  filterCategoryId.value = newVal ? String(newVal) : undefined
+}, { immediate: true })
+
+watch(() => route.query.tagsId, (newVal, oldVal) => {
+  console.log("watch route.query.tagsId , newValue", newVal)
+  if (typeof newVal === 'string') {
+    // 處理逗號分隔的字串 "1,2"
+    filterTagsId.value = newVal.split(',').map(id => String(id))
+  } else if (Array.isArray(newVal)) {
+    // 兼容舊格式或數組格式
+    filterTagsId.value = newVal.map(id => String(id))
+  } else if (newVal) {
+    filterTagsId.value = [String(newVal)]
+  } else {
+    filterTagsId.value = []
+  }
+}, { immediate: true })
+
+// 篩選變更處理
+const handleFilterCategoryChange = (val: string) => {
+  router.push({
+    name: 'Home',
+    params: { categoryId: val },
+    query: { ...route.query, page: 1 }
+  })
+}
+
+const handleFilterTagsChange = (val: string[]) => {
+  const tagsIdParam = val.length > 0 ? val.join(',') : undefined
+  router.push({
+    name: 'Home',
+    params: { ...route.params },
+    query: { ...route.query, tagsId: tagsIdParam, page: 1 }
+  })
+}
+
+// 獲取標籤資訊
+const getTagsList = function () {
+  http({
+    url: http.adornUrl('/article/tags/list'),
+    method: 'get',
+  }).then(({ data }: { data: R }) => {
+    if (data.code == "200") {
+      tagsSelectData.value = data.data
+    } else {
+      ElMessage.error("文章標籤獲取失敗")
+    }
+  });
+}
 
 const handleCurrentPageChange = async function (CurrentPage) {
   limitItems.value = CurrentPage * pageSize.value
@@ -64,8 +126,6 @@ const articleList = ref<Articles | null>(null)
 // const routePage = ref(route.query.page)
 
 import { AmsListRecordsListInterface } from "@/interface/amsListRecordsInterface"
-import { R } from "@/interface/R"
-import emitter from "@/utils/eventBusMitt";
 
 // 重試功能
 const handleRetry = () => {
@@ -124,7 +184,8 @@ onBeforeRouteUpdate((to, from) => {
 })
 
 onMounted(() => {
-
+  treeCategoryStore.fetchTreeData() // 確保分類資料載入
+  getTagsList()
   getArticles(route.params.categoryId, route.query.page, route.query.tagsId)
 
 
@@ -142,6 +203,14 @@ onMounted(() => {
   //   })
   // }
 })
+
+// 重試功能 - 更新以包含標籤重新獲取
+import emitter from "@/utils/eventBusMitt";
+
+// 新增：開啟新增文章模態框事件
+const handleOpenCreateArticleModal = () => {
+  emitter.emit('open-create-article-modal')
+}
 //獲取文章列表/
 
 //根據categoryId篩選與分頁
@@ -179,74 +248,97 @@ onMounted(() => {
 </script>
 
 <template>
+  <div class="home-article-list" ref="containerRef">
 
-  <!-- 狀態 1：載入中 - 顯示 Loading -->
-  <LoadingSpinner v-if="isLoading" text="載入文章中..." />
-
-  <!-- 狀態 2：錯誤狀態 - 顯示錯誤訊息和重試按鈕 -->
-  <div v-else-if="error" class="error-state">
-    <div class="error-icon">⚠️</div>
-    <p class="error-message">{{ error }}</p>
-    <el-button type="primary" @click="handleRetry">
-      🔄 重新嘗試
-    </el-button>
-  </div>
-
-  <!-- 狀態 3：無資料 - 顯示空狀態 -->
-  <div v-else-if="!articleList || articleList.length === 0" class="empty-state">
-    <div class="empty-icon">📭</div>
-    <p class="empty-message">暫無文章</p>
-  </div>
-
-  <!-- 狀態 4：正常顯示文章列表 -->
-  <div v-else class="home-article">
-
-    <div v-for="article in articleList" :key="article.articleId" class="article-box">
-      <div class="article-title">
-        <router-link :to="{ name: 'Article', params: { articleId: article.articleId } }">
-          <p>{{ article.title }}</p>
-        </router-link>
-      </div>
-      <div class="article-info">
-        <div class="article-category">
-          {{ article.categoryName }}
-
-          <!-- <div>username</div> -->
-
-          <!-- <div>avatar</div> -->
-
-
+    <!-- 文章區塊 Header：篩選器 -->
+    <div class="home-article-header">
+      <div class="home-article-header-main">
+        <div class="home-article-header-main-tags">
+          <el-tree-select v-model="filterCategoryId" :data="treeCategory || []" placeholder="分類篩選" clearable
+            check-strictly :render-after-expand="false" style="max-width: auto; min-width: 10rem; margin-right: 10px;"
+            value-key="id" @change="handleFilterCategoryChange" />
+          <el-select-v2 v-model="filterTagsId" :options="tagsSelectData" :props="{ label: 'name', value: 'id' }"
+            placeholder="標籤篩選" style="max-width: auto; min-width: 10rem;" multiple clearable collapse-tags
+            collapse-tags-tooltip @change="handleFilterTagsChange" />
         </div>
-        <div class="article-tags">
-          <div v-for="amsArtTag in article.amsArtTagList" class="article-tag">
-            {{ amsArtTag.name }}
+        <div class="home-article-header-main-nav-pills">
+          <div>最新1</div>
+          <div>最新2</div>
+          <div>最新3</div>
+        </div>
+        <div class="home-article-header-main-controls">
+          <el-button @click="handleOpenCreateArticleModal()" type="primary">新增文章</el-button>
+        </div>
+      </div>
+    </div>
+
+    <div class="home-article-list-middle">
+      <!-- 狀態 1：載入中 - 顯示 Loading -->
+      <LoadingSpinner v-if="isLoading" text="載入文章中..." />
+
+      <!-- 狀態 2：錯誤狀態 - 顯示錯誤訊息和重試按鈕 -->
+      <div v-else-if="error" class="error-state">
+        <div class="error-icon">⚠️</div>
+        <p class="error-message">{{ error }}</p>
+        <el-button type="primary" @click="handleRetry">
+          🔄 重新嘗試
+        </el-button>
+      </div>
+
+      <!-- 狀態 3：無資料 - 顯示空狀態 -->
+      <div v-else-if="!articleList || articleList.length === 0" class="empty-state">
+        <div class="empty-icon">📭</div>
+        <p class="empty-message">暫無文章</p>
+      </div>
+
+      <!-- 狀態 4：正常顯示文章列表 -->
+      <div v-else class="home-article">
+
+        <div v-for="article in articleList" :key="article.articleId" class="article-box">
+          <div class="article-title">
+            <router-link :to="{ name: 'Article', params: { articleId: article.articleId } }">
+              <p>{{ article.title }}</p>
+            </router-link>
           </div>
-          <!-- <div class="article-tag">
+          <div class="article-info">
+            <div class="article-category">
+              {{ article.categoryName }}
+
+              <!-- <div>username</div> -->
+
+              <!-- <div>avatar</div> -->
+
+            </div>
+            <div class="article-tags">
+              <div v-for="amsArtTag in article.amsArtTagList" class="article-tag">
+                {{ amsArtTag.name }}
+              </div>
+              <!-- <div class="article-tag">
                 AI API
             </div> -->
-          <!-- <div class="article-tag">
+              <!-- <div class="article-tag">
                 LLM大模型
             </div>
             <div class="article-tag">
                 RAG知識庫
             </div> -->
-        </div>
 
-        <div class="article-metrics">
+            </div>
 
-          <div class="article-metrics-label">喜歡</div>
-          <div class="article-metrics-label">查看</div>
-          <div class="article-metrics-label">書籤</div>
-          <div class="article-metrics-label">創建時期</div>
-          <div class="article-metrics-label">更新日期</div>
+            <div class="article-metrics">
+              <div class="article-metrics-label">喜歡</div>
+              <div class="article-metrics-label">查看</div>
+              <div class="article-metrics-label">書籤</div>
+              <div class="article-metrics-label">創建時期</div>
+              <div class="article-metrics-label">更新日期</div>
 
-          <div class="article-metrics-value">{{ article.likesCount }}</div>
-          <div class="article-metrics-value">{{ article.viewsCount }}</div>
-          <div class="article-metrics-value">{{ article.bookmarksCount }}</div>
-          <div class="article-metrics-value">{{ dayjs(article.createTime).fromNow() }}</div>
-          <div class="article-metrics-value">{{ dayjs(article.updateTime).fromNow() }}</div>
+              <div class="article-metrics-value">{{ article.likesCount }}</div>
+              <div class="article-metrics-value">{{ article.viewsCount }}</div>
+              <div class="article-metrics-value">{{ article.bookmarksCount }}</div>
+              <div class="article-metrics-value">{{ dayjs(article.createTime).fromNow() }}</div>
+              <div class="article-metrics-value">{{ dayjs(article.updateTime).fromNow() }}</div>
 
-          <!-- <div class="article-metrics-label">喜歡</div>
+              <!-- <div class="article-metrics-label">喜歡</div>
                 <div class="article-metrics-label">查看</div>
                 <div class="article-metrics-label">書籤</div>
                 <div class="article-metrics-label">創建時期</div>
@@ -258,15 +350,17 @@ onMounted(() => {
                 <div class="article-metrics-value">12小時</div>
                 <div class="article-metrics-value">24小時</div> -->
 
+            </div>
+          </div>
+
         </div>
+        <hr>
       </div>
 
+      <div ref="bottomSentinel" style="height: 20px;"></div>
     </div>
-    <hr>
-  </div>
 
-
-  <!-- <div v-for="article in articleList"  :key="article.id" class="home-article">
+    <!-- <div v-for="article in articleList"  :key="article.id" class="home-article">
 
     <div class="article-box">
       <div class="article-title">
@@ -282,19 +376,19 @@ onMounted(() => {
   </div> -->
 
 
-  <!-- <div v-for="article in articleList" :key="article.id" class="home-article"> -->
-  <!-- <div class="article-title">
+    <!-- <div v-for="article in articleList" :key="article.id" class="home-article"> -->
+    <!-- <div class="article-title">
       <router-link :to="{name:'Article',params:{articleId:article.id}}"><p>{{ article.title }}</p></router-link>
     </div>
     <div class="article-content"></div>
 
     <div class="article-info"></div>
   </div> -->
-
-  <div class="home-article-footer">
-    <el-pagination @current-change="handleCurrentPageChange" @size-change="handlePageSizeChange"
-      v-model:current-page="currentPage" v-model:page-size="pageSize" background layout="prev, pager, next"
-      :total="totalItems" />
+    <div class="home-article-footer">
+      <el-pagination @current-change="handleCurrentPageChange" @size-change="handlePageSizeChange"
+        v-model:current-page="currentPage" v-model:page-size="pageSize" background layout="prev, pager, next"
+        :total="totalItems" />
+    </div>
   </div>
 </template>
 

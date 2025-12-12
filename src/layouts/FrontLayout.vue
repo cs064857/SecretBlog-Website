@@ -22,71 +22,7 @@
       </div>
 
       <div class="main-content-area">
-
-
-        <div class="home-article-list" ref="containerRef">
-
-          <div class="home-article-header">
-            <div class="home-article-header-main">
-              <div class="home-article-header-main-tags">
-                  <el-tree-select
-                    v-model="filterCategoryId"
-                    :data="treeCategory || []"
-                    placeholder="分類篩選"
-                    clearable
-                    check-strictly
-                    :render-after-expand="false"
-                    style="max-width: auto; min-width: 10rem; margin-right: 10px;"
-                    value-key="id"
-                    @change="handleFilterCategoryChange"
-                  />
-                  <el-select-v2
-                    v-model="filterTagsId"
-                    :options="tagsSelectData"
-                    :props="{ label: 'name', value: 'id' }"
-                    placeholder="標籤篩選"
-                    style="max-width: auto; min-width: 10rem;"
-                    multiple
-                    clearable
-                    collapse-tags
-                    collapse-tags-tooltip
-                    @change="handleFilterTagsChange"
-                  />
-              </div>
-              <div class="home-article-header-main-nav-pills">
-                  <div>最新1</div>
-                  <div>最新2</div>
-                  <div>最新3</div>
-              </div>
-              <div class="home-article-header-main-controls">
-                  <el-button @click="handleOpenCreateArticleModal()" type="primary">新增文章</el-button>
-
-              </div>
-            </div>
-          </div>
- 
-          <div class="home-article-list-middle">
-            <HomeArticleList ref="articleList"></HomeArticleList>
-            <div ref="bottomSentinel" style="height: 20px;"></div>
-            <!-- <div class="home-article-footer">
-              <div class="home-article-footer-pagination">
-                <el-pagination @current-change="handleCurrentPageChange" @size-change="handlePageSizeChange"
-                    v-model:current-page="currentPage" v-model:page-size="pageSize" background
-                    layout="prev, pager, next" :total="totalItems"/>
-              </div>
-
-            </div> -->
-          </div>
-
-        </div>
-
-        <!-- <div style="width: 100px;height: 100px;background-color: #395c5c;" class="home-article-list-right">
-
-          123
-          
-        </div> -->
-
-        
+        <router-view></router-view>
       </div>
     </div>
 
@@ -96,39 +32,35 @@
 
 
   <!-- 回覆評論彈出框 -->
-  <ReplyModal
-    :modalVisible="createArticleModalVisible"
-    :content="articleContent"
-    @close="handleCloseReplyModal"
-    @submit="handleCreateArticle"
-  >
-      <template #article-editor-header>
-        <!-- 新增文章功能：Header(標題、分類、標籤設置)-->
-        <div class="create-article-header">
-          <div class="create-article-info">
-            <div class="create-article-title">
-              <span class="create-article-title-text">標題</span>
-              <el-input class="create-article-title-input" type="text" placeholder="輸入標題..."
-                v-model="inputTitle"></el-input>
-            </div>
+  <ReplyModal :modalVisible="createArticleModalVisible" :content="articleContent" @close="handleCloseReplyModal"
+    @submit="handleCreateArticle">
+    <template #article-editor-header>
+      <!-- 新增文章功能：Header(標題、分類、標籤設置)-->
+      <div class="create-article-header">
+        <div class="create-article-info">
+          <div class="create-article-title">
+            <span class="create-article-title-text">標題</span>
+            <el-input class="create-article-title-input" type="text" placeholder="輸入標題..."
+              v-model="inputTitle"></el-input>
+          </div>
 
-            <div class="create-article-meta">
-              <div class="create-article-category">
-                <span class="create-article-title-text">分類</span>
-                <el-tree-select v-model="selectCategoryId" :data="treeCategory" @change="handleCategoryChange"
-                  :render-after-expand="false"
-                  style="max-width: 20vh;min-width: 20vh;margin: 2% 2% 2% 0.2%;padding-top: 1%;" value-key="id" />
-              </div>
-              <div class="create-article-tag">
-                <span class="create-article-title-text">標籤</span>
-                <el-tree-select v-model="selectTagsValue" :data="tagsSelectData" :props="treeProps" multiple
-                  @change="handleTagsChange" :render-after-expand="false" style="max-width: 20vh;min-width: 20vh;"
-                  value-key="id" />
-              </div>
+          <div class="create-article-meta">
+            <div class="create-article-category">
+              <span class="create-article-title-text">分類</span>
+              <el-tree-select v-model="selectCategoryId" :data="treeCategory" @change="handleCategoryChange"
+                :render-after-expand="false"
+                style="max-width: 20vh;min-width: 20vh;margin: 2% 2% 2% 0.2%;padding-top: 1%;" value-key="id" />
+            </div>
+            <div class="create-article-tag">
+              <span class="create-article-title-text">標籤</span>
+              <el-tree-select v-model="selectTagsValue" :data="tagsSelectData" :props="treeProps" multiple
+                @change="handleTagsChange" :render-after-expand="false" style="max-width: 20vh;min-width: 20vh;"
+                value-key="id" />
             </div>
           </div>
         </div>
-      </template>
+      </div>
+    </template>
   </ReplyModal>
 </template>
 
@@ -148,7 +80,8 @@
 }
 
 .create-article-title-text {
-  color: #999999; /* var(--text-tertiary) fallback */
+  color: #999999;
+  /* var(--text-tertiary) fallback */
   font-size: 20px;
   font-weight: 500;
 }
@@ -188,23 +121,15 @@
 
 <script setup lang="ts" name="Home">
 import '../assets/css/Home.css';
-import {computed, onMounted, ref, toRefs, onUnmounted, nextTick, watch} from 'vue';
-import {useRouter, useRoute} from 'vue-router'
+import { computed, onMounted, ref, toRefs, onUnmounted, nextTick, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router'
 import http from '../utils/httpRequest'
 
-import { Menu, User} from "@element-plus/icons-vue";
-import {R} from "../interface/R.ts";
-import {useTreeCategoryStore} from "../pinia/useTreeCategoryStore";
-import {ElMessage} from "element-plus";
-import { throttle } from '@/utils/debounce';
-interface tagsButton {
-  title: string
-  route: string
-  name: string
-  articleId: string
-}
+import { Menu, User } from "@element-plus/icons-vue";
+import { R } from "../interface/R.ts";
+import { useTreeCategoryStore } from "../pinia/useTreeCategoryStore";
+import { ElMessage } from "element-plus";
 
-const tagsButtons: tagsButton[] = [];
 const router = useRouter()
 const route = useRoute()
 
@@ -236,11 +161,10 @@ const route = useRoute()
 //   }
 // ])
 
-
 // left-main中導航列模塊
 import HomeLeftNavbar from "../components/HomeLeftNavbar.vue";
 // home-article-list文章列表模塊
-import HomeArticleList from "../components/HomeArticleList.vue";
+// import HomeArticleList from "../components/HomeArticleList.vue";
 //home-header-navigation Home首頁最上方導航列模塊
 import HomeHeaderNavigation from "../components/HomeHeaderNavigation.vue";
 
@@ -307,46 +231,6 @@ const selectCategoryId = ref<string>()
 const selectTagsValue = ref()
 const tagsSelectData = ref<any[]>([])
 
-// 篩選相關狀態
-const filterCategoryId = ref()
-const filterTagsId = ref<string[]>([])
-
-// 監聽路由變化同步篩選狀態
-watch(() => route.params.categoryId, (newVal) => {
-  filterCategoryId.value = newVal ? String(newVal) : undefined
-}, { immediate: true })
-
-watch(() => route.query.tagsId, (newVal,oldVal) => {
-  console.log("watch route.query.tagsId , newValue",newVal)
-  if (typeof newVal === 'string') {
-    // 處理逗號分隔的字串 "1,2"
-    filterTagsId.value = newVal.split(',').map(id => String(id))
-  } else if (Array.isArray(newVal)) {
-    // 兼容舊格式或數組格式
-    filterTagsId.value = newVal.map(id => String(id))
-  } else if (newVal) {
-    filterTagsId.value = [String(newVal)]
-  } else {
-    filterTagsId.value = []
-  }
-}, { immediate: true })
-
-const handleFilterCategoryChange = (val: string) => {
-  router.push({
-    name: 'Home',
-    params: { categoryId: val },
-    query: { ...route.query, page: 1 }
-  })
-}
-
-const handleFilterTagsChange = (val: string[]) => {
-  const tagsIdParam = val.length > 0 ? val.join(',') : undefined
-  router.push({
-    name: 'Home',
-    params: { ...route.params },
-    query: { ...route.query, tagsId: tagsIdParam, page: 1 }
-  })
-}
 const articleContent = ref<string>('')
 
 const treeProps = {
@@ -394,6 +278,15 @@ emitter.on('retry-home-apis', () => {
   getTagsList()
 })
 
+// 監聽來自 HomeArticleList 的開啟新增文章模態框事件
+emitter.on('open-create-article-modal', () => {
+  handleOpenCreateArticleModal()
+})
+
+// 組件卸載時移除事件監聽
+onUnmounted(() => {
+  emitter.off('open-create-article-modal')
+})
 
 const handleOpenCreateArticleModal = () => {
   // 重置表單
@@ -401,7 +294,7 @@ const handleOpenCreateArticleModal = () => {
   selectCategoryId.value = ''
   selectTagsValue.value = []
   articleContent.value = ''
-  
+
   createArticleModalVisible.value = true;
 };
 
@@ -417,7 +310,7 @@ const handleCloseReplyModal = () => {
 };
 
 // 提交回覆
-import {createArticleDataInterface} from "@/interface/createArticleDataInterface";
+import { createArticleDataInterface } from "@/interface/createArticleDataInterface";
 const handleCreateArticle = function (content: string) {
 
   const createArticle: createArticleDataInterface = {
@@ -427,7 +320,7 @@ const handleCreateArticle = function (content: string) {
     tagsId: selectTagsValue.value
   }
 
-  if(!createArticle.title || !createArticle.content || !createArticle.categoryId){
+  if (!createArticle.title || !createArticle.content || !createArticle.categoryId) {
     ElMessage.warning("請填寫完整文章資訊")
     return
   }
@@ -436,14 +329,14 @@ const handleCreateArticle = function (content: string) {
     url: http.adornUrl('/article/save'),
     method: 'post',
     data: http.adornData(createArticle, false)
-  }).then(({data}:{ data: R }) => {
-    console.log("data",data)
-    if(data.code==200){
+  }).then(({ data }: { data: R }) => {
+    console.log("data", data)
+    if (data.code == 200) {
       createArticleModalVisible.value = false;
       ElMessage.success("文章發布成功")
       //刷新頁面
       window.location.reload();
-    }else {
+    } else {
       ElMessage.error("文章發布失敗")
     }
   });
@@ -521,7 +414,7 @@ const handleCreateArticle = function (content: string) {
 //       method: 'get',
 //       params: http.adornParams({routePage: routePage})
 //     }).then(({data}: {data:R<AmsListRecordsListInterface>}) => {
-      
+
 //       if (data.code == "200") {
 //         console.log("根據分類ID與頁碼獲得的分頁資料:", data.data)
 //         articleList.value = data.data.records//要展示的所有文章列表資料
@@ -597,6 +490,7 @@ const handleCreateArticle = function (content: string) {
 // //根據categoryId篩選與分頁/
 
 
+
 /**
  * 響應式
  */
@@ -606,6 +500,7 @@ import { useMediaQuery } from '@vueuse/core';
 
 const isLargeScreen = useMediaQuery('(min-width: 960px)');
 const showMobileMenu = ref(false);
+
 
 
 // const matches = ref(false)
