@@ -29,10 +29,19 @@
         <div v-else class="home-article">
           <div v-for="article in articles" :key="article.articleId" class="article-box">
             <div class="article-title">
-              <el-avatar v-if="article.avatar" :size="40" :src="article.avatar" class="article-avatar" />
-              <el-avatar v-else :size="40" class="article-avatar">
-                {{ article.nickName?.charAt(0) || '?' }}
-              </el-avatar>
+              <router-link v-if="article.userId" :to="{ name: 'UserInformation', params: { userId: article.userId } }"
+                class="avatar-link">
+                <el-avatar v-if="article.avatar" :size="40" :src="article.avatar" class="article-avatar" />
+                <el-avatar v-else :size="40" class="article-avatar">
+                  {{ article.nickName?.charAt(0) || '?' }}
+                </el-avatar>
+              </router-link>
+              <template v-else>
+                <el-avatar v-if="article.avatar" :size="40" :src="article.avatar" class="article-avatar" />
+                <el-avatar v-else :size="40" class="article-avatar">
+                  {{ article.nickName?.charAt(0) || '?' }}
+                </el-avatar>
+              </template>
               <router-link :to="{ name: 'Article', params: { articleId: article.articleId } }">
                 <p v-html="article.safeTitle"></p>
               </router-link>
@@ -108,6 +117,7 @@ interface SearchTag {
 
 interface SearchArticle {
   articleId: string
+  userId?: string
   title: string
   content?: string
   avatar?: string
@@ -266,6 +276,18 @@ watch(keyword, () => {
 
 .article-avatar {
   flex-shrink: 0;
+}
+
+.avatar-link {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.avatar-link:hover {
+  transform: scale(1.1);
+  opacity: 0.85;
 }
 
 .article-title p {
