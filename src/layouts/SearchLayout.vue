@@ -272,7 +272,8 @@ watch(keyword, () => {
 }
 
 .article-box {
-  background-color: #1E2122;
+  /* background-color: #1E2122; */
+  background-color: rgba(255, 255, 255, 0.05);
   width: 100%;
   padding: 0.5rem;
   box-sizing: border-box;
@@ -309,7 +310,7 @@ watch(keyword, () => {
   max-height: 20vh;
   overflow: hidden;
   padding: 0.25rem 1rem 0.25rem 0.25rem;
-  background-color: #1E2122;
+
 
   overflow-wrap: break-word;
   word-break: break-word;
