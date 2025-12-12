@@ -19,6 +19,10 @@
 				</div>
 			</template>
 		</el-autocomplete>
+		<!-- 搜索按鈕：點擊後執行搜索，與按 Enter 效果相同 -->
+		<el-button type="primary" class="search-button" @click="handleSearch" :icon="Search">
+			搜尋
+		</el-button>
 	</div>
 </template>
 
@@ -27,11 +31,16 @@
 	display: flex;
 	align-items: center;
 	width: 100%;
-	max-width: 400px;
+	max-width: 500px;
+	gap: 8px;
 }
 
 .search-input {
-	width: 100%;
+	flex: 1;
+}
+
+.search-button {
+	flex-shrink: 0;
 }
 
 .search-button-item {
