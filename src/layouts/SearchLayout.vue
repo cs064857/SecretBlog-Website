@@ -29,6 +29,10 @@
         <div v-else class="home-article">
           <div v-for="article in articles" :key="article.articleId" class="article-box">
             <div class="article-title">
+              <el-avatar v-if="article.avatar" :size="40" :src="article.avatar" class="article-avatar" />
+              <el-avatar v-else :size="40" class="article-avatar">
+                {{ article.nickName?.charAt(0) || '?' }}
+              </el-avatar>
               <router-link :to="{ name: 'Article', params: { articleId: article.articleId } }">
                 <p v-html="article.safeTitle"></p>
               </router-link>
@@ -40,7 +44,12 @@
 
             <div class="article-info">
               <div class="article-category">
-                {{ article.categoryName }}
+                <router-link v-if="article.categoryId"
+                  :to="{ name: 'HomeArticleList', params: { categoryId: article.categoryId }, query: { page: 1 } }"
+                  class="category-link">
+                  {{ article.categoryName }}
+                </router-link>
+                <span v-else>{{ article.categoryName }}</span>
               </div>
 
               <div class="article-tags">
@@ -101,6 +110,9 @@ interface SearchArticle {
   articleId: string
   title: string
   content?: string
+  avatar?: string
+  nickName?: string
+  categoryId?: string
   categoryName?: string
   amsArtTagList?: SearchTag[]
   createTime?: string
@@ -240,10 +252,20 @@ watch(keyword, () => {
 }
 
 .article-box {
-  background-color: #9a6e3a;
+  background-color: #1E2122;
   width: 100%;
   padding: 0.5rem;
   box-sizing: border-box;
+}
+
+.article-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.article-avatar {
+  flex-shrink: 0;
 }
 
 .article-title p {
@@ -255,7 +277,7 @@ watch(keyword, () => {
   max-height: 20vh;
   overflow: hidden;
   padding: 0.25rem 1rem 0.25rem 0.25rem;
-  background-color: #9a6e3a;
+  background-color: #1E2122;
 
   overflow-wrap: break-word;
   word-break: break-word;
@@ -269,6 +291,20 @@ watch(keyword, () => {
 
 .article-category {
   flex: 1;
+}
+
+.category-link {
+  color: #fff;
+  text-decoration: none;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.2);
+  transition: background-color 0.2s ease;
+}
+
+.category-link:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+  text-decoration: underline;
 }
 
 .article-tags {
@@ -312,4 +348,3 @@ watch(keyword, () => {
   padding: 1rem;
 }
 </style>
-
