@@ -1,6 +1,10 @@
 <template>
   <div class="search-layout">
     <div class="search-header">
+      <!-- 顯示搜尋結果總筆數 -->
+      <div v-if="totalElements > 0" class="search-total-count">
+        共搜尋到 <span class="total-number">{{ totalElements }}</span> 筆資料
+      </div>
       <!-- 搜尋輸入框與高級篩選器 -->
       <SearchResults />
     </div>
@@ -27,10 +31,6 @@
 
         <!-- 狀態 4：正常顯示搜尋結果 -->
         <div v-else class="home-article">
-          <!-- 顯示搜尋結果總筆數 -->
-          <div v-if="totalElements > 0" class="search-total-count">
-            共搜尋到 <span class="total-number">{{ totalElements }}</span> 筆資料
-          </div>
           <div v-for="article in articles" :key="article.articleId" class="article-box">
             <div class="article-title">
               <router-link v-if="article.userId" :to="{ name: 'UserInformation', params: { userId: article.userId } }"
