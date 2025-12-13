@@ -97,7 +97,7 @@ const handleGoInformation = function(){
 .user-summary-container{
     width: 85%;
     height: 100%;
-    background-color: #743824;
+
     display: flex;
     flex-direction: column;
     justify-content: start;
@@ -109,7 +109,7 @@ const handleGoInformation = function(){
     width: 80%;
     height: auto;
     min-height: 100%;
-    background-color: #30cc57;
+
 
     display: flex;
     flex-direction: column;
@@ -129,7 +129,7 @@ const handleGoInformation = function(){
     display: flex;
     flex-direction: row;
     gap: 20px;
-    background-color: #6c1c9b;
+
     padding: 20px;
 }
 

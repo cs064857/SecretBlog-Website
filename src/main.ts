@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-// import './style.css'
+import './style.css'
 import App from './App.vue'
 import zhTw from 'element-plus/es/locale/lang/zh-tw'
 import router from './router'
