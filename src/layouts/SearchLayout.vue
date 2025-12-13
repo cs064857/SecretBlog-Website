@@ -337,7 +337,7 @@ watch(keyword, () => {
 
 .article-box {
   /* background-color: #1E2122; */
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: var(--bg-page);
   width: 100%;
   padding: 0.5rem;
   box-sizing: border-box;

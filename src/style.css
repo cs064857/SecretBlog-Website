@@ -2,6 +2,16 @@
 全域樣式
 */
 
+:root.dark{
+  /* 最底層背景顏色 */
+  --bg-page: #1E2122; 
+  /* 中間層背景顏色 */
+  /* --bg-middle: #1E2122;  */
+  --bg-page1: #0d0d0d;
+
+  
+}
+
 hr {
   opacity: 0.2 !important;
   margin: 0 !important;

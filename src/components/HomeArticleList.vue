@@ -451,7 +451,7 @@ const handleOpenCreateArticleModal = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: var(--bg-page1);
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -528,7 +528,7 @@ hr {
 
 /*文章框樣式 */
 .article-box {
-  background-color: #2c2c2c;
+  background-color: var(--bg-page1);
   width: 100%;
   height: 14vh;
   border-radius: 8px;
