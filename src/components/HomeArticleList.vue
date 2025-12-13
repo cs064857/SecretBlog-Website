@@ -60,7 +60,7 @@ watch(() => route.query.tagsId, (newVal, oldVal) => {
 // 篩選變更處理
 const handleFilterCategoryChange = (val: string) => {
   router.push({
-    name: 'Home',
+    name: 'HomeArticleList',
     params: { categoryId: val },
     query: { ...route.query, page: 1 }
   })
@@ -69,7 +69,7 @@ const handleFilterCategoryChange = (val: string) => {
 const handleFilterTagsChange = (val: string[]) => {
   const tagsIdParam = val.length > 0 ? val.join(',') : undefined
   router.push({
-    name: 'Home',
+    name: 'HomeArticleList',
     params: { ...route.params },
     query: { ...route.query, tagsId: tagsIdParam, page: 1 }
   })
@@ -95,7 +95,7 @@ const handleCurrentPageChange = async function (CurrentPage) {
   try {
     // 阻塞等待路由更新完畢
     await router.push({
-      name: "Home", params: { categoryId: route.params.categoryId }, query: { page: CurrentPage, tagsId: route.query.tagsId }
+      name: "HomeArticleList", params: { categoryId: route.params.categoryId }, query: { page: CurrentPage, tagsId: route.query.tagsId }
     })
     //路由更新完畢後
     const categoryId = route.params.categoryId;
