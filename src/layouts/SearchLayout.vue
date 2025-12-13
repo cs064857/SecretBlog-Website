@@ -6,7 +6,8 @@
         共搜尋到 <span class="total-number">{{ totalElements }}</span> 筆資料
       </div>
       <!-- 搜尋輸入框與高級篩選器 -->
-      <SearchResults @category-change="handleCategoryChange" />
+      <SearchResults @category-change="handleCategoryChange" @time-filter-change="handleTimeFilterChange"
+        @tags-filter-change="handleTagsFilterChange" />
     </div>
 
     <!-- 搜尋結果展示區塊：Scrollbar + Infinite Scroll -->
@@ -156,17 +157,26 @@ const error = ref<string | null>(null)
 const isLast = ref(false)
 const selectedCategoryId = ref<number | null>(null)
 
+// 時間篩選狀態
+const selectedTimeField = ref<string | null>(null)
+const selectedStartTime = ref<string | null>(null)
+const selectedEndTime = ref<string | null>(null)
+
 const infiniteDisabled = computed(() => isLoading.value || isLast.value || !keyword.value)
 
-const resetSearch = (preserveCategory = false) => {
+const resetSearch = (preserveFilters = false) => {
   articles.value = []
   pageNumber.value = 0
   isLast.value = false
   error.value = null
   totalElements.value = 0
-  // 重置分類 ID（除非指定保留）
-  if (!preserveCategory) {
+  // 重置篩選條件（除非指定保留）
+  if (!preserveFilters) {
     selectedCategoryId.value = null
+    selectedTimeField.value = null
+    selectedStartTime.value = null
+    selectedEndTime.value = null
+    selectedTagIds.value = null
   }
 }
 
@@ -186,7 +196,13 @@ const fetchSearch = async () => {
         page: currentPage,
         size: pageSize.value,
         // 如果選擇了分類，則添加 categoryId 參數
-        ...(selectedCategoryId.value && { categoryId: selectedCategoryId.value })
+        ...(selectedCategoryId.value && { categoryId: selectedCategoryId.value }),
+        // 時間篩選參數
+        ...(selectedTimeField.value && { timeField: selectedTimeField.value }),
+        ...(selectedStartTime.value && { startTime: selectedStartTime.value }),
+        ...(selectedEndTime.value && { endTime: selectedEndTime.value }),
+        // 標籤篩選參數（轉換為逗號分隔字串以符合 Spring List<Long> 格式）
+        ...(selectedTagIds.value && selectedTagIds.value.length > 0 && { tagsId: selectedTagIds.value.join(',') })
       })
     }) as { data: R<SearchPageData> }
 
@@ -243,7 +259,40 @@ const handleRetry = () => {
 // 處理分類變更事件
 const handleCategoryChange = (categoryId: number | null) => {
   selectedCategoryId.value = categoryId
-  // 重置搜尋結果但保留分類選擇
+  // 重置搜尋結果但保留篩選選擇
+  resetSearch(true)
+  fetchSearch()
+}
+
+// 時間篩選資料介面
+interface TimeFilterData {
+  timeField: string | null
+  startTime: string | null
+  endTime: string | null
+}
+
+// 處理時間篩選變更事件
+const handleTimeFilterChange = (filter: TimeFilterData) => {
+  selectedTimeField.value = filter.timeField
+  selectedStartTime.value = filter.startTime
+  selectedEndTime.value = filter.endTime
+  // 重置搜尋結果但保留篩選選擇
+  resetSearch(true)
+  fetchSearch()
+}
+
+// 標籤篩選資料介面
+interface TagsFilterData {
+  tagsId: number[] | null
+}
+
+// 標籤篩選狀態
+const selectedTagIds = ref<number[] | null>(null)
+
+// 處理標籤篩選變更事件
+const handleTagsFilterChange = (filter: TagsFilterData) => {
+  selectedTagIds.value = filter.tagsId
+  // 重置搜尋結果但保留篩選選擇
   resetSearch(true)
   fetchSearch()
 }

@@ -56,6 +56,32 @@
                     </transition>
                 </div>
             </div>
+
+            <!-- 時間篩選 -->
+            <div class="filter-row time-filter-row">
+                <div class="filter-label">時間</div>
+                <div class="time-filter-controls">
+                    <el-select v-model="currentTimeField" placeholder="選擇時間類型" class="time-field-select" size="small"
+                        clearable @change="handleTimeFilterChange">
+                        <el-option label="建立時間" value="createTime" />
+                        <el-option label="更新時間" value="updateTime" />
+                    </el-select>
+                    <el-date-picker v-model="dateRange" type="daterange" range-separator="至" start-placeholder="開始日期"
+                        end-placeholder="結束日期" size="small" class="time-range-picker" :disabled="!currentTimeField"
+                        @change="handleTimeFilterChange" />
+                </div>
+            </div>
+
+            <!-- 標籤篩選 -->
+            <div class="filter-row tags-filter-row">
+                <div class="filter-label">標籤</div>
+                <div class="tags-filter-controls">
+                    <el-select v-model="selectedTagIds" multiple collapse-tags collapse-tags-tooltip placeholder="選擇標籤"
+                        class="tags-select" size="small" clearable @change="handleTagsFilterChange">
+                        <el-option v-for="tag in tagsList" :key="tag.id" :label="tag.name" :value="tag.id" />
+                    </el-select>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -66,10 +92,32 @@ import { CaretRight, CaretBottom, Search } from '@element-plus/icons-vue'
 import { useTreeCategoryStore } from '@/pinia/useTreeCategoryStore'
 import { TreeCategoryNode } from '@/interface/treeCategoryInterface'
 import { useRoute } from 'vue-router'
+import http from '@/utils/httpRequest'
+import type { R } from '@/interface/R'
+
+// 時間篩選資料介面
+interface TimeFilterData {
+    timeField: string | null
+    startTime: string | null
+    endTime: string | null
+}
+
+// 標籤篩選資料介面
+interface TagsFilterData {
+    tagsId: number[] | null
+}
+
+// 標籤項目介面
+interface TagItem {
+    id: number
+    name: string
+}
 
 // 定義 emit 事件
 const emit = defineEmits<{
     (e: 'category-change', categoryId: number | null): void
+    (e: 'time-filter-change', filter: TimeFilterData): void
+    (e: 'tags-filter-change', filter: TagsFilterData): void
 }>()
 
 const route = useRoute()
@@ -80,6 +128,14 @@ const isDropdownOpen = ref(false)
 const searchKeyword = ref('')
 const dropdownRef = ref<HTMLElement | null>(null)
 const searchInputRef = ref<HTMLInputElement | null>(null)
+
+// 時間篩選狀態
+const currentTimeField = ref<string | null>(null)
+const dateRange = ref<[Date, Date] | null>(null)
+
+// 標籤篩選狀態
+const tagsList = ref<TagItem[]>([])
+const selectedTagIds = ref<number[]>([])
 
 const toggleExpand = () => {
     isExpanded.value = !isExpanded.value
@@ -104,6 +160,8 @@ const closeDropdown = (e: MouseEvent) => {
 onMounted(() => {
     document.addEventListener('click', closeDropdown)
     store.fetchTreeData()
+    // 獲取標籤清單
+    fetchTagsList()
 })
 
 onUnmounted(() => {
@@ -159,6 +217,57 @@ const handleSelectCategory = (item: FlattenedCategory | null) => {
     emit('category-change', item ? item.id : null)
 }
 
+// 日期格式化工具函數
+const formatDateToISO = (date: Date): string => {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}T00:00:00`
+}
+
+const formatDateToISOEnd = (date: Date): string => {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}T23:59:59`
+}
+
+// 處理時間篩選變更
+const handleTimeFilterChange = () => {
+    let startTime: string | null = null
+    let endTime: string | null = null
+
+    if (dateRange.value && dateRange.value.length === 2) {
+        startTime = formatDateToISO(dateRange.value[0])
+        endTime = formatDateToISOEnd(dateRange.value[1])
+    }
+
+    emit('time-filter-change', {
+        timeField: currentTimeField.value,
+        startTime,
+        endTime
+    })
+}
+
+// 獲取標籤清單
+const fetchTagsList = () => {
+    http({
+        url: http.adornUrl('/article/tags/list'),
+        method: 'get',
+    }).then(({ data }: { data: R }) => {
+        if (data.code === '200' || data.code === 200) {
+            tagsList.value = data.data
+        }
+    })
+}
+
+// 處理標籤篩選變更
+const handleTagsFilterChange = () => {
+    emit('tags-filter-change', {
+        tagsId: selectedTagIds.value.length > 0 ? selectedTagIds.value : null
+    })
+}
+
 // Watch route to close dropdown if needed
 watch(route, () => {
     isDropdownOpen.value = false
@@ -210,6 +319,43 @@ watch(route, () => {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+}
+
+/* 時間篩選行樣式 */
+.time-filter-row {
+    margin-top: 1rem;
+}
+
+.time-filter-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.time-field-select {
+    width: 130px;
+}
+
+.time-range-picker {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* 標籤篩選行樣式 */
+.tags-filter-row {
+    margin-top: 1rem;
+}
+
+.tags-filter-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.tags-select {
+    width: 100%;
+    max-width: 300px;
 }
 
 .filter-label {
