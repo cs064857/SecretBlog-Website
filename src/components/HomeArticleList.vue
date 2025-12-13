@@ -395,32 +395,30 @@ const handleOpenCreateArticleModal = () => {
 </template>
 
 <style scoped>
-
-
 /*
 文章標籤樣式
 */
 .article-tag {
-  background-color: #549122;
-
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  color: #e0e0e0;
 }
 
 .article-tags {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   gap: 10px;
-  background-color: bisque;
   flex: 4.5;
-
   min-width: 0;
-
   overflow: hidden;
-
   padding: 0.5rem;
   box-sizing: border-box;
   height: 100%;
 }
+
 /*
  文章指標標籤樣式 
 */
@@ -428,16 +426,13 @@ const handleOpenCreateArticleModal = () => {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  background-color: #881d1d;
   flex: 4.5;
-
   min-width: 0;
-
-
   overflow: hidden;
-
   padding: 0.5rem;
   box-sizing: border-box;
+  color: #a0a0a0;
+  font-size: 0.9em;
 }
 
 .article-metrics-label {
@@ -453,25 +448,18 @@ const handleOpenCreateArticleModal = () => {
 
 /*文章分類標籤樣式 */
 .article-category {
-  /* display: flex;
-  flex-direction: row;
-  align-items: center; */
-
-  /* 將這個 div 變成 flex 容器 */
   display: flex;
-
-
   justify-content: center;
-
-
   align-items: center;
-  background-color: #1d5888;
+  background-color: rgba(255, 255, 255, 0.05);
   flex: 1;
   min-width: 0;
   overflow: hidden;
   padding: 0.5rem;
   box-sizing: border-box;
   height: 100%;
+  color: #fff;
+  font-weight: bold;
 }
 
 .article-category-categoryname {
@@ -479,22 +467,20 @@ const handleOpenCreateArticleModal = () => {
   width: 50%;
 
 }
+
 /* 文章標題樣式 */
 .article-title p[data-v-7a0f854b] {
   font-size: 22px;
   font-weight: bold;
-
-
-  /* 由左至右依序嘗試使用字體，最後使用系統預設的無襯線字體 */
-  /* font-family: 'Microsoft JhengHei', 'PingFang TC', 'STHeiti', 'Noto Sans TC', ; */
-  /* font-family: 'Source Han Sans'; */
-
+  color: #ffffff;
+  margin: 0;
 }
+
 /* 文章標題超連結樣式 */
 .article-title a {
   text-decoration: none;
+  color: inherit;
   /* 移除超連結底線 */
-
 }
 
 /* .article-info-1{
@@ -515,23 +501,22 @@ hr {
 
 /* 文章資訊樣式 */
 .article-info {
-  background-color: #549122;
   width: 100%;
   height: 40%;
   display: flex;
   flex-direction: row;
   justify-content: center;
-
-
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
+
 /* 文章標題樣式 */
 .article-title {
-  background-color: #5c390e;
   display: flex;
-
   align-items: center;
   width: 100%;
   height: 60%;
+  padding: 0 1rem;
+  box-sizing: border-box;
 }
 
 /* 文章作者頭像樣式 */
@@ -543,10 +528,13 @@ hr {
 
 /*文章框樣式 */
 .article-box {
-
-  background-color: #9a6e3a;
+  background-color: #2c2c2c;
   width: 100%;
-  height: 12vh;
+  height: 14vh;
+  border-radius: 8px;
+  overflow: hidden;
+
+
 }
 
 .home-article {
@@ -556,6 +544,7 @@ hr {
   /* 間距 */
 
 }
+
 /*文章標題樣式 */
 .article-title p {
   max-height: 20%;
@@ -594,7 +583,6 @@ hr {
   min-height: 20vh;
 
   padding: 0 0 18px 10px;
-  background-color: #9a6e3a;
   width: 100%;
 
   /*border-radius: 0 0 0 0;*/
@@ -603,6 +591,7 @@ hr {
 
   text-wrap: wrap;
 }
+
 /*文章標籤樣式 */
 .home-article-footer {
   grid-column: 1 / -1;
@@ -610,9 +599,9 @@ hr {
   display: flex;
   justify-content: center;
   align-self: center;
-  background-color: darkred;
   width: 100%;
   height: 5vh;
+  margin-top: 2rem;
 }
 
 /*
@@ -654,7 +643,7 @@ hr {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #1d3a4d;
+  background-color: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
   padding: 0.5rem;
 }
@@ -664,7 +653,7 @@ hr {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: #3d3020;
+  background-color: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
   padding: 0.5rem;
 }
@@ -673,7 +662,7 @@ hr {
   flex: 4.5;
   display: flex;
   align-items: center;
-  background-color: #3d2020;
+  background-color: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
   padding: 0.5rem;
 }
