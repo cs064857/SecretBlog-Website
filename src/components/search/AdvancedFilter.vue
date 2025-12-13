@@ -65,10 +65,14 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { CaretRight, CaretBottom, Search } from '@element-plus/icons-vue'
 import { useTreeCategoryStore } from '@/pinia/useTreeCategoryStore'
 import { TreeCategoryNode } from '@/interface/treeCategoryInterface'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
+
+// 定義 emit 事件
+const emit = defineEmits<{
+    (e: 'category-change', categoryId: number | null): void
+}>()
 
 const route = useRoute()
-const router = useRouter()
 const store = useTreeCategoryStore()
 
 const isExpanded = ref(false)
@@ -135,10 +139,8 @@ const filteredCategories = computed(() => {
     )
 })
 
-const currentCategoryId = computed(() => {
-    const id = route.params.categoryId
-    return id ? Number(id) : null
-})
+// 使用本地狀態追蹤選中的分類 ID
+const currentCategoryId = ref<number | null>(null)
 
 const selectedCategoryLabel = computed(() => {
     if (!currentCategoryId.value) return '所有類別'
@@ -151,36 +153,10 @@ const selectedCategoryLabel = computed(() => {
 
 const handleSelectCategory = (item: FlattenedCategory | null) => {
     isDropdownOpen.value = false
-    if (item) {
-        // Navigate to category filter
-        // Assuming the route is HomeArticleList for now, or updating current search context
-        // The user requirement said: clicking category should update context.
-        // Let's use router push similarly to how it's done elsewhere.
-        // If we are in SearchLayout, maybe we want to filter search results by category?
-        // The requirement mentions 'Home/{categoryId}' in one of the past conversations, but here we are in SearchLayout.
-        // Let's assume for search layout we might want to just navigate to the category page OR filter current search.
-        // Given the UI is "Advanced Filter" inside SearchLayout, it implies filtering the *search results*.
-        // However, if the API supports categoryId in search, we should use that.
-        // Looking at SearchLayout.vue fetchSearch: params: { keyword, page, size }
-        // It does NOT seem to support categoryId yet. 
-        // BUT the prompt is "Replicate UI", not "Implement backend filtering".
-        // I will mock the action or just navigate to category page as a safe bet for "navigation".
-        // Wait, recent history: "Clickable Search Result Category ... navigate to /Home/{categoryId}"
-        // So usually categories navigate to Home.
-        // But this is an "Advanced Filter" *inside* Search. 
-        // IF I just navigate away, it's not a filter for the search, it's a navigation.
-        // I'll implement it as navigation for now, or emit an event if I could.
-        // Let's stick to navigation to HomeArticleList for now as it's the standard behavior for categories in this app.
-
-        router.push({
-            name: 'HomeArticleList',
-            params: { categoryId: item.id },
-            query: { page: 1 }
-        })
-    } else {
-        // Select "All" -> maybe go to Home?
-        router.push({ name: 'Home' })
-    }
+    // 更新本地選中狀態
+    currentCategoryId.value = item ? item.id : null
+    // 向父組件發送分類變更事件，傳遞分類 ID（如果是「所有類別」則傳遞 null）
+    emit('category-change', item ? item.id : null)
 }
 
 // Watch route to close dropdown if needed

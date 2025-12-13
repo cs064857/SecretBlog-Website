@@ -6,7 +6,7 @@
         共搜尋到 <span class="total-number">{{ totalElements }}</span> 筆資料
       </div>
       <!-- 搜尋輸入框與高級篩選器 -->
-      <SearchResults />
+      <SearchResults @category-change="handleCategoryChange" />
     </div>
 
     <!-- 搜尋結果展示區塊：Scrollbar + Infinite Scroll -->
@@ -154,15 +154,20 @@ const isLoading = ref(false)
 const totalElements = ref(0)
 const error = ref<string | null>(null)
 const isLast = ref(false)
+const selectedCategoryId = ref<number | null>(null)
 
 const infiniteDisabled = computed(() => isLoading.value || isLast.value || !keyword.value)
 
-const resetSearch = () => {
+const resetSearch = (preserveCategory = false) => {
   articles.value = []
   pageNumber.value = 0
   isLast.value = false
   error.value = null
   totalElements.value = 0
+  // 重置分類 ID（除非指定保留）
+  if (!preserveCategory) {
+    selectedCategoryId.value = null
+  }
 }
 
 const fetchSearch = async () => {
@@ -179,7 +184,9 @@ const fetchSearch = async () => {
       params: http.adornParams({
         keyword: keyword.value,
         page: currentPage,
-        size: pageSize.value
+        size: pageSize.value,
+        // 如果選擇了分類，則添加 categoryId 參數
+        ...(selectedCategoryId.value && { categoryId: selectedCategoryId.value })
       })
     }) as { data: R<SearchPageData> }
 
@@ -230,6 +237,14 @@ const loadMore = (direction: ScrollbarDirection) => {
 
 const handleRetry = () => {
   resetSearch()
+  fetchSearch()
+}
+
+// 處理分類變更事件
+const handleCategoryChange = (categoryId: number | null) => {
+  selectedCategoryId.value = categoryId
+  // 重置搜尋結果但保留分類選擇
+  resetSearch(true)
   fetchSearch()
 }
 
