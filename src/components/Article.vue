@@ -287,7 +287,7 @@
             <div class="create-article-meta">
               <div class="create-article-category">
                 <span class="create-article-title-text">分類</span>
-                <el-tree-select v-model="selectCategoryId" :data="treeCategory" @change="handleCategoryChange"
+                <el-tree-select v-model="selectCategoryId" :data="treeCategory || []" @change="handleCategoryChange"
                   :render-after-expand="false"
                   style="max-width: 20vh;min-width: 20vh;margin: 2% 2% 2% 0.2%;padding-top: 1%;" value-key="id" />
               </div>
@@ -819,7 +819,7 @@ interface tagsSelectData {
   id: string,
 }
 
-const tagsSelectData = ref<tagsSelectData[]>()
+const tagsSelectData = ref<tagsSelectData[]>([])
 
 // tagsSelectData.value=[
 //   {
@@ -1142,7 +1142,7 @@ const handleScroll = () => {
 }
 
 // 在組件掛載後保存 Box4 的初始樣式
-let anchorObserver: MutationObserver;
+let anchorObserver: MutationObserver | null = null;
 
 let initialStyles = {
   position: '',
@@ -1172,8 +1172,9 @@ onMounted(() => {
             scrollContainer.value.addEventListener('scroll', handleScroll);
           }
 
-          if (initialStyles) {
+          if (anchorObserver) {
             anchorObserver.disconnect();
+            anchorObserver = null;
           }
         }
       });
@@ -1191,7 +1192,10 @@ onMounted(() => {
 
 });
 onUnmounted(() => {
-  anchorObserver.disconnect()
+  if (anchorObserver) {
+    anchorObserver.disconnect()
+    anchorObserver = null
+  }
 })
 
 onUnmounted(() => {// 在組件卸載後移除滾動事件監聽器
