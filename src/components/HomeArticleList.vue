@@ -296,6 +296,8 @@ const handleOpenCreateArticleModal = () => {
 
         <div v-for="article in articleList" :key="article.articleId" class="article-box">
           <div class="article-title">
+            <!-- 作者頭像 -->
+            <el-avatar class="article-author-avatar" :size="36" :src="article.avatar" />
             <router-link :to="{ name: 'Article', params: { articleId: article.articleId } }">
               <p>{{ article.title }}</p>
             </router-link>
@@ -393,12 +395,11 @@ const handleOpenCreateArticleModal = () => {
 </template>
 
 <style scoped>
-.article-category-categoryname {
-  text-align: center;
-  width: 50%;
 
-}
 
+/*
+文章標籤樣式
+*/
 .article-tag {
   background-color: #549122;
 
@@ -420,7 +421,9 @@ const handleOpenCreateArticleModal = () => {
   box-sizing: border-box;
   height: 100%;
 }
-
+/*
+ 文章指標標籤樣式 
+*/
 .article-metrics {
   display: flex;
   flex-direction: row;
@@ -437,6 +440,18 @@ const handleOpenCreateArticleModal = () => {
   box-sizing: border-box;
 }
 
+.article-metrics-label {
+  text-align: center;
+  width: 20%;
+}
+
+.article-metrics-value {
+  text-align: center;
+
+  width: 20%;
+}
+
+/*文章分類標籤樣式 */
 .article-category {
   /* display: flex;
   flex-direction: row;
@@ -459,17 +474,12 @@ const handleOpenCreateArticleModal = () => {
   height: 100%;
 }
 
-.article-metrics-label {
+.article-category-categoryname {
   text-align: center;
-  width: 20%;
+  width: 50%;
+
 }
-
-.article-metrics-value {
-  text-align: center;
-
-  width: 20%;
-}
-
+/* 文章標題樣式 */
 .article-title p[data-v-7a0f854b] {
   font-size: 22px;
   font-weight: bold;
@@ -480,7 +490,7 @@ const handleOpenCreateArticleModal = () => {
   /* font-family: 'Source Han Sans'; */
 
 }
-
+/* 文章標題超連結樣式 */
 .article-title a {
   text-decoration: none;
   /* 移除超連結底線 */
@@ -492,6 +502,8 @@ const handleOpenCreateArticleModal = () => {
   width: 100%;
   height: 10px;
 } */
+
+/* 水平分隔線樣式 */
 hr {
   background-color: #ffffff;
   opacity: 0.5;
@@ -501,6 +513,7 @@ hr {
   top: 1.5vh;
 }
 
+/* 文章資訊樣式 */
 .article-info {
   background-color: #549122;
   width: 100%;
@@ -511,7 +524,7 @@ hr {
 
 
 }
-
+/* 文章標題樣式 */
 .article-title {
   background-color: #5c390e;
   display: flex;
@@ -521,6 +534,14 @@ hr {
   height: 60%;
 }
 
+/* 文章作者頭像樣式 */
+.article-author-avatar {
+  margin-right: 0.75rem;
+  margin-left: 0.75rem;
+
+}
+
+/*文章框樣式 */
 .article-box {
 
   background-color: #9a6e3a;
@@ -535,7 +556,7 @@ hr {
   /* 間距 */
 
 }
-
+/*文章標題樣式 */
 .article-title p {
   max-height: 20%;
   min-height: 20%;
@@ -566,6 +587,7 @@ hr {
   /*position: relative; !* 設置相對定位 *!*/
 }
 
+/*文章內容樣式 */
 .article-content {
   /*height: 70vh;*/
   max-height: 20vh;
@@ -581,7 +603,7 @@ hr {
 
   text-wrap: wrap;
 }
-
+/*文章標籤樣式 */
 .home-article-footer {
   grid-column: 1 / -1;
   /* 橫跨整個行 */
@@ -593,9 +615,9 @@ hr {
   height: 5vh;
 }
 
-/* ============================================
-   骨架屏樣式 (Skeleton Loading Styles)
-   ============================================ */
+/*
+骨架屏樣式
+ */
 
 .skeleton-container {
   display: flex;
@@ -656,9 +678,9 @@ hr {
   padding: 0.5rem;
 }
 
-/* ============================================
-   錯誤狀態樣式 (Error State Styles)
-   ============================================ */
+/*
+錯誤狀態樣式
+*/
 
 .error-state {
   display: flex;
@@ -699,9 +721,9 @@ hr {
   text-align: center;
 }
 
-/* ============================================
-   空狀態樣式 (Empty State Styles)
-   ============================================ */
+/*
+空狀態樣式 (Empty State Styles)
+*/
 
 .empty-state {
   display: flex;
