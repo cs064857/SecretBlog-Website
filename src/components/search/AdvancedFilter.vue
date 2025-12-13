@@ -61,13 +61,13 @@
             <div class="filter-row time-filter-row">
                 <div class="filter-label">時間</div>
                 <div class="time-filter-controls">
-                    <el-select v-model="currentTimeField" placeholder="選擇時間類型" class="time-field-select" size="small"
+                    <el-select v-model="currentTimeField" placeholder="選擇時間類型" class="time-field-select" size="large"
                         clearable @change="handleTimeFilterChange">
                         <el-option label="建立時間" value="createTime" />
                         <el-option label="更新時間" value="updateTime" />
                     </el-select>
                     <el-date-picker v-model="dateRange" type="daterange" range-separator="至" start-placeholder="開始日期"
-                        end-placeholder="結束日期" size="small" class="time-range-picker" :disabled="!currentTimeField"
+                        end-placeholder="結束日期" size="large" class="time-range-picker" :disabled="!currentTimeField"
                         @change="handleTimeFilterChange" />
                 </div>
             </div>
@@ -77,10 +77,21 @@
                 <div class="filter-label">標籤</div>
                 <div class="tags-filter-controls">
                     <el-select v-model="selectedTagIds" multiple collapse-tags collapse-tags-tooltip placeholder="選擇標籤"
-                        class="tags-select" size="small" clearable @change="handleTagsFilterChange">
+                        class="tags-select" size="large" clearable @change="handleTagsFilterChange">
                         <el-option v-for="tag in tagsList" :key="tag.id" :label="tag.name" :value="tag.id" />
                     </el-select>
                 </div>
+            </div>
+
+            <!-- 清除篩選按鈕 -->
+            <div class="filter-row reset-filter-row">
+                <el-button type="primary" class="reset-filter-btn" :disabled="!hasActiveFilters"
+                    @click="resetAllFilters">
+                    <el-icon class="reset-icon">
+                        <RefreshLeft />
+                    </el-icon>
+                    清除所有篩選
+                </el-button>
             </div>
         </div>
     </div>
@@ -88,7 +99,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { CaretRight, CaretBottom, Search } from '@element-plus/icons-vue'
+import { CaretRight, CaretBottom, Search, RefreshLeft } from '@element-plus/icons-vue'
 import { useTreeCategoryStore } from '@/pinia/useTreeCategoryStore'
 import { TreeCategoryNode } from '@/interface/treeCategoryInterface'
 import { useRoute } from 'vue-router'
@@ -268,6 +279,42 @@ const handleTagsFilterChange = () => {
     })
 }
 
+// 檢查是否有任何篩選器處於啟用狀態
+const hasActiveFilters = computed(() => {
+    return currentCategoryId.value !== null ||
+        currentTimeField.value !== null ||
+        dateRange.value !== null ||
+        selectedTagIds.value.length > 0
+})
+
+// 重置所有篩選器到預設狀態
+const resetAllFilters = () => {
+    // 重置分類
+    if (currentCategoryId.value !== null) {
+        currentCategoryId.value = null
+        emit('category-change', null)
+    }
+
+    // 重置時間篩選
+    if (currentTimeField.value !== null || dateRange.value !== null) {
+        currentTimeField.value = null
+        dateRange.value = null
+        emit('time-filter-change', {
+            timeField: null,
+            startTime: null,
+            endTime: null
+        })
+    }
+
+    // 重置標籤
+    if (selectedTagIds.value.length > 0) {
+        selectedTagIds.value = []
+        emit('tags-filter-change', {
+            tagsId: null
+        })
+    }
+}
+
 // Watch route to close dropdown if needed
 watch(route, () => {
     isDropdownOpen.value = false
@@ -278,7 +325,6 @@ watch(route, () => {
 <style scoped>
 .advanced-filter {
     width: 100%;
-    max-width: 400px;
     color: #cfd3dc;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     user-select: none;
@@ -312,7 +358,9 @@ watch(route, () => {
 .filter-body {
     margin-top: 0.5rem;
     padding-left: 4px;
-    /* Align slightly */
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
 }
 
 .filter-row {
@@ -323,7 +371,7 @@ watch(route, () => {
 
 /* 時間篩選行樣式 */
 .time-filter-row {
-    margin-top: 1rem;
+    margin-top: 0;
 }
 
 .time-filter-controls {
@@ -344,7 +392,7 @@ watch(route, () => {
 
 /* 標籤篩選行樣式 */
 .tags-filter-row {
-    margin-top: 1rem;
+    margin-top: 0;
 }
 
 .tags-filter-controls {
@@ -355,7 +403,14 @@ watch(route, () => {
 
 .tags-select {
     width: 100%;
-    max-width: 300px;
+}
+
+/* 清除篩選按鈕區塊 - 佔滿兩欄 */
+.reset-filter-row {
+    grid-column: 1 / -1;
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #363637;
 }
 
 .filter-label {
@@ -529,5 +584,17 @@ watch(route, () => {
     text-align: center;
     color: #606266;
     font-size: 13px;
+}
+
+/* 清除篩選按鈕樣式 */
+.reset-filter-btn {
+    width: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.reset-icon {
+    font-size: 14px;
 }
 </style>
