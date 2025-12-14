@@ -344,7 +344,7 @@ const dataSource = ref<Tree[]>([]);
 .AdminVue-TreeCategories {
   display: flex;
   justify-content: space-between;
-  background-color: #d7e6c8;
+  background-color: var(--bg-hex-d7e6c8);
   width: 100%;
   height: 100%;
 }

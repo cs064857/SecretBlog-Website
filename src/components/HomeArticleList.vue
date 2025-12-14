@@ -399,7 +399,7 @@ const handleOpenCreateArticleModal = () => {
 文章標籤樣式
 */
 .article-tag {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--bg-rgba-255-255-255-0p1);
   padding: 4px 12px;
   border-radius: 12px;
   font-size: 0.85em;
@@ -491,7 +491,7 @@ const handleOpenCreateArticleModal = () => {
 
 /* 水平分隔線樣式 */
 hr {
-  background-color: #ffffff;
+  background-color: var(--bg-hex-ffffff);
   opacity: 0.5;
   /* 0.3 代表 30% 的不透明度 */
   width: 100%;
@@ -506,6 +506,7 @@ hr {
   display: flex;
   flex-direction: row;
   justify-content: center;
+
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -616,7 +617,7 @@ hr {
 }
 
 .skeleton-article-box {
-  background-color: #2a2d2f;
+  background-color: var(--bg-hex-2a2d2f);
   border-radius: 8px;
   padding: 1rem;
   height: 12vh;
@@ -643,7 +644,7 @@ hr {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: var(--bg-rgba-255-255-255-0p05);
   border-radius: 4px;
   padding: 0.5rem;
 }
@@ -653,7 +654,7 @@ hr {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: var(--bg-rgba-255-255-255-0p05);
   border-radius: 4px;
   padding: 0.5rem;
 }
@@ -662,7 +663,7 @@ hr {
   flex: 4.5;
   display: flex;
   align-items: center;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: var(--bg-rgba-255-255-255-0p05);
   border-radius: 4px;
   padding: 0.5rem;
 }

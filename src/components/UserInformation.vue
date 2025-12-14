@@ -295,7 +295,7 @@ const handleConfirmEditGender = function () {
     width: 100%;
     min-height: 100vh;
 
-    background-color: #202020;
+    background-color: var(--bg-hex-202020);
 
     color: #ffffff;
     padding: 0 40px;

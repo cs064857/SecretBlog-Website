@@ -136,11 +136,12 @@ onMounted(() => {
   align-items: center;
   width: 100%;
   height: 4.785rem;
-  background-color: rgba(255, 255, 255, 0.95);
+  background-color: var(--bg-rgba-255-255-255-0p95);
   gap: 1rem;
   position: relative;
   z-index: 1000;
   padding: 0 2vw;
+
 }
 
 /* Logo 容器 - 固定在最左邊 */
@@ -178,6 +179,6 @@ onMounted(() => {
 
 /* Dark 模式樣式 */
 .dark .home-header-navigation {
-  background-color: rgba(35, 38, 40, 0.8);
+  background-color: var(--bg-rgba-35-38-40-0p8);
 }
 </style>

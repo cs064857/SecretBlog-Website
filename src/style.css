@@ -3,14 +3,93 @@
 */
 
 :root.dark{
-  /* 最底層背景顏色 */
-  --bg-page: #1E2122; 
-  /* 中間層背景顏色 */
-  /* --bg-middle: #1E2122;  */
-  --bg-page1: #0d0d0d;
 
+  background-color: var(--bg-page);
+  --bg-page: #0d0d0d;
+  --bg-page1: #1e2122;
+  --bg-page2: #232628cc;
+  --header-border-bottom: rgba(139, 137, 137, 0.5);
+  /* --bg-page: #1e2122;
+  --bg-page1: #0d0d0d;
+  --bg-page2: #232628cc; */
+
+
+  --bg-hex-2c3e50: #2c3e50;
+  --bg-hex-194279: #194279;
+  --bg-hex-812781: #812781;
+  --bg-hex-202020: var(--bg-page1);
+  --bg-hex-1a1514: var(--bg-page);
+  --bg-hex-033f03: var(--bg-page1);
+  --bg-hex-b97610: #b97610;
+  --bg-hex-ffffff: #ffffff;
+  --bg-hex-2a2d2f: #2a2d2f;
+  --bg-hex-d7e6c8: #d7e6c8;
+  --bg-hex-88c847: #88c847;
+  --bg-hex-1a1d1d: #1a1d1d;
+  --bg-hex-395c5c: #395c5c;
+  --bg-hex-0d9393: #0d9393;
+  --bg-hex-98710e: #98710e;
+  --bg-hex-213547: #213547;
+  --bg-hex-81156a: #81156a;
+  --bg-hex-03638f: #03638f;
+  --bg-hex-0c038f: #0c038f;
+  --bg-hex-332f6b: #332f6b;
+  --bg-hex-324222: #324222;
+  --bg-hex-d57656: #d57656;
+  --bg-hex-34495e: #34495e;
+  --bg-hex-e74c3c: #e74c3c;
+  --bg-hex-c0392b: #c0392b;
+  --bg-hex-b7f7f7: #b7f7f7;
+  --bg-hex-aad7f7: #aad7f7;
+  --bg-hex-2d2d2d: #2d2d2d;
+  --bg-hex-1d1e1f: #1d1e1f;
+  --bg-hex-2b2d30: #2b2d30;
+  --bg-hex-00aaff: #00aaff;
+  --bg-hex-111111e7: #111111e7;
+  --bg-hex-111111: #111111;
+  --bg-hex-121212: #121212;
+  --bg-hex-1f1f1f: #1f1f1f;
+  --bg-hex-38866c: #38866c;
+  --bg-hex-da6969e7: #da6969e7;
+  --bg-hex-5a3636: #5a3636;
+  --bg-hex-181a1b: #181a1b;
+  --bg-hex-282b2d: #282b2d;
+  --bg-hex-549122: #549122;
+
+  /* 側邊分類導航列 */
+  --bg-rgb-42-45-47: var(--bg-page1);
   
+  --bg-rgb-34-33-33: rgb(34, 33, 33);
+
+  --bg-rgba-255-255-255-0p05: rgba(255, 255, 255, 0.05);
+  --bg-rgba-255-255-255-0p1: rgba(255, 255, 255, 0.1);
+  --bg-rgba-255-255-255-0p15: rgba(255, 255, 255, 0.15);
+  --bg-rgba-255-255-255-0p2: rgba(255, 255, 255, 0.2);
+  --bg-rgba-255-255-255-0p95: rgba(255, 255, 255, 0.95);
+  
+  /* 所有頁面的Header(包含Logo、登入等按鈕) */
+  --bg-rgba-35-38-40-0p8: var(--bg-page2);
+  
+  --bg-rgba-35-38-40-0p95: rgba(35, 38, 40, 0.95);
+  --bg-rgba-64-158-255-0p1: rgba(64, 158, 255, 0.1);
+  --bg-rgba-255-99-71-0p3: rgba(255, 99, 71, 0.3);
+  --bg-rgba-255-215-0-0p3: rgba(255, 215, 0, 0.3);
+  --bg-rgba-0-0-0-0p2: rgba(0, 0, 0, 0.2);
+  --bg-rgba-0-0-0-0p3: rgba(0, 0, 0, 0.3);
+  --bg-rgba-0-0-0-0p4: rgba(0, 0, 0, 0.4);
+
+  --bg-name-darkgray: darkgray;
+  --bg-name-darkgrey: darkgrey;
+  --bg-name-bisque: bisque;
+  --bg-name-darkslateblue: darkslateblue;
+  --bg-name-darkgreen: darkgreen;
+  --bg-name-darkslategray: darkslategray;
+  --bg-name-darksalmon: darksalmon;
+  --bg-name-darkmagenta: darkmagenta;
+  --bg-name-darkblue: darkblue;
 }
+
+
 
 hr {
   opacity: 0.2 !important;
@@ -18,7 +97,6 @@ hr {
   border: none !important;
   border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
-
 
 
 

@@ -14,7 +14,8 @@
 
                 <div class="user-summary-main-content-likes">
 
-                    <h2>likes列表</h2>
+                    
+                    <div class="likes-title"><h2>likes列表</h2></div>
 
                     <div v-if="likedArticles.length === 0" class="empty-message">
                         <p>目前沒有點讚的文章</p>
@@ -191,6 +192,8 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
     min-height: 100%;
+    width: 100%;
+
 }
 
 /* 第一層 */
@@ -214,18 +217,36 @@ onMounted(() => {
     max-height: 800px;
     padding: 20px;
     border-radius: 8px;
-    background-color: #2c3e50;
+    /* background-color: var(--bg-hex-2c3e50); */
     margin-bottom: 100px;
+
+}
+
+/* .user-summary-main-content-likes::-webkit-scrollbar,
+.user-summary-main-content-bookmarks::-webkit-scrollbar,
+.user-summary-main-content-comments::-webkit-scrollbar {
+    width: 4px;
+}
+
+.user-summary-main-content-likes::-webkit-scrollbar-thumb,
+.user-summary-main-content-bookmarks::-webkit-scrollbar-thumb,
+.user-summary-main-content-comments::-webkit-scrollbar-thumb {
+    background-color: #c2bebe;
+    border-radius: 2px;
+} */
+
+.article-list {
+    max-height: 400px;
     overflow-y: scroll;
     overflow-x: hidden;
 }
 
 .user-summary-main-content-likes {
-    background-color: #194279;
+    /* background-color: var(--bg-hex-194279); */
 }
 
 .user-summary-main-content-bookmarks {
-    background-color: #812781;
+    /* background-color: var(--bg-hex-812781); */
 }
 
 
@@ -236,18 +257,17 @@ onMounted(() => {
 }
 
 .article-item {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--bg-rgba-255-255-255-0p1);
     padding: 15px;
     border-radius: 6px;
     border-left: 3px solid rgba(255, 255, 255, 0.3);
-    transition: all 0.3s ease;
 
 }
 
 .article-item:hover {
-    background-color: rgba(255, 255, 255, 0.15);
+    background-color: var(--bg-rgba-255-255-255-0p15);
     border-left-color: rgba(255, 255, 255, 0.6);
-    transform: translateX(5px);
+
 }
 
 .article-item h3 {
@@ -275,16 +295,16 @@ onMounted(() => {
 .article-actions span {
     padding: 4px 8px;
     border-radius: 4px;
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: var(--bg-rgba-255-255-255-0p2);
     color: #ffffff;
 }
 
 .liked {
-    background-color: rgba(255, 99, 71, 0.3) !important;
+    background-color: var(--bg-rgba-255-99-71-0p3) !important;
 }
 
 .bookmarked {
-    background-color: rgba(255, 215, 0, 0.3) !important;
+    background-color: var(--bg-rgba-255-215-0-0p3) !important;
 }
 
 /* 標題樣式優化 */
@@ -295,5 +315,9 @@ onMounted(() => {
     margin-bottom: 20px;
     padding-bottom: 10px;
     border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.user-summary-main-content-statistics{
+    text-align: center;
 }
 </style>

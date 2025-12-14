@@ -53,7 +53,7 @@
 .home-categorys{
   width: 100%;
   min-height: 91.5%;
-  background-color: #B7F7F7;
+  background-color: var(--bg-hex-b7f7f7);
   display: flex;
   justify-content: center;
   
@@ -63,7 +63,7 @@
   width: 60%;
   min-height: 100%; /* 設置最小高度 */
   height: auto; /* 讓高度自適應內容 */
-  background-color: #AAD7F7;
+  background-color: var(--bg-hex-aad7f7);
   /* display: flex; */
   /* flex-direction: column; */
 
@@ -82,7 +82,7 @@
   border: 2px solid #000;
   width: 400px;
   height: 225px;
-  background-color: #AAD7F7;
+  background-color: var(--bg-hex-aad7f7);
   display: flex; /* 新增 */
   flex-direction: column;
   justify-content: flex-end; /* 將內容靠下對齊 */
@@ -153,5 +153,4 @@ onMounted(() => {
   getTreeCategoryList()//從後端獲取分類數據
 })
 </script>
-
 

@@ -25,16 +25,16 @@ import HomeHeaderNavigation from '@/components/HomeHeaderNavigation.vue';
     align-items: center;
     width: 100%;
     
-    min-height: 100%;
+	    min-height: 100%;
 
-    background-color: #181a1b;
+	    background-color: var(--bg-hex-181a1b);
 
-    }
-    .article-main {
-    background-color: darkgrey;
-    width: 100%;
-    min-height: 92%;
-    max-height: none;
+	    }
+	    .article-main {
+	    background-color: var(--bg-name-darkgrey);
+	    width: 100%;
+	    min-height: 92%;
+	    max-height: none;
 
     display: flex;
     justify-content: center;
@@ -43,12 +43,12 @@ import HomeHeaderNavigation from '@/components/HomeHeaderNavigation.vue';
 
     /*position: relative;*/
 
-    }
-    .auth-container-main{
-    background-color: #282B2D;
-    border: 2px solid #fff;
-    width: 500px;
-    height: 800px;
+	    }
+	    .auth-container-main{
+	    background-color: var(--bg-hex-282b2d);
+	    border: 2px solid #fff;
+	    width: 500px;
+	    height: 800px;
     min-height: 800px;
     max-height: 800px;
 

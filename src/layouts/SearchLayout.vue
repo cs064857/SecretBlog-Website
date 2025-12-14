@@ -34,23 +34,28 @@
         <div v-else class="home-article">
           <div v-for="article in articles" :key="article.articleId" class="article-box">
             <div class="article-title">
+              <!-- 作者頭像 -->
               <router-link v-if="article.userId" :to="{ name: 'UserInformation', params: { userId: article.userId } }"
                 class="avatar-link">
-                <el-avatar v-if="article.avatar" :size="40" :src="article.avatar" class="article-avatar" />
-                <el-avatar v-else :size="40" class="article-avatar">
+                <!-- Use class article-author-avatar and size 36 to match HomeArticleList -->
+                <el-avatar v-if="article.avatar" :size="36" :src="article.avatar" class="article-author-avatar" />
+                <el-avatar v-else :size="36" class="article-author-avatar">
                   {{ article.nickName?.charAt(0) || '?' }}
                 </el-avatar>
               </router-link>
               <template v-else>
-                <el-avatar v-if="article.avatar" :size="40" :src="article.avatar" class="article-avatar" />
-                <el-avatar v-else :size="40" class="article-avatar">
+                <el-avatar v-if="article.avatar" :size="36" :src="article.avatar" class="article-author-avatar" />
+                <el-avatar v-else :size="36" class="article-author-avatar">
                   {{ article.nickName?.charAt(0) || '?' }}
                 </el-avatar>
               </template>
+
               <router-link :to="{ name: 'Article', params: { articleId: article.articleId } }">
                 <p v-html="article.safeTitle"></p>
               </router-link>
             </div>
+
+            <!-- Content preview removed to match HomeArticleList style -->
 
             <div v-if="article.safeContent" class="article-content">
               <p v-html="article.safeContent"></p>
@@ -335,21 +340,48 @@ watch(keyword, () => {
   max-width: 100%;
 }
 
+
 .article-box {
-  /* background-color: #1E2122; */
-  background-color: var(--bg-page);
+  background-color: var(--bg-page1);
   width: 100%;
-  padding: 0.5rem;
-  box-sizing: border-box;
+  height: auto;
+  min-height: 14vh;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+
+  flex-direction: column;
 }
 
 .article-title {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  width: 100%;
+  height: auto;
+
+  min-height: 8.4vh;
+
+  padding: 0.5rem 1rem;
+  box-sizing: border-box;
 }
 
-.article-avatar {
+.article-title p {
+
+  font-size: 20px;
+  margin: 0;
+  
+}
+
+.article-title a {
+  /* 移除超連結底線 */
+  text-decoration: none;
+  /* 繼承顏色 */
+  color: inherit;
+}
+
+.article-author-avatar {
+  margin-right: 0.75rem;
+  margin-left: 0.75rem;
   flex-shrink: 0;
 }
 
@@ -358,6 +390,8 @@ watch(keyword, () => {
   align-items: center;
   flex-shrink: 0;
   transition: transform 0.2s ease, opacity 0.2s ease;
+
+
 }
 
 .avatar-link:hover {
@@ -365,76 +399,104 @@ watch(keyword, () => {
   opacity: 0.85;
 }
 
-.article-title p {
-  font-size: 20px;
-  margin: 0 0 0.5rem 0;
-}
-
 .article-content {
-  max-height: 20vh;
+  padding: 0 1rem 1rem 1rem;
+  color: #ccc;
+  font-size: 14px;
+  line-height: 1.5;
   overflow: hidden;
-  padding: 0.25rem 1rem 0.25rem 0.25rem;
 
 
-  overflow-wrap: break-word;
-  word-break: break-word;
+  flex: 1;
+
 }
 
 .article-info {
+  width: 100%;
+  height: auto;
+
+  min-height: 5.6vh;
+
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  flex-direction: row;
+  justify-content: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 0;
+
 }
 
 .article-category {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--bg-page1);
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0.5rem;
+  box-sizing: border-box;
+  height: 100%;
+  color: #fff;
+  font-weight: bold;
 }
 
 .category-link {
   color: #fff;
   text-decoration: none;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  background-color: rgba(0, 0, 0, 0.2);
-  transition: background-color 0.2s ease;
 }
 
 .category-link:hover {
-  background-color: rgba(0, 0, 0, 0.4);
   text-decoration: underline;
 }
 
 .article-tags {
   display: flex;
-  flex: 4.5;
+  justify-content: flex-start;
+  align-items: center;
   gap: 10px;
+  flex: 4.5;
   min-width: 0;
   overflow: hidden;
   padding: 0.5rem;
   box-sizing: border-box;
+  height: 100%;
 }
 
 .article-tag {
-  background-color: #549122;
-  padding: 0.1rem 0.4rem;
-  border-radius: 4px;
+  background-color: var(--bg-rgba-255-255-255-0p1);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  color: #e0e0e0;
 }
 
 .article-metrics {
-  display: grid;
-  grid-template-columns: repeat(5, auto);
-  gap: 4px 8px;
-  flex: 3;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  flex: 4.5;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0.5rem;
+  box-sizing: border-box;
+  color: #a0a0a0;
+  font-size: 0.9em;
 }
 
 .article-metrics-label {
-  font-size: 12px;
-  color: #eee;
+  text-align: center;
+  width: 20%;
+  font-size: 0.9em;
+  color: #a0a0a0;
 }
 
 .article-metrics-value {
-  font-size: 12px;
-  color: #fff;
+  text-align: center;
+  width: 20%;
+  font-size: 0.9em;
+  color: #a0a0a0;
+
 }
 
 .error-state,
@@ -450,7 +512,7 @@ watch(keyword, () => {
   margin-bottom: 0.75rem;
   color: #b0b0b0;
   font-size: 14px;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: var(--bg-rgba-255-255-255-0p05);
   border-radius: 4px;
 }
 

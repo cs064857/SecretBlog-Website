@@ -91,7 +91,7 @@ width: 100%;
 height: 7vh;
 
 border-radius: 30px 30px 0px 0px;
-background-color: rgb(34, 33, 33);
+background-color: var(--bg-rgb-34-33-33);
 
 }
 
@@ -104,13 +104,13 @@ background-color: rgb(34, 33, 33);
   height: 7vh;
 
   border-radius: 30px 30px 0px 0px;
-  background-color: bisque;
+  background-color: var(--bg-name-bisque);
 
 
 }
 
 #tox tox-tinymce{
-  background-color: #2d2d2d;
+  background-color: var(--bg-hex-2d2d2d);
 }
 
 #inputContent {

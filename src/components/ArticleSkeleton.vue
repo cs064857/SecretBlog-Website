@@ -88,7 +88,7 @@
 .skeleton-content {
     margin-bottom: 2rem;
     padding: 1rem;
-    background-color: #2a2d2f;
+    background-color: var(--bg-hex-2a2d2f);
     border-radius: 8px;
     min-height: 400px;
 }
@@ -120,7 +120,7 @@
     display: flex;
     gap: 1rem;
     padding: 1rem;
-    background-color: #2a2d2f;
+    background-color: var(--bg-hex-2a2d2f);
     border-radius: 8px;
 }
 

@@ -79,7 +79,7 @@ const handleGoInformation = function(){
 .user-summary-main{
     width: 100%;
     height: 100%;
-    background-color: #1a1514;
+    background-color: var(--bg-hex-1a1514);
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -90,7 +90,7 @@ const handleGoInformation = function(){
 .user-summary-nav{
     width: 15%;
     height: 100%;
-    background-color: #033f03;
+    background-color: var(--bg-hex-033f03);
 
 }
 
@@ -119,12 +119,12 @@ const handleGoInformation = function(){
 .user-summary-main-nav{
     width: 80%;
     height: 200px;
-    background-color: #b97610;
+    background-color: var(--bg-hex-b97610);
 }
 
 
 .user-summary-main-content{
-    width: 80%;
+    width: 100%;
     height: 100%;
     display: flex;
     flex-direction: row;

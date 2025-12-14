@@ -1978,7 +1978,7 @@ const handleCancelArticleBookmark = async function () {
   min-width: 100%;
   max-width: 100%;
   height: 100px;
-  background-color: #88c847;
+  background-color: var(--bg-hex-88c847);
 }
 
 .article-comment-context-item-info-metrics {
@@ -2035,7 +2035,7 @@ const handleCancelArticleBookmark = async function () {
 
   /* border: 0.1px solid rgb(190, 186, 186); */
   text-align: center;
-  background-color: #1a1d1d;
+  background-color: var(--bg-hex-1a1d1d);
   /* min-height: 150px;
   min-width: 1570px;
   max-width: 1570px; */
@@ -2056,17 +2056,17 @@ const handleCancelArticleBookmark = async function () {
   display: flex;
   flex-direction: row;
   /* gap: 20px; */
-  background-color: #395c5c;
+  background-color: var(--bg-hex-395c5c);
   /* min-width: 1570px;
   max-width: 1570px;
   width: 1570px; */
   width: 100%;
   border: 0.1px solid rgb(190, 186, 186);
-  background-color: #1a1d1d;
+  background-color: var(--bg-hex-1a1d1d);
 }
 
 .article-comment-button {
-  background-color: #0d9393;
+  background-color: var(--bg-hex-0d9393);
   min-width: 90%;
   max-width: 90%;
   display: flex;
@@ -2130,7 +2130,7 @@ const handleCancelArticleBookmark = async function () {
 }
 
 .article-comment-input {
-  background-color: #98710e;
+  background-color: var(--bg-hex-98710e);
   min-width: 90%;
   max-width: 90%;
   /* 移除高度鎖定，讓內容自然撐開 */
@@ -2144,7 +2144,7 @@ const handleCancelArticleBookmark = async function () {
   flex-wrap: wrap;
   justify-content: center;
   align-content: start;
-  background-color: darkslateblue;
+  background-color: var(--bg-name-darkslateblue);
   min-width: 100%;
   max-width: 100%;
   /* 讓高度由內容撐開 */
@@ -2158,7 +2158,7 @@ const handleCancelArticleBookmark = async function () {
   justify-content: center;
   /* footer 內容置中 */
   align-items: center;
-  background-color: #213547;
+  background-color: var(--bg-hex-213547);
   width: 90%;
   margin: 40px auto 0;
   /* 置中並與上方內容留距 */
@@ -2176,13 +2176,13 @@ const handleCancelArticleBookmark = async function () {
   max-width: 92%;
   min-width: 92%;
   margin: 50px 50px 0 50px;
-  background-color: #88c847;
+  background-color: var(--bg-hex-88c847);
   box-shadow: 0px 0px 30px;
 }
 
 .article-header-title {
 
-  background-color: #81156a;
+  background-color: var(--bg-hex-81156a);
 
 }
 
@@ -2198,7 +2198,7 @@ const handleCancelArticleBookmark = async function () {
   flex-direction: row;
   justify-content: start;
   align-items: center;
-  background-color: #03638f;
+  background-color: var(--bg-hex-03638f);
 
 }
 
@@ -2208,7 +2208,7 @@ const handleCancelArticleBookmark = async function () {
   /* flex-direction: row;
   justify-content: end;
   align-items: center; */
-  background-color: #0c038f;
+  background-color: var(--bg-hex-0c038f);
 
 }
 
@@ -2218,7 +2218,7 @@ const handleCancelArticleBookmark = async function () {
   justify-content: end;
   align-items: center;
   gap: 1rem;
-  background-color: #332f6b;
+  background-color: var(--bg-hex-332f6b);
 }
 
 .article-header-info-delete {
@@ -2242,7 +2242,7 @@ const handleCancelArticleBookmark = async function () {
   max-width: 92%;
   min-width: 92%;
   margin: 50px 50px 0 50px;
-  background-color: #324222;
+  background-color: var(--bg-hex-324222);
   box-shadow: 0px 0px 30px;
 }
 
@@ -2251,7 +2251,7 @@ const handleCancelArticleBookmark = async function () {
   max-width: 92%;
   min-width: 92%;
   margin: 0 50px 50px 50px;
-  background-color: #d7e6c8;
+  background-color: var(--bg-hex-d7e6c8);
   box-shadow: 0px 0px 30px;
   max-height: none;
   /* 不裁切內容 */
@@ -2260,7 +2260,7 @@ const handleCancelArticleBookmark = async function () {
 }
 
 .article-container {
-  background-color: #d57656;
+  background-color: var(--bg-hex-d57656);
   width: 100%;
   /* 重要：不要限制高度或隱藏溢出，改由整個頁面滾動 */
   /* height: 100%; */
@@ -2269,7 +2269,7 @@ const handleCancelArticleBookmark = async function () {
 }
 
 .Box3 {
-  background-color: darkgreen;
+  background-color: var(--bg-name-darkgreen);
   flex: 2.5;
   display: flex;
   flex-direction: column;
@@ -2280,7 +2280,7 @@ const handleCancelArticleBookmark = async function () {
 }
 
 .article-main {
-  background-color: darkgrey;
+  background-color: var(--bg-name-darkgrey);
   width: 100%;
   /* 讓內容自然撐開 */
   /* min-height: 92%; */
@@ -2292,7 +2292,7 @@ const handleCancelArticleBookmark = async function () {
 .article-content-list {
   display: flex;
   flex-direction: row;
-  background-color: darkslategray;
+  background-color: var(--bg-name-darkslategray);
   justify-content: flex-start;
   align-content: flex-start;
   align-items: stretch;
@@ -2306,14 +2306,14 @@ const handleCancelArticleBookmark = async function () {
 }
 
 .Box1 {
-  background-color: darksalmon;
+  background-color: var(--bg-name-darksalmon);
   flex: 0.5;
   /* 移除視窗高度鎖定 */
   /* height: 92vh; */
 }
 
 .Box2 {
-  background-color: darkmagenta;
+  background-color: var(--bg-name-darkmagenta);
   flex: 0.5;
   position: relative;
   display: flex;
@@ -2324,7 +2324,7 @@ const handleCancelArticleBookmark = async function () {
 }
 
 .Box4 {
-  background-color: darkblue;
+  background-color: var(--bg-name-darkblue);
   width: 100%;
   height: min-content;
   position: relative;
@@ -2339,7 +2339,7 @@ const handleCancelArticleBookmark = async function () {
   min-width: 100%;
   max-width: 100%;
   height: 100px;
-  background-color: #1a1d1d;
+  background-color: var(--bg-hex-1a1d1d);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -2362,7 +2362,7 @@ const handleCancelArticleBookmark = async function () {
   align-items: center;
   gap: 0.5rem;
   padding: 0.8rem 1.5rem;
-  background-color: #2c3e50;
+  background-color: var(--bg-hex-2c3e50);
   border: 2px solid #34495e;
   border-radius: 25px;
   cursor: pointer;
@@ -2372,18 +2372,18 @@ const handleCancelArticleBookmark = async function () {
 }
 
 .like-button:hover {
-  background-color: #34495e;
+  background-color: var(--bg-hex-34495e);
   border-color: #e74c3c;
   transform: scale(1.05);
 }
 
 .like-button.liked {
-  background-color: #e74c3c;
+  background-color: var(--bg-hex-e74c3c);
   border-color: #c0392b;
 }
 
 .like-button.liked:hover {
-  background-color: #c0392b;
+  background-color: var(--bg-hex-c0392b);
 }
 
 .like-icon {

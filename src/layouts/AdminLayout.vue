@@ -184,14 +184,14 @@ onMounted(()=>{
 
 /* 定義暗黑模式的全局變量 */
 html.dark .el-menu-item-group{
-  background-color: #111111e7;
+  background-color: var(--bg-hex-111111e7);
 }
 html.dark .el-sub-menu,html.dark .el-menu-item{
   /* 設置背景顏色(左側導航的字體顏色) */
   --el-menu-text-color: #ffffff;
 }
 html.dark .el-menu-vertical-demo {
-  background-color: #111111;
+  background-color: var(--bg-hex-111111);
 }
 
 html.dark .el-menu-vertical-demo{
@@ -201,7 +201,7 @@ html.dark .el-menu-vertical-demo{
   /*border-right-width: 0;*/
   /*active-text-color:#ffd04b;*/
   /* 設置背景顏色(左側導航的背景顏色) */
-  background-color: #111111;
+  background-color: var(--bg-hex-111111);
   border: #333333 1px solid;;
 }
 html.dark .el-sub-menu[data-v-39f105c9] {
@@ -210,11 +210,11 @@ html.dark .el-sub-menu[data-v-39f105c9] {
 }
 html.dark .common-layout-header{
   height: 75px;
-  background-color: #121212;
+  background-color: var(--bg-hex-121212);
 }
 /* 修改el-menu-item hover顏色 */
 .el-menu-item:hover{
-  background-color: #1F1F1F;
+  background-color: var(--bg-hex-1f1f1f);
 }
 .el-sub-menu[data-v-39f105c9] {
 
@@ -224,11 +224,11 @@ html.dark .common-layout-header{
 
 .common-layout-header{
   height: 75px;
-  background-color: #38866c;
+  background-color: var(--bg-hex-38866c);
 }
 
 .el-menu-item-group{
-  background-color: #da6969e7;
+  background-color: var(--bg-hex-da6969e7);
 }
 
 
@@ -244,7 +244,7 @@ html.dark .common-layout-header{
   /*border-right-width: 0;*/
   /*active-text-color:#ffd04b;*/
   /* 設置背景顏色(左側導航的背景顏色) */
-  background-color: #5a3636;
+  background-color: var(--bg-hex-5a3636);
   border: #333333 1px solid;;
 }
 

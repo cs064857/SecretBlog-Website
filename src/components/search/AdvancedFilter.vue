@@ -425,7 +425,7 @@ watch(route, () => {
 }
 
 .dropdown-trigger {
-    background-color: #1d1e1f;
+    background-color: var(--bg-hex-1d1e1f);
     border: 1px solid #363637;
     border-radius: 4px;
     padding: 8px 12px;
@@ -467,7 +467,7 @@ watch(route, () => {
     left: 0;
     width: 100%;
     margin-top: 4px;
-    background-color: #1d1e1f;
+    background-color: var(--bg-hex-1d1e1f);
     border: 1px solid #363637;
     border-radius: 4px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -537,12 +537,12 @@ watch(route, () => {
 }
 
 .category-item:hover {
-    background-color: #2b2d30;
+    background-color: var(--bg-hex-2b2d30);
 }
 
 .category-item.is-selected {
     color: #409eff;
-    background-color: rgba(64, 158, 255, 0.1);
+    background-color: var(--bg-rgba-64-158-255-0p1);
 }
 
 .item-content {
@@ -554,7 +554,7 @@ watch(route, () => {
 .item-icon-box {
     width: 10px;
     height: 10px;
-    background-color: #00aaff;
+    background-color: var(--bg-hex-00aaff);
     /* Blue generic icon */
     display: inline-block;
     border-radius: 1px;
