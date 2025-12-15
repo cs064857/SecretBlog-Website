@@ -1,17 +1,17 @@
-import {ElMessage} from "element-plus";
+import { ElMessage } from "element-plus";
 import http from "@/utils/httpRequest.js";
-import {R} from "@/interface/R";
-import {Ref} from "vue";
-import {formUserInterface} from "@/interface/admin/formUserInterface";//㊣
-import {AmsUserCommentVo} from "@/interface/amsUserCommentVo";
+import { R } from "@/interface/R";
+import { Ref } from "vue";
+import { formUserInterface } from "@/interface/admin/formUserInterface";//㊣
+import { AmsUserCommentVo } from "@/interface/amsUserCommentVo";
 import axios from "axios";
-export function deleteUserDetailRequest (requestPath:string,userId:String){
-    
+export function deleteUserDetailRequest(requestPath: string, userId: String) {
+
     return http({
         url: http.adornUrl(`${requestPath}/${userId}`),
         method: 'post',
         // params: {id: userId}
-    }).then(({data}:{data:R}) => {
+    }).then(({ data }: { data: R }) => {
         if (data.code == "200") {
             ElMessage.success("刪除用戶資料數據成功");
             //重新整理
@@ -21,13 +21,13 @@ export function deleteUserDetailRequest (requestPath:string,userId:String){
         }
     });
 }
-export function getTableDataRequest(requestPath:string){
-    console.log("getTableDataRequest...requestPath:",requestPath)
+export function getTableDataRequest(requestPath: string) {
+    console.log("getTableDataRequest...requestPath:", requestPath)
     return http({
         url: http.adornUrl(`${requestPath}`),
         method: 'get',
         params: http.adornParams({})
-    }).then(({data}:{data:R}) => {
+    }).then(({ data }: { data: R }) => {
         // console.log("data1:",data)
         if (data.code == "200") {
             ElMessage.success("獲取用戶資料數據成功");
@@ -36,16 +36,16 @@ export function getTableDataRequest(requestPath:string){
             ElMessage.error("獲取用戶資料數據失敗");
         }
         return data
-    }).catch((error:Error)=>{
+    }).catch((error: Error) => {
         ElMessage.error(`數據加載失敗：${error.message}，請稍後再試`);
     });
 
 }
-export function getPreSignedUrlFromMinio(){
+export function getPreSignedUrlFromMinio() {
     return http({
         url: http.adornUrl('/sms/minio'),
         method: 'get',
-    }).then(({data}:{data:R}) => {
+    }).then(({ data }: { data: R }) => {
         if (data.code == "200") {
             ElMessage.success("成功訊息");
         } else {
@@ -57,34 +57,34 @@ export function getPreSignedUrlFromMinio(){
     });
 }
 
-export function updateUserAvatarUrlRequest(userId:string,avatarUrl:string){
+export function updateUserAvatarUrlRequest(userId: string, avatarUrl: string) {
     return http({
         url: http.adornUrl(`/ums/user/userDetails/${userId}`),
         method: 'put',
-        data: http.adornData({avatarUrl}, false)
-    }).then(({data}:{data:R}) => {
-        if(data.code==200){
+        data: http.adornData({ avatarUrl }, false)
+    }).then(({ data }: { data: R }) => {
+        if (data.code == 200) {
             ElMessage.success("修改用戶頭像成功");
 
             window.location.replace(window.location.href);
-        }else{
+        } else {
             ElMessage.error("修改用戶頭像失敗");
         }
         return data
     });
 }
 
-export function updateUserDataRequest(props:Ref<formUserInterface>, modifiedFieldsJson:Record<string, any>){
+export function updateUserDataRequest(props: Ref<formUserInterface>, modifiedFieldsJson: Record<string, any>) {
     return http({
         url: http.adornUrl(`/ums/user/userDetails/${props.value.id}/${props.value.userInfoId}`),
         method: 'put',
         data: http.adornData(modifiedFieldsJson, false)
-    }).then(({data}:{data:R}) => {
-        if(data.code==200){
+    }).then(({ data }: { data: R }) => {
+        if (data.code == 200) {
             ElMessage.success("修改用戶數據成功");
 
             // window.location.replace(window.location.href);
-        }else{
+        } else {
             ElMessage.error("修改用戶數據失敗");
         }
         return data
@@ -100,20 +100,20 @@ export function saveUserAvatarRequest(preSignedUrl: string, avatar: File) {
         },
         // 不需要包裝成 FormData
     })
-    .then((response) => {
-        if (response.status === 200) {
+        .then((response) => {
+            if (response.status === 200) {
 
-            ElMessage.success("上傳頭像成功");
-            console.log("上傳頭像成功:",response)
-        } else {
-            throw new Error("上傳失敗");
-        }
-    })
-    .catch((error) => {
-        console.error("上傳錯誤詳情:", error);
-        ElMessage.error(`上傳頭像失敗: ${error.message}`);
-        throw error;
-    });
+                ElMessage.success("上傳頭像成功");
+                console.log("上傳頭像成功:", response)
+            } else {
+                throw new Error("上傳失敗");
+            }
+        })
+        .catch((error) => {
+            console.error("上傳錯誤詳情:", error);
+            ElMessage.error(`上傳頭像失敗: ${error.message}`);
+            throw error;
+        });
 }
 
 // export function saveUserDataRequest(preSignedUrl:string,avatar: any) {
@@ -147,12 +147,12 @@ export function saveUserAvatarRequest(preSignedUrl: string, avatar: File) {
 // }
 
 
-export function saveUserDataRequest(form:any){
+export function saveUserDataRequest(form: any) {
     return http({
         url: http.adornUrl('/ums/user'),
         method: 'post',
         data: http.adornData(form, false)
-    }).then(({data}:{data:R}) => {
+    }).then(({ data }: { data: R }) => {
         if (data.code == "200") {
             ElMessage.success("新增使用者數據成功");
 
@@ -165,28 +165,31 @@ export function saveUserDataRequest(form:any){
     });
 }
 
-export function getOptionsRequest(requestPath:string){
+export function getOptionsRequest(requestPath: string) {
     return http({
         url: http.adornUrl(`${requestPath}`),
         method: 'get',
         params: http.adornParams({})
-    }).then(({data}:{data:R}) => {
-        console.log("getOptionsRequest",data)
-        if(data.code==200){
+    }).then(({ data }: { data: R }) => {
+        console.log("getOptionsRequest", data)
+        if (data.code == 200) {
             ElMessage.success("獲取權限數據成功");
 
-        }else{
+        } else {
             ElMessage.error("獲取權限數據失敗");
         }
         return data
     })
 }
 
-export function getUserCommentsRequest(userId: string) {
+export function getUserCommentsRequest(userId: string, routePage?: number) {
     return http({
         url: http.adornUrl(`/article/user/${userId}/comments`),
-        method: 'get'
-    }).then(({data}: { data: R<AmsUserCommentVo[]> }) => {
+        method: 'get',
+        params: http.adornParams({
+            ...(routePage !== undefined && { routePage })
+        })
+    }).then(({ data }: { data: R<any> }) => {
         return data;
     });
 }
