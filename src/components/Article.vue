@@ -16,11 +16,11 @@
       <!-- <div class="article-main"> -->
 
       <div class="article-content-list" ref="articleContentListRef">
-        <div class="Box1">
+        <div class="art-sidebar--left">
           1
         </div>
 
-        <div class="Box3">
+        <div class="art-main">
 
 
 
@@ -77,16 +77,16 @@
 
         </div>
 
-        <div class="Box2">
+        <div class="art-sidebar--right">
 
 
 
-          <div class="Box4">
+          <div class="art-toc">
 
 
-            <el-affix style="background-color: var(--bg-name-darkblue);" :offset="220">
+            <el-affix :offset="220">
 
-              <div style="background-color: var(--bg-name-darkblue);">
+              <div class="art-toc__content">
 
                 <div v-for="(item, key) in anchorList" :key="key">
                   <ul>
@@ -1184,7 +1184,7 @@ const handleScroll = () => {
   }
 }
 
-// 在組件掛載後保存 Box4 的初始樣式
+// 在組件掛載後保存 art-toc 的初始樣式
 let anchorObserver: MutationObserver | null = null;
 
 let initialStyles = {
@@ -2396,6 +2396,7 @@ const handleCancelArticleBookmark = async function () {
   word-break: break-all;
   border: 3px solid #d1cdcd50;
   box-sizing: border-box;
+  min-height: 55vh;
 }
 
 .article-container {
@@ -2407,15 +2408,13 @@ const handleCancelArticleBookmark = async function () {
   overflow-y: visible;
 }
 
-.Box3 {
+.art-main {
   background-color: var(--bg-name-darkgreen);
   flex: 2.5;
   display: flex;
   flex-direction: column;
   justify-items: flex-start;
-  position: relative;
-  /* 移除最小高度限制，避免內容被截斷 */
-  /* min-height: 92%; */
+  min-height: 55vh;
 }
 
 .article-main {
@@ -2444,14 +2443,14 @@ const handleCancelArticleBookmark = async function () {
   max-height: none;
 }
 
-.Box1 {
+.art-sidebar--left {
   background-color: var(--bg-name-darksalmon);
   flex: 0.5;
   /* 移除視窗高度鎖定 */
   /* height: 92vh; */
 }
 
-.Box2 {
+.art-sidebar--right {
   background-color: var(--bg-name-darkmagenta);
   flex: 0.5;
   position: relative;
@@ -2462,14 +2461,11 @@ const handleCancelArticleBookmark = async function () {
   /* height: 92vh; */
 }
 
-.Box4 {
-  background-color: var(--bg-name-darkblue);
+.art-toc {
+  /* background-color: transparent; */
   width: 100%;
   height: min-content;
   z-index: 1000;
-  /* position: relative; */
-  /* 若要吸頂可改為 sticky */
-  /* top: 150px; */
 }
 
 /**
@@ -2546,6 +2542,18 @@ const handleCancelArticleBookmark = async function () {
   text-align: center;
 }
 
+/* 右側錨點區塊 */
+.art-toc__content {
+
+  background-color: var(--bg-name-darkblue);
+  width: 100%;
+  padding: 1rem;
+}
+
+/* 設置錨點的顏色 */
+.art-toc__content a {
+  color: #DDDDDD !important;
+}
 
 
 /*
