@@ -79,14 +79,54 @@
 
         <div class="Box2">
 
+
+
           <div class="Box4">
-            <el-anchor ref="anchorRef" :offset="70" @change="handleChange">
+
+
+            <el-affix style="background-color: var(--bg-name-darkblue);" :offset="220">
+
+              <div style="background-color: var(--bg-name-darkblue);">
+
+                <div v-for="(item, key) in anchorList" :key="key">
+                  <ul>
+
+                    <li>
+                      <a style="text-decoration: none;" :href="'#' + item.id">
+                        {{ item.id }}
+                      </a>
+                    </li>
+                    <ul v-if="item.childern" v-for="sonItem in item.childern">
+                      <li>
+                        <a style="text-decoration: none;" :href="'#' + sonItem.id">
+                          {{ sonItem.id }}
+                        </a>
+                      </li>
+                    </ul>
+                  </ul>
+                </div>
+              </div>
+
+
+              <!-- <ul v-for="(value, key) in anchorMap" :key="key">
+              <li></li>
+            </ul> -->
+
+              <!-- <ul>
+              <li><a href="#片段三">片段三</a></li>
+              <ul>
+                <li><a href="#片段三">片段3.1</a></li>
+              </ul>
+            </ul> -->
+
+              <!-- <el-anchor ref="anchorRef" :offset="70" @change="handleChange">
 
               <el-anchor-link v-for="item in articleAnchorData" :key="item.id" :href="'#' + item.id">
                 {{ item.title }}
               </el-anchor-link>
 
-            </el-anchor>
+            </el-anchor> -->
+            </el-affix>
           </div>
 
         </div>
@@ -94,6 +134,8 @@
       </div>
 
     </div>
+
+
 
     <div class="article-metrics">
 
@@ -1472,7 +1514,94 @@ const getArticleAndComments = async function () {
   loading.value = false;
   console.log("初始化加載article:", article)
   console.log("初始化加載comments:", comments)
+
 }
+// const anchorMap = ref(new Map());
+
+interface anchorInterface {
+  level: string,
+  id: string,
+  childern?: anchorInterface[]
+}
+
+const anchorList = ref<anchorInterface[]>([]);
+
+//處理文章內容的錨點
+//將<h2>片段一</h2> 變成 <h2 id="heading-1">片段一</h2>
+const handleAnchorPoint = async function (content: string) {
+  // console.log("handleAnchorPoint content:",content)
+  const headings = document.querySelectorAll('h1,h2,h3,h4,h5,h6')
+  const idMap = {}; // 用來記錄 ID 出現的次數
+
+
+
+  if (!headings) return;
+  console.log("handleAnchorPoint headings:", headings)
+  let maxLevel = 1;
+  headings.forEach(heading => {
+
+    console.log("handleAnchorPoint heading.tagName", heading.tagName)//h1 h2 h3 h4 h5 h6
+
+    console.log("handleAnchorPoint heading.textContent:", heading.textContent)
+
+
+
+    if (!heading.id) {
+      console.log("handleAnchorPoint heading.id:", heading.id)
+
+      let id = heading.textContent.trim()
+      console.log("handleAnchorPoint id", id)
+      if (idMap[id]) {
+        // 如果 ID 已存在，次數 +1 並加上後綴
+        idMap[id]++;
+        id = `${id}-${idMap[id]}`;
+      } else {
+        // 如果是第一次出現，初始化為 1
+        idMap[id] = 1;
+      }
+      heading.id = id;
+
+      const anchor: anchorInterface = {
+        level: heading.tagName,
+        id: id,
+        childern: []
+      }
+
+
+      const currentLevel = parseInt(heading.tagName.substring(1));//H1->1,H2->2 H3->3 ...
+
+      if (currentLevel == 1) {//為最上層
+        //假設是第一層
+        anchorList.value.push(anchor)
+      } else {//不是最上層
+        //找出父節點
+        const parentAnchor = anchorList.value.find(anchor => parseInt(anchor.level.substring(1)) === (currentLevel - 1))
+        if (parentAnchor) {
+          //假設有父節點
+          //將子節點加入父節點
+          parentAnchor.childern.push(anchor)
+        } else {
+          anchorList.value.push(anchor)
+        }
+      }
+
+
+
+      // anchorMap.value.set(heading.tagName,id);// key為屬性名稱, 值為id , ex: h1、片段一
+      // console.log("handleAnchorPoint key:value", heading.tagName, ":", id)
+
+      // console.log("handleAnchorPoint heading.id", heading.id)
+    }
+
+  })
+
+  console.log("handleAnchorPoint anchorList:", anchorList.value)
+  // console.log("handleAnchorPoint anchorMap:",anchorMap)
+
+
+}
+
+
 
 const getActionHistory = async function () {
   try {
@@ -1681,9 +1810,13 @@ const handleRetryLoad = () => {
 
 // 加載文章以及留言
 onMounted(async () => {
-  getArticleAndComments();
   getActionHistory();
   getCommentActionHistory();
+  await getArticleAndComments();
+
+
+  await handleAnchorPoint(ArticleContent.value)
+
 });
 
 
@@ -2333,9 +2466,10 @@ const handleCancelArticleBookmark = async function () {
   background-color: var(--bg-name-darkblue);
   width: 100%;
   height: min-content;
-  position: relative;
+  z-index: 1000;
+  /* position: relative; */
   /* 若要吸頂可改為 sticky */
-  top: 150px;
+  /* top: 150px; */
 }
 
 /**

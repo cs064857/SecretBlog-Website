@@ -349,6 +349,7 @@ const handleOverlayClick = () => {
 
 
 const handleCancel = () => {
+  console.log("handleCancel");
   if (content.value.trim() && !isSubmitting.value) {
     if (confirm('您有未儲存的內容，確定要關閉嗎？')) {
       // resetModal()
@@ -570,7 +571,8 @@ const isContentValid = computed(() => {
   const trimmedContent = content.value.trim()
   // 檢查是否只有HTML標籤而沒有實際內容
   const textContent = trimmedContent.replace(/<[^>]*>/g, '').trim()
-  return textContent.length > 0 && textContent.length <= 2000
+  console.log("isContentValid textContent:",textContent)
+  return textContent.length > 0
 })
 
 const onEditorReady = () => {

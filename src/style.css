@@ -90,7 +90,7 @@
   /* 左側導航列 */
   --bg-name-darksalmon: var(--bg-page1);
   /* 右側導航列 */
-  --bg-name-darkmagenta: var(--bg-page1);
+  --bg-name-darkmagenta: var(--bg-page);
   /* 文章Header區塊 */
   --bg-hex-88c847: var(--bg-page1);
   /* 文章標題區塊 */
@@ -102,11 +102,13 @@
 
   /* 文章背景 */
   --bg-hex-d7e6c8: var(--bg-page1);
-
+  /* 文章右側錨點區塊 */
+  --bg-name-darkblue: var(--bg-page1);
+  /* --bg-name-darkblue: var(--bg-page1); */
 
 
   --bg-name-darkslategray: darkslategray;
-  --bg-name-darkblue: darkblue;
+
 }
 
 
