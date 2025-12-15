@@ -9,7 +9,7 @@
     <div ref="scrollContainer" class="article-container">
 
 
-        <HomeHeaderNavigation ref="headerRef"></HomeHeaderNavigation>
+      <HomeHeaderNavigation ref="headerRef"></HomeHeaderNavigation>
 
 
 
@@ -1828,7 +1828,6 @@ const handleCancelArticleBookmark = async function () {
 </script>
 
 <style scoped>
-
 /**
 * 新增文章或者編輯文章相關
 */
@@ -2178,8 +2177,10 @@ const handleCancelArticleBookmark = async function () {
   max-width: 92%;
   min-width: 92%;
   margin: 50px 50px 0 50px;
+  padding: 1rem 1.5rem;
   background-color: var(--bg-hex-88c847);
-  box-shadow: 0px 0px 30px;
+  border: 3px solid #d1cdcd50;
+  box-sizing: border-box;
 }
 
 .article-header-title {
@@ -2245,7 +2246,7 @@ const handleCancelArticleBookmark = async function () {
   min-width: 92%;
   margin: 50px 50px 0 50px;
   background-color: var(--bg-hex-324222);
-  box-shadow: 0px 0px 30px;
+
 }
 
 .article-content {
@@ -2253,12 +2254,15 @@ const handleCancelArticleBookmark = async function () {
   max-width: 92%;
   min-width: 92%;
   margin: 0 50px 50px 50px;
+  padding: 1.5rem 2rem;
   background-color: var(--bg-hex-d7e6c8);
-  box-shadow: 0px 0px 30px;
+
   max-height: none;
   /* 不裁切內容 */
   word-wrap: break-word;
   word-break: break-all;
+  border: 3px solid #d1cdcd50;
+  box-sizing: border-box;
 }
 
 .article-container {
@@ -2406,5 +2410,15 @@ const handleCancelArticleBookmark = async function () {
   font-weight: bold;
   min-width: 2rem;
   text-align: center;
+}
+
+
+
+/*
+清理背景顏色
+*/
+.article-content :deep(*) {
+  background-color: transparent !important;
+  color: #DDDDDD !important;
 }
 </style>

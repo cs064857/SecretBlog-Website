@@ -23,19 +23,17 @@
   --bg-hex-b97610: #b97610;
   --bg-hex-ffffff: #ffffff;
   --bg-hex-2a2d2f: #2a2d2f;
-  --bg-hex-d7e6c8: #d7e6c8;
-  --bg-hex-88c847: #88c847;
+
   --bg-hex-1a1d1d: #1a1d1d;
   --bg-hex-395c5c: #395c5c;
   --bg-hex-0d9393: #0d9393;
   --bg-hex-98710e: #98710e;
   --bg-hex-213547: #213547;
-  --bg-hex-81156a: #81156a;
-  --bg-hex-03638f: #03638f;
+
+
   --bg-hex-0c038f: #0c038f;
-  --bg-hex-332f6b: #332f6b;
   --bg-hex-324222: #324222;
-  --bg-hex-d57656: #d57656;
+
   --bg-hex-34495e: #34495e;
   --bg-hex-e74c3c: #e74c3c;
   --bg-hex-c0392b: #c0392b;
@@ -82,10 +80,32 @@
   --bg-name-darkgrey: darkgrey;
   --bg-name-bisque: bisque;
   --bg-name-darkslateblue: darkslateblue;
-  --bg-name-darkgreen: darkgreen;
+  
+/* ===========================
+   Article.vue
+   =========================== */
+  /* 頁面背景 */
+  --bg-name-darkgreen: var(--bg-page);
+  --bg-hex-d57656: var(--bg-page);
+  /* 左側導航列 */
+  --bg-name-darksalmon: var(--bg-page1);
+  /* 右側導航列 */
+  --bg-name-darkmagenta: var(--bg-page1);
+  /* 文章Header區塊 */
+  --bg-hex-88c847: var(--bg-page1);
+  /* 文章標題區塊 */
+  --bg-hex-81156a: var(--bg-page1);
+  /* 文章工具列區塊(刪除文章、編輯文章、文章建立時間) */
+  --bg-hex-332f6b: var(--bg-page1);
+  /* 文章作者區塊(頭像、作者名稱) */
+  --bg-hex-03638f: var(--bg-page1);
+
+  /* 文章背景 */
+  --bg-hex-d7e6c8: var(--bg-page1);
+
+
+
   --bg-name-darkslategray: darkslategray;
-  --bg-name-darksalmon: darksalmon;
-  --bg-name-darkmagenta: darkmagenta;
   --bg-name-darkblue: darkblue;
 }
 
