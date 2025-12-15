@@ -9,7 +9,8 @@
     <div ref="scrollContainer" class="article-container">
 
 
-      <HomeHeaderNavigation ref="headerRef"></HomeHeaderNavigation>
+        <HomeHeaderNavigation ref="headerRef"></HomeHeaderNavigation>
+
 
 
       <!-- <div class="article-main"> -->
@@ -1827,6 +1828,7 @@ const handleCancelArticleBookmark = async function () {
 </script>
 
 <style scoped>
+
 /**
 * 新增文章或者編輯文章相關
 */
@@ -2262,10 +2264,10 @@ const handleCancelArticleBookmark = async function () {
 .article-container {
   background-color: var(--bg-hex-d57656);
   width: 100%;
-  /* 重要：不要限制高度或隱藏溢出，改由整個頁面滾動 */
+
   /* height: 100%; */
-  overflow: visible;
-  /* 不顯示容器自身滾軸 */
+  overflow-x: hidden;
+  overflow-y: visible;
 }
 
 .Box3 {

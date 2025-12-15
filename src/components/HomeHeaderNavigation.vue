@@ -141,7 +141,7 @@ onMounted(() => {
   position: relative;
   z-index: 1000;
   padding: 0 2vw;
-
+  box-sizing: border-box;
 }
 
 /* Logo 容器 - 固定在最左邊 */
