@@ -16,8 +16,9 @@
       <!-- <div class="article-main"> -->
 
       <div class="article-content-list" ref="articleContentListRef">
+        <!-- 左邊欄 -->
         <div class="art-sidebar--left">
-          1
+          
         </div>
 
         <div class="art-main">
@@ -94,7 +95,7 @@
           <div class="art-toc">
 
 
-            <el-affix :offset="220">
+            <el-affix target=".art-sidebar--right" :offset="220">
 
               <div class="art-toc__content">
 
