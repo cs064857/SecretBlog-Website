@@ -334,8 +334,8 @@ const handleCreateArticle = function (content: string) {
     if (data.code == 200) {
       createArticleModalVisible.value = false;
       ElMessage.success("文章發布成功")
-      //刷新頁面
-      window.location.reload();
+      //跳轉至文章的頁面
+      router.push({name:"Article",params:{articleId:data.data}})
     } else {
       ElMessage.error("文章發布失敗")
     }
