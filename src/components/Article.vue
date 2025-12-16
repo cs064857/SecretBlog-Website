@@ -34,9 +34,19 @@
 
 
               <div class="article-header-info-user">
-                <el-avatar :size="25"
-                  src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"></el-avatar>
-                <span>{{ Article.nickName }}</span>
+                <router-link v-if="Article.userId" :to="{ name: 'UserInformation', params: { userId: Article.userId } }"
+                  class="avatar-link">
+                  <el-avatar :size="50" :src="Article.avatar || undefined" class="article-header-avatar">
+                    {{ Article.nickName?.charAt(0) || '?' }}
+                  </el-avatar>
+                  <span>{{ Article.nickName }}</span>
+                </router-link>
+                <template v-else>
+                  <el-avatar :size="50" :src="Article.avatar || undefined" class="article-header-avatar">
+                    {{ Article.nickName?.charAt(0) || '?' }}
+                  </el-avatar>
+                  <span>{{ Article.nickName }}</span>
+                </template>
               </div>
 
               <div class="article-header-info-right">
@@ -186,7 +196,7 @@
           <div class="article-comment-context-item-info-metrics-reply"><el-button @click="handleOpenArticleReplyModal()"
               type="primary"><img
                 style=" cursor: pointer;position: relative;right:0.5rem;width: 1.5rem; height: 1.5rem;"
-                src="/src/assets/reply-solid-full.svg">發表評論</el-button></div>
+                src="/src/assets/reply-solid-full.svg">發表留言</el-button></div>
         </div>
 
       </div>
@@ -208,11 +218,11 @@
 
       <div class="article-comment-input">
         <el-input v-model="textarea1" style="width: 100%;font-size: 18px" :rows="8" maxlength="480" resize="none"
-          type="textarea" placeholder="輸入評論..." />
+          type="textarea" placeholder="輸入留言..." />
       </div>
 
       <div class="article-comment-button">
-        <el-button @click="handleCommitComment" size="large" type="primary" round>發表評論</el-button>
+        <el-button @click="handleCommitComment" size="large" type="primary" round>發表留言</el-button>
       </div>
     </div> -->
 
@@ -220,7 +230,13 @@
       <div v-for="(articleComment, index) in renderedComments" :key="index" class="article-comment-context">
 
         <div class="article-comment-context-avatar">
-          <img class="user-avatar" :src="articleComment.avatar" alt="avatar">
+          <router-link v-if="articleComment.userId"
+            :to="{ name: 'UserInformation', params: { userId: articleComment.userId } }" class="avatar-link">
+            <img class="user-avatar" :src="articleComment.avatar" alt="avatar">
+          </router-link>
+          <template v-else>
+            <img class="user-avatar" :src="articleComment.avatar" alt="avatar">
+          </template>
         </div>
 
         <div class="article-comment-context-item">
@@ -288,7 +304,7 @@
     <reply-modal @close="handleCloseModal()" v-if="replyCommentModalVisible" :modalVisible="replyCommentModalVisible"
       @submit="handleReplyComment">
       <template v-slot:reply-comment-header>
-        <!-- 評論功能：智能回覆提示區 -->
+        <!-- 留言功能：智能回覆提示區 -->
         <!-- <div v-if="props.model == 'replyComment' ? true : false" class="reply-header"> -->
         <div class="reply-header">
           <div class="reply-info">
@@ -370,7 +386,7 @@
     <!-- 編輯文章彈出框 -->
     <!-- <ReplyModal :visible="createArticleModalVisible" model="editArticle" :replyToUser="currentReplyUser"
       @close="handleCloseEditArticleModal" @handleEditArticle="handleEditArticle" /> -->
-    <!-- 回覆評論彈出框 -->
+    <!-- 回覆留言彈出框 -->
     <!-- <ReplyModal :visible="replyModalVisible" model="replyComment" :replyToUser="currentReplyUser"
       @close="handleCloseReplyModal" @submit="handleSubmitReply" /> -->
   </section>
@@ -440,7 +456,7 @@ const currentReplyUser = ref(null);
 const currentUserId = getCookieValue('userId');
 
 /**
- * 判斷當前用戶是否為評論作者
+ * 判斷當前用戶是否為留言作者
  */
 const isCommentOwner = (commentUserId: string): boolean => {
   console.log("isCommentOwner...currentUserId:", currentUserId)
@@ -456,7 +472,7 @@ const isArticleOwner = (): boolean => {
 
 
 /**
- * 評論點讚
+ * 留言點讚
  */
 const handleCommentLikes = function (commentId: string) {
   console.log("commentId:", commentId)
@@ -466,7 +482,7 @@ const handleCommentLikes = function (commentId: string) {
   }).then(({ data }: { data: R }) => {
     if (data.code == "200") {
       //將取得讚數賦值給 renderedComments 中的 likesCount
-      // 更新 renderedComments (評論列表) 的點讚數
+      // 更新 renderedComments (留言列表) 的點讚數
       const targetComment = renderedComments.value.find(item => item.commentId == commentId);
 
       console.log("targetComment:", targetComment);
@@ -492,7 +508,7 @@ const handleCommentLikes = function (commentId: string) {
 
 }
 /**
- * 展示評論
+ * 展示留言
  */
 import DOMPurify from 'dompurify';
 import { marked } from "marked";
@@ -541,8 +557,8 @@ watch(artComments, async (newArtComments) => {
 //   }
 //   const processedList = await Promise.all(
 //     newArtComments.map(async (item) => {
-//       const rawHTML=await marked.parse(item.commentContent || '');
-//       const sanitizedHtml=DOMPurify.sanitize(rawHTML)
+//       const rawHTML=item.commentContent=marked.parse(item.commentContent)
+//       const sanitizedHtml=item.commentContent = DOMPurify.sanitize(rawHTML)
 //       return {...item,commentContent:sanitizedHtml}
 
 //     })
@@ -559,7 +575,7 @@ watch(artComments, async (newArtComments) => {
 // )
 
 /**
- * 回覆評論
+ * 回覆留言
  */
 
 const dialogVisible = ref(false);
@@ -591,7 +607,7 @@ const handleOpenEditArticleModal = () => {
 
 
   // console.log("handleOpenEditArticleModal:Article.value.amsArtTagVoList:", Article.value.amsArtTagVoList)
-  // const artTagsIdList = Article.value.amsArtTagsVoList.map(articleTag => {
+  // const artTagsIdList = Article.value.amsArtTagVoList.map(articleTag => {
   //   return articleTag.id
   // })
   // console.log("handleOpenEditArticleModal:artTagsIdList:", artTagsIdList)
@@ -689,7 +705,7 @@ const handleCloseModal = () => {
 
 // };
 
-// 關閉評論回覆模態框
+// 關閉留言回覆模態框
 // const handleCloseReplyCommentModal = () => {
 //   console.log("觸發handleCloseReplyModal")
 //   replyCommentModalVisible.value = false;
@@ -701,7 +717,7 @@ const handleCloseModal = () => {
 //   };
 // };
 
-//提交評論回覆
+//提交留言回覆
 const handleReplyComment = function (content: string) {
   // console.log("articleId:",articleId)
   console.log("handleReplyComment:content:", content)
@@ -720,12 +736,11 @@ const handleReplyComment = function (content: string) {
   }).then(({ data }: { data: R }) => {
     if (data.code == "200") {
 
-      ElMessage.success("成功訊息");
-      //關閉模態框
+      ElMessage.success("回覆發表成功");
+      // 關閉模態框
       replyCommentModalVisible.value = false;
-      //將新創回覆的評論加入到renderedComments中
-      ///TODO 待修復
-      renderedComments.value.push(replyCommentData)
+      // 重新載入留言，確保頭像與內容可立即正確顯示
+      refreshCommentsAfterSubmit();
     } else {
       ElMessage.error("錯誤訊息");
     }
@@ -776,6 +791,17 @@ const handleEditComment = function (content: string) {
 
 }
 
+/**
+ * 重新載入留言列表與留言操作狀態，避免發表/回覆後需要手動刷新頁面
+ */
+const refreshCommentsAfterSubmit = async () => {
+  const commentsResult = await getArtComments();
+  if (commentsResult?.code == "200") {
+    artComments.value = commentsResult.data ?? [];
+  }
+  await getCommentActionHistory();
+}
+
 //對文章回覆
 const handleReplyArticle = function (content: string) {
   // console.log("articleId:",articleId)
@@ -795,9 +821,11 @@ const handleReplyArticle = function (content: string) {
   }).then(({ data }: { data: R }) => {
     if (data.code == "200") {
 
-      ElMessage.success("成功訊息");
-      //關閉模態框
+      ElMessage.success("留言發表成功");
+      // 關閉模態框
       replyArticleModalVisible.value = false;
+      // 重新載入留言，讓新留言立即出現在畫面
+      refreshCommentsAfterSubmit();
     } else {
       ElMessage.error("錯誤訊息");
     }
@@ -825,7 +853,7 @@ const handleReplyArticle = function (content: string) {
 //     if (response.data.code == "200") {
 //       ElMessage.success("回覆發送成功！");
 //       handleCloseReplyCommentModal();
-//       // 重新加載評論
+//       // 重新加載留言
 //       getArtComments();
 //     } else {
 //       ElMessage.error("回覆發送失敗：" + response.data.msg);
@@ -1030,7 +1058,7 @@ const handleEditArticle = async function (newContent: string) {
 
 // }
 
-//評論
+//留言
 
 const textarea1 = ref()
 
@@ -1047,14 +1075,14 @@ const textarea1 = ref()
 //     data: http.adornData(artInfo, false)
 //   }).then(({data}:{data:any}) => {
 //     if (data.code == "200") {
-//       ElMessage.success("成功發送評論");
+//       ElMessage.success("成功發送留言");
 //     } else {
-//       ElMessage.error("提交評論失敗");
+//       ElMessage.error("提交留言失敗");
 //     }
 //   });
 // }
 
-///TODO 登入才能評論
+///TODO 登入才能留言
 // const handleCommitComment = function () {
 
 //   const acId = Array.isArray(articleId) ? articleId[0] : articleId
@@ -1076,14 +1104,14 @@ const textarea1 = ref()
 //     data: http.adornData(commentData, false)
 //   }).then(({ data }: { data: any }) => {
 //     if (data.code == "200") {
-//       ElMessage.success("成功發送評論");
+//       ElMessage.success("成功發送留言");
 //     } else {
-//       ElMessage.error("提交評論失敗");
+//       ElMessage.error("提交留言失敗");
 //     }
 //   });
 // }
 
-//評論/
+//留言/
 
 //獲得article-content的高度
 
@@ -1473,7 +1501,7 @@ const error = ref<string | null>(null);
 //       return;
 //     }
 
-//     // 評論加載失敗也無訪
+//     // 留言加載失敗也無訪
 //     const article = articleResult.value.data;
 //     const comments = commentsResult.status === 'fulfilled' && commentsResult.value ? commentsResult.value.data : [];
 
@@ -1502,7 +1530,7 @@ const getArticleAndComments = async function () {
     ElMessage.error("獲取文章資料失敗")
     return;
   }
-  //評論加載失敗也無訪
+  //留言加載失敗也無訪
   const article = articleResult.value.data;
   // Article.value = article.article.value;
 
@@ -1691,7 +1719,7 @@ const handleCancelCommentLikes = async function (commentId: string) {
 
     if (data.code == "200") {
       // 更新點讚數
-      // 更新 renderedComments (評論列表) 的點讚數
+      // 更新 renderedComments (留言列表) 的點讚數
       const targetComment = renderedComments.value.find(item => item.commentId == commentId);
 
       console.log("targetComment:", targetComment);
@@ -1724,7 +1752,7 @@ const handleCancelCommentLikes = async function (commentId: string) {
 };
 
 /**
- * 刪除評論
+ * 刪除留言
  */
 const handleDeleteComment = async function (commentId: string) {
   try {
@@ -1744,7 +1772,7 @@ const handleDeleteComment = async function (commentId: string) {
     }) as { data: R };
 
     if (data.code == "200") {
-      // 從 renderedComments 中移除已刪除的評論
+      // 從 renderedComments 中移除已刪除的留言
       renderedComments.value = renderedComments.value.filter(
         item => item.commentId != commentId
       );
@@ -1758,7 +1786,7 @@ const handleDeleteComment = async function (commentId: string) {
     }
   } catch (error) {
     if (error !== 'cancel') {
-      console.error("刪除評論失敗:", error);
+      console.error("刪除留言失敗:", error);
       ElMessage.error("刪除失敗，請稍後再試");
     }
   }
@@ -2123,6 +2151,19 @@ const handleCancelArticleBookmark = async function () {
   justify-content: end;
 }
 
+.avatar-link {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  text-decoration: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.avatar-link:hover {
+  transform: scale(1.05);
+  opacity: 0.85;
+}
+
 .user-avatar {
   display: block;
   width: 60px;
@@ -2310,7 +2351,7 @@ const handleCancelArticleBookmark = async function () {
   max-width: 92%;
   min-width: 92%;
   margin: 50px 50px 0 50px;
-  padding: 1rem 1.5rem;
+  padding: 1.5rem 2rem;
   background-color: var(--bg-hex-88c847);
   border: 3px solid #d1cdcd50;
   box-sizing: border-box;
@@ -2336,6 +2377,15 @@ const handleCancelArticleBookmark = async function () {
   align-items: center;
   background-color: var(--bg-hex-03638f);
 
+}
+
+.article-header-avatar {
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+}
+
+:deep(.article-header-avatar .el-avatar__inner) {
+  object-fit: cover;
 }
 
 .article-header-info-time {
@@ -2411,10 +2461,8 @@ const handleCancelArticleBookmark = async function () {
 .art-main {
   background-color: var(--bg-name-darkgreen);
   flex: 2.5;
-  display: flex;
-  flex-direction: column;
-  justify-items: flex-start;
-  min-height: 55vh;
+  /* 移除視窗高度鎖定 */
+  /* height: 92vh; */
 }
 
 .article-main {

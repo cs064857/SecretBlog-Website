@@ -1,7 +1,7 @@
 export interface replyCommentDataInterface{
 
-    parentCommentId:String,
-    commentContent:String,
+    parentCommentId: string | null,
+    commentContent: string,
     // userId: number,
     // articleId:String,
     // jwtToken:String

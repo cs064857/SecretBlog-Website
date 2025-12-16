@@ -31,7 +31,7 @@
   </div>
 
 
-  <!-- 回覆評論彈出框 -->
+  <!-- 回覆留言彈出框 -->
   <ReplyModal :modalVisible="createArticleModalVisible" :content="articleContent" @close="handleCloseReplyModal"
     @submit="handleCreateArticle">
     <template #article-editor-header>

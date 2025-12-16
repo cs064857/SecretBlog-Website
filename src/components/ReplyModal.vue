@@ -2,19 +2,19 @@
   <Teleport to="body">
     <Transition name="reply-modal" appear>
       <div v-if="isVisible" class="reply-modal-overlay" @click="handleOverlayClick">
-      <!-- <div v-if="visible" class="reply-modal-overlay" @click="handleOverlayClick"> -->
-        <div  class="reply-modal-container" @click.stop>
+        <!-- <div v-if="visible" class="reply-modal-overlay" @click="handleOverlayClick"> -->
+        <div class="reply-modal-container" @click.stop>
 
 
           <!-- <div style="width: 500px; height: 600px; background-color: whitesmoke;"> -->
-          <!-- 對已存在評論進行回覆時所需的原評論使用者名稱以及原評論內容 -->
+          <!-- 對已存在留言進行回覆時所需的原留言使用者名稱以及原留言內容 -->
           <div>
-              <slot name="reply-comment-header"/>
+            <slot name="reply-comment-header" />
           </div>
 
           <!-- 新增文章或者編輯文章時所需的文章標題、文章分類、文章標籤等欄位 -->
           <div>
-            <slot name="article-editor-header"/>
+            <slot name="article-editor-header" />
           </div>
 
 
@@ -157,12 +157,12 @@ import { ref, computed, nextTick, onUnmounted, watch } from 'vue'
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
-const modalVisible= ref<boolean>(false)
+const modalVisible = ref<boolean>(false)
 const content = ref<string>('')
 
 interface Props {
   modalVisible: boolean
-  content? : string
+  content?: string
 
 }
 
@@ -172,9 +172,9 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 //當props.content變化時，將其同步到content.value
-watch(()=>props.content,(newValue)=>{
-    content.value=newValue
-},{immediate:true,deep:true})
+watch(() => props.content, (newValue) => {
+  content.value = newValue
+}, { immediate: true, deep: true })
 
 // 使用 computed 來同步 modalVisible
 
@@ -184,14 +184,14 @@ const isVisible = computed(
 
 const emit = defineEmits<{
 
-(e: 'close'): void,
-(e: 'submit',data:any): void
+  (e: 'close'): void,
+  (e: 'submit', data: any): void
 
 }>()
 //確定按鈕
-const handleSubmit = function(){
-    console.log("handleSubmit:content.value:",content.value)
-    emit('submit',content.value)
+const handleSubmit = function () {
+  console.log("handleSubmit:content.value:", content.value)
+  emit('submit', content.value)
 }
 
 
@@ -334,7 +334,7 @@ const handleOverlayClick = () => {
 
 
 // const resetModal = function(){
-  
+
 
 // }
 
@@ -370,7 +370,7 @@ const handleCancel = () => {
 //     console.log("props.model:", props.model);
 
 //     if (props.model === "replyComment") {
-//       // 處理評論回覆
+//       // 處理留言回覆
 //       emit('submit', content.value, props.replyToUser);
 
 //     } else if (props.model === "createArticle") {
@@ -571,7 +571,7 @@ const isContentValid = computed(() => {
   const trimmedContent = content.value.trim()
   // 檢查是否只有HTML標籤而沒有實際內容
   const textContent = trimmedContent.replace(/<[^>]*>/g, '').trim()
-  console.log("isContentValid textContent:",textContent)
+  console.log("isContentValid textContent:", textContent)
   return textContent.length > 0
 })
 
@@ -1488,6 +1488,4 @@ if (typeof window !== 'undefined') {
     padding: var(--space-3) var(--space-4) var(--space-4);
   }
 }
-
-
 </style>

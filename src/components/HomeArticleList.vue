@@ -297,7 +297,19 @@ const handleOpenCreateArticleModal = () => {
         <div v-for="article in articleList" :key="article.articleId" class="article-box">
           <div class="article-title">
             <!-- 作者頭像 -->
-            <el-avatar class="article-author-avatar" :size="36" :src="article.avatar" />
+            <router-link v-if="article.userId" :to="{ name: 'UserInformation', params: { userId: article.userId } }"
+              class="avatar-link">
+              <el-avatar v-if="article.avatar" :size="36" :src="article.avatar" class="article-author-avatar" />
+              <el-avatar v-else :size="36" class="article-author-avatar">
+                {{ article.nickName?.charAt(0) || '?' }}
+              </el-avatar>
+            </router-link>
+            <template v-else>
+              <el-avatar v-if="article.avatar" :size="36" :src="article.avatar" class="article-author-avatar" />
+              <el-avatar v-else :size="36" class="article-author-avatar">
+                {{ article.nickName?.charAt(0) || '?' }}
+              </el-avatar>
+            </template>
             <router-link :to="{ name: 'Article', params: { articleId: article.articleId } }">
               <p>{{ article.title }}</p>
             </router-link>
@@ -525,6 +537,19 @@ hr {
   margin-right: 0.75rem;
   margin-left: 0.75rem;
 
+}
+
+.avatar-link {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  text-decoration: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.avatar-link:hover {
+  transform: scale(1.1);
+  opacity: 0.85;
 }
 
 /*文章框樣式 */
