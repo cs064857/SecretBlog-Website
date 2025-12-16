@@ -64,7 +64,8 @@
                   <!-- <el-button @click="handleOpenEditArticleModal()" type="primary">新增文章</el-button> -->
                 </div>
 
-                <div class="article-header-info-time">
+                <div class="article-header-info-time"><img class="svg-icon"
+                  src="/src/assets/calendar-days-solid-full.svg">
                   <span>{{ dayjs(Article.createTime).format('YYYY-MM-DD HH:mm') }}</span>
                   <!-- <span>{{ dayjs(Article.updateTime).format('YYYY-MM-DD HH:mm') }}</span> -->
                   <!-- <span>{{ Article.updateTime }}</span> -->
@@ -2395,7 +2396,6 @@ const handleCancelArticleBookmark = async function () {
   /* flex-direction: row;
   justify-content: end;
   align-items: center; */
-  background-color: var(--bg-hex-0c038f);
 
 }
 
@@ -2411,6 +2411,8 @@ const handleCancelArticleBookmark = async function () {
 .article-header-info-delete {
   display: flex;
   align-items: center;
+  position: relative;
+  top: -5px;
 }
 
 .article-header-info-delete .delete-icon {
@@ -2596,7 +2598,7 @@ const handleCancelArticleBookmark = async function () {
 
   background-color: var(--bg-name-darkblue);
   width: 100%;
-  padding: 1rem;
+  padding: 0.5rem;
 }
 
 /* 設置錨點的顏色 */
