@@ -1,19 +1,25 @@
 <script setup lang="ts">
 import { Management } from "@element-plus/icons-vue";
 import { useRouter, useRoute } from 'vue-router'
-import { ref, onMounted, reactive, toRefs, computed } from 'vue' // 新增引入
+import { ref, onMounted, reactive, toRefs, computed, watch, nextTick } from 'vue' // 新增引入
 import { ElMessage } from 'element-plus'
 import { R } from "@/interface/R";
 import http from "@/utils/httpRequest.js";
 import { useIsLoginStore } from "@/pinia/useIsLoginStore"
 import { getCookieValue } from "@/utils/jwtUtils";
-import { on } from "events";
+// import { on } from "events";
 import SearchHeaders from "@/components/search/SearchHeaders.vue";
+import { storeToRefs } from "pinia"; // 引入 storeToRefs
+
 const router = useRouter()
 const route = useRoute()
 const isLoginStore = useIsLoginStore()
 // 已經調用後端判斷是否成功登入,從pinia中獲取登入資訊
-const isLoggedIn = computed(() => isLoginStore.getIsLoginData) // 綁定 Pinia
+const { isLogin: isLoggedIn } = storeToRefs(isLoginStore)
+
+const isMounted = ref(false)
+const avatar = ref<string>('')
+const userId = ref<string | null>(null)
 
 // 判斷是否隱藏導航列搜尋區塊（根據路由 meta 欄位）
 const hideNavSearch = computed(() => route.meta.hideNavSearch === true)
@@ -65,15 +71,30 @@ const handleGoHome = function () {
   router.push('/Home')
 
 }
-const avatar = ref<string>('')
 
-const getAvatarUrl = function () {
-  console.log("getAvatarUrl")
-  avatar.value = getCookieValue('avatar')
-  console.log("getAvatarUrl avatar.value:", avatar.value)
+const updateUserInfo = function () {
+  console.log("updateUserInfo from cookies")
+  avatar.value = getCookieValue('avatar') || ''
+  userId.value = getCookieValue('userId')
+  console.log("updated avatar:", avatar.value, "userId:", userId.value)
 }
+
+// 監聽登入狀態變化，及時同步 Cookie 數據
+watch(isLoggedIn, (newVal) => {
+  if (newVal) {
+    updateUserInfo()
+  } else {
+    avatar.value = ''
+    userId.value = null
+  }
+})
+
 onMounted(() => {
-  getAvatarUrl()
+  updateUserInfo()
+  // 延遲標記掛載完成，避開 Pinia Hydration 的同步 Patch 週期
+  nextTick(() => {
+    isMounted.value = true
+  })
 })
 </script>
 
@@ -95,14 +116,14 @@ onMounted(() => {
     </div>
 
     <div class="home-header-navigation-user-container">
-      <el-dropdown @command="handleCommand" v-if="isLoggedIn">
+      <el-dropdown @command="handleCommand" v-if="isMounted && isLoggedIn">
         <el-avatar :size="50" :src="avatar" />
         <template #dropdown>
           <el-dropdown-menu>
 
             <el-dropdown-item>
 
-              <router-link :to="{ name: 'User', params: { userId: getCookieValue('userId') } }">
+              <router-link v-if="userId" :to="{ name: 'User', params: { userId: userId } }">
                 個人資料
               </router-link>
 

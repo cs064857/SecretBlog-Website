@@ -335,7 +335,7 @@ const handleCreateArticle = function (content: string) {
       createArticleModalVisible.value = false;
       ElMessage.success("文章發布成功")
       //跳轉至文章的頁面
-      router.push({name:"Article",params:{articleId:data.data}})
+      router.push({ name: "Article", params: { articleId: data.data } })
     } else {
       ElMessage.error("文章發布失敗")
     }
@@ -500,6 +500,10 @@ import { useMediaQuery } from '@vueuse/core';
 
 const isLargeScreen = useMediaQuery('(min-width: 960px)');
 const showMobileMenu = ref(false);
+
+watch(isLargeScreen, (newVal) => {
+  console.log("isLargeScreen changed:", newVal);
+});
 
 
 
