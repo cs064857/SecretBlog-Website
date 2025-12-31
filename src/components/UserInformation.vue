@@ -382,5 +382,8 @@ const handleConfirmEditGender = function () {
 .text-white {
     color: #fff;
 }
+hr{
+    margin: 0 !important;
 
+}
 </style>

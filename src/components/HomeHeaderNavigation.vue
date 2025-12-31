@@ -27,9 +27,13 @@ const hideNavSearch = computed(() => route.meta.hideNavSearch === true)
 const handleGoBackend = function () {//進入後台管理系統
   router.push('/AdminVue')
 }
-const navigateToAuth = function () {//進入註冊/登入系統頁面
+const navigateToAuth = function (type: 'login' | 'register' = 'login') { // 進入註冊/登入系統頁面
   sessionStorage.setItem('redirect', route.fullPath)
-  router.push('/auth')
+  if (type === 'login') {
+    router.push('/auth/login')
+  } else {
+    router.push('/auth/register')
+  }
 }
 
 
@@ -138,14 +142,19 @@ onMounted(() => {
     </div>
 
 
-    <div class="home-header-navigation-backend-container">
-      <el-button style="height: 6vh;width: 6vh" @click="handleGoBackend" type="primary" :icon="Management" />
+
+
+    <div class="home-header-navigation-login-container" v-if="!isLoggedIn">
+      <el-button class="auth-btn login-btn" @click="navigateToAuth('login')" type="primary">
+        Log In
+      </el-button>
+      <el-button class="auth-btn signup-btn" @click="navigateToAuth('register')">
+        Sign Up
+      </el-button>
     </div>
 
-    <div class="home-header-navigation-login-container">
-      <button style="color: white; height: 6vh;width: 5vw" @click="navigateToAuth" v-if="!isLoggedIn">
-        Login/SingUp
-      </button>
+    <div class="home-header-navigation-backend-container">
+      <el-button style="height: 6vh;width: 6vh" @click="handleGoBackend" type="primary" :icon="Management" />
     </div>
   </div>
 </template>
@@ -196,6 +205,29 @@ onMounted(() => {
 .home-header-navigation-login-container {
   display: flex;
   align-items: center;
+  gap: 0.8rem;
+}
+
+.auth-btn {
+  height: 2.5rem;
+  min-width: 5rem;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.login-btn {
+  /* 這裡可以額外自定義樣式 */
+}
+
+.signup-btn {
+  background-color: transparent;
+  border: 1px solid var(--el-color-primary);
+  color: var(--el-color-primary);
+}
+
+.signup-btn:hover {
+  background-color: var(--el-color-primary-light-9);
 }
 
 /* Dark 模式樣式 */
