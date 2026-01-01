@@ -21,7 +21,7 @@
     <div class="auth-container-main-login">
 
         <div class="auth-container-main-login-item">
-            <label for="emailOrAccount" class="auth-label">Account</label>
+            <label for="emailOrAccount" class="auth-label">Email/Account</label>
             <br>
             <el-input id="emailOrAccount" v-model="accountName" style="width: 400px"
                 placeholder="Please input"></el-input>
@@ -60,8 +60,8 @@ const router = useRouter()
 const route = useRoute()
 const name = ref('Name20250224')
 const accountName = ref('Account20250224')
-const password = ref('Password20250224')
-const checkPassword = ref('Password20250224')
+const password = ref('Password20250705')
+const checkPassword = ref('Password20250705')
 const gender = ref('0')
 const email = ref('Email20250224@gmail.com')
 const emailValidCode = ref('')
@@ -145,13 +145,11 @@ const loginAccount = function () {
 
 
 
-                if (redirect == null) {
-                    router.push('/home')
-
+                if (redirect == null || redirect.includes('reset-password')) {
+                    router.push('/Home/2?page=1')
+                } else {
+                    router.push(redirect as string)
                 }
-
-                // console.log("redirect",redirect)
-                router.push(redirect as string)
                 break;
             // document.cookie = `refreshToken=${data.data.refreshToken}; path=/; max-age=600;`
 

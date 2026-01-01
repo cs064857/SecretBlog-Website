@@ -48,6 +48,7 @@ function doLogoutAndRedirect(triggerUrl) {
   isLoginStore.setIsLoginData(false)
   document.cookie = 'jwtToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
   document.cookie = 'userId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+  document.cookie = 'avatar=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
   if (!isOnAuthPage()) {
     sessionStorage.setItem('redirect', window.location.pathname + window.location.search)
   }
@@ -116,14 +117,17 @@ http.interceptors.response.use(response => {
   // 主流做法：統一在錯誤攔截器處理未授權（401/403），避免依賴 302
   if (error.response) {
     const status = error.response.status;
-    if ((status === 401 || status === 403)) {
+    if (status === 401) {
       // 若是在登入頁或呼叫登入/註冊 API，則不再重導，避免無限循環
       if (isOnAuthPage() || isAuthApi(error.config?.url)) {
-        console.warn('在登入流程中收到 ' + status + '，不重導')
+        console.warn('在登入流程中收到 401，不重導')
       } else {
-        console.warn('認證失效（HTTP ' + status + '），執行登出流程')
+        console.warn('認證失效（HTTP 401），執行登出流程')
         doLogoutAndRedirect(error.config?.url)
       }
+    } else if (status === 403) {
+      // 403 通常代表權限不足，而非認證失效。不應自動登出。
+      console.warn('收到 403 Forbidden（權限不足），請檢查資源權限或路徑是否正確:', error.config?.url)
     } else if (status === 302) {
       // 若後端真的回 302（較少見於 XHR），也做相同處理
       if (isOnAuthPage() || isAuthApi(error.config?.url)) {

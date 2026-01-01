@@ -1,6 +1,6 @@
-export interface registerDataInterface{
+export interface registerDataInterface {
     // name: string,
-    // accountName: string,
+    accountName: string,
     password: string,
     // checkPassword: string,
     // gender: string,

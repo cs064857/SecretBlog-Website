@@ -17,7 +17,7 @@
         <!-- {{isRegisterMode ? 'Already have an account?Login➔' : '沒有帳號?點此註冊'}} -->
 
     </div>
-    <hr/>
+    <hr />
     <div class="auth-container-main-external-providers">
         <h1>TODO第三方鑑權</h1>
     </div>
@@ -27,11 +27,11 @@
                     <br>
                     <el-input v-model="name" style="width: 240px" placeholder="Please input" ></el-input>
                 </div> -->
-        <!-- <div class="auth-container-main-register-item">
-                    <label>帳號名稱</label>
-                    <br>
-                    <el-input v-model="accountName" style="width: 240px" placeholder="Please input" ></el-input>
-                </div> -->
+        <div class="auth-container-main-register-item">
+            <label for="accountName" class="auth-label">Account</label>
+            <br>
+            <el-input id="accountName" v-model="accountName" style="width: 400px" placeholder="Please input"></el-input>
+        </div>
         <div class="auth-container-main-register-item">
             <label for="email" class="auth-label"">Email</label>
                     <!-- <label style=" color: #C9DDFF";font-size:14px>Email</label> -->
@@ -45,11 +45,12 @@
             <el-input id="password" v-model="password" style="width: 400px" type="password" show-password
                 placeholder="Please input"></el-input>
         </div>
-        <!-- <div class="auth-container-main-register-item">
-                    <label>確認密碼</label>
-                    <br>
-                    <el-input v-model="checkPassword" style="width: 240px" type="password" show-password placeholder="Please input" ></el-input>
-                </div> -->
+        <div class="auth-container-main-register-item">
+            <label for="checkPassword" class="auth-label">Confirm Password</label>
+            <br>
+            <el-input id="checkPassword" v-model="checkPassword" style="width: 400px" type="password" show-password
+                placeholder="Please input"></el-input>
+        </div>
         <!-- <div class="auth-container-main-register-item">
                     <label>性別</label>
                     <br>
@@ -58,14 +59,13 @@
 
         <div class="auth-container-main-register-emailValidCode">
             <label for="verificationCode" class="auth-label">Verification code</label>
-                    <br>
-                    <el-input id=" verificationCode" v-model="emailValidCode" style="width: 400px"
-                placeholder="Please input">
+            <br>
+            <el-input id=" verificationCode" v-model="emailValidCode" style="width: 400px" placeholder="Please input">
                 <template #append>
                     <el-button type="primary" @click="getemailValidCode">發送驗證碼</el-button>
                 </template>
-                </el-input>
-                <!-- <el-button type="primary" @click="getemailValidCode">發送驗證碼</el-button> -->
+            </el-input>
+            <!-- <el-button type="primary" @click="getemailValidCode">發送驗證碼</el-button> -->
         </div>
         <div class="auth-container-main-register-item">
             <el-button type="primary" @click="createAccount" style="width: 400px;height: 40px;">Create
@@ -90,9 +90,9 @@ import { useRouter, useRoute } from "vue-router"
 const router = useRouter()
 const route = useRoute()
 // const name = ref('Name20250224')
-// const accountName = ref('Account20250224')
+const accountName = ref('Account20250705')
 const password = ref('Password20250705')
-// const checkPassword = ref('Password20250224')
+const checkPassword = ref('Password20250705')
 // const gender = ref('0')
 const email = ref('Email20250705@gmail.com')
 const emailValidCode = ref('')
@@ -106,21 +106,20 @@ const getemailValidCode = function () {
     http({
         url: http.adornUrl('/ums/user/email-verify-code'),
         method: 'post',
-        // data: http.adornData({email:email.value,accountName:accountName.value}, false)
-        data: http.adornData({ email: email.value }, false)
+        data: http.adornData({ email: email.value, accountName: accountName.value }, false)
     }).then(({ data }: { data: R }) => {
-        switch (data.code) {
-            case 200:
+        switch (String(data.code)) {
+            case "200":
                 ElMessage.success("發送驗證碼成功");
                 // console.log("getemailValidCode",data)
                 break;
-            case 302:
+            case "302":
                 ElMessage.error("帳號已被占用!");
                 break;
-            case 303:
+            case "303":
                 ElMessage.error("信箱已被占用!");
                 break;
-            case 406:
+            case "406":
                 ElMessage.error("驗證碼請求次數過多，請稍後再試。");
                 break;
             default:
@@ -142,7 +141,7 @@ const createAccount = function () {
 
     const registerData: registerDataInterface = {
         // name: name.value,
-        // accountName: accountName.value,
+        accountName: accountName.value,
         password: password.value,
         // checkPassword: checkPassword.value,
         // gender: gender.value,
@@ -155,14 +154,14 @@ const createAccount = function () {
         method: 'post',
         data: http.adornData(registerData, false)
     }).then(({ data }: { data: R }) => {
-        switch (data.code) {
-            case 200:
+        switch (String(data.code)) {
+            case "200":
                 ElMessage.success("註冊成功");
                 ///TODO 註冊成功後跳轉到登入頁面
                 // window.location.replace(window.location.href);
                 router.push('/auth/login')
                 break;
-            case 300:
+            case "300":
                 ElMessage.error("驗證碼錯誤!");
                 break;
             default:
@@ -208,7 +207,7 @@ const createAccount = function () {
     align-content: right; */
         /* border: 5px solid #b92ab2; */
 
-      text-align: right;
+        text-align: right;
     }
 
     .auth-container-main-external-providers {
@@ -239,9 +238,10 @@ const createAccount = function () {
     /* border: 5px solid #2f77a0; */
 }
 
-hr{
+hr {
     border: 1px solid #ccc;
 }
+
 /* .auth-container {
     display: flex;
     justify-content: center;

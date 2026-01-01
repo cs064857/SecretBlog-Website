@@ -12,6 +12,7 @@ import TinyMceEditManagement from "@/components/admin/TinyMceEditManagement.vue"
 import ArticleManagement from "@/components/admin/ArticleManagement.vue";
 import HomePage from "@/components/HomePage.vue";
 import AuthForgotPassword from "@/components/AuthForgotPassword.vue";
+import AuthResetPassword from "@/components/AuthResetPassword.vue";
 import User from '@/components/User.vue';
 import UserSummary from "@/components/UserSummary.vue";
 import UserInformation from "@/components/UserInformation.vue";
@@ -96,8 +97,8 @@ const router = createRouter({
                 //     }
                 // },
                 {
-                    name:'SearchResults',
-                    path:'/search/:keyword',
+                    name: 'SearchResults',
+                    path: '/search/:keyword',
                     component: SearchLayout,
                     meta: { hideNavSearch: true } //控制是否顯示頂部搜索框
                 }
@@ -126,6 +127,12 @@ const router = createRouter({
                     path: 'forgot-password',
                     name: 'ForgotPassword',
                     component: AuthForgotPassword
+                },
+                {
+                    path: 'reset-password',
+                    name: 'ResetPassword',
+                    component: AuthResetPassword,
+                    alias: '/reset-password'
                 }
             ]
         },

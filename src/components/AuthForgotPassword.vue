@@ -3,36 +3,61 @@
     <div class="auth-container-main-forgot-password">
 
         <div class="auth-container-main-forgot-password-item">
-                <label  for="email" class="auth-label">Email</label>
-                <br>
-                <el-input id="email" v-model="email" style="width: 400px" placeholder="Please input" ></el-input>
+            <label for="email" class="auth-label">Email</label>
+            <br>
+            <el-input id="email" v-model="email" style="width: 400px" placeholder="Please input"></el-input>
         </div>
         <div class="auth-container-main-forgot-password-item">
             /// TODO 忘記密碼
-            <el-button type="primary"  @click="handleForgotPassword" style="width: 400px;height: 40px;">Reset Password</el-button>
+            <el-button type="primary" @click="handleForgotPassword" style="width: 400px;height: 40px;">Reset
+                Password</el-button>
 
         </div>
-        
+
     </div>
 </template>
 
 <script setup lang="ts">
 import '@/assets/css/auth-styles.css'
-import {ref} from 'vue'
+import { ref } from 'vue'
+import { forgotPasswordRequest } from '@/requests/userAuthRequest'
+import { ElMessage, ElLoading } from 'element-plus'
 
-const email= ref('');
-const handleForgotPassword = function(){
-    console.log("handleForgotPassword",email.value)
+const email = ref('');
+const handleForgotPassword = async function () {
+    if (!email.value) {
+        ElMessage.warning("請輸入 Email");
+        return;
+    }
+
+    const loading = ElLoading.service({
+        lock: true,
+        text: '正在發送重設連結...',
+        background: 'rgba(0, 0, 0, 0.7)',
+    });
+
+    try {
+        const { data } = await forgotPasswordRequest(email.value);
+        if (data.code === "200") {
+            ElMessage.success(data.msg || "重設連結已發送至您的郵箱");
+        } else {
+            ElMessage.error(data.msg || "發送失敗");
+        }
+    } catch (error) {
+        ElMessage.error("發送出錯，請稍後再試");
+    } finally {
+        loading.close();
+    }
 }
 </script>
 
-<style scoped>
 
+<style scoped>
 @media screen and (max-height: 2000px) {
-    .auth-container-main-forgot-password{
+    .auth-container-main-forgot-password {
         display: flex;
         flex-direction: column;
-        
+
         justify-self: center;
         justify-items: center;
         justify-content: center;
@@ -44,6 +69,4 @@ const handleForgotPassword = function(){
     }
 
 }
-
-
 </style>
