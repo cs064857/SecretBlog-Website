@@ -38,12 +38,10 @@ const handleDialogConfirm = function () {
       data: http.adornData({parentId: 0, categoryName: form.categoryName, categoryLevel: 1}, false)
     }).then(({data}) => {
       if (data.code == "200") {
-        ElMessage.success("新增分類數據成功")
-        getCategoryList()
+        showSuccessAndRefresh("新增分類數據成功")
       } else {
         ElMessage.error("新增分類數據錯誤");
       }
-      getCategoryList()
     });
   } else if (formActions.value == 'append') {
     if (selectedData.value != null) {
@@ -57,11 +55,10 @@ const handleDialogConfirm = function () {
         data: http.adornData({parentId: selectedData.value.id, categoryName: form.categoryName}, false)
       }).then(({data}) => {
         if (data.code == "200") {
-          ElMessage.success("添加分類數據成功")
-          getCategoryList()
+          showSuccessAndRefresh("新增分類數據成功")
         } else {
           //elementPlus的Message消息提示組件
-          ElMessage.error("獲取分類數據失敗")
+          ElMessage.error("新增分類數據失敗")
         }
 
       });
@@ -92,6 +89,18 @@ const getCategoryList = function () {
   })
 }
 
+// 成功訊息顯示完成後再刷新，避免訊息一閃而過
+const showSuccessAndRefresh = (message: string) => {
+  ElMessage({
+    message,
+    type: 'success',
+    duration: 800,
+    onClose: () => {
+      getCategoryList()
+    },
+  })
+}
+
 onMounted(() => {
   getCategoryList()//從後端獲取分類數據
 
@@ -117,8 +126,7 @@ const handleDialogEditLevelOne = function () {
     data: http.adornData(form.categoryName, false)
   }).then(({data}: { data: R }) => {
     if (data.code == "200") {
-      ElMessage.success("修改分類數據成功")
-      getCategoryList()
+      showSuccessAndRefresh("修改分類數據成功")
     } else {
       ElMessage.error("修改分類數據錯誤");
     }
@@ -144,8 +152,7 @@ const remove = (node: Node, data: Tree) => {
           // data: http.adornData(data.id, false)
         }).then(({data}) => {
           if (data.code == "200") {
-            ElMessage.success("刪除數據成功")
-            getCategoryList()
+            showSuccessAndRefresh("刪除數據成功")
           } else {
             ElMessage.error("刪除數據錯誤")
           }
@@ -253,29 +260,30 @@ const dataSource = ref<Tree[]>([]);
 
 <template>
   <div class="AdminVue-TreeCategories">
-    <div class="custom-tree-container">
-      <el-switch
-          v-model="draggable"
-          class="mb-2"
-          active-text="開啟拖曳"
-          inactive-text="關閉拖曳"
-      />
-      <br>
-      <el-button style="max-width: 11vh;min-width: 11vh;height: auto" @click="handleAddLevelOneCategory" type="primary"
-                 round>新增一級分類
-      </el-button>
-      <el-tree
-          style="max-width: 600px"
-          :data="dataSource"
-          show-checkbox
-          @node-drop="handleDrag"
-          node-key="id"
-          default-expand-all
-          :draggable="draggable"
-          :allow-drop="handleAllowDrop"
-          :expand-on-click-node="false"
-      >
-        <template #default="{ node, data }">
+    <el-scrollbar height="100%" always class="tree-scrollbar">
+      <div class="custom-tree-container">
+        <el-switch
+            v-model="draggable"
+            class="mb-2"
+            active-text="開啟拖曳"
+            inactive-text="關閉拖曳"
+        />
+        <br>
+        <el-button style="max-width: 11vh;min-width: 11vh;height: auto" @click="handleAddLevelOneCategory" type="primary"
+                   round>新增一級分類
+        </el-button>
+        <el-tree
+            style="max-width: 600px"
+            :data="dataSource"
+            show-checkbox
+            @node-drop="handleDrag"
+            node-key="id"
+            default-expand-all
+            :draggable="draggable"
+            :allow-drop="handleAllowDrop"
+            :expand-on-click-node="false"
+        >
+          <template #default="{ node, data }">
         <span class="custom-tree-node">
           <span>{{ node.label }}</span>
           <span>
@@ -285,10 +293,11 @@ const dataSource = ref<Tree[]>([]);
           </span>
         </span>
 
-        </template>
-      </el-tree>
+          </template>
+        </el-tree>
 
-    </div>
+      </div>
+    </el-scrollbar>
 
   </div>
   <!-- 新增分類表單 -->
@@ -343,9 +352,23 @@ const dataSource = ref<Tree[]>([]);
 
 .AdminVue-TreeCategories {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
+  align-items: stretch;
   background-color: var(--bg-hex-d7e6c8);
   width: 100%;
   height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.tree-scrollbar {
+  width: 100%;
+  height: 100%;
+}
+
+.custom-tree-container {
+  width: 100%;
 }
 </style>

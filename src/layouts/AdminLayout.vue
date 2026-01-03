@@ -6,7 +6,7 @@
 
         <el-switch v-model="darkModeToggle" class="ml-2" @change="switchchange" />
       </el-header>
-      <el-container>
+      <el-container class="common-layout-body">
         <el-aside style="width: 200px">
           <!--   NavMenu導航菜單     -->
           <el-row style="min-height: 100%;max-height: 100%">
@@ -100,9 +100,8 @@
             </el-col>
           </el-row>
         </el-aside>
-        <el-container>
-<!--          <el-main style="padding: 0;max-height: 90%;min-height: 85%;min-width: 100%;overflow: auto;" >-->
-          <el-main style="padding: 0;max-height: 100%;min-height: 100%;min-width: 100%;overflow: auto;" >
+        <el-container class="common-layout-content">
+          <el-main class="common-layout-main">
             <router-view  name="AdminVueRouter"></router-view>
 
             <!--            <div class="grid-item">-->
@@ -249,22 +248,35 @@ html.dark .common-layout-header{
 }
 
 .common-layout{
-  overflow: clip;
   position: absolute;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
-  min-height: 100%;
-  max-height: 100%;
   width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
-:deep(.el-main) {
+/* 避免 flex 佈局下內容被撐高導致無法捲動 */
+.common-layout-body {
+  flex: 1;
+  min-height: 0;
+}
+
+.common-layout-content {
+  flex: 1;
+  min-height: 0;
+}
+
+.common-layout-main {
+  padding: 0;
+  min-width: 100%;
+  overflow: auto;
+  min-height: 0;
   display: flex;
   justify-content: center;
-  align-items: center;
-  /* background-color: #111111; */
+  align-items: stretch;
 }
 
 :deep(.el-button) {
@@ -273,9 +285,8 @@ html.dark .common-layout-header{
 }
 
 :deep(.el-container) {
-
-  width: 100%;
-  height: 100%; /* 讓容器高度佔滿整個視窗 */
+  min-width: 0;
+  min-height: 0;
 }
 
 
