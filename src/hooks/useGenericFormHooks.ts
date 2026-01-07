@@ -54,16 +54,18 @@ const cleanFormValue = (form:Ref<Object>,ruleFormRef:Ref<FormInstance | null>) =
 export const saveUserData = function (form:Ref<Object>,dialogVisible:Ref<boolean>,ruleFormRef: Ref<FormInstance | null>){
     console.log("新增資料...")
     // console.log("form.value",form.value)
-    saveUserDataRequest(form.value).then(({data}:{data:R}) => {
+    return saveUserDataRequest(form.value).then(({data}:{data:R}) => {
         if (data.code == "200") {
-
             // emit('dialogVisible', dialogVisible.value);
             dialogVisibleStore.setDialogVisible(false)
             // console.log('表單視窗關閉...');
             window.location.replace(window.location.href);
             //初始化清理表單資料
             cleanFormValue(form,ruleFormRef);
+        } else {
+            ElMessage.error(data.msg || "新增資料失敗")
         }
+        return data
     });
 }
 
@@ -208,14 +210,17 @@ export const updateUserData = async function (form: Ref<formUserInterface>){
 
 // 提交表單
 export function useOnSubmit(ruleFormRef:Ref<FormInstance | null>, form: Ref<formUserInterface>) {
+    let submitting = false;
     return async () => {
 
+        if (submitting) return;
         console.log('formEl:', ruleFormRef.value);
         console.log('actionType:', actionType.value);
         console.log('props:', props);
         console.log('form:', form.value);
 
         if (!ruleFormRef.value) return;
+        submitting = true;
         try {
             await ruleFormRef.value.validate();
             console.log("actionType表單行為:", actionType.value);
@@ -223,13 +228,15 @@ export function useOnSubmit(ruleFormRef:Ref<FormInstance | null>, form: Ref<form
             console.log('表單資料::', form.value);
             console.log('表單formEl:', ruleFormRef.value);
             if (actionType.value === "update") {
-                updateUserData(form);
+                await updateUserData(form);
             } else if (actionType.value === "add") {
-                saveUserData(form,dialogVisible,ruleFormRef);
+                await saveUserData(form,dialogVisible,ruleFormRef);
             }
 
         } catch (error) {
             console.log('表單驗證失敗', error);
+        } finally {
+            submitting = false;
         }
     }
 }
@@ -294,4 +301,3 @@ export const initializeRules = function (form: Ref<formUserInterface>) {
         Object.assign(rules, useRules(form.value, options));//更新 rules
     }
 }
-

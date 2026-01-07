@@ -20,6 +20,7 @@ const { isLogin: isLoggedIn } = storeToRefs(isLoginStore)
 const isMounted = ref(false)
 const avatar = ref<string>('')
 const userId = ref<string | null>(null)
+const signOutSubmitting = ref(false)
 
 // 判斷是否隱藏導航列搜尋區塊（根據路由 meta 欄位）
 const hideNavSearch = computed(() => route.meta.hideNavSearch === true)
@@ -42,6 +43,9 @@ const handleCommand = (command) => {
 }
 
 const handleSignOut = function () {
+  if (signOutSubmitting.value) return
+  signOutSubmitting.value = true
+
   //TODO 調用Logout API使jwtToken在後端拉入黑名單中
   http({
     url: http.adornUrl('/ums/user/logout'),
@@ -57,7 +61,7 @@ const handleSignOut = function () {
       document.cookie = "jwtToken=; max-age=0; path=/;";
 
 
-      router.push('/home')
+      router.push('/Home/2?page=1')
 
       ElMessage.success("登出成功")
     } else {
@@ -66,13 +70,15 @@ const handleSignOut = function () {
 
   }).catch(() => {
     ElMessage.error("請求出錯，請稍後再試");
+  }).finally(() => {
+    signOutSubmitting.value = false
   });
 
 
 }
 const handleGoHome = function () {
 
-  router.push('/Home')
+  router.push('/Home/2?page=1')
 
 }
 
@@ -133,7 +139,7 @@ onMounted(() => {
 
 
             </el-dropdown-item>
-            <el-dropdown-item @click="handleSignOut">登出</el-dropdown-item>
+            <el-dropdown-item :disabled="signOutSubmitting" @click="handleSignOut">登出</el-dropdown-item>
             <el-dropdown-item disabled>暫無選項</el-dropdown-item>
 
           </el-dropdown-menu>

@@ -118,7 +118,10 @@ const handleEdit = function (node, data) {
 }
 // 編輯修改按鈕及功能
 const dialogFormVisibleEditLevelOne = ref<boolean>(false)
+const editLevelOneSubmitting = ref(false)
 const handleDialogEditLevelOne = function () {
+  if (editLevelOneSubmitting.value) return
+  editLevelOneSubmitting.value = true
   // console.log("form", form);
   http({
     url: http.adornUrl(`/article/category/${selectedData.value.data.id}`),
@@ -131,6 +134,10 @@ const handleDialogEditLevelOne = function () {
       ElMessage.error("修改分類數據錯誤");
     }
     dialogFormVisibleEditLevelOne.value = false
+  }).catch(() => {
+    ElMessage.error("請求出錯，請稍後再試")
+  }).finally(() => {
+    editLevelOneSubmitting.value = false
   });
   form.categoryName = ''//清空表單輸入數據
   selectedData.value = ''//清空選中的節點數據
@@ -327,7 +334,8 @@ const dataSource = ref<Tree[]>([]);
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="dialogFormVisibleEditLevelOne = false">Cancel</el-button>
-        <el-button type="primary" @click="handleDialogEditLevelOne">
+        <el-button type="primary" @click="handleDialogEditLevelOne" :loading="editLevelOneSubmitting"
+          :disabled="editLevelOneSubmitting">
           送出
         </el-button>
       </div>

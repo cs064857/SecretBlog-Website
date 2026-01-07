@@ -129,6 +129,7 @@ import { AmsListRecordsListInterface } from "@/interface/amsListRecordsInterface
 
 // 重試功能
 const handleRetry = () => {
+  if (isLoading.value) return
   getArticles(route.params.categoryId, route.query.page, route.query.tagsId)
 
   console.log("HomeArticleList發送retry-home-apis")

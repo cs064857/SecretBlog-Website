@@ -62,13 +62,15 @@
             <br>
             <el-input id=" verificationCode" v-model="emailValidCode" style="width: 400px" placeholder="Please input">
                 <template #append>
-                    <el-button type="primary" @click="getemailValidCode">發送驗證碼</el-button>
+                    <el-button type="primary" @click="getemailValidCode" :loading="emailCodeSubmitting"
+                        :disabled="emailCodeSubmitting">發送驗證碼</el-button>
                 </template>
             </el-input>
             <!-- <el-button type="primary" @click="getemailValidCode">發送驗證碼</el-button> -->
         </div>
         <div class="auth-container-main-register-item">
-            <el-button type="primary" @click="createAccount" style="width: 400px;height: 40px;">Create
+            <el-button type="primary" @click="createAccount" :loading="submitting" :disabled="submitting"
+                style="width: 400px;height: 40px;">Create
                 Account</el-button>
         </div>
 
@@ -97,12 +99,16 @@ const checkPassword = ref('Password20250705')
 const email = ref('Email20250705@gmail.com')
 const emailValidCode = ref('')
 const isRegisterMode = ref<boolean>(true)
+const emailCodeSubmitting = ref(false)
+const submitting = ref(false)
 
 const switchMode = function () {
     isRegisterMode.value = !isRegisterMode.value
     router.push(isRegisterMode.value ? '/auth/register' : '/auth/login')
 }
 const getemailValidCode = function () {
+    if (emailCodeSubmitting.value) return
+    emailCodeSubmitting.value = true
     http({
         url: http.adornUrl('/ums/user/email-verify-code'),
         method: 'post',
@@ -134,10 +140,16 @@ const getemailValidCode = function () {
         //     ElMessage.error("發送驗證碼失敗，請稍後再試");
         // }
         return data
+    }).catch(() => {
+        ElMessage.error("請求出錯，請稍後再試")
+    }).finally(() => {
+        emailCodeSubmitting.value = false
     });
 }
 
 const createAccount = function () {
+    if (submitting.value) return
+    submitting.value = true
 
     const registerData: registerDataInterface = {
         // name: name.value,
@@ -180,6 +192,10 @@ const createAccount = function () {
         //     ElMessage.error("註冊失敗，請稍後再試");
         // }
         return data
+    }).catch(() => {
+        ElMessage.error("請求出錯，請稍後再試")
+    }).finally(() => {
+        submitting.value = false
     });
 }
 

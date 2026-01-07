@@ -8,8 +8,9 @@
             <el-input id="email" v-model="email" style="width: 400px" placeholder="Please input"></el-input>
         </div>
         <div class="auth-container-main-forgot-password-item">
-            /// TODO 忘記密碼
-            <el-button type="primary" @click="handleForgotPassword" style="width: 400px;height: 40px;">Reset
+
+            <el-button type="primary" @click="handleForgotPassword" :loading="submitting" :disabled="submitting"
+                style="width: 400px;height: 40px;">Reset
                 Password</el-button>
 
         </div>
@@ -24,12 +25,15 @@ import { forgotPasswordRequest } from '@/requests/userAuthRequest'
 import { ElMessage, ElLoading } from 'element-plus'
 
 const email = ref('');
+const submitting = ref(false)
 const handleForgotPassword = async function () {
+    if (submitting.value) return
     if (!email.value) {
         ElMessage.warning("請輸入 Email");
         return;
     }
 
+    submitting.value = true
     const loading = ElLoading.service({
         lock: true,
         text: '正在發送重設連結...',
@@ -47,6 +51,7 @@ const handleForgotPassword = async function () {
         ElMessage.error("發送出錯，請稍後再試");
     } finally {
         loading.close();
+        submitting.value = false
     }
 }
 </script>

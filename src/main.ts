@@ -49,7 +49,7 @@ store.use(piniaPluginPersistedstate)
 app.use(store)
 app.use(router)
 
-// 業界主流：應用啟動時向後端詢問目前登入狀態，初始化 isLogin
+// 應用啟動時向後端詢問目前登入狀態，初始化 isLogin
 import { isLoginRequest } from '@/requests/userAuthRequest';
 isLoginRequest();
 

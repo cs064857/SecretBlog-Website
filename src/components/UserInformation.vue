@@ -2,11 +2,11 @@
     <div class="user-information-container">
         <div class="user-information-header">
             <h2 class="page-title">個人資料詳情</h2>
-            
+
         </div>
 
         <div class="user-information-content">
-            <hr/>
+            <hr />
             <!-- 頭像 -->
             <div class="info-item">
                 <div class="info-label">頭像</div>
@@ -18,7 +18,7 @@
                 </div>
             </div>
 
-            <hr/>
+            <hr />
 
             <!-- 全名/暱稱 -->
             <div class="info-item">
@@ -101,7 +101,7 @@
 
 </template>
 <script lang="ts" setup>
-import { onMounted, ref, defineProps, computed } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { useRouter, useRoute } from "vue-router";
 import http from "@/utils/httpRequest.js";
 import { ElMessage } from "element-plus";
@@ -237,6 +237,7 @@ const handleEditNickName = function () {
     if (userInformation.value) userInformation.value.nickName = inputNickName.value;
 }
 const handleConfirmEditAvatar = function () {
+    if (uploading.value) return;
     if (!cropperRef.value) return;
 
     const { canvas } = cropperRef.value.getResult();
@@ -382,7 +383,7 @@ const handleConfirmEditGender = function () {
 .text-white {
     color: #fff;
 }
-hr{
+hr {
     margin: 0 !important;
 
 }

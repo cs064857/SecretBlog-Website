@@ -478,6 +478,8 @@ const isArticleOwner = (): boolean => {
  */
 const handleCommentLikes = function (commentId: string) {
   console.log("commentId:", commentId)
+  if (commentLikeSubmittingMap.value[commentId]) return;
+  commentLikeSubmittingMap.value[commentId] = true;
   http({
     url: http.adornUrl(`/article/${articleId}/comments/${commentId}/likes`),
     method: 'post'
@@ -506,6 +508,8 @@ const handleCommentLikes = function (commentId: string) {
     }
   }).catch(() => {
     ElMessage.error("請求出錯，請稍後再試");
+  }).finally(() => {
+    commentLikeSubmittingMap.value[commentId] = false;
   });
 
 }
@@ -726,6 +730,9 @@ const handleReplyComment = function (content: string) {
   console.log("handleReplyComment:currentReplyUser:", currentReplyUser.value)
   console.log("handleReplyComment:articleId:", articleId)
 
+  if (commentSubmitSubmitting.value) return;
+  commentSubmitSubmitting.value = true;
+
   const replyCommentData: replyCommentDataInterface = {
     parentCommentId: currentReplyUser.value.commentId,
     commentContent: content
@@ -748,6 +755,8 @@ const handleReplyComment = function (content: string) {
     }
   }).catch(() => {
     ElMessage.error("請求出錯，請稍後再試");
+  }).finally(() => {
+    commentSubmitSubmitting.value = false;
   });
 
 }
@@ -756,6 +765,9 @@ const handleEditComment = function (content: string) {
   console.log("handleEditComment:content:", content)
   console.log("handleEditComment:currentReplyUser:", currentReplyUser.value)
   console.log("handleEditComment:articleId:", articleId)
+
+  if (editCommentSubmitting.value) return;
+  editCommentSubmitting.value = true;
 
   // 編輯留言的資料結構（符合後端 AmsCommentEditDTO）
   const editCommentData = {
@@ -789,6 +801,8 @@ const handleEditComment = function (content: string) {
     }
   }).catch(() => {
     ElMessage.error("請求出錯，請稍後再試");
+  }).finally(() => {
+    editCommentSubmitting.value = false;
   });
 
 }
@@ -810,6 +824,9 @@ const handleReplyArticle = function (content: string) {
   console.log("handleReplyArticle:content:", content)
   console.log("handleReplyArticle:currentReplyUser:", currentReplyUser.value)
   console.log("handleReplyArticle:articleId:", articleId)
+
+  if (commentSubmitSubmitting.value) return;
+  commentSubmitSubmitting.value = true;
 
   const replyCommentData: replyCommentDataInterface = {
     parentCommentId: null,
@@ -833,6 +850,8 @@ const handleReplyArticle = function (content: string) {
     }
   }).catch(() => {
     ElMessage.error("請求出錯，請稍後再試");
+  }).finally(() => {
+    commentSubmitSubmitting.value = false;
   });
 
 }
@@ -995,6 +1014,9 @@ import editArticleInterface from "@/interface/editorArticleInterface";
 import { ITEM_RENDER_EVT } from "element-plus/es/components/virtual-list/src/defaults";
 
 const handleEditArticle = async function (newContent: string) {
+  if (editArticleSubmitting.value) return;
+  editArticleSubmitting.value = true;
+
   //補上文章 ID
   // editArticleData.articleId=articleId
   console.log("handleEditArticle:editArticleData:articleId:", articleId)
@@ -1012,19 +1034,26 @@ const handleEditArticle = async function (newContent: string) {
 
   console.log("handleEditArticle:updateArticle.value:", updateArticle.value)
 
-  const { data } = await http({
-    url: http.adornUrl(`/article/update/${articleId}`),
-    method: 'put',
-    data: http.adornData(updateArticle.value, false)
-  })
+  try {
+    const { data } = await http({
+      url: http.adornUrl(`/article/update/${articleId}`),
+      method: 'put',
+      data: http.adornData(updateArticle.value, false)
+    })
 
-  if (data.code == "200") {
-    console.log("handleEditArticle:data.data", data.data)
-    ElMessage.success("編輯成功")
-    //關閉模態框
-    createArticleModalVisible.value = false;
-  } else {
-    ElMessage.error("編輯失敗")
+    if (data.code == "200") {
+      console.log("handleEditArticle:data.data", data.data)
+      ElMessage.success("編輯成功")
+      //關閉模態框
+      createArticleModalVisible.value = false;
+    } else {
+      ElMessage.error("編輯失敗")
+    }
+  } catch (error) {
+    console.error("編輯文章失敗:", error)
+    ElMessage.error("請求出錯，請稍後再試")
+  } finally {
+    editArticleSubmitting.value = false;
   }
 
 }
@@ -1711,6 +1740,9 @@ const handleIsCommentLiked = function (commentId: string): boolean {
 const handleCancelCommentLikes = async function (commentId: string) {
   console.log("handleCancelCommentLikes commentId:", commentId)
 
+  if (commentLikeSubmittingMap.value[commentId]) return;
+  commentLikeSubmittingMap.value[commentId] = true;
+
   try {
     const { data } = await http({
       url: http.adornUrl(`/article/${articleId}/comments/${commentId}/unlikes`),
@@ -1750,6 +1782,8 @@ const handleCancelCommentLikes = async function (commentId: string) {
     }
   } catch (error) {
     console.error("獲取文章資料失敗:", error);
+  } finally {
+    commentLikeSubmittingMap.value[commentId] = false;
   }
 };
 
@@ -1757,6 +1791,9 @@ const handleCancelCommentLikes = async function (commentId: string) {
  * 刪除留言
  */
 const handleDeleteComment = async function (commentId: string) {
+  if (deleteCommentSubmittingMap.value[commentId]) return;
+  deleteCommentSubmittingMap.value[commentId] = true;
+
   try {
     await ElMessageBox.confirm(
       '確定要刪除這則留言嗎？此操作無法復原。',
@@ -1791,6 +1828,8 @@ const handleDeleteComment = async function (commentId: string) {
       console.error("刪除留言失敗:", error);
       ElMessage.error("刪除失敗，請稍後再試");
     }
+  } finally {
+    deleteCommentSubmittingMap.value[commentId] = false;
   }
 };
 
@@ -1798,6 +1837,9 @@ const handleDeleteComment = async function (commentId: string) {
  * 刪除文章
  */
 const handleDeleteArticle = async function () {
+  if (deleteArticleSubmitting.value) return;
+  deleteArticleSubmitting.value = true;
+
   try {
     await ElMessageBox.confirm(
       '確定要刪除這篇文章嗎？此操作無法復原。',
@@ -1826,11 +1868,14 @@ const handleDeleteArticle = async function () {
       console.error("刪除文章失敗:", error);
       ElMessage.error("刪除失敗，請稍後再試");
     }
+  } finally {
+    deleteArticleSubmitting.value = false;
   }
 };
 
 // 重試載入所有資料（用於 LoadingSpinner 元件的重試按鈕）
 const handleRetryLoad = () => {
+  if (loading.value) return;
   loading.value = true;
   error.value = null;
   getArticleAndComments();
@@ -1871,11 +1916,22 @@ const handleChange = (href: string) => {
 // const articleLikesCount = ref(0);
 const isLiked = ref(false);
 const isBooksMarked = ref(false);
+const articleLikeSubmitting = ref(false);
+const articleBookmarkSubmitting = ref(false);
+const commentLikeSubmittingMap = ref<Record<string, boolean>>({});
+const commentSubmitSubmitting = ref(false);
+const editCommentSubmitting = ref(false);
+const editArticleSubmitting = ref(false);
+const deleteArticleSubmitting = ref(false);
+const deleteCommentSubmittingMap = ref<Record<string, boolean>>({});
 /**
  * 文章點讚處理函數
  */
 const handleArticleLike = function () {
   console.log("articleId:", articleId);
+
+  if (articleLikeSubmitting.value) return;
+  articleLikeSubmitting.value = true;
 
   http({
     url: http.adornUrl(`/article/articles/${articleId}/like`),
@@ -1896,6 +1952,8 @@ const handleArticleLike = function () {
     }
   }).catch(() => {
     ElMessage.error("請求出錯，請稍後再試");
+  }).finally(() => {
+    articleLikeSubmitting.value = false;
   });
 };
 
@@ -1903,6 +1961,9 @@ const handleArticleLike = function () {
  * 取消文章點讚函數
  */
 const handleCancelArticleLike = async function () {
+
+  if (articleLikeSubmitting.value) return;
+  articleLikeSubmitting.value = true;
 
   try {
     const { data } = await http({
@@ -1928,6 +1989,8 @@ const handleCancelArticleLike = async function () {
     }
   } catch (error) {
     console.error("獲取文章資料失敗:", error);
+  } finally {
+    articleLikeSubmitting.value = false;
   }
 };
 
@@ -1936,6 +1999,9 @@ const handleCancelArticleLike = async function () {
  */
 const handleArticleBookmark = async function () {
   console.log("handleArticleBookmark - articleId:", articleId);
+
+  if (articleBookmarkSubmitting.value) return;
+  articleBookmarkSubmitting.value = true;
 
   try {
     const { data } = await http({
@@ -1957,6 +2023,8 @@ const handleArticleBookmark = async function () {
   } catch (error) {
     console.error("加入書籤失敗:", error);
     ElMessage.error("請求出錯，請稍後再試");
+  } finally {
+    articleBookmarkSubmitting.value = false;
   }
 };
 
@@ -1965,6 +2033,9 @@ const handleArticleBookmark = async function () {
  */
 const handleCancelArticleBookmark = async function () {
   console.log("handleCancelArticleBookmark - articleId:", articleId);
+
+  if (articleBookmarkSubmitting.value) return;
+  articleBookmarkSubmitting.value = true;
 
   try {
     const { data } = await http({
@@ -1986,6 +2057,8 @@ const handleCancelArticleBookmark = async function () {
   } catch (error) {
     console.error("移除書籤失敗:", error);
     ElMessage.error("請求出錯，請稍後再試");
+  } finally {
+    articleBookmarkSubmitting.value = false;
   }
 };
 </script>

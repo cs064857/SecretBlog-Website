@@ -249,6 +249,7 @@ const loadMore = (direction: ScrollbarDirection) => {
   console.log('載入更多...')
   console.log("direction:", direction)
   if (direction === 'bottom') {
+    if (isLoading.value || isLast.value || !keyword.value) return
     pageNumber.value += 1
     fetchSearch()
   }
@@ -257,6 +258,7 @@ const loadMore = (direction: ScrollbarDirection) => {
 
 
 const handleRetry = () => {
+  if (isLoading.value) return
   resetSearch()
   fetchSearch()
 }

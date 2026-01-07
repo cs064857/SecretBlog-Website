@@ -218,6 +218,7 @@ import HomeHeaderNavigation from "../components/HomeHeaderNavigation.vue";
 // 回覆模態框相關狀態
 import ReplyModal from "@/components/ReplyModal.vue";
 const createArticleModalVisible = ref(false);
+const createArticleSubmitting = ref(false);
 const currentReplyUser = ref({
   username: '',
   commentContent: '',
@@ -313,6 +314,9 @@ const handleCloseReplyModal = () => {
 import { createArticleDataInterface } from "@/interface/createArticleDataInterface";
 const handleCreateArticle = function (content: string) {
 
+  if (createArticleSubmitting.value) return;
+  createArticleSubmitting.value = true;
+
   const createArticle: createArticleDataInterface = {
     title: inputTitle.value,
     content: content,
@@ -322,6 +326,7 @@ const handleCreateArticle = function (content: string) {
 
   if (!createArticle.title || !createArticle.content || !createArticle.categoryId) {
     ElMessage.warning("請填寫完整文章資訊")
+    createArticleSubmitting.value = false;
     return
   }
 
@@ -339,6 +344,10 @@ const handleCreateArticle = function (content: string) {
     } else {
       ElMessage.error("文章發布失敗")
     }
+  }).catch(() => {
+    ElMessage.error("請求出錯，請稍後再試")
+  }).finally(() => {
+    createArticleSubmitting.value = false;
   });
 
 }

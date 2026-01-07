@@ -35,7 +35,8 @@
     </div>
 
     <div id="inputFooter">
-      <el-button type="primary" round @click="handleInput" style="position: relative;bottom: 1vh">送出</el-button>
+      <el-button type="primary" round @click="handleInput" :loading="submitting" :disabled="submitting"
+        style="position: relative;bottom: 1vh">送出</el-button>
 <!--      <button @click="handleInput">送出</button>-->
     </div>
 
@@ -242,7 +243,11 @@ const handleTagsChange = function(value:number){
 
 
 
+const submitting = ref(false)
+
 const handleInput = function () {
+  if (submitting.value) return
+  submitting.value = true
   const save = ref(
     {
       title: inputTitle.value,
@@ -267,6 +272,10 @@ const handleInput = function () {
     }else {
       ElMessage.error("文章發布失敗")
     }
+  }).catch(() => {
+    ElMessage.error("請求出錯，請稍後再試")
+  }).finally(() => {
+    submitting.value = false
   });
 
 }// 處理送出至資料庫中

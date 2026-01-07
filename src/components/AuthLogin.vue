@@ -16,7 +16,11 @@
 
     <hr />
     <div class="auth-container-main-external-providers">
-        <h1>TODO第三方鑑權</h1>
+        <el-button @click="handleGoogleLogin"
+            style="width: 400px; height: 40px; border-radius: 4px; border: 1px solid #dadce0; background-color: white; color: #3c4043; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;">
+            <img src="@/assets/google-color.svg" width="20" height="20" alt="Google Logo">
+            Sign in with Google
+        </el-button>
     </div>
     <div class="auth-container-main-login">
 
@@ -37,7 +41,8 @@
         <div class="auth-container-main-forget-password" @click="handleForgotPassword">忘記密碼</div>
 
         <div class="auth-container-main-login-item">
-            <el-button type="primary" @click="loginAccount" style="width: 400px;height: 40px;">Login Account</el-button>
+            <el-button type="primary" @click="loginAccount" :loading="submitting" :disabled="submitting"
+                style="width: 400px;height: 40px;">Login Account</el-button>
         </div>
 
     </div>
@@ -65,6 +70,7 @@ const checkPassword = ref('Password20250705')
 const gender = ref('0')
 const email = ref('Email20250224@gmail.com')
 const emailValidCode = ref('')
+const submitting = ref(false)
 // const isRegisterMode = ref<boolean>(true)
 
 const handleForgotPassword = function () {
@@ -114,6 +120,8 @@ const getemailValidCode = function () {
 }
 import { isLoginRequest } from "@/requests/userAuthRequest"
 const loginAccount = function () {
+    if (submitting.value) return
+    submitting.value = true
 
     const loginData: loginDataInterface = {
 
@@ -165,10 +173,18 @@ const loginAccount = function () {
         }
 
         return data
+    }).catch(() => {
+        ElMessage.error("請求出錯，請稍後再試")
+    }).finally(() => {
+        submitting.value = false
     });
 }
-
-
+// Google 登入
+const handleGoogleLogin = () => {
+    // 直接重導向到後端的 OAuth2 授權端點
+    // 透過 Gateway (port 88) 轉發，路徑包含 /api 前綴
+    window.location.href = `${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/google`;
+}
 </script>
 
 <style scoped>
@@ -196,7 +212,7 @@ const loginAccount = function () {
 
     .auth-container-main-external-providers {
         border: 5px solid #2f77a0;
-        visibility: hidden;
+        /* visibility: hidden; */
     }
 
     .auth-container-main-login {
@@ -228,7 +244,7 @@ const loginAccount = function () {
 
 }
 
-hr{
+hr {
 
     border: 1px solid #ccc;
 }

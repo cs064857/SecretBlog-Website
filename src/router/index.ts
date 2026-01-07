@@ -19,6 +19,7 @@ import UserInformation from "@/components/UserInformation.vue";
 import NotFound from "@/components/NotFound.vue";
 import SearchLayout from "@/layouts/SearchLayout.vue";
 import HomeArticleList from "@/components/HomeArticleList.vue";
+// import AuthCallback from "@/components/user/AuthCallback.vue";
 const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -134,6 +135,12 @@ const router = createRouter({
                     component: AuthResetPassword,
                     alias: '/reset-password'
                 }
+                // ,
+                // {
+                //     name: 'AuthCallback',
+                //     path: 'callback',
+                //     component: AuthCallback,
+                // }
             ]
         },
         {
@@ -172,6 +179,7 @@ const router = createRouter({
 
             ]
         }
+        
         // ,
         // {
         //     name: 'Search',
