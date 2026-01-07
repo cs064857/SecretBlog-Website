@@ -211,7 +211,10 @@ const handleGoogleLogin = () => {
     }
 
     .auth-container-main-external-providers {
-        border: 5px solid #2f77a0;
+        /* border: 5px solid #2f77a0; */
+        align-items: center;
+        justify-content: center;
+        display: flex;
         /* visibility: hidden; */
     }
 
