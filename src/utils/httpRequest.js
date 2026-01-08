@@ -2,6 +2,8 @@
 import axios from 'axios'
 import qs from 'qs'
 import merge from 'lodash/merge'
+import { ElMessage } from 'element-plus'
+import { useIsLoginStore } from '@/pinia/useIsLoginStore'
 // import { clearLoginInfo } from '@/utils'
 
 const http = axios.create({
@@ -10,28 +12,36 @@ const http = axios.create({
   headers: {
     'Content-Type': 'application/json; charset=utf-8'
   },
-  //避免陣列參數被序列化為 tagsId[]=1 的格式, 達成目標是 tagsId=1,2
+  // 避免陣列參數被序列化為 tagsId[]=1 的格式，達成目標是 tagsId=1,2
   paramsSerializer: params => {
     return qs.stringify(params, { arrayFormat: 'comma' })
   }
 })
 
-
-
-// 登入頁與授權 API 白名單，避免在登入流程中造成無限重導
+// 登入頁與授權流程頁面（避免在登入/重設密碼流程中造成無限循環或錯誤導頁）
 const LOGIN_PATH = '/auth/login'
 const AUTH_PAGE_PREFIX = '/auth'
+
+// 路由別名：reset-password 可能以 /reset-password 進入（不一定有 /auth 前綴）
+const AUTH_PAGE_ALIASES = ['/reset-password']
+
+// 登入頁與授權 API 白名單：這些請求常發生在登入/重設密碼流程或「登入狀態檢查」，遇到 401 時不應自動重導。
 const AUTH_API_WHITELIST = [
   '/api/ums/user/login/username',
   '/api/ums/user/register',
-  '/api/ums/user/email-verify-code'
+  '/api/ums/user/email-verify-code',
+  '/api/ums/user/is-login',
+  '/api/ums/user/forgot-password',
+  '/api/ums/user/verify-reset-token',
+  '/api/ums/user/reset-password'
 ]
 
 function isOnAuthPage() {
   const p = window.location.pathname || ''
-  return p === LOGIN_PATH || p.startsWith(AUTH_PAGE_PREFIX)
+  return p === LOGIN_PATH || p.startsWith(AUTH_PAGE_PREFIX) || AUTH_PAGE_ALIASES.includes(p)
 }
 
+//判斷是否為授權API，例如登入、註冊、驗證碼、重設密碼等，若是則回傳true ; 否則回傳false
 function isAuthApi(url) {
   if (!url) return false
   try {
@@ -43,104 +53,159 @@ function isAuthApi(url) {
   }
 }
 
-function doLogoutAndRedirect(triggerUrl) {
+function getCookieValue(key) {
+  const cookieArray = String(document.cookie || '').split(';')
+  for (const cookieString of cookieArray) {
+    const cookie = cookieString.trim()
+    if (cookie.startsWith(key + '=')) {
+      return cookie.substring(key.length + 1)
+    }
+  }
+  return null
+}
+
+function clearAuthClientState() {
   const isLoginStore = useIsLoginStore()
   isLoginStore.setIsLoginData(false)
-  document.cookie = 'jwtToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-  document.cookie = 'userId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-  document.cookie = 'avatar=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-  if (!isOnAuthPage()) {
-    sessionStorage.setItem('redirect', window.location.pathname + window.location.search)
+
+  // 清除可能被前端讀取的 Cookie（若後端改成 HttpOnly，這裡讀不到但清除也不會報錯）
+  document.cookie = 'jwtToken=; path=/; max-age=0'
+  document.cookie = 'userId=; path=/; max-age=0'
+  document.cookie = 'avatar=; path=/; max-age=0'
+}
+
+let lastAuthToastAt = 0
+let redirectingToLogin = false
+
+/**
+ * 1、type參數用於判斷需要打印哪種類型，例如'warning'或'error類型
+ * 2、message參數代表實際消息內容
+*/
+function showAuthToastOnce(type, message) {
+  const now = Date.now()
+  if (now - lastAuthToastAt < 800) return
+  lastAuthToastAt = now
+
+  if (type === 'warning') ElMessage.warning(message)
+  else if (type === 'error') ElMessage.error(message)
+  else ElMessage.info(message)
+}
+
+function setRedirectIfNeeded() {
+  if (isOnAuthPage()) return
+  sessionStorage.setItem('redirect', window.location.pathname + window.location.search)
+}
+
+/**
+ * 統一處理「未登入 / 憑證失效」：
+ * - 一律先將前端登入狀態清空（Spring Security 仍會以後端為準）
+ * - 依白名單/旗標決定是否提示與導回登入頁
+ *
+ * 可在 axios config 追加：
+ * - skipAuthRedirect: true  → 不自動導回登入頁（例如 /ums/user/is-login）
+ * - skipAuthErrorMessage: true → 不顯示全域提示
+ */
+function handleUnauthorized(triggerUrl, config) {
+  clearAuthClientState()
+
+  //跳過重導，例外：
+  // 1. 如果是 skipAuthRedirect=true 則不進行重導
+  // 2. 如果是登入頁則不進行重導
+  // 3. 如果是授權相關的URL則不進行重導
+  const skipRedirect = Boolean(config && config.skipAuthRedirect) || isOnAuthPage() || isAuthApi(triggerUrl)
+  const skipMessage = Boolean(config && config.skipAuthErrorMessage)
+
+  if (!skipRedirect) {
+    //設置重導路徑
+    setRedirectIfNeeded()
+
+    if (!skipMessage) {
+      showAuthToastOnce('warning', '登入狀態已過期，請重新登入')
+    }
+
+    //自動導回登入頁
+    if (!redirectingToLogin && window.location.pathname !== LOGIN_PATH) {
+      redirectingToLogin = true
+      window.location.href = LOGIN_PATH
+    }
   }
-  if (window.location.pathname !== LOGIN_PATH) {
-    // window.location.href = LOGIN_PATH // <--- 暫時註解掉，防止跳轉
-    console.error('偵測到認證失效，已阻止自動跳轉以便調適。觸發來源:', triggerUrl); // 可以加一行日誌方便觀察
+}
+
+function handleForbidden(triggerUrl, config) {
+  const skipMessage = Boolean(config && config.skipAuthErrorMessage)
+  if (skipMessage) return
+
+  // 403 表示已登入但權限不足，不應自動登出
+  if (!isOnAuthPage() && !isAuthApi(triggerUrl)) {
+    showAuthToastOnce('error', '權限不足，無法執行此操作')
   }
+}
+
+//判斷code是否為空，並轉換為數字
+function normalizeBusinessCode(code) {
+  if (code === null || code === undefined) return null
+  const n = Number(code)
+  return Number.isNaN(n) ? null : n
 }
 
 /**
  * 請求攔截
  */
-import { useIsLoginStore } from "@/pinia/useIsLoginStore.ts"
-http.interceptors.request.use(config => {
-  // 從 Cookie 中獲取 JWT token
-  const cookies = document.cookie.split(';');
-  let jwtToken = null;
+http.interceptors.request.use(
+  config => {
+    // 從 Cookie 中獲取 JWT token（非 HttpOnly 時可用；若為 HttpOnly 仍會由瀏覽器自動帶上 Cookie）
+    const jwtToken = getCookieValue('jwtToken')
 
-  for (let cookie of cookies) {
-    const [name, value] = cookie.trim().split('=');
-    if (name === 'jwtToken') {
-      jwtToken = value;
-      break;
+    // 如果找到 token，添加到請求頭中（備用方案）
+    if (jwtToken) {
+      config.headers = config.headers || {}
+      config.headers['Authorization'] = `Bearer ${jwtToken}`
     }
+
+    if (import.meta?.env?.DEV) {
+      console.debug('[HTTP]', (config.method || 'get').toUpperCase(), config.url)
+    }
+
+    return config
+  },
+  error => {
+    return Promise.reject(error)
   }
-
-  // 如果找到 token，添加到請求頭中（備用方案）
-  if (jwtToken) {
-    config.headers['Authorization'] = `Bearer ${jwtToken}`;
-  }
-  // else{
-  //   const isLoginStore = useIsLoginStore()
-  //   isLoginStore.setIsLoginData(false)
-  // }
-
-  console.log('Request config:', config);
-  console.log('JWT Token:', jwtToken);
-  console.log('Request URL:', config.url);
-  console.log('Request headers:', config.headers);
-
-
-
-  return config;
-}, error => {
-
-  return Promise.reject(error);
-})
+)
 
 /**
  * 響應攔截
  */
-http.interceptors.response.use(response => {
-  console.log('Response received:', response);
-  console.log('Response status:', response.status);
-  console.log('Response headers:', response.headers);
+http.interceptors.response.use(
+  response => {
+    const businessCode = normalizeBusinessCode(response?.data?.code)
 
-  // 檢查是否是重定向到登入頁面的響應（防止 API 返回 HTML 或內部代碼 401）
-  if ((response.status === 302 || (response.data && response.data.code == 401)) && !isOnAuthPage()) {
-    console.warn('認證失效，重定向到登入頁面');
-    doLogoutAndRedirect(response.config?.url)
-  }
-  return response;
-}, error => {
-  console.error('HTTP 請求錯誤:', error);
-
-  // 主流做法：統一在錯誤攔截器處理未授權（401/403），避免依賴 302
-  if (error.response) {
-    const status = error.response.status;
-    if (status === 401) {
-      // 若是在登入頁或呼叫登入/註冊 API，則不再重導，避免無限循環
-      if (isOnAuthPage() || isAuthApi(error.config?.url)) {
-        console.warn('在登入流程中收到 401，不重導')
-      } else {
-        console.warn('認證失效（HTTP 401），執行登出流程')
-        doLogoutAndRedirect(error.config?.url)
-      }
-    } else if (status === 403) {
-      // 403 通常代表權限不足，而非認證失效。不應自動登出。
-      console.warn('收到 403 Forbidden（權限不足），請檢查資源權限或路徑是否正確:', error.config?.url)
-    } else if (status === 302) {
-      // 若後端真的回 302（較少見於 XHR），也做相同處理
-      if (isOnAuthPage() || isAuthApi(error.config?.url)) {
-        console.warn('在登入流程中收到 302，不重導')
-      } else {
-        console.warn('收到 302 重定向，可能是認證失效')
-        doLogoutAndRedirect(error.config?.url)
-      }
+    // 防止後端以 200 回傳「內部 code=401/403」
+    if (businessCode === 401) {
+      handleUnauthorized(response.config?.url, response.config)
+    } else if (businessCode === 403) {
+      handleForbidden(response.config?.url, response.config)
+    } else if (response.status === 302) {
+      handleUnauthorized(response.config?.url, response.config)
     }
-  }
 
-  return Promise.reject(error);
-})
+    return response
+  },
+  error => {
+    const status = error?.response?.status
+
+    // 統一在錯誤攔截器處理未授權（401/403），避免依賴 302
+    if (status === 401) {
+      handleUnauthorized(error.config?.url, error.config)
+    } else if (status === 403) {
+      handleForbidden(error.config?.url, error.config)
+    } else if (status === 302) {
+      handleUnauthorized(error.config?.url, error.config)
+    }
+
+    return Promise.reject(error)
+  }
+)
 
 /**
  * 請求地址處理

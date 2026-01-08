@@ -50,8 +50,8 @@ app.use(store)
 app.use(router)
 
 // 應用啟動時向後端詢問目前登入狀態，初始化 isLogin
-import { isLoginRequest } from '@/requests/userAuthRequest';
-isLoginRequest();
+// import { isLoginRequest } from '@/requests/userAuthRequest';
+// isLoginRequest();
 
 app.mount('#app')
 

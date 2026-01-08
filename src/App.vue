@@ -13,16 +13,16 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue"
-import { isLoginRequest } from "@/requests/userAuthRequest"
+// import { onMounted } from "vue"
+// import { isLoginRequest } from "@/requests/userAuthRequest"
 
-onMounted(async () => {
-  // 延遲執行
-  setTimeout(async () => {
-    console.log("App.vue: 執行全域登入狀態檢查...");
-    await isLoginRequest(false);
-  }, 200);
-})
+// onMounted(async () => {
+//   // 延遲執行
+//   setTimeout(async () => {
+//     console.log("App.vue: 執行全域登入狀態檢查...");
+//     await isLoginRequest(false);
+//   }, 200);
+// })
 </script>
 
 <style>

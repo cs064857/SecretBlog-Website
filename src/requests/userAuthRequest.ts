@@ -2,21 +2,36 @@ import http from "@/utils/httpRequest.js";
 import { ElMessage } from "element-plus";
 import type { R } from "@/interface/R.js"
 import { useIsLoginStore } from "@/pinia/useIsLoginStore.js";
-export function isLoginRequest(showMsg: boolean = true) {
+
+export function isLoginRequest(showMsg: boolean = false) {
     const isLoginStore = useIsLoginStore();
-    http({
+
+    // 這個 API 用來「查詢目前是否登入」，未登入時可能會回 401；此情境不應視為請求失敗或觸發重導。
+    return http({
         url: http.adornUrl('/ums/user/is-login'),
         method: 'get',
+        skipAuthRedirect: true,
+        skipAuthErrorMessage: true,
     }).then(({ data }: { data: R }) => {
-        if (data.code == "200") {
+        const code = Number((data as any)?.code)
+        if (code === 200) {
             isLoginStore.setIsLoginData(true)
             if (showMsg) ElMessage.success("已登入");
         } else {
             isLoginStore.setIsLoginData(false);
             if (showMsg) ElMessage.error("未登入");
         }
-    }).catch(() => {
+        return data
+    }).catch((error: any) => {
+        // Spring Security 常見行為：未登入時直接回傳 401
+        if (error?.response?.status === 401) {
+            isLoginStore.setIsLoginData(false);
+            if (showMsg) ElMessage.error("未登入");
+            return
+        }
+
         if (showMsg) ElMessage.error("請求出錯，請稍後再試");
+        throw error
     });
 }
 

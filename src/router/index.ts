@@ -19,6 +19,8 @@ import UserInformation from "@/components/UserInformation.vue";
 import NotFound from "@/components/NotFound.vue";
 import SearchLayout from "@/layouts/SearchLayout.vue";
 import HomeArticleList from "@/components/HomeArticleList.vue";
+import { store } from "@/pinia/index";
+import { useIsLoginStore } from "@/pinia/useIsLoginStore";
 // import AuthCallback from "@/components/user/AuthCallback.vue";
 const router = createRouter({
     history: createWebHistory(),
@@ -30,9 +32,10 @@ const router = createRouter({
                 app: Article
             }
         },
-        {//後臺系統
+        {//後臺系統（需登入）
             name: 'AdminVueName',
             path: '/AdminVue',
+            meta: { requiresAuth: true },
             children: [
                 {
                     name: 'TinyMceEditManagement',
@@ -200,6 +203,15 @@ const router = createRouter({
 })
 //全局路由守衛
 router.beforeEach((to, from, next) => {
+    // 需要登入的路由先擋住（授權仍以後端 Spring Security 設定為準）
+    if (to.matched.some(route => route.meta?.requiresAuth === true)) {
+        const isLoginStore = useIsLoginStore(store)
+        if (!isLoginStore.isLogin) {
+            sessionStorage.setItem('redirect', to.fullPath)
+            return next('/auth/login')
+        }
+    }
+
     //判斷路由地址中是否包含:page
     const pageValue = to.query?.page;
     // const hasPageParam = to.matched.some(route=>route.path.includes(':page'));
