@@ -29,6 +29,7 @@ const AUTH_PAGE_ALIASES = ['/reset-password']
 const AUTH_API_WHITELIST = [
   '/api/ums/user/login/username',
   '/api/ums/user/register',
+  '/api/ums/user/captcha',
   '/api/ums/user/email-verify-code',
   '/api/ums/user/is-login',
   '/api/ums/user/forgot-password',
