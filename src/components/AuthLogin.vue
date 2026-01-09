@@ -16,11 +16,7 @@
 
     <hr />
     <div class="auth-container-main-external-providers">
-        <el-button @click="handleGoogleLogin"
-            style="width: 400px; height: 40px; border-radius: 4px; border: 1px solid #dadce0; background-color: white; color: #3c4043; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;">
-            <img src="@/assets/google-color.svg" width="20" height="20" alt="Google Logo">
-            Sign in with Google
-        </el-button>
+        <AuthGoogleLoginButton />
     </div>
     <div class="auth-container-main-login">
 
@@ -54,6 +50,7 @@
 
 <script setup lang="ts">
 import '@/assets/css/auth-styles.css'
+import AuthGoogleLoginButton from '@/components/AuthGoogleLoginButton.vue'
 import { ref } from 'vue'
 import http from '@/utils/httpRequest'
 import { ElMessage } from 'element-plus'
@@ -178,12 +175,6 @@ const loginAccount = function () {
     }).finally(() => {
         submitting.value = false
     });
-}
-// Google 登入
-const handleGoogleLogin = () => {
-    // 直接重導向到後端的 OAuth2 授權端點
-    // 透過 Gateway (port 88) 轉發，路徑包含 /api 前綴
-    window.location.href = `${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/google`;
 }
 </script>
 

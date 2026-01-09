@@ -19,7 +19,7 @@
     </div>
     <hr />
     <div class="auth-container-main-external-providers">
-        <h1>TODO第三方鑑權</h1>
+        <AuthGoogleLoginButton />
     </div>
     <div class="auth-container-main-register">
         <!-- <div class="auth-container-main-register-item">
@@ -96,6 +96,7 @@
 
 <script setup lang="ts">
 import '@/assets/css/auth-styles.css'
+import AuthGoogleLoginButton from '@/components/AuthGoogleLoginButton.vue'
 import { ref, onMounted } from 'vue'
 import http from '@/utils/httpRequest'
 import { ElMessage } from 'element-plus'
@@ -297,8 +298,9 @@ const createAccount = function () {
     }
 
     .auth-container-main-external-providers {
-        /* border: 5px solid #2f77a0; */
-        visibility: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .auth-container-main-register {

@@ -34,7 +34,10 @@ const AUTH_API_WHITELIST = [
   '/api/ums/user/is-login',
   '/api/ums/user/forgot-password',
   '/api/ums/user/verify-reset-token',
-  '/api/ums/user/reset-password'
+  '/api/ums/user/reset-password',
+  // 第三方 OAuth2 登入流程（例如 Google）
+  '/oauth2/authorization/',
+  '/login/oauth2/code/'
 ]
 
 function isOnAuthPage() {

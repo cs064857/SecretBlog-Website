@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => {
         '/robots.txt': {
           target: apiBaseUrl,
           changeOrigin: true,
-        },
+        }
       },
     },
     resolve: {

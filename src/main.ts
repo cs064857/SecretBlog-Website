@@ -23,6 +23,9 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'//自動持�
 import { Cropper } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css'
 
+// 應用啟動時向後端詢問目前登入狀態，初始化 isLogin
+import { isLoginRequest } from '@/requests/userAuthRequest'
+
 
 const app = createApp(App)
 // import httpRequest from '/utils/httpRequest';
@@ -47,11 +50,14 @@ app.config.globalProperties.$message=ElMessage
 store.use(piniaPluginPersistedstate)
 
 app.use(store)
-app.use(router)
 
-// 應用啟動時向後端詢問目前登入狀態，初始化 isLogin
-// import { isLoginRequest } from '@/requests/userAuthRequest';
-// isLoginRequest();
+// 注意：isLoginRequest 已設定 skipAuthRedirect / skipAuthErrorMessage，且 /ums/user/is-login 也在 httpRequest 白名單內，
+// 因此未登入時不會被 401 觸發自動重導，僅會同步 Pinia 的 isLogin 狀態。
+isLoginRequest(false).catch(() => {
+    // 啟動階段不彈錯誤提示，避免影響體驗
+})
+
+app.use(router)
 
 app.mount('#app')
 
