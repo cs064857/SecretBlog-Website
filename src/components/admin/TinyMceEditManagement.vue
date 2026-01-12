@@ -211,9 +211,7 @@ http({
   if(data.code==200){
     tagsSelectData.value=data.data
     console.log("tagsSelectData:",tagsSelectData.value)
-    ElMessage.success("文章標籤獲取成功")
   }else {
-    ElMessage.error("文章標籤獲取失敗")
   }
 });
 

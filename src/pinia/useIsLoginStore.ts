@@ -9,6 +9,9 @@ export const useIsLoginStore = defineStore("isLogin", ()=>{
     }
     return {isLogin,getIsLoginData,setIsLoginData}
 },{
-    persist: true
+    persist: {
+        key: 'isLogin',
+        storage: localStorage
+    }
 }
 );
