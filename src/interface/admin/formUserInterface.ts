@@ -2,7 +2,7 @@
 export interface formUserInterface {
     id?: string;
     userInfoId?: string;      // 用戶資訊ID
-    name: string;             // 姓名
+    nickName: string;         // 使用者名稱(對應後端nickName欄位)
     avatar?: {
         raw: File;
         uid: string;

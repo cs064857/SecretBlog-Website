@@ -2,9 +2,10 @@
 
     <el-container class="common-layout">
       <el-header class="common-layout-header">
-        Header
 
-        <el-switch v-model="darkModeToggle" class="ml-2" @change="switchchange" />
+
+
+        <!-- <el-switch v-model="darkModeToggle" class="ml-2" @change="switchchange" /> -->
       </el-header>
       <el-container class="common-layout-body">
         <el-aside style="width: 200px">
@@ -67,14 +68,6 @@
                   <span>用戶系統</span>
                 </el-menu-item>
 
-                <el-menu-item index="TinyMceEditManagement">
-                  <el-icon>
-                    <setting/>
-                  </el-icon>
-                  <span>編輯介面</span>
-
-                </el-menu-item>
-
                 <el-menu-item index="TreeCategories">
                   <el-icon>
                     <setting/>
@@ -82,7 +75,8 @@
                   <span>分類系統</span>
                 </el-menu-item>
 
-                <el-menu-item index="ArticleManagement">
+                <!-- 文章系統暫時隱藏 -->
+                <el-menu-item v-if="false" index="ArticleManagement">
                   <el-icon>
                     <setting/>
                   </el-icon>

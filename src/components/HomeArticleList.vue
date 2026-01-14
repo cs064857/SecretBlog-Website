@@ -284,9 +284,9 @@ onMounted(() => {
           <el-tree-select v-model="filterCategoryId" :data="treeCategory || []" placeholder="分類篩選" clearable
             check-strictly :render-after-expand="false" style="max-width: auto; min-width: 10rem; margin-right: 10px;"
             value-key="id" @change="handleFilterCategoryChange" />
-          <el-select-v2 v-model="filterTagsId" :options="tagsSelectData" :props="{ label: 'name', value: 'id' }"
+          <!-- <el-select-v2 v-model="filterTagsId" :options="tagsSelectData" :props="{ label: 'name', value: 'id' }"
             placeholder="標籤篩選" style="max-width: auto; min-width: 10rem;" multiple clearable collapse-tags
-            collapse-tags-tooltip @change="handleFilterTagsChange" />
+            collapse-tags-tooltip @change="handleFilterTagsChange" /> -->
         </div>
         <div class="home-article-header-main-nav-pills">
           <div>最新1</div>

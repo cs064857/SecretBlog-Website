@@ -95,6 +95,13 @@ export const updateUserData = async function (form: Ref<formUserInterface>) {
             // 直接從 form 中取得當前字段的值
             const newValue = (form.value as Record<string, any>)[field];
             console.log("map:", field, ":", originalValue, ":", newValue)
+            
+            // 如果手機號碼為 "*"，代表不修改，跳過此欄位
+            if (field === 'phoneNumber' && newValue === '*') {
+                console.log("手機號碼為 '*'，跳過不提交此欄位")
+                return acc
+            }
+            
             // 如果新舊值不同，則將該字段及其新值加入累加器 acc
             if (newValue !== originalValue) {
                 acc[field] = newValue;

@@ -19,9 +19,13 @@ const validateEmail = (rule: any, value: string, callback: any) => {
 };
 
 // 驗證手機號碼格式（假設為台灣手機號碼）
+// 當值為 "*" 時代表不修改手機號，跳過驗證
 const validatePhoneNumber = (rule: any, value: string, callback: any) => {
     if (!value) {
         callback(new Error('手機號碼是必填項'));
+    } else if (value === '*') {
+        // "*" 代表不修改手機號，跳過驗證
+        callback();
     } else {
         const phoneRegex = /^09\d{8}$/;
         if (phoneRegex.test(value)) {
@@ -121,9 +125,9 @@ export const useRules =(form:any,options:Ref<Option[]>): FormRules<formUserInter
     console.log("useRules...options:",options)
     return reactive<FormRules<formUserInterface>>({
 
-        name: [
+        nickName: [
             {type: 'string', required: true, message: '必填', trigger: 'blur'},
-            {min: 1, max: 10, message: '用戶名長度必須介於1到10個半形字元之間', trigger: 'blur'},
+            {min: 1, max: 10, message: '使用者名稱長度必須介於1到10個半形字元之間', trigger: 'blur'},
         ],
         accountName: [
             {type: 'string', required: true, message: '必填', trigger: 'blur'},
