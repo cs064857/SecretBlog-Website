@@ -24,6 +24,14 @@ import { useIsLoginStore } from "@/pinia/useIsLoginStore";
 const router = createRouter({
     history: createWebHistory(),
     routes: [
+        {
+            path: '/',
+            redirect: '/Home/2'
+        },
+        {
+            path: '/Home',
+            redirect: '/Home/2'
+        },
         {//文章展示頁面
             name: 'Article',
             path: '/Article/:articleId',
@@ -75,7 +83,7 @@ const router = createRouter({
 
         {
             name: "Home",
-            path: '/Home/:categoryId?',
+            path: '/Home/:categoryId',
             components: {
                 app: Home
             },
@@ -147,11 +155,6 @@ const router = createRouter({
             },
 
         },
-        // {
-        //     name:'Home',
-        //     path:'/',
-        //     redirect: "/home"
-        // }
         {
             path: '/user/:userId',
             name: 'User',
@@ -174,7 +177,7 @@ const router = createRouter({
 
             ]
         }
-        
+
         // ,
         // {
         //     name: 'Search',
