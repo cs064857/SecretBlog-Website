@@ -45,9 +45,11 @@
             <div class="info-item">
                 <div class="info-label">性別</div>
                 <div class="info-value">
-                    <el-input v-if="editGender" v-model="inputGender" placeholder="Please input gender"
-                        class="dark-input" />
-                    <span v-else>{{ userInformation?.gender || '--' }}</span>
+                    <el-select v-if="editGender" v-model="inputGender" placeholder="請選擇性別" class="dark-input">
+                        <el-option label="男" :value="1" />
+                        <el-option label="女" :value="2" />
+                    </el-select>
+                    <span v-else>{{ formatGender(userInformation?.gender) }}</span>
                 </div>
                 <div class="info-action" v-if="isCurrentUser">
                     <template v-if="editGender">
@@ -59,6 +61,47 @@
                         <span class="action-link text-cancel" @click="handleOpenEditGender">取消</span>
                     </template>
                     <span v-else class="action-link" @click="handleOpenEditGender">更新性別</span>
+                </div>
+            </div>
+
+            <!-- 生日 -->
+            <div class="info-item">
+                <div class="info-label">生日</div>
+                <div class="info-value">
+                    <el-date-picker v-if="editBirthday" v-model="inputBirthday" type="date" placeholder="請選擇日期"
+                        format="YYYY-MM-DD" value-format="YYYY-MM-DD" class="dark-input" clearable />
+                    <span v-else>{{ userInformation?.birthday || '--' }}</span>
+                </div>
+                <div class="info-action" v-if="isCurrentUser">
+                    <template v-if="editBirthday">
+                        <el-popconfirm @confirm="handleConfirmEditBirthday()" title="確認修改?">
+                            <template #reference>
+                                <span class="action-link">確認</span>
+                            </template>
+                        </el-popconfirm>
+                        <span class="action-link text-cancel" @click="handleOpenEditBirthday">取消</span>
+                    </template>
+                    <span v-else class="action-link" @click="handleOpenEditBirthday">更新生日</span>
+                </div>
+            </div>
+
+            <!-- 地址 -->
+            <div class="info-item">
+                <div class="info-label">地址</div>
+                <div class="info-value">
+                    <el-input v-if="editAddress" v-model="inputAddress" placeholder="請輸入地址" class="dark-input" clearable />
+                    <span v-else>{{ userInformation?.address || '--' }}</span>
+                </div>
+                <div class="info-action" v-if="isCurrentUser">
+                    <template v-if="editAddress">
+                        <el-popconfirm @confirm="handleConfirmEditAddress()" title="確認修改?">
+                            <template #reference>
+                                <span class="action-link">確認</span>
+                            </template>
+                        </el-popconfirm>
+                        <span class="action-link text-cancel" @click="handleOpenEditAddress">取消</span>
+                    </template>
+                    <span v-else class="action-link" @click="handleOpenEditAddress">更新地址</span>
                 </div>
             </div>
 
@@ -116,7 +159,6 @@ const route = useRoute();
 
 const isCurrentUser = computed(() => {
     const cookieUserId = getCookieValue("userId");
-    // console.log("cookieUserId:", cookieUserId, "routeUserId:", route.params.userId);
     return cookieUserId === route.params.userId;
 });
 
@@ -127,30 +169,27 @@ interface UmsUserInformationDTO {
     roleId?: string;
     createAt?: Date;
     updateAt?: Date;
-    gender?: string;
+    gender?: number;
+    birthday?: string;
+    address?: string;
 }
 
 const userInformation = ref<UmsUserInformationDTO | null>(null);
 
 const getUserInformation = () => {
     const userId = route.params.userId;
-    // console.log("getUserInformation userId:", userId);
 
     if (!userId) {
-        // ElMessage.error("無法獲取用戶 ID");
         return;
     }
 
     http({
-        // url: http.adornUrl(`/ums/user/information/${userId}`),
         url: http.adornUrl(`/ums/user/summary/${userId}`),
         method: 'get',
     }).then(({ data }: { data: R<UmsUserInformationDTO> }) => {
         if (data.code === "200") {
             userInformation.value = data.data;
-            // console.log("getUserInformation 用戶摘要資料:", userInformation.value);
             img.value = data.data.avatar || '';
-            // ElMessage.success("獲取用戶摘要成功");
         } else {
             ElMessage.error(data.msg || "獲取用戶摘要失敗");
         }
@@ -175,8 +214,23 @@ const editAvatar = ref<boolean>(false)
 const uploading = ref<boolean>(false)
 const cropperRef = ref<any>(null)
 
-const inputGender = ref<string>("")
+const inputGender = ref<number | null>(null)
 const editGender = ref<boolean>(false)
+
+const inputBirthday = ref<string>("")
+const editBirthday = ref<boolean>(false)
+
+const inputAddress = ref<string>("")
+const editAddress = ref<boolean>(false)
+
+/**
+ * 格式化性別顯示
+ */
+const formatGender = (gender: number | undefined) => {
+    if (gender === 1) return '男';
+    if (gender === 2) return '女';
+    return '--';
+}
 
 /**
  * 開啟修改模態框
@@ -185,7 +239,6 @@ const handleOpenEditNickName = function () {
     if (!editNickName.value) {
         inputNickName.value = userInformation.value?.nickName || ""
     }
-    console.log("handleEditNickName")
     editNickName.value = !editNickName.value
 }
 const handleOpenEditAvatar = function () {
@@ -194,28 +247,30 @@ const handleOpenEditAvatar = function () {
 }
 const handleCloseEditAvatar = function () {
     editAvatar.value = false;
-    // img.value = ""; // Optional: clear image on close
 }
 const handleOpenEditGender = function () {
     if (!editGender.value) {
-        inputGender.value = userInformation.value?.gender || ""
+        inputGender.value = userInformation.value?.gender || null
     }
-    console.log("handleOpenEditGender")
     editGender.value = !editGender.value
 }
-
-const handleEditAvatar = function () {
-    console.log("handleEditAvatar")
+const handleOpenEditBirthday = function () {
+    if (!editBirthday.value) {
+        inputBirthday.value = userInformation.value?.birthday || ""
+    }
+    editBirthday.value = !editBirthday.value
 }
-const handleEditGender = function () {
-    console.log("handleEditGender")
+const handleOpenEditAddress = function () {
+    if (!editAddress.value) {
+        inputAddress.value = userInformation.value?.address || ""
+    }
+    editAddress.value = !editAddress.value
 }
 
 /**
  * 頭像上傳
  */
 const img = ref<string>('')
-// 用於存儲裁剪後的結果，而不是覆蓋源圖片
 
 const handleFileChange = (uploadFile: any) => {
     const file = uploadFile.raw;
@@ -232,10 +287,22 @@ const handleFileChange = (uploadFile: any) => {
  * 修改函數
  */
 const handleEditNickName = function () {
-    console.log("handleEditNickName, inputNickName.value:", inputNickName.value)
-    // Implement actual update logic here if needed
+    const userId = route.params.userId;
+    http({
+        url: http.adornUrl(`/ums/user/${userId}/nickname`),
+        method: 'put',
+        params: { nickname: inputNickName.value }
+    }).then(({ data }: { data: R }) => {
+        if (data.code === "200") {
+            ElMessage.success("暱稱修改成功");
+            if (userInformation.value) userInformation.value.nickName = inputNickName.value;
+        } else {
+            ElMessage.error(data.msg || "暱稱修改失敗");
+        }
+    }).catch(() => {
+        ElMessage.error("暱稱修改失敗");
+    });
     editNickName.value = false;
-    if (userInformation.value) userInformation.value.nickName = inputNickName.value;
 }
 
 const handleConfirmEditAvatar = function () {
@@ -260,8 +327,6 @@ const handleConfirmEditAvatar = function () {
                         userInformation.value.avatar = data.data;
                     }
                     editAvatar.value = false;
-
-                    //更新cookie中頭像的URL值
                     document.cookie = "avatar=" + data.data + "; path=/;";
 
                 } else {
@@ -278,10 +343,60 @@ const handleConfirmEditAvatar = function () {
 }
 
 const handleConfirmEditGender = function () {
-    console.log("handleConfirmEditGender, inputGender.value:", inputGender.value)
-    // Implement actual update logic here if needed
+    const userId = route.params.userId;
+    http({
+        url: http.adornUrl(`/ums/user/${userId}/gender`),
+        method: 'put',
+        params: { gender: inputGender.value }
+    }).then(({ data }: { data: R }) => {
+        if (data.code === "200") {
+            ElMessage.success("性別修改成功");
+            if (userInformation.value) userInformation.value.gender = inputGender.value ?? undefined;
+        } else {
+            ElMessage.error(data.msg || "性別修改失敗");
+        }
+    }).catch(() => {
+        ElMessage.error("性別修改失敗");
+    });
     editGender.value = false;
-    if (userInformation.value) userInformation.value.gender = inputGender.value;
+}
+
+const handleConfirmEditBirthday = function () {
+    const userId = route.params.userId;
+    http({
+        url: http.adornUrl(`/ums/user/${userId}/birthday`),
+        method: 'put',
+        params: { birthday: inputBirthday.value || null }
+    }).then(({ data }: { data: R }) => {
+        if (data.code === "200") {
+            ElMessage.success("生日修改成功");
+            if (userInformation.value) userInformation.value.birthday = inputBirthday.value;
+        } else {
+            ElMessage.error(data.msg || "生日修改失敗");
+        }
+    }).catch(() => {
+        ElMessage.error("生日修改失敗");
+    });
+    editBirthday.value = false;
+}
+
+const handleConfirmEditAddress = function () {
+    const userId = route.params.userId;
+    http({
+        url: http.adornUrl(`/ums/user/${userId}/address`),
+        method: 'put',
+        params: { address: inputAddress.value || null }
+    }).then(({ data }: { data: R }) => {
+        if (data.code === "200") {
+            ElMessage.success("地址修改成功");
+            if (userInformation.value) userInformation.value.address = inputAddress.value;
+        } else {
+            ElMessage.error(data.msg || "地址修改失敗");
+        }
+    }).catch(() => {
+        ElMessage.error("地址修改失敗");
+    });
+    editAddress.value = false;
 }
 </script>
 <style lang="css" scoped>
