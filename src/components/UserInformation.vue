@@ -104,6 +104,7 @@
 import { onMounted, ref, computed } from 'vue';
 import { useRouter, useRoute } from "vue-router";
 import http from "@/utils/httpRequest.js";
+import { uploadFileToMinioRequest } from "@/requests/useMinioRequest";
 import { ElMessage } from "element-plus";
 import type { R } from "@/interface/R.ts";
 import { getCookieValue } from "@/utils/jwtUtils";
@@ -236,6 +237,7 @@ const handleEditNickName = function () {
     editNickName.value = false;
     if (userInformation.value) userInformation.value.nickName = inputNickName.value;
 }
+
 const handleConfirmEditAvatar = function () {
     if (uploading.value) return;
     if (!cropperRef.value) return;
@@ -249,17 +251,8 @@ const handleConfirmEditAvatar = function () {
                 uploading.value = false;
                 return;
             }
-            const formData = new FormData();
-            formData.append('file', blob, 'file');
 
-            http({
-                url: http.adornUrl('/sms/minio'),
-                method: 'post',
-                data: formData,
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            }).then(({ data }: { data: any }) => {
+            uploadFileToMinioRequest(blob, 'avatar.png').then((data: any) => {
                 if (data.code === "200") {
                     ElMessage.success("頭像修改成功");
 

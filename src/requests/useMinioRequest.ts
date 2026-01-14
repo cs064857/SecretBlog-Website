@@ -1,5 +1,7 @@
 import axios from "axios";
 import { ElMessage } from "element-plus";
+import http from "@/utils/httpRequest.js";
+import type { R } from "@/interface/R";
 /**
  * 上傳檔案到MinIO
  * @param file 
@@ -32,6 +34,41 @@ export function putImgToMinioRequest(file: File, userId: string) {
     //     throw error;
     // });
 }
+
+/**
+ * 上傳檔案到MinIO頭像
+ */
+export function uploadFileToMinioRequest(file: Blob, fileName = "file") {
+    const formData = new FormData();
+    formData.append("file", file, fileName);
+
+    return http({
+        url: http.adornUrl('/sms/minio/avatar'),
+        method: 'post',
+        data: formData,
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    }).then(({ data }: { data: R<string> }) => data);
+}
+
+/**
+ * 上傳內容圖片(文章、留言等)
+ */
+export function uploadContentImageRequest(file: Blob, fileName = "image") {
+    const formData = new FormData();
+    formData.append("file", file, fileName);
+
+    return http({
+        url: http.adornUrl('/sms/minio/content'),
+        method: 'post',
+        data: formData,
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    }).then(({ data }: { data: R<string> }) => data);
+}
+
 /**
  * 取得檔案url
  * @param resourcePath 
@@ -39,3 +76,4 @@ export function putImgToMinioRequest(file: File, userId: string) {
 function getFileUrlFromMinioRequest(resourcePath: string) {
 
 }
+

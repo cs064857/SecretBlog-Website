@@ -46,94 +46,30 @@
                 </button>
               </div>
             </div>
-
-            <!-- 實用工具組 -->
-            <div class="toolbar-group">
-              <span class="group-label">工具</span>
-              <div class="tool-buttons">
-                <button class="tool-btn help-btn" title="Markdown 語法指南" @click="showMarkdownGuide = true">
-                  <svg class="tool-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z" />
-                  </svg>
-                </button>
-              </div>
-            </div>
           </div>
-
-          <!-- Markdown語法指南模態 -->
-          <Teleport to="body">
-            <Transition name="guide-modal" appear>
-              <div v-if="showMarkdownGuide" class="markdown-guide-overlay" @click="showMarkdownGuide = false">
-                <div class="markdown-guide-modal" @click.stop>
-                  <div class="guide-header">
-                    <h3>Markdown 語法指南</h3>
-                    <button class="guide-close" @click="showMarkdownGuide = false">
-                      <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                          d="M18.3 5.71a.75.75 0 00-1.06 0L12 10.94 6.76 5.7a.75.75 0 10-1.06 1.06L10.94 12l-5.24 5.24a.75.75 0 101.06 1.06L12 13.06l5.24 5.24a.75.75 0 001.06-1.06L13.06 12l5.24-5.29a.75.75 0 000-1.06z" />
-                      </svg>
-                    </button>
-                  </div>
-                  <div class="guide-content">
-                    <div class="syntax-section">
-                      <h4>文字格式</h4>
-                      <div class="syntax-item">
-                        <code>**粗體**</code>
-                        <span class="result">粗體</span>
-                      </div>
-                      <div class="syntax-item">
-                        <code>*斜體*</code>
-                        <span class="result">斜體</span>
-                      </div>
-                      <div class="syntax-item">
-                        <code>`程式碼`</code>
-                        <span class="result code">程式碼</span>
-                      </div>
-                    </div>
-
-                    <div class="syntax-section">
-                      <h4>內容結構</h4>
-                      <div class="syntax-item">
-                        <code>[連結文字](網址)</code>
-                        <span class="result link">連結文字</span>
-                      </div>
-                      <div class="syntax-item">
-                        <code>> 引用內容</code>
-                        <span class="result quote">引用內容</span>
-                      </div>
-                      <div class="syntax-item">
-                        <code>- 清單項目</code>
-                        <span class="result">• 清單項目</span>
-                      </div>
-                      <div class="syntax-item">
-                        <code>1. 編號項目</code>
-                        <span class="result">1. 編號項目</span>
-                      </div>
-                    </div>
-
-                    <div class="syntax-section">
-                      <h4>程式碼區塊</h4>
-                      <div class="syntax-item code-block-example">
-                        <code>```javascript<br>function hello() {<br>&nbsp;&nbsp;console.log('Hello!');<br>}<br>```</code>
-                        <div class="result code-block">
-                          <div class="code-header">javascript</div>
-                          <pre><code>function hello() {
-  console.log('Hello!');
-}</code></pre>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Transition>
-          </Teleport>
 
           <!-- 編輯器區域 -->
           <div class="editor-container">
-            <QuillEditor ref="quillEditor" v-model:content="content" content-type="text" :options="editorOptions"
+            <QuillEditor @paste="handlePaste" ref="quillEditor" v-model:content="content" content-type="text" :options="editorOptions"
               placeholder="撰寫您的回覆..." @ready="onEditorReady" />
+          </div>
+
+          <!-- 貼上圖片預覽（延遲至提交時才上傳） -->
+          <div v-if="stagedImages.length" class="pasted-images-preview">
+            <div class="pasted-images-header">
+              <span class="pasted-images-title">貼上圖片預覽</span>
+              <span class="pasted-images-hint">圖片將於發表回覆時才上傳</span>
+            </div>
+
+            <div class="pasted-images-grid">
+              <div v-for="img in stagedImages" :key="img.id" class="pasted-image-card">
+                <img class="pasted-image" :src="img.localUrl" :alt="img.file.name || '貼上圖片'" />
+                <div class="pasted-image-footer">
+                  <span class="pasted-image-name">{{ img.file.name || '貼上圖片' }}</span>
+                  <button class="pasted-image-remove" type="button" @click="removeStagedImage(img.id)">移除</button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- 操作按鈕 -->
@@ -156,9 +92,79 @@
 import { ref, computed, nextTick, onUnmounted, watch } from 'vue'
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import { ElMessage } from 'element-plus'
+import { uploadContentImageRequest } from '@/requests/useMinioRequest'
 
 const modalVisible = ref<boolean>(false)
 const content = ref<string>('')
+
+interface StagedImage {
+  id: string
+  file: File
+  localUrl: string
+}
+
+// 貼上圖片暫存佇列（延遲至提交時才上傳）
+const stagedImages = ref<StagedImage[]>([])
+
+const createStagedImageId = () => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID()
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`
+}
+
+const revokeStagedImageUrl = (localUrl: string) => {
+  try {
+    URL.revokeObjectURL(localUrl)
+  } catch (error) {
+    console.warn('revokeObjectURL 失敗:', error)
+  }
+}
+
+const clearStagedImages = () => {
+  stagedImages.value.forEach(img => revokeStagedImageUrl(img.localUrl))
+  stagedImages.value = []
+}
+
+const escapeRegExp = (value: string) => {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+const removeStagedImage = (id: string) => {
+  const index = stagedImages.value.findIndex(img => img.id === id)
+  if (index === -1) return
+
+  const img = stagedImages.value[index]
+
+  const editor = quillEditor.value?.getQuill()
+  if (editor) {
+    // 直接從 Quill 內容刪除包含該 blob URL 的整行，避免 v-model 不同步造成畫面殘留
+    let text = editor.getText() || ''
+    let pos = text.indexOf(img.localUrl)
+
+    while (pos !== -1) {
+      const prevNewline = text.lastIndexOf('\n', pos)
+      const start = prevNewline === -1 ? 0 : prevNewline + 1
+      const nextNewline = text.indexOf('\n', pos)
+      const end = nextNewline === -1 ? text.length : nextNewline + 1
+
+      editor.deleteText(start, end - start)
+
+      text = editor.getText() || ''
+      pos = text.indexOf(img.localUrl)
+    }
+
+    // 同步外部狀態（Quill 會自帶最後一個換行）
+    content.value = editor.getText().replace(/\n$/, '')
+  } else {
+    // fallback：若 Quill 尚未就緒，至少先從內容字串移除對應的 Markdown 片段
+    const localUrlPattern = escapeRegExp(img.localUrl)
+    const markdownImageRegex = new RegExp(`\\n?!\\[[^\\]]*\\]\\(${localUrlPattern}\\)\\n?`, 'g')
+    content.value = content.value.replace(markdownImageRegex, '\n').replace(/\n{3,}/g, '\n\n')
+  }
+
+  revokeStagedImageUrl(img.localUrl)
+  stagedImages.value.splice(index, 1)
+}
 
 interface Props {
   modalVisible: boolean
@@ -176,6 +182,15 @@ watch(() => props.content, (newValue) => {
   content.value = newValue
 }, { immediate: true, deep: true })
 
+// modal 關閉時清理暫存(避免記憶體外洩，也避免blob URL被帶到下次開啟))
+watch(() => props.modalVisible, (visible) => {
+  if (!visible) clearStagedImages()
+})
+
+onUnmounted(() => {
+  clearStagedImages()
+})
+
 // 使用 computed 來同步 modalVisible
 
 const isVisible = computed(
@@ -185,13 +200,52 @@ const isVisible = computed(
 const emit = defineEmits<{
 
   (e: 'close'): void,
-  (e: 'submit', data: any): void
+  (e: 'submit', data: string): void
 
 }>()
-//確定按鈕
-const handleSubmit = function () {
-  console.log("handleSubmit:content.value:", content.value)
-  emit('submit', content.value)
+
+// 確定按鈕，先上傳暫存圖片→替換內容→再提交
+const handleSubmit = async () => {
+  if (isSubmitting.value) return
+
+  //若沒有內容，直接拒絕
+  if (!content.value || !content.value.trim()) return
+
+  isSubmitting.value = true
+
+  try {
+    let finalContent = content.value
+
+    //依序上傳，只處理仍存在於內容中的 blob URL
+    for (const img of [...stagedImages.value]) {
+      if (!finalContent.includes(img.localUrl)) {
+        revokeStagedImageUrl(img.localUrl)
+        stagedImages.value = stagedImages.value.filter(item => item.id !== img.id)
+        continue
+      }
+
+      const res = await uploadContentImageRequest(img.file, img.file.name || 'pasted-image')
+
+      if (res.code === '200' && res.data) {
+        //將本地blob URL替換成後端回傳的真實URL
+        finalContent = finalContent.split(img.localUrl).join(res.data)
+
+        revokeStagedImageUrl(img.localUrl)
+        stagedImages.value = stagedImages.value.filter(item => item.id !== img.id)
+      } else {
+        ElMessage.error(res.msg || '圖片上傳失敗')
+        return
+      }
+    }
+
+    content.value = finalContent
+    emit('submit', finalContent)
+  } catch (error) {
+    console.error('提交前圖片上傳失敗:', error)
+    ElMessage.error('圖片上傳失敗，請稍後再試')
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 
@@ -258,7 +312,6 @@ const editArticleData = ref<editArticleDataInterface>({
 
 const isSubmitting = ref(false)
 const quillEditor = ref()
-const showMarkdownGuide = ref(false)
 
 // 智能工具列配置
 const textFormattingTools = [
@@ -266,7 +319,7 @@ const textFormattingTools = [
     name: 'bold',
     title: '粗體 (Ctrl+B)',
     format: 'bold',
-    iconPath: 'M15.6 10.79c.97-.67 1.65-1.77 1.65-2.79 0-2.26-1.75-4-4-4H7v14h7.04c2.09 0 3.71-1.7 3.71-3.79 0-1.52-.86-2.82-2.15-3.42zM10 6.5h3c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-3v-3zm3.5 9H10v-3h3.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5z',
+    iconPath: 'M15.6 10.79c.97-.67 1.65-1.77 1.65-2.79 0-2.26-1.75-4-4-4H7v14h7.04c2.09 0 3.71-1.7 3.71-3.79 0-1.52-.86-2.82-2.15-3.42zM10 6.5h3c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-3v-3zm3.5 9H10v-3h3.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-4v1.9H7c-1.71 0-3.1-1.39-3.1-3.1s1.39-3.1 3.1-3.1h4v1.9h-1.5c-1.71 0-3.1 1.39-3.1 3.1s1.39 3.1 3.1 3.1z',
     active: false
   },
   {
@@ -280,7 +333,7 @@ const textFormattingTools = [
     name: 'code',
     title: '行內程式碼 (`)',
     format: 'code',
-    iconPath: 'M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0L19.2 12l-4.6-4.6L16 6l6 6-6 6-1.4-1.4z',
+    iconPath: 'M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0L19.2 12l-4.6-4.6L16 6l6 6-6 6-1.4-1.4zM2 20h20v2H2v-2z',
     active: false
   }
 ]
@@ -289,7 +342,7 @@ const insertionTools = [
   {
     name: 'link',
     title: '插入連結',
-    iconPath: 'M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z'
+    iconPath: 'M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z'
   },
   {
     name: 'quote',
@@ -299,7 +352,7 @@ const insertionTools = [
   {
     name: 'ul',
     title: '無序清單',
-    iconPath: 'M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z'
+    iconPath: 'M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0 12c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z'
   },
   {
     name: 'ol',
@@ -650,18 +703,12 @@ const onEditorReady = () => {
 // 全局鍵盤事件監聽器
 const handleGlobalKeydown = (event: KeyboardEvent) => {
   // 在模態開啟時處理全局鍵盤事件
-  if (!props.visible) return
+  if (!props.modalVisible) return
 
   // ESC 鍵關閉模態
-  if (event.key === 'Escape' && !showMarkdownGuide.value) {
+  if (event.key === 'Escape') {
     event.preventDefault()
     handleCancel()
-  }
-
-  // F1 開啟幫助
-  if (event.key === 'F1') {
-    event.preventDefault()
-    showMarkdownGuide.value = true
   }
 }
 
@@ -678,7 +725,67 @@ if (typeof window !== 'undefined') {
   onUnmounted(cleanup)
 }
 
+const handlePaste = async (event: ClipboardEvent) => {
+  const clipboardData = event.clipboardData
+  if (!clipboardData) return
 
+  //從剪貼簿抓圖片檔案(部分瀏覽器會放在items，有些會放在files)
+  const imageFiles: File[] = []
+
+  const items = Array.from(clipboardData.items || [])
+  for (const item of items) {
+    if (item.kind === 'file' && item.type.startsWith('image/')) {
+      const f = item.getAsFile()
+      if (f) imageFiles.push(f)
+    }
+  }
+
+  //有些瀏覽器會同時在items與files提供相同圖片，避免重複插入：
+  // - 優先使用items
+  // - 若items沒拿到圖片，才從files讀取
+  if (imageFiles.length === 0) {
+    const files = Array.from(clipboardData.files || [])
+    for (const f of files) {
+      if (f.type.startsWith('image/')) imageFiles.push(f)
+    }
+  }
+
+  //沒有圖片就交給Quill預設貼上流程
+  if (imageFiles.length === 0) return
+
+  //攔截貼上，避免Quill預設把圖片轉成 base64 直接塞進內容
+  event.preventDefault()
+
+  const editor = quillEditor.value?.getQuill()
+  if (!editor) return
+
+  //若剪貼簿同時有純文字，手動補上，避免preventDefault導致文字沒有貼上
+  const plainText = clipboardData.getData('text/plain')
+  let insertIndex = (editor.getSelection() || { index: editor.getLength(), length: 0 }).index
+
+  if (plainText) {
+    editor.insertText(insertIndex, plainText)
+    insertIndex += plainText.length
+    editor.setSelection(insertIndex, 0)
+  }
+
+  //本地預覽+暫存：用blob URL先插入佔位符，提交時再替換
+  for (const file of imageFiles) {
+    const id = createStagedImageId()
+    const localUrl = URL.createObjectURL(file)
+
+    stagedImages.value.push({ id, file, localUrl })
+
+    const altText = file.name || '貼上圖片'
+    const markdown = `\n![${altText}](${localUrl})\n`
+
+    editor.insertText(insertIndex, markdown)
+    insertIndex += markdown.length
+    editor.setSelection(insertIndex, 0)
+  }
+
+  editor.focus()
+}
 
 
 
@@ -800,17 +907,6 @@ if (typeof window !== 'undefined') {
 .reply-modal-enter-from .reply-modal-container,
 .reply-modal-leave-to .reply-modal-container {
   transform: translateY(100%);
-}
-
-.guide-modal-enter-active,
-.guide-modal-leave-active {
-  transition: all var(--transition-smooth);
-}
-
-.guide-modal-enter-from,
-.guide-modal-leave-to {
-  opacity: 0;
-  transform: scale(0.95);
 }
 
 /* ==========================================
@@ -1191,249 +1287,6 @@ if (typeof window !== 'undefined') {
 }
 
 /* ==========================================
-   Markdown Guide Modal
-   ========================================== */
-.markdown-guide-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(8px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
-  padding: var(--space-5);
-}
-
-.markdown-guide-modal {
-  background: var(--surface-secondary);
-  border-radius: var(--radius-xl);
-  box-shadow:
-    var(--shadow-xl),
-    0 0 0 1px var(--border-default),
-    inset 0 1px 0 var(--border-subtle);
-  max-width: 600px;
-  width: 100%;
-  max-height: 80vh;
-  overflow: hidden;
-  border: 1px solid var(--border-default);
-  position: relative;
-}
-
-.markdown-guide-modal::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--gradient-border-primary);
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-}
-
-.guide-header {
-  padding: var(--space-6) var(--space-6) var(--space-4);
-  border-bottom: 1px solid var(--border-default);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--surface-primary);
-  position: relative;
-}
-
-.guide-header::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: var(--gradient-border-subtle);
-}
-
-.guide-header h3 {
-  color: var(--text-primary);
-  font-size: 20px;
-  font-weight: 700;
-  margin: 0;
-}
-
-.guide-close {
-  background: none;
-  border: none;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  padding: var(--space-2);
-  border-radius: var(--radius-sm);
-  transition: all var(--transition-base);
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.guide-close:hover {
-  color: var(--text-primary);
-  background: var(--surface-hover);
-}
-
-.guide-close svg {
-  width: 20px;
-  height: 20px;
-}
-
-.guide-content {
-  padding: var(--space-6);
-  max-height: calc(80vh - 120px);
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--surface-active) transparent;
-}
-
-.guide-content::-webkit-scrollbar {
-  width: 6px;
-}
-
-.guide-content::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.guide-content::-webkit-scrollbar-thumb {
-  background: var(--surface-active);
-  border-radius: var(--radius-full);
-}
-
-.syntax-section {
-  margin-bottom: var(--space-8);
-}
-
-.syntax-section:last-child {
-  margin-bottom: 0;
-}
-
-.syntax-section h4 {
-  color: var(--text-primary);
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0 0 var(--space-4) 0;
-  padding-bottom: var(--space-2);
-  border-bottom: 2px solid var(--surface-elevated);
-}
-
-.syntax-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-3) var(--space-4);
-  margin-bottom: var(--space-2);
-  background: var(--surface-tertiary);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
-  border-left: 3px solid var(--primary-500);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  transition: all var(--transition-base);
-}
-
-.syntax-item:hover {
-  border-color: var(--border-muted);
-  background: var(--surface-hover);
-  transform: translateX(2px);
-}
-
-.syntax-item:last-child {
-  margin-bottom: 0;
-}
-
-.syntax-item code {
-  font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
-  background: var(--surface-primary);
-  color: var(--primary-500);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.syntax-item .result {
-  color: var(--text-secondary);
-  font-size: 14px;
-}
-
-.syntax-item .result.code {
-  font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
-  background: var(--surface-primary);
-  color: var(--primary-500);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-sm);
-}
-
-.syntax-item .result.link {
-  color: var(--primary-500);
-  text-decoration: underline;
-}
-
-.syntax-item .result.quote {
-  color: var(--text-tertiary);
-  font-style: italic;
-  padding-left: var(--space-3);
-  border-left: 2px solid var(--primary-500);
-}
-
-.code-block-example {
-  flex-direction: column;
-  align-items: stretch;
-  gap: var(--space-3);
-}
-
-.code-block-example .result {
-  width: 100%;
-}
-
-.code-block {
-  background: var(--surface-primary);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  border: 1px solid var(--border-default);
-  box-shadow: inset 0 1px 0 var(--border-subtle);
-}
-
-.code-header {
-  background: var(--surface-elevated);
-  color: var(--text-tertiary);
-  padding: var(--space-2) var(--space-3);
-  font-size: 12px;
-  font-weight: 500;
-  border-bottom: 1px solid var(--border-muted);
-  position: relative;
-}
-
-.code-header::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: var(--gradient-border-subtle);
-}
-
-.code-block pre {
-  margin: 0;
-  padding: var(--space-3);
-}
-
-.code-block code {
-  font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
-  color: var(--text-secondary);
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-/* ==========================================
    Responsive Design
    ========================================== */
 @media (max-width: 640px) {
@@ -1462,11 +1315,6 @@ if (typeof window !== 'undefined') {
   .submit-btn {
     width: 100%;
   }
-
-  .markdown-guide-modal {
-    margin: var(--space-4);
-    max-height: 90vh;
-  }
 }
 
 @media (max-width: 480px) {
@@ -1487,5 +1335,84 @@ if (typeof window !== 'undefined') {
   .action-buttons {
     padding: var(--space-3) var(--space-4) var(--space-4);
   }
+}
+
+.pasted-images-preview {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.pasted-images-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.pasted-images-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.pasted-images-hint {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.pasted-images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.pasted-image-card {
+  overflow: hidden;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.pasted-image {
+  display: block;
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+}
+
+.pasted-image-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+}
+
+.pasted-image-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pasted-image-remove {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--primary-500);
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.pasted-image-remove:hover {
+  color: var(--primary-600);
 }
 </style>
