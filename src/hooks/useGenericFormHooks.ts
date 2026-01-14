@@ -1,25 +1,25 @@
-import {computed, nextTick, onMounted, ref, Ref, watch} from "vue";
-import {ElMessage, ElMessageBox, FormInstance} from "element-plus";
-import {cleanStringAndDateValue} from "@/utils/cleanStringAndDateValue";
-import {formUserInterface} from "@/interface/admin/formUserInterface";//㊣
-import {getOptionsRequest, getPreSignedUrlFromMinio, saveUserAvatarRequest, saveUserDataRequest, updateUserAvatarUrlRequest, updateUserDataRequest} from "@/requests/userRequest";
-import {R} from "../interface/R";
-import {Option} from "@/interface/admin/formOption";
+import { computed, nextTick, onMounted, ref, Ref, watch } from "vue";
+import { ElMessage, ElMessageBox, FormInstance } from "element-plus";
+import { cleanStringAndDateValue } from "@/utils/cleanStringAndDateValue";
+import { formUserInterface } from "@/interface/admin/formUserInterface";//㊣
+import { getOptionsRequest, getPreSignedUrlFromMinio, saveUserAvatarRequest, saveUserDataRequest, updateUserAvatarUrlRequest, updateUserDataRequest } from "@/requests/userRequest";
+import { R } from "../interface/R";
+import { Option } from "@/interface/admin/formOption";
 import { store } from "@/pinia";
-import {useActionTypeStore,useDialogVisibleStore} from "@/pinia/useFormStore"
-import {useRules} from "../validation/formUserVaild";
+import { useActionTypeStore, useDialogVisibleStore } from "@/pinia/useFormStore"
+import { useRules } from "../validation/formUserVaild";
 // import {useActionTypeStore} from "@/pinia/useUserManagementFormStore"
 export const dialogVisible = ref(false);
 export const ruleFormRef = ref<FormInstance | null>(null);
 const dialogVisibleStore = useDialogVisibleStore(store);
 
-import {useInputFormDataStore} from "@/pinia/useFormStore"
+import { useInputFormDataStore } from "@/pinia/useFormStore"
 import { putImgToMinioRequest } from "@/requests/useMinioRequest";
 const inputFormDataStore = useInputFormDataStore();
 
 // const props:Ref<any> = computed(()=>inputFormDataStore.inputFormData)
-const props:Ref<any> = computed(()=>({//從表格欄位中獲得資料
-    ...inputFormDataStore.inputFormData,foo: new Date().toISOString()
+const props: Ref<any> = computed(() => ({//從表格欄位中獲得資料
+    ...inputFormDataStore.inputFormData, foo: new Date().toISOString()
 }))
 // export interface FormProps {
 //     inputFormData: Record<string, any>; // 假設 inputFormData 是一個通用的物件
@@ -33,7 +33,7 @@ export function useOnCancel(
         dialogVisibleStore.setDialogVisible(false)
         console.log('表單視窗關閉...');
         nextTick(() => {
-            console.log("useOnCancel...form:",form)
+            console.log("useOnCancel...form:", form)
             cleanFormValue(form, ruleFormRef);
         })
     }
@@ -41,8 +41,8 @@ export function useOnCancel(
 
 
 
-const cleanFormValue = (form: Ref<any>,ruleFormRef:Ref<FormInstance | null>) => {
-    console.log("cleanFormValue...form:",form)
+const cleanFormValue = (form: Ref<any>, ruleFormRef: Ref<FormInstance | null>) => {
+    console.log("cleanFormValue...form:", form)
     cleanStringAndDateValue(form.value as Record<string, unknown>)
     // 等待下一個 tick 以確保表單數據已更新
     nextTick(() => {
@@ -51,7 +51,7 @@ const cleanFormValue = (form: Ref<any>,ruleFormRef:Ref<FormInstance | null>) => 
     });
 };
 
-export const saveUserData = function (form: Ref<any>,dialogVisible:Ref<boolean>,ruleFormRef: Ref<FormInstance | null>){
+export const saveUserData = function (form: Ref<any>, dialogVisible: Ref<boolean>, ruleFormRef: Ref<FormInstance | null>) {
     console.log("新增資料...")
     // console.log("form.value",form.value)
     return saveUserDataRequest(form.value).then((data: R) => {
@@ -61,7 +61,7 @@ export const saveUserData = function (form: Ref<any>,dialogVisible:Ref<boolean>,
             // console.log('表單視窗關閉...');
             window.location.replace(window.location.href);
             //初始化清理表單資料
-            cleanFormValue(form,ruleFormRef);
+            cleanFormValue(form, ruleFormRef);
         } else {
             ElMessage.error(data.msg || "新增資料失敗")
         }
@@ -69,9 +69,9 @@ export const saveUserData = function (form: Ref<any>,dialogVisible:Ref<boolean>,
     });
 }
 
-export const updateUserData = async function (form: Ref<formUserInterface>){
-    console.log("updateUserData...form:",form.value)
-    console.log("updateUserData...props:",props.value)
+export const updateUserData = async function (form: Ref<formUserInterface>) {
+    console.log("updateUserData...form:", form.value)
+    console.log("updateUserData...props:", props.value)
 
     // //判斷修改了哪些內容
     // for (const field in props.inputFormData) {
@@ -90,52 +90,52 @@ export const updateUserData = async function (form: Ref<formUserInterface>){
     // 將 props.inputFormData 轉換為 Object.entries 陣列
 
     const modifiedFieldsJson = await Object.entries(props.value)
-        .reduce((acc,[field,originalValue])=>{
+        .reduce((acc, [field, originalValue]) => {
 
             // 直接從 form 中取得當前字段的值
             const newValue = (form.value as Record<string, any>)[field];
-            console.log("map:",field,":",originalValue,":",newValue)
+            console.log("map:", field, ":", originalValue, ":", newValue)
             // 如果新舊值不同，則將該字段及其新值加入累加器 acc
             if (newValue !== originalValue) {
                 acc[field] = newValue;
             }
             return acc
-        },{} as Record<string, any>);
+        }, {} as Record<string, any>);
 
     console.log("修改資料...")
     // console.log("需修改資料內容:",modifiedFields)
-    console.log("需修改資料內容:",modifiedFieldsJson)
-//--------------------------------------------------
-    const closeDialog=ref<boolean>(false)
+    console.log("需修改資料內容:", modifiedFieldsJson)
+    //--------------------------------------------------
+    const closeDialog = ref<boolean>(false)
 
-    if(modifiedFieldsJson.avatar){
-        console.log("modifiedFieldsJson.avatar:",modifiedFieldsJson.avatar)
+    if (modifiedFieldsJson.avatar) {
+        console.log("modifiedFieldsJson.avatar:", modifiedFieldsJson.avatar)
         if (!form.value.id) {
             ElMessage.error("缺少用戶 ID，無法上傳頭像")
             return
         }
         //獲得Minio預簽名URL上傳鏈結
         await putImgToMinioRequest(form.value.avatar as File, form.value.id)
-        .then((data:{data:R})=>{
-            console.log("putImgToMinioRequest...data:",data)
-            if(data.data.code==200){
-                // form.value.avatar=data.data.data
-                console.log("上傳頭像成功")
-                modifiedFieldsJson.avatar=data.data.data
+            .then((data: { data: R }) => {
+                console.log("putImgToMinioRequest...data:", data)
+                if (data.data.code == 200) {
+                    // form.value.avatar=data.data.data
+                    console.log("上傳頭像成功")
+                    modifiedFieldsJson.avatar = data.data.data
 
-                closeDialog.value=true
-                //data.data.data是上傳後的永久閱覽地址
-                // updateUserAvatarUrlRequest(form.value.id,data.data.data)
-                // dialogVisibleStore.setDialogVisible(false);
-                // window.location.replace(window.location.href);
-            }else{
-                closeDialog.value=false
-            }
-        })
-        .catch(error => {
-            console.error("處理頭像上傳時發生錯誤:", error);
-            ElMessage.error("更新用戶資料失敗");
-        });
+                    closeDialog.value = true
+                    //data.data.data是上傳後的永久閱覽地址
+                    // updateUserAvatarUrlRequest(form.value.id,data.data.data)
+                    // dialogVisibleStore.setDialogVisible(false);
+                    // window.location.replace(window.location.href);
+                } else {
+                    closeDialog.value = false
+                }
+            })
+            .catch(error => {
+                console.error("處理頭像上傳時發生錯誤:", error);
+                ElMessage.error("更新用戶資料失敗");
+            });
     }
 
     //判斷若除了avatar外有其他修改，則更新資料
@@ -144,18 +144,18 @@ export const updateUserData = async function (form: Ref<formUserInterface>){
         await updateUserDataRequest(props, modifiedFieldsJson).then((data: R) => {
             if (data.code == "200") {
                 // emit('dialogVisible', dialogVisible.value);
-                closeDialog.value=true
-            }else{
-                closeDialog.value=false
+                closeDialog.value = true
+            } else {
+                closeDialog.value = false
             }
         })
     }
-    console.log("closeDialog.value:",closeDialog.value)
-    if(closeDialog.value){
-    // dialogVisibleStore.setDialogVisible(false)
-    // console.log('表單視窗關閉...');
-    ElMessage.success("更新用戶資料成功")
-    window.location.replace(window.location.href);
+    console.log("closeDialog.value:", closeDialog.value)
+    if (closeDialog.value) {
+        // dialogVisibleStore.setDialogVisible(false)
+        // console.log('表單視窗關閉...');
+        ElMessage.success("更新用戶資料成功")
+        window.location.replace(window.location.href);
     }
     // if(Object.keys(modifiedFieldsJson).length > 1){
     //     updateUserDataRequest(props,modifiedFieldsJson).then((data:R)=>{
@@ -208,12 +208,12 @@ export const updateUserData = async function (form: Ref<formUserInterface>){
     //         }
     //     })
     // }
-//--------------------------------------------------
+    //--------------------------------------------------
 
 }
 
 // 提交表單
-export function useOnSubmit(ruleFormRef:Ref<FormInstance | null>, form: Ref<formUserInterface>) {
+export function useOnSubmit(ruleFormRef: Ref<FormInstance | null>, form: Ref<formUserInterface>) {
     let submitting = false;
     return async () => {
 
@@ -234,7 +234,7 @@ export function useOnSubmit(ruleFormRef:Ref<FormInstance | null>, form: Ref<form
             if (actionType.value === "update") {
                 await updateUserData(form);
             } else if (actionType.value === "add") {
-                await saveUserData(form,dialogVisible,ruleFormRef);
+                await saveUserData(form, dialogVisible, ruleFormRef);
             }
 
         } catch (error) {
@@ -245,19 +245,19 @@ export function useOnSubmit(ruleFormRef:Ref<FormInstance | null>, form: Ref<form
     }
 }
 const options = ref<Option[]>([]);
-export const getOptions=function (requestPath:string){
+export const getOptions = function (requestPath: string) {
 
-	    getOptionsRequest(requestPath).then((data:R) => {
-	        console.log("getOptions",data)
-	        if(String(data.code) === "200" && Array.isArray(data.data)){
-	            options.value=data.data.map((item: any)=>({
-	                value:item.id,
-	                label:item.roleName
-	            }));
-	            console.log("options",options)
-	        }
-	    })
-	    return options
+    getOptionsRequest(requestPath).then((data: R) => {
+        console.log("getOptions", data)
+        if (String(data.code) === "200" && Array.isArray(data.data)) {
+            options.value = data.data.map((item: any) => ({
+                value: item.id,
+                label: item.roleName
+            }));
+            console.log("options", options)
+        }
+    })
+    return options
 
 }
 
@@ -268,17 +268,17 @@ export const actionType = ref<string>()
 /**
  * 接收表格(父組件)點擊編輯按鈕時取得該行的數據,並回顯示表單上
  */
-export const useReceiveParentData=(form: Ref<formUserInterface>,tempAvatar?:Ref<string>)=>{
+export const useReceiveParentData = (form: Ref<formUserInterface>, tempAvatar?: Ref<string>) => {
 
     watch(
         () => props.value,
-        (newValue, oldValue, onCleanup)=>{
-            console.log("FormUser接收到UserManagement資料props:",props.value)
+        (newValue, oldValue, onCleanup) => {
+            console.log("FormUser接收到UserManagement資料props:", props.value)
             const actionTypeStore = useActionTypeStore();
-            actionType.value=actionTypeStore.getActionType//從pinia中獲取actionType值
-            handleReceiveParentData(form,tempAvatar);
+            actionType.value = actionTypeStore.getActionType//從pinia中獲取actionType值
+            handleReceiveParentData(form, tempAvatar);
         },
-        { immediate: true,deep:true}
+        { immediate: true, deep: true }
     );
 }
 export let rules: ReturnType<typeof useRules> = {} as ReturnType<typeof useRules>;
@@ -287,20 +287,20 @@ export let rules: ReturnType<typeof useRules> = {} as ReturnType<typeof useRules
 
 export const initializeRules = function (form: Ref<formUserInterface>) {
     // 如果需要，可以在這裡
-    rules = useRules(form.value,options);
+    rules = useRules(form.value, options);
 }
 
- const handleReceiveParentData=function (form: Ref<formUserInterface>,tempAvatar?:Ref<string>){
-    console.log("執行handleReceiveParentData()...props:",props)
-    if(props.value){
-        const inputFormData =<formUserInterface>props.value
-        console.log("表單接收到父組件傳遞修改行的資料:",inputFormData)
-        form.value = {...inputFormData,checkPassword:inputFormData.password}// 將確認密碼欄位回填與密碼相同值
+const handleReceiveParentData = function (form: Ref<formUserInterface>, tempAvatar?: Ref<string>) {
+    console.log("執行handleReceiveParentData()...props:", props)
+    if (props.value) {
+        const inputFormData = <formUserInterface>props.value
+        console.log("表單接收到父組件傳遞修改行的資料:", inputFormData)
+        form.value = { ...inputFormData }// 接收父組件傳遞的資料
         if (typeof inputFormData.avatar === 'string' && tempAvatar) { // 修正 typeof 檢查
             tempAvatar.value = inputFormData.avatar;
-            console.log("tempAvatar回顯:",tempAvatar.value)
+            console.log("tempAvatar回顯:", tempAvatar.value)
         }
-        console.log("表單接收到父組件傳遞修改行form.value:",form.value)
+        console.log("表單接收到父組件傳遞修改行form.value:", form.value)
         // rules = useRules(form.value,options);
         Object.assign(rules, useRules(form.value, options));//更新 rules
     }

@@ -11,35 +11,19 @@ import {
 import { UserFilled } from '@element-plus/icons-vue'
 // 初始化表單資料㊣
 const form = ref<formUserInterface>({
-  id:"",//用戶ID
+  id: "",//用戶ID
   status: "",
   name: "",
   accountName: '',
   avatar: '',
-  password: '',
-  checkPassword: '',
   birthday: new Date(''),
   gender: "",
   roleId: '',
   email: '',
   address: '',
   phoneNumber: ''
-
-  // id:"",//用戶ID
-  // status: "Normal",
-  // name: '測試1',
-  // accountName: 'testtest1',
-  // avatar: '',
-  // password: 'testpassword1',
-  // checkPassword: 'testpassword1',
-  // birthday: new Date('1970-01-01'),
-  // gender: "male",
-  // roleId: '',
-  // email: 'testtestemail@gmail.com',
-  // address: '秘密',
-  // phoneNumber: '0900000000'
 });
-	const tempAvatar = ref<string>('')
+const tempAvatar = ref<string>('')
 initializeRules(form);//初始化Rules、從表格欄位中獲得資料
 
 // 選項數據
@@ -48,7 +32,7 @@ const RoleOptions = getOptions("/ums/role");//從後端獲得選項資料
 /**
  * 接收表格(父組件)點擊編輯按鈕時取得該行的數據,並回顯示表單上
  */
-useReceiveParentData(form,tempAvatar)//開啟監控props.inputFormData，若props.inputFormData有新值，代表為"update"，並執行對應的函數
+useReceiveParentData(form, tempAvatar)//開啟監控props.inputFormData，若props.inputFormData有新值，代表為"update"，並執行對應的函數
 
 /**
  * 上傳頭像
@@ -56,7 +40,7 @@ useReceiveParentData(form,tempAvatar)//開啟監控props.inputFormData，若prop
 import { ElMessage } from 'element-plus'
 
 
-import type { UploadProps ,UploadRawFile} from 'element-plus'
+import type { UploadProps, UploadRawFile } from 'element-plus'
 import { useActionTypeStore } from '@/pinia/useFormStore';
 
 
@@ -67,7 +51,7 @@ import { useActionTypeStore } from '@/pinia/useFormStore';
 
 const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
   if (!rawFile || !rawFile.type) return false;//若檔案為空則禁止上傳
-  console.log("beforeAvatarUpload...type:",rawFile.type);
+  console.log("beforeAvatarUpload...type:", rawFile.type);
   if (!rawFile.type.startsWith('image')) {//上傳的必須是圖片檔案
     ElMessage.error('Avatar picture must be image format!')
     return false
@@ -75,18 +59,18 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
     ElMessage.error('Avatar picture size can not exceed 2MB!')
     return false
   }
-  console.log("beforeAvatarUpload...rawFile:",rawFile);
+  console.log("beforeAvatarUpload...rawFile:", rawFile);
   // form.value.avatar={
   //   raw:rawFile,
   //   uid:rawFile.uid.toString()
   // }
   form.value.avatar = rawFile as File; // 直接設置為 File 對象
 
-// 創建預覽 URL
+  // 創建預覽 URL
 
   tempAvatar.value = URL.createObjectURL(rawFile)
   // form.value.avatar = URL.createObjectURL(rawFile)
-  console.log("beforeAvatarUpload...form.value.avatar:",form.value.avatar);
+  console.log("beforeAvatarUpload...form.value.avatar:", form.value.avatar);
 
 
   // 禁止上傳，使用其他方法在點擊確認後上傳至MinIo
@@ -126,13 +110,7 @@ const isAddMode = computed(() => actionTypeStore.actionType === 'add');
       <el-input v-model="form.accountName" />
     </el-form-item>
 
-    <el-form-item label="密碼" prop="password">
-      <el-input v-model="form.password" />
-    </el-form-item>
 
-    <el-form-item label="確認密碼" prop="checkPassword">
-      <el-input v-model="form.checkPassword" />
-    </el-form-item>
 
     <el-form-item label="出生年月日" prop="birthday">
       <div class="block">
@@ -150,7 +128,7 @@ const isAddMode = computed(() => actionTypeStore.actionType === 'add');
     </el-form-item>
 
     <el-form-item label="地址" prop="address">
-      <el-input v-model="form.address" />
+      <el-input v-model="form.address" placeholder="隱藏" />
     </el-form-item>
 
     <el-form-item label="權限" prop="roleId">
@@ -176,9 +154,8 @@ const isAddMode = computed(() => actionTypeStore.actionType === 'add');
 
     <el-form-item v-if="!isAddMode" label="頭像" prop="avatar">
       <div class="avatar-container">
-        <el-upload class="avatar-uploader" action="#"
-          :show-file-list="false"  :before-upload="beforeAvatarUpload"
-           ref="uploadRef">
+        <el-upload class="avatar-uploader" action="#" :show-file-list="false" :before-upload="beforeAvatarUpload"
+          ref="uploadRef">
           <el-avatar :src="tempAvatar || 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png'"
             :size="100" />
         </el-upload>
