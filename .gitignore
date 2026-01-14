@@ -25,3 +25,4 @@ dist-ssr
 
 src/components/ReplyTest.vueslot
 src/components/ReplyTest.vue
+*.tsbuildinfo

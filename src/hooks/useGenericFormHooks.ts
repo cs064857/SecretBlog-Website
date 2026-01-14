@@ -26,7 +26,7 @@ const props:Ref<any> = computed(()=>({//從表格欄位中獲得資料
 // }
 
 export function useOnCancel(
-    form:Ref<Object>,
+    form: Ref<any>,
 ) {
     return () => {
         // emit('dialogVisible', dialogVisible.value);
@@ -41,9 +41,9 @@ export function useOnCancel(
 
 
 
-const cleanFormValue = (form:Ref<Object>,ruleFormRef:Ref<FormInstance | null>) => {
+const cleanFormValue = (form: Ref<any>,ruleFormRef:Ref<FormInstance | null>) => {
     console.log("cleanFormValue...form:",form)
-    cleanStringAndDateValue(form.value)
+    cleanStringAndDateValue(form.value as Record<string, unknown>)
     // 等待下一個 tick 以確保表單數據已更新
     nextTick(() => {
         //清除表單驗證狀態
@@ -51,11 +51,11 @@ const cleanFormValue = (form:Ref<Object>,ruleFormRef:Ref<FormInstance | null>) =
     });
 };
 
-export const saveUserData = function (form:Ref<Object>,dialogVisible:Ref<boolean>,ruleFormRef: Ref<FormInstance | null>){
+export const saveUserData = function (form: Ref<any>,dialogVisible:Ref<boolean>,ruleFormRef: Ref<FormInstance | null>){
     console.log("新增資料...")
     // console.log("form.value",form.value)
-    return saveUserDataRequest(form.value).then(({data}:{data:R}) => {
-        if (data.code == "200") {
+    return saveUserDataRequest(form.value).then((data: R) => {
+        if (String(data.code) === "200") {
             // emit('dialogVisible', dialogVisible.value);
             dialogVisibleStore.setDialogVisible(false)
             // console.log('表單視窗關閉...');
@@ -110,8 +110,12 @@ export const updateUserData = async function (form: Ref<formUserInterface>){
 
     if(modifiedFieldsJson.avatar){
         console.log("modifiedFieldsJson.avatar:",modifiedFieldsJson.avatar)
+        if (!form.value.id) {
+            ElMessage.error("缺少用戶 ID，無法上傳頭像")
+            return
+        }
         //獲得Minio預簽名URL上傳鏈結
-        await putImgToMinioRequest(form.value.avatar as File,form.value.id)
+        await putImgToMinioRequest(form.value.avatar as File, form.value.id)
         .then((data:{data:R})=>{
             console.log("putImgToMinioRequest...data:",data)
             if(data.data.code==200){
@@ -240,20 +244,20 @@ export function useOnSubmit(ruleFormRef:Ref<FormInstance | null>, form: Ref<form
         }
     }
 }
-let options= ref<Option[] |null>(null);
+const options = ref<Option[]>([]);
 export const getOptions=function (requestPath:string){
 
-    getOptionsRequest(requestPath).then((data:R) => {
-        console.log("getOptions",data)
-        if(data.code==200){
-            options.value=data.data.map(item=>({
-                value:item.id,
-                label:item.roleName
-            }));
-            console.log("options",options)
-        }
-    })
-    return options
+	    getOptionsRequest(requestPath).then((data:R) => {
+	        console.log("getOptions",data)
+	        if(String(data.code) === "200" && Array.isArray(data.data)){
+	            options.value=data.data.map((item: any)=>({
+	                value:item.id,
+	                label:item.roleName
+	            }));
+	            console.log("options",options)
+	        }
+	    })
+	    return options
 
 }
 
@@ -264,7 +268,7 @@ export const actionType = ref<string>()
 /**
  * 接收表格(父組件)點擊編輯按鈕時取得該行的數據,並回顯示表單上
  */
-export const useReceiveParentData=(form: Ref<formUserInterface>,tempAvatar?:Ref<String>)=>{
+export const useReceiveParentData=(form: Ref<formUserInterface>,tempAvatar?:Ref<string>)=>{
 
     watch(
         () => props.value,
@@ -277,7 +281,7 @@ export const useReceiveParentData=(form: Ref<formUserInterface>,tempAvatar?:Ref<
         { immediate: true,deep:true}
     );
 }
-export let rules;
+export let rules: ReturnType<typeof useRules> = {} as ReturnType<typeof useRules>;
 
 
 
@@ -286,13 +290,13 @@ export const initializeRules = function (form: Ref<formUserInterface>) {
     rules = useRules(form.value,options);
 }
 
- const handleReceiveParentData=function (form: Ref<formUserInterface>,tempAvatar?:Ref<String>){
+ const handleReceiveParentData=function (form: Ref<formUserInterface>,tempAvatar?:Ref<string>){
     console.log("執行handleReceiveParentData()...props:",props)
     if(props.value){
         const inputFormData =<formUserInterface>props.value
         console.log("表單接收到父組件傳遞修改行的資料:",inputFormData)
         form.value = {...inputFormData,checkPassword:inputFormData.password}// 將確認密碼欄位回填與密碼相同值
-        if (typeof inputFormData.avatar === 'string') { // 修正 typeof 檢查
+        if (typeof inputFormData.avatar === 'string' && tempAvatar) { // 修正 typeof 檢查
             tempAvatar.value = inputFormData.avatar;
             console.log("tempAvatar回顯:",tempAvatar.value)
         }

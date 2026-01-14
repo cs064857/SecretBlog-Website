@@ -113,7 +113,7 @@ const validateStatus = (rule: any, value: string, callback: any) => {
     // }
 };
 
-import {formUserInterface} from "@/interface/ManagementInter/formUserInterface";
+import {formUserInterface} from "@/interface/admin/formUserInterface";
 import {Option} from "@/interface/admin/formOption";
 
 export const useRules =(form:any,options:Ref<Option[]>): FormRules<formUserInterface>=>{

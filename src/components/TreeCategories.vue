@@ -110,10 +110,10 @@ onMounted(() => {
 // 從後端獲取分類數據
 // 編輯分類
 // 編輯修改按鈕及功能/
-const handleEdit = function (node, data) {
+const handleEdit = function (node: Node, data: Tree) {
   console.log("node:", node)
-  form.categoryName = node.label;// 將node的categoryName回顯給表單模型
-  selectedData.value = node
+  form.categoryName = data.label;// 將分類名稱回顯給表單模型
+  selectedData.value = data
   dialogFormVisibleEditLevelOne.value = true
 }
 // 編輯修改按鈕及功能
@@ -122,11 +122,16 @@ const editLevelOneSubmitting = ref(false)
 const handleDialogEditLevelOne = function () {
   if (editLevelOneSubmitting.value) return
   editLevelOneSubmitting.value = true
+  if (!selectedData.value) {
+    ElMessage.error("未選擇欲編輯的分類節點")
+    editLevelOneSubmitting.value = false
+    return
+  }
   // console.log("form", form);
   http({
-    url: http.adornUrl(`/article/category/${selectedData.value.data.id}`),
+    url: http.adornUrl(`/article/category/${selectedData.value.id}`),
     method: 'put',
-    data: http.adornData(form.categoryName, false)
+    data: http.adornData({ categoryName: form.categoryName }, false)
   }).then(({data}: { data: R }) => {
     if (data.code == "200") {
       showSuccessAndRefresh("修改分類數據成功")
@@ -140,7 +145,7 @@ const handleDialogEditLevelOne = function () {
     editLevelOneSubmitting.value = false
   });
   form.categoryName = ''//清空表單輸入數據
-  selectedData.value = ''//清空選中的節點數據
+  selectedData.value = null//清空選中的節點數據
 }
 // 編輯修改按鈕及功能/
 

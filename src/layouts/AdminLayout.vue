@@ -146,9 +146,17 @@ const handleSelect =function (index:string){
  */
 
 // import 'element-plus/theme-chalk/dark/css-vars.css'
- 
-onMounted(()=>{
-  document.documentElement.className = 'dark';
+
+const darkModeToggle = ref(true)
+
+const switchchange = (val: boolean) => {
+  // 取得 html 根元素並切換 class，以啟用/停用暗黑模式
+  const html = document.documentElement
+  html.className = val ? 'dark' : ''
+}
+
+onMounted(() => {
+  switchchange(darkModeToggle.value)
 })
 
 // onMounted(()=>{

@@ -1,5 +1,6 @@
-export interface R<T>{
-    code:string,
-    msg?:string
-    data?:T|any
+// API 通用回應結構
+export interface R<T = any> {
+    code: string | number;
+    msg?: string;
+    data?: T;
 }

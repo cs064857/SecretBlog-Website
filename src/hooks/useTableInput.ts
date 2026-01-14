@@ -26,14 +26,15 @@ export function useSearch(searchKey:Ref<String | null>,searchValue:Ref<String | 
         filteredData.value = tableRawData.value.filter(getMatchCondition.value)
         console.log("篩選後 filteredData:", filteredData.value)
 
-        if (filteredData.value.length === 0 && searchValue.value) {
-            console.log("精確搜尋結果為空，進行模糊搜尋")
-            const matchesSearchKeyFuzzy = computed(() => (data: any) =>
-                data[searchKey.value as string].toLowerCase().includes(searchValue.value.toLowerCase())
-            );
-            filteredData.value = tableRawData.value.filter(matchesSearchKeyFuzzy.value);
-            console.log("模糊搜尋後 filteredData:", filteredData.value)
-        }
+	        if (filteredData.value.length === 0 && searchValue.value) {
+	            console.log("精確搜尋結果為空，進行模糊搜尋")
+	            const keywordLower = String(searchValue.value).toLowerCase()
+	            const matchesSearchKeyFuzzy = computed(() => (data: any) =>
+	                String(data[searchKey.value as string]).toLowerCase().includes(keywordLower)
+	            );
+	            filteredData.value = tableRawData.value.filter(matchesSearchKeyFuzzy.value);
+	            console.log("模糊搜尋後 filteredData:", filteredData.value)
+	        }
     } else {
         console.log("未提供搜尋條件，返回原始表格數據")
         filteredData.value = tableRawData.value;

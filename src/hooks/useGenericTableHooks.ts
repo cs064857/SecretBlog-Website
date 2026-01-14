@@ -23,11 +23,12 @@ export function useGenericTableData() {
     const getTableData = async function () {
         try {
 
-            const data: R<userDetailsDTO> = await getTableDataRequest('/ums/user/userDetails');
+            const data = await getTableDataRequest('/ums/user/userDetails') as R<any> | void;
+            if (!data) return;
             console.log("表格資料請求返回 data:", data);
-            if (data.code == "200") {
-                tableRawData.value = data.data;
-                filteredData.value = data.data;
+            if (String(data.code) === "200") {
+                tableRawData.value = Array.isArray(data.data) ? data.data : [];
+                filteredData.value = tableRawData.value;
                 dataTotalCount.value = tableRawData.value.length;
                 loading.value = false;  // 設置 loading 為 false
                 console.log("更新後的 tableRawData:", tableRawData.value);
@@ -138,7 +139,7 @@ export function useHandleDelete() {
     const tableRef = ref<InstanceType<typeof ElTable>>()
     const clicked = ref(false);
 
-    const handleDelete = (index: number, row) => {
+    const handleDelete = (index: number, row: any) => {
 
         console.log("觸發刪除 handleDelete，index:", index, " row:", row);
         ElMessageBox.confirm("確認是否刪除此選項？", "警告", {
@@ -156,7 +157,7 @@ export function useHandleDelete() {
     };
 
     const handleBatchDelete = () => {
-        const selectionRows = tableRef.value.getSelectionRows();
+        const selectionRows = tableRef.value?.getSelectionRows?.() ?? [];
         console.log("選中的資料 selectionRows:", selectionRows);
         const userIdList = selectionRows.map((item: any) => item.id);
         console.log("選中的 userIdList:", userIdList);

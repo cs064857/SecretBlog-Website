@@ -39,7 +39,7 @@ const form = ref<formUserInterface>({
   // address: '秘密',
   // phoneNumber: '0900000000'
 });
-const tempAvatar =ref<String>('')
+	const tempAvatar = ref<string>('')
 initializeRules(form);//初始化Rules、從表格欄位中獲得資料
 
 // 選項數據

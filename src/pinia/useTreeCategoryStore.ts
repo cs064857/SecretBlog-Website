@@ -4,18 +4,19 @@ import { TreeCategoryNode } from "@/interface/treeCategoryInterface"
 import http from '@/utils/httpRequest'
 
 export const useTreeCategoryStore = defineStore('treeCategoryData', () => {
-    const treeData = ref<TreeCategoryNode>()
+    // 分類樹根節點應為陣列
+    const treeData = ref<TreeCategoryNode[]>([])
     const loading = ref(false)
 
     const getTreeData = computed(() => treeData.value)
 
-    const setTreeData = function (newValue: any) {
+    const setTreeData = function (newValue: TreeCategoryNode[]) {
         treeData.value = newValue
     }
 
     // 從 API 獲取分類資料（若尚未載入）
     const fetchTreeData = async function () {
-        if (treeData.value || loading.value) return // 避免重複請求
+        if (treeData.value.length > 0 || loading.value) return // 避免重複請求
         loading.value = true
         try {
             const { data } = await http({
@@ -24,7 +25,7 @@ export const useTreeCategoryStore = defineStore('treeCategoryData', () => {
                 params: http.adornParams({})
             })
             if (data.code == "200") {
-                treeData.value = data.data
+                treeData.value = data.data || []
             }
         } finally {
             loading.value = false

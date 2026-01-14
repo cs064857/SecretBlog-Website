@@ -1,9 +1,10 @@
-export function cleanStringAndDateValue(Obj:Object){
-    Object.keys(Obj).forEach(key => {
-        if (typeof Obj[key] === 'string') {
-            Obj[key] = '';
-        }else if(Obj[key] instanceof Date ){
-            Obj[key] = new Date('');
+export function cleanStringAndDateValue(obj: Record<string, unknown>) {
+    Object.keys(obj).forEach((key) => {
+        const value = obj[key]
+        if (typeof value === 'string') {
+            obj[key] = ''
+        } else if (value instanceof Date) {
+            obj[key] = new Date('')
         }
-    });
+    })
 }

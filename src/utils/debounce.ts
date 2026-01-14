@@ -1,20 +1,20 @@
-export function debounce(fn: Function, delay: number) {
-    let timeoutId: number | undefined;
-    return (...args: any[]) => {
-        if (timeoutId) clearTimeout(timeoutId);
+export function debounce<TArgs extends unknown[]>(fn: (...args: TArgs) => void, delay: number) {
+    let timeoutId: ReturnType<typeof setTimeout> | undefined
+    return (...args: TArgs) => {
+        if (timeoutId) clearTimeout(timeoutId)
         timeoutId = setTimeout(() => {
-            fn(...args);
-        }, delay);
-    };
+            fn(...args)
+        }, delay)
+    }
 }
 
-export function throttle(fn: Function, delay: number) {
-    let lastCall = 0;
-    return (...args: any[]) => {
-        const now = new Date().getTime();
+export function throttle<TArgs extends unknown[]>(fn: (...args: TArgs) => void, delay: number) {
+    let lastCall = 0
+    return (...args: TArgs) => {
+        const now = Date.now()
         if (now - lastCall >= delay) {
-            lastCall = now;
-            fn(...args);
+            lastCall = now
+            fn(...args)
         }
-    };
+    }
 }

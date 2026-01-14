@@ -41,7 +41,15 @@ const props = withDefaults(defineProps<Props>(), {
   })
 })
 
+const emit = defineEmits<{
+  (e: 'cancel'): void
+}>()
+
 const replyToUser = ref(props.replyToUser)
+
+const handleCancel = () => {
+  emit('cancel')
+}
 
 // Methods
 const truncateText = (text: string, maxLength: number): string => {

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, onUpdated, ref, watch } from "vue";
+	import { onMounted, ref, watch } from "vue";
 
-import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
-import http from "../utils/httpRequest"
-import { ElMessage } from "element-plus";
-import LoadingSpinner from "./LoadingSpinner.vue";
+	import { onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
+	import http from "@/utils/httpRequest"
+	import { ElMessage } from "element-plus";
+	import LoadingSpinner from "./LoadingSpinner.vue";
 // 時間組件
 // import dayjs from 'dayjs'
 
@@ -14,17 +14,46 @@ import 'dayjs/locale/zh-tw' // 引入繁體中文語系
 dayjs.extend(relativeTime)
 dayjs.locale('zh-tw') // 設定預設語系為繁體中文
 
-// 引入分類和標籤相關
-import { useTreeCategoryStore } from "../pinia/useTreeCategoryStore";
-import { R } from "@/interface/R"
+	// 引入分類和標籤相關
+	import { useTreeCategoryStore } from "../pinia/useTreeCategoryStore";
+	import { R } from "@/interface/R"
+	import emitter from "@/utils/eventBusMitt";
 
-const route = useRoute()
-const router = useRouter();
+	const route = useRoute()
+	const router = useRouter();
 
-let totalItems = ref<number>()
-const pageSize = ref(20)//每條顯示條目個數,默認為20
-const currentPage = ref(1)//目前頁數,默認為1
-let limitItems = ref<number>(20)//默認顯示20個項目,limitItems與頁數掛勾
+	interface TagItem {
+	  id?: string | number
+	  name: string
+	}
+
+	interface ArticleListItem {
+	  articleId: string
+	  userId?: string | number
+	  avatar?: string | null
+	  nickName?: string | null
+	  title: string | null
+	  categoryName: string
+	  amsArtTagList: TagItem[]
+	  createTime: string | Date
+	  updateTime: string | Date
+	  viewsCount: number
+	  likesCount: number
+	  bookmarksCount: number
+	}
+
+	interface PaginatedResponse<T> {
+	  records: T[]
+	  total: number
+	  size?: number
+	  current?: number
+	  pages?: number
+	}
+
+	const totalItems = ref(0)
+	const pageSize = ref(20)//每條顯示條目個數,默認為20
+	const currentPage = ref(1)//目前頁數,默認為1
+	let limitItems = ref<number>(20)//默認顯示20個項目,limitItems與頁數掛勾
 
 // 骨架屏相關狀態
 const isLoading = ref(true)  // 載入狀態
@@ -76,24 +105,24 @@ const handleFilterTagsChange = (val: string[]) => {
 }
 
 // 獲取標籤資訊
-const getTagsList = function () {
-  http({
-    url: http.adornUrl('/article/tags/list'),
-    method: 'get',
-  }).then(({ data }: { data: R }) => {
-    if (data.code == "200") {
-      tagsSelectData.value = data.data
-    } else {
-      ElMessage.error("文章標籤獲取失敗")
-    }
-  });
-}
+	const getTagsList = function () {
+	  http({
+	    url: http.adornUrl('/article/tags/list'),
+	    method: 'get',
+	  }).then(({ data }: { data: R }) => {
+	    if (String(data.code) === "200") {
+	      tagsSelectData.value = data.data
+	    } else {
+	      ElMessage.error("文章標籤獲取失敗")
+	    }
+	  });
+	}
 
-const handleCurrentPageChange = async function (CurrentPage) {
-  limitItems.value = CurrentPage * pageSize.value
-  console.log("CurrentPage變化:", CurrentPage)
-  try {
-    // 阻塞等待路由更新完畢
+	const handleCurrentPageChange = async function (CurrentPage: number) {
+	  limitItems.value = CurrentPage * pageSize.value
+	  console.log("CurrentPage變化:", CurrentPage)
+	  try {
+	    // 阻塞等待路由更新完畢
     await router.push({
       name: "HomeArticleList", params: { categoryId: route.params.categoryId }, query: { page: CurrentPage, tagsId: route.query.tagsId }
     })
@@ -112,65 +141,64 @@ const handleCurrentPageChange = async function (CurrentPage) {
   // router.push({name:"Home",params:{categoryId: route.params.categoryId,Page: CurrentPage}})
 
 
-}
+	}
 
 const handlePageSizeChange = function (PageSize: string) {
   console.log("PageSize變化:", PageSize)
 }
 
-//獲取文章列表
-const articleList = ref<Articles | null>(null)
+	//獲取文章列表
+	const articleList = ref<ArticleListItem[] | null>(null)
 // const categoryId = computed(() => route.params.categoryId)
 // const routePage = computed(() => route.query.page)
 // let categoryId = ref(route.params.categoryId)
 // const routePage = ref(route.query.page)
 
-import { AmsListRecordsListInterface } from "@/interface/amsListRecordsInterface"
-
-// 重試功能
-const handleRetry = () => {
-  if (isLoading.value) return
-  getArticles(route.params.categoryId, route.query.page, route.query.tagsId)
+	// 重試功能
+	const handleRetry = () => {
+	  if (isLoading.value) return
+	  getArticles(route.params.categoryId, route.query.page, route.query.tagsId)
 
   console.log("HomeArticleList發送retry-home-apis")
   emitter.emit('retry-home-apis')
 
-}
+	}
 
-const getArticles = function (categoryId, routePage, tagsId) {
-  // 開始載入，重置錯誤狀態
-  isLoading.value = true
-  error.value = null
+	const getArticles = function (categoryId: unknown, routePage: unknown, tagsId: unknown) {
+	  // 開始載入，重置錯誤狀態
+	  isLoading.value = true
+	  error.value = null
 
   console.log("getArticles:categoryId=" + categoryId + ",routePage=" + routePage + ",tagsId=" + tagsId)
   http({
-    url: http.adornUrl(`/article/categories/articles`),
-    method: 'get',
-    params: http.adornParams({ routePage: routePage, categoryId: categoryId, tagsId: tagsId })
-  }).then(({ data }: { data: R<AmsListRecordsListInterface> }) => {
+	    url: http.adornUrl(`/article/categories/articles`),
+	    method: 'get',
+	    params: http.adornParams({ routePage: routePage, categoryId: categoryId, tagsId: tagsId })
+	  }).then(({ data }: { data: R<PaginatedResponse<ArticleListItem>> }) => {
 
-    if (data.code == "200") {
-      console.log("根據分類ID與頁碼獲得的分頁資料:", data.data)
-      articleList.value = data.data.records//要展示的所有文章列表資料
-      console.log("根據分類ID與頁碼獲得的文章列表articleList.value:", articleList.value)
+	    if (String(data.code) === "200") {
+	      console.log("根據分類ID與頁碼獲得的分頁資料:", data.data)
+	      const payload = data.data
+	      articleList.value = payload?.records || [] // 要展示的所有文章列表資料
+	      console.log("根據分類ID與頁碼獲得的文章列表articleList.value:", articleList.value)
 
-      totalItems = data.data.total//當前分類下所有文章的總數量
-    } else {
-      error.value = "載入失敗，請重新嘗試"
-      ElMessage.error("加載失敗,請重新嘗試");
-    }
-  }).catch((err) => {
-    // 捕獲網路錯誤
-    console.error('API 請求失敗:', err)
-    if (!navigator.onLine) {
-      error.value = "網路已斷開，請檢查連線狀態"
+	      totalItems.value = payload?.total || 0 // 當前分類下所有文章的總數量
+	    } else {
+	      error.value = "載入失敗，請重新嘗試"
+	      ElMessage.error("加載失敗,請重新嘗試");
+	    }
+	  }).catch((err: unknown) => {
+	    // 捕獲網路錯誤
+	    console.error('API 請求失敗:', err)
+	    if (!navigator.onLine) {
+	      error.value = "網路已斷開，請檢查連線狀態"
     } else {
       error.value = "伺服器暫時不可用，請稍後再試"
     }
   }).finally(() => {
     // 無論成功失敗，都停止載入狀態
     isLoading.value = false
-  })
+	})
 
 }
 
@@ -203,15 +231,13 @@ onMounted(() => {
   //     console.log("從後端接收到的總文章列表articleList:", articleList.value)
   //   })
   // }
-})
+	})
 
-// 重試功能 - 更新以包含標籤重新獲取
-import emitter from "@/utils/eventBusMitt";
-
-// 新增：開啟新增文章模態框事件
-const handleOpenCreateArticleModal = () => {
-  emitter.emit('open-create-article-modal')
-}
+	// 重試功能 - 更新以包含標籤重新獲取
+	// 新增：開啟新增文章模態框事件
+	const handleOpenCreateArticleModal = () => {
+	  emitter.emit('open-create-article-modal')
+	}
 //獲取文章列表/
 
 //根據categoryId篩選與分頁

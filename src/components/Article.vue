@@ -35,7 +35,7 @@
 
 
               <div class="article-header-info-user">
-                <router-link v-if="Article.userId" :to="{ name: 'UserInformation', params: { userId: Article.userId } }"
+                <router-link v-if="Article.userId" :to="{ name: 'UserInformation', params: { userId: String(Article.userId) } }"
                   class="avatar-link">
                   <el-avatar :size="50" :src="Article.avatar || undefined" class="article-header-avatar">
                     {{ Article.nickName?.charAt(0) || '?' }}
@@ -606,7 +606,7 @@ const handleOpenEditArticleModal = () => {
 
   inputTitle.value = Article.value.title
   selectCategoryId.value = String(Article.value.categoryId)
-  selectTagsValue.value = Article.value.amsArtTagsVoList.map((articleTag: any) => {
+  selectTagsValue.value = Article.value.amsArtTagVoList.map((articleTag: any) => {
     return articleTag.id
   })
 

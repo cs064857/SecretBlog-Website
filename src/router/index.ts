@@ -8,7 +8,6 @@ import TreeCategories from "../components/TreeCategories.vue";
 import Auth from "../components/AuthRegister.vue";
 import AuthLogin from '@/components/AuthLogin.vue';
 import AuthLayout from "../layouts/AuthLayout.vue";
-import TinyMceEditManagement from "@/components/admin/TinyMceEditManagement.vue";
 import ArticleManagement from "@/components/admin/ArticleManagement.vue";
 import HomePage from "@/components/HomePage.vue";
 import AuthForgotPassword from "@/components/AuthForgotPassword.vue";
@@ -37,13 +36,6 @@ const router = createRouter({
             path: '/AdminVue',
             meta: { requiresAuth: true },
             children: [
-                {
-                    name: 'TinyMceEditManagement',
-                    path: '/AdminVue/TinyMceEditManagement',
-                    components: {
-                        AdminVueRouter: TinyMceEditManagement,
-                    }
-                },
                 {
                     name: 'UserManagement',
                     path: '/AdminVue/UserManagement',
