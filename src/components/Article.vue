@@ -18,7 +18,7 @@
       <div class="article-content-list" ref="articleContentListRef">
         <!-- 左邊欄 -->
         <div class="art-sidebar--left">
-          
+
         </div>
 
         <div class="art-main">
@@ -35,8 +35,8 @@
 
 
               <div class="article-header-info-user">
-                <router-link v-if="Article.userId" :to="{ name: 'UserInformation', params: { userId: String(Article.userId) } }"
-                  class="avatar-link">
+                <router-link v-if="Article.userId"
+                  :to="{ name: 'UserInformation', params: { userId: String(Article.userId) } }" class="avatar-link">
                   <el-avatar :size="50" :src="Article.avatar || undefined" class="article-header-avatar">
                     {{ Article.nickName?.charAt(0) || '?' }}
                   </el-avatar>
@@ -65,7 +65,7 @@
                 </div>
 
                 <div class="article-header-info-time"><img class="svg-icon"
-                  src="/src/assets/calendar-days-solid-full.svg">
+                    src="/src/assets/calendar-days-solid-full.svg">
                   <span>{{ dayjs(Article.createTime).format('YYYY-MM-DD HH:mm') }}</span>
                   <!-- <span>{{ dayjs(Article.updateTime).format('YYYY-MM-DD HH:mm') }}</span> -->
                   <!-- <span>{{ Article.updateTime }}</span> -->
@@ -330,7 +330,7 @@
 
 
     <reply-modal @close="handleCloseModal()" v-if="createArticleModalVisible" @submit="handleEditArticle"
-      :modalVisible="createArticleModalVisible" :content="Article.content">
+      :modalVisible="createArticleModalVisible" :content="articleEditContent">
 
       <template #article-editor-header>
         <!-- 新增文章功能：Header(標題、分類、標籤設置)-->
@@ -427,6 +427,18 @@ const truncateText = (text: string, maxLength: number): string => {
   return text.substring(0, maxLength) + '...'
 }
 
+const stripHtmlToText = (value: unknown): string => {
+  const raw = String(value ?? '')
+  if (!raw) return ''
+  try {
+    const doc = new DOMParser().parseFromString(raw, 'text/html')
+    return (doc.body?.textContent || '').trim()
+  } catch (error) {
+    // fallback：非瀏覽器環境或解析失敗時，以簡單規則移除標籤
+    return raw.replace(/<[^>]*>/g, '').trim()
+  }
+}
+
 const Article = ref<ArticleInter | null>(null);
 const ArticleContent = ref('')
 
@@ -441,6 +453,7 @@ const replyCommentModalVisible = ref(false);
 const replyArticleModalVisible = ref(false);
 //編輯模態框
 const editCommentModalVisible = ref(false);
+const editCommentVoLoading = ref(false);
 
 
 
@@ -517,26 +530,24 @@ const handleCommentLikes = function (commentId: string) {
  * 展示留言
  */
 import DOMPurify from 'dompurify';
-import { marked } from "marked";
 import { AmsArtTagListInterface } from "@/interface/amsArtTagInterface";
 
 
 const renderedComments = ref([])
 
-watch(artComments, async (newArtComments) => {
+watch(artComments, (newArtComments) => {
   console.log("newArtComments:", newArtComments);
   if (!newArtComments || newArtComments.length === 0) {
     renderedComments.value = [];
     return;
   }
 
-  const processedList = await Promise.all(
-    newArtComments.map(async (item) => {
-      const rawHTML = await marked.parse(item.commentContent || '');
-      const sanitizedHtml = DOMPurify.sanitize(rawHTML);
-      return { ...item, commentContent: sanitizedHtml };
-    })
-  );
+  const processedList = newArtComments.map((item) => {
+    //後端回傳commentContent為顯示用 HTML，前端只需淨化即可直接v-html呈現
+    const rawHTML = String(item.commentContent || '');
+    const sanitizedHtml = DOMPurify.sanitize(rawHTML);
+    return { ...item, commentContent: sanitizedHtml };
+  });
 
   // const processedList = await Promise.all(
   //   newArtComments.map(async (item) => {
@@ -600,18 +611,6 @@ const handleClose = (done: () => void) => {
 
 
 const createArticleModalVisible = ref(false);
-// 開啟編輯文章模態框
-const handleOpenEditArticleModal = () => {
-  console.log("handleOpenEditArticleModal:Article.value:", Article.value)
-
-  inputTitle.value = Article.value.title
-  selectCategoryId.value = String(Article.value.categoryId)
-  selectTagsValue.value = Article.value.amsArtTagVoList.map((articleTag: any) => {
-    return articleTag.id
-  })
-
-
-
   // console.log("handleOpenEditArticleModal:Article.value.amsArtTagVoList:", Article.value.amsArtTagVoList)
   // const artTagsIdList = Article.value.amsArtTagVoList.map(articleTag => {
   //   return articleTag.id
@@ -633,9 +632,45 @@ const handleOpenEditArticleModal = () => {
   //   amsArtTagsVoList: Article.value.amsArtTagsVoList,
 
   // };
-  console.log("handleOpenEditArticleModal:currentReplyUser.value:", currentReplyUser.value)
-  createArticleModalVisible.value = true;
-}
+
+const articleEditContent = ref<string>('');
+const editArticleVoLoading = ref(false);
+
+const normalizeIdList = (value: unknown): string[] => {
+  if (Array.isArray(value)) return value.map(v => String(v));
+  if (value === null || value === undefined) return [];
+  return [String(value)];
+};
+
+// 開啟編輯文章模態框（後端回傳原始 Markdown）
+const handleOpenEditArticleModal = async () => {
+  if (editArticleVoLoading.value) return;
+  editArticleVoLoading.value = true;
+
+  try {
+    const { data } = await http({
+      url: http.adornUrl(`/article/articles/${articleId}/edit`),
+      method: 'get',
+      params: http.adornParams({})
+    }) as { data: R<any> };
+
+    if (String(data.code) === "200" && data.data) {
+      const vo = data.data;
+      inputTitle.value = vo?.title ?? '';
+      selectCategoryId.value = vo?.categoryId !== null && vo?.categoryId !== undefined ? String(vo.categoryId) : '';
+      selectTagsValue.value = normalizeIdList(vo?.tagsId);
+      articleEditContent.value = String(vo?.content ?? '');
+      createArticleModalVisible.value = true;
+    } else {
+      ElMessage.error(data.msg || "取得文章編輯資料失敗");
+    }
+  } catch (error) {
+    console.error("取得文章編輯資料失敗:", error);
+    ElMessage.error("取得文章編輯資料失敗，請稍後再試");
+  } finally {
+    editArticleVoLoading.value = false;
+  }
+};
 
 
 
@@ -663,7 +698,8 @@ const handleOpenReplyModal = (comment: any) => {
 
   currentReplyUser.value = {
     username: comment.username,
-    commentContent: comment.commentContent,
+    // 顯示用：留言內容目前為 HTML，回覆提示區僅需純文字
+    commentContent: stripHtmlToText(comment.commentContent),
     commentId: comment.commentId,
     articleId: articleId as string
   };
@@ -671,19 +707,67 @@ const handleOpenReplyModal = (comment: any) => {
 
 };
 // 開啟編輯留言的模態框
-const handleOpenEditCommentModal = (comment: any) => {
+const handleOpenEditCommentModal = async (comment: any) => {
   console.log("handleOpenEditCommentModal:comment:", comment)
+  if (!comment?.commentId) return;
+  if (editCommentVoLoading.value) return;
+  editCommentVoLoading.value = true;
 
-  // parentCommentId.value = comment.commentId
+  try {
+    const { data } = await http({
+      url: http.adornUrl(`/article/${articleId}/comments/${comment.commentId}/edit`),
+      method: 'get',
+      params: http.adornParams({})
+    }) as { data: R<any> };
 
-  currentReplyUser.value = {
-    username: comment.username,
-    commentContent: comment.commentContent,
-    commentId: comment.commentId,
-    articleId: articleId as string
-  };
-  editCommentModalVisible.value = true;
+    if (String(data.code) === "200" && data.data) {
+      const vo = data.data;
+      // 兼容欄位命名：可能是 commentContent 或 content
+      const markdown = String(vo?.commentContent ?? vo?.content ?? '');
 
+      currentReplyUser.value = {
+        username: comment.username,
+        commentContent: markdown,
+        commentId: comment.commentId,
+        articleId: articleId as string
+      };
+      editCommentModalVisible.value = true;
+    } else if (String(data.code) === "1011") {
+      // 留言編輯時間已過期（僅可在建立後 15 分鐘內編輯）
+      ElMessageBox.alert(
+        '留言編輯時間已過期，僅可在建立後 15 分鐘內編輯',
+        '無法編輯',
+        {
+          confirmButtonText: '確定',
+          type: 'warning',
+        }
+      );
+    } else {
+      ElMessage.error(data.msg || "取得留言編輯資料失敗");
+    }
+  } catch (error: any) {
+    console.error("取得留言編輯資料失敗:", error);
+    // 檢查是否為 HTTP 錯誤回應（後端使用 HTTP 4xx 回傳業務錯誤）
+    const responseData = error?.response?.data;
+    if (responseData && String(responseData.code) === "1011") {
+      // 留言編輯時間已過期（僅可在建立後 15 分鐘內編輯）
+      ElMessageBox.alert(
+        '留言編輯時間已過期，僅可在建立後 15 分鐘內編輯',
+        '無法編輯',
+        {
+          confirmButtonText: '確定',
+          type: 'warning',
+        }
+      );
+    } else if (responseData?.msg) {
+      // 其他業務錯誤，顯示後端回傳的訊息
+      ElMessage.error(responseData.msg);
+    } else {
+      ElMessage.error("取得留言編輯資料失敗，請稍後再試");
+    }
+  } finally {
+    editCommentVoLoading.value = false;
+  }
 };
 
 /**
@@ -697,6 +781,7 @@ const handleCloseModal = () => {
   replyArticleModalVisible.value = false;
   createArticleModalVisible.value = false;
   currentReplyUser.value = {};
+  articleEditContent.value = '';
 };
 
 // // 關閉編輯文章模態框
@@ -783,19 +868,22 @@ const handleEditComment = function (content: string) {
     if (data.code == "200") {
 
       ElMessage.success("留言編輯成功");
+      // 關閉模態框並重新載入留言（後端會將 Markdown 轉為 HTML 顯示用內容）
+      handleCloseModal();
+      refreshCommentsAfterSubmit();
 
-      // 將編輯後的內容更新到 renderedComments 中
-      const foundItem = renderedComments.value.find(
-        item => item.commentId == currentReplyUser.value.commentId
+    } else if (data.code == "1011") {
+      // 留言編輯時間已過期（僅可在建立後 15 分鐘內編輯）
+      ElMessageBox.alert(
+        '留言編輯時間已過期，僅可在建立後 15 分鐘內編輯',
+        '無法編輯',
+        {
+          confirmButtonText: '確定',
+          type: 'warning',
+        }
       );
-      console.log('Found Item:', foundItem);
-      if (foundItem) {
-        foundItem.commentContent = editCommentData.commentContent;
-      }
-
       // 關閉模態框
       handleCloseModal();
-
     } else {
       ElMessage.error(data.msg || "編輯留言失敗");
     }
@@ -1025,9 +1113,10 @@ const handleEditArticle = async function (newContent: string) {
 
   const updateArticle = ref<editArticleInterface>({
     title: inputTitle.value,
+    // newContent 為原始 Markdown（後端負責轉換為 HTML 顯示用內容並同時保存兩者）
     content: newContent,
-    categoryId: selectCategoryId.value,
-    tagsId: selectTagsValue.value,
+    categoryId: selectCategoryId.value ? String(selectCategoryId.value) : '',
+    tagsId: normalizeIdList(selectTagsValue.value),
   })
 
   console.log("handleEditArticle:updateArticle.value:", updateArticle.value)
@@ -1044,6 +1133,13 @@ const handleEditArticle = async function (newContent: string) {
       ElMessage.success("編輯成功")
       //關閉模態框
       createArticleModalVisible.value = false;
+      articleEditContent.value = '';
+
+      // 重新載入文章內容（後端回傳 HTML 顯示用內容）
+      await getArticleAndComments();
+      anchorList.value = [];
+      await nextTick();
+      await handleAnchorPoint(ArticleContent.value);
     } else {
       ElMessage.error("編輯失敗")
     }
@@ -2252,6 +2348,7 @@ const handleCancelArticleBookmark = async function () {
 }
 
 .article-comment-context-item-avatar {
+
   display: flex;
 
   flex: 1 1 0;
@@ -2264,6 +2361,7 @@ const handleCancelArticleBookmark = async function () {
 }
 
 .article-comment-context-item-info {
+
   text-align: end;
   flex: 1 1 0;
 }
