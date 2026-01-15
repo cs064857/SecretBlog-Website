@@ -94,7 +94,7 @@ const fetchSuggestions = (queryString: string, cb: (suggestions: SearchSuggestio
 
 	// 這裡可以添加其他搜尋建議
 	// 例如:熱門搜尋、歷史搜尋等
-	suggestions.push({ value: '建議1' })
+	suggestions.push({ value: '章魚' })
 	// suggestions.push({ value: '建議2' })
 
 	cb(suggestions)

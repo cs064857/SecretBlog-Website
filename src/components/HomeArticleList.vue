@@ -322,21 +322,26 @@ onMounted(() => {
       <div v-else class="home-article">
 
         <div v-for="article in articleList" :key="article.articleId" class="article-box">
-          <div class="article-title">
-            <!-- 作者頭像 -->
+          <!-- 作者資訊-->
+          <div class="article-author-row">
             <router-link v-if="article.userId" :to="{ name: 'UserInformation', params: { userId: article.userId } }"
               class="avatar-link">
-              <el-avatar v-if="article.avatar" :size="36" :src="article.avatar" class="article-author-avatar" />
-              <el-avatar v-else :size="36" class="article-author-avatar">
+              <el-avatar v-if="article.avatar" :size="48" :src="article.avatar" class="article-author-avatar" />
+              <el-avatar v-else :size="48" class="article-author-avatar">
                 {{ article.nickName?.charAt(0) || '?' }}
               </el-avatar>
+              <span class="article-author-nickname">{{ article.nickName || '匿名用戶' }}</span>
             </router-link>
             <template v-else>
-              <el-avatar v-if="article.avatar" :size="36" :src="article.avatar" class="article-author-avatar" />
-              <el-avatar v-else :size="36" class="article-author-avatar">
+              <el-avatar v-if="article.avatar" :size="48" :src="article.avatar" class="article-author-avatar" />
+              <el-avatar v-else :size="48" class="article-author-avatar">
                 {{ article.nickName?.charAt(0) || '?' }}
               </el-avatar>
+              <span class="article-author-nickname">{{ article.nickName || '匿名用戶' }}</span>
             </template>
+          </div>
+          <!-- 文章標題 -->
+          <div class="article-title">
             <router-link :to="{ name: 'Article', params: { articleId: article.articleId } }">
               <p>{{ article.title }}</p>
             </router-link>
@@ -554,16 +559,40 @@ hr {
   display: flex;
   align-items: center;
   width: 100%;
-  height: 60%;
-  padding: 0 1rem;
+  height: auto;
+  padding: 0 1rem 0.5rem 1rem;
+  box-sizing: border-box;
+  flex: 1;
+}
+
+/* 作者資訊行樣式 */
+.article-author-row {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem 0.25rem 1rem;
   box-sizing: border-box;
 }
 
 /* 文章作者頭像樣式 */
 .article-author-avatar {
-  margin-right: 0.75rem;
-  margin-left: 0.75rem;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
 
+/* 作者暱稱樣式 */
+.article-author-nickname {
+  color: #a0c4ff;
+  font-size: 0.85em;
+  font-weight: 500;
+  /* text-decoration: none; */
+  /* white-space: nowrap; */
+  /* transition: color 0.2s ease; */
+  flex-shrink: 0;
+}
+
+.article-author-nickname:hover {
+  color: #d0e8ff;
+  text-decoration: underline;
 }
 
 .avatar-link {
@@ -575,19 +604,20 @@ hr {
 }
 
 .avatar-link:hover {
-  transform: scale(1.1);
-  opacity: 0.85;
+  transform: scale(1.05);
+  opacity: 0.9;
 }
 
 /*文章框樣式 */
 .article-box {
   background-color: var(--bg-page1);
   width: 100%;
-  height: 14vh;
+  min-height: 14vh;
+  height: auto;
   border-radius: 8px;
   overflow: hidden;
-
-
+  display: flex;
+  flex-direction: column;
 }
 
 .home-article {
@@ -609,7 +639,12 @@ hr {
   top: 6px;
 
 }
+.article-title p:hover {
+  transition: transform 0.2s ease;
+  transform: scale(1.05);
 
+
+}
 
 .home-article {
   display: flex;
