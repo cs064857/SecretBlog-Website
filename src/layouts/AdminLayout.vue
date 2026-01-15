@@ -83,7 +83,7 @@
                   <span>文章系統</span>
                 </el-menu-item>
 
-                <el-menu-item index="Home">
+                <el-menu-item @click="goToHome">
                   <el-icon>
                     <setting/>
                   </el-icon>
@@ -135,6 +135,12 @@ const handleSelect =function (index:string){
   //利用@select放置於el-menu上,當點擊其中的el-menu-item的話,會獲得index參數並且觸發方法將參數傳入,並跳轉路由
   router.push({name:index})
 }
+
+//跳轉至網站首頁
+const goToHome = () => {
+  router.push({ path: '/Home' })
+}
+
 /**
  * 黑暗模式開關
  */
