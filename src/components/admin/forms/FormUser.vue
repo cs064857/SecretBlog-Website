@@ -9,17 +9,16 @@ import {
   useOnSubmit, useReceiveParentData, initializeRules
 } from "@/hooks/useGenericFormHooks";
 
-// 初始化表單資料㊣
+//初始化表單資料
 const form = ref<formUserInterface>({
   id: "",//用戶ID
-  status: "",
-  nickName: "",
   accountName: '',
-  avatar: '',
+  nickName: "",
+  email: '',
+  password: '',
+  checkPassword: '',
   birthday: new Date(''),
   gender: "",
-  roleId: '',
-  email: '',
   address: '',
   phoneNumber: ''
 });
@@ -39,36 +38,31 @@ const onCancel = useOnCancel(form);//取消表單按鈕(清空表單資料並關
 
 <template>
   <el-form :model="form" label-width="auto" style="max-width: 600px" :rules="rules" ref="ruleFormRef">
-    <el-form-item label="使用者名稱" prop="nickName">
-      <el-input v-model="form.nickName" />
-    </el-form-item>
-
     <el-form-item label="帳號" prop="accountName">
-      <el-input v-model="form.accountName" />
+      <el-input v-model="form.accountName" placeholder="請輸入帳號(必填)" />
     </el-form-item>
 
-
-
-    <el-form-item label="出生年月日" prop="birthday">
-      <div class="block">
-        <el-date-picker v-model="form.birthday" type="date" placeholder="Pick a day" :size="'default'"
-          style="width: 100%;" />
-      </div>
+    <el-form-item label="使用者名稱" prop="nickName">
+      <el-input v-model="form.nickName" placeholder="可選，若未填寫將自動產生" />
     </el-form-item>
 
     <el-form-item label="信箱" prop="email">
-      <el-input v-model="form.email" />
+      <el-input v-model="form.email" placeholder="請輸入信箱(必填)" />
     </el-form-item>
 
-    <el-form-item label="手機號" prop="phoneNumber">
-      <el-input v-model="form.phoneNumber" />
+    <el-form-item label="密碼" prop="password">
+      <el-input v-model="form.password" type="password" show-password placeholder="請輸入密碼(必填)" />
     </el-form-item>
 
-    <el-form-item label="狀態" prop="status">
-      <el-radio-group v-model="form.status">
-        <el-radio :value="'Normal'">正常</el-radio>
-        <el-radio :value="'Ban'">封禁</el-radio>
-      </el-radio-group>
+    <el-form-item label="確認密碼" prop="checkPassword">
+      <el-input v-model="form.checkPassword" type="password" show-password placeholder="請再次輸入密碼(必填)" />
+    </el-form-item>
+
+    <el-form-item label="出生年月日" prop="birthday">
+      <div class="block">
+        <el-date-picker v-model="form.birthday" type="date" placeholder="選擇日期(可選)" :size="'default'"
+          style="width: 100%;" />
+      </div>
     </el-form-item>
 
     <el-form-item label="性別" prop="gender">
@@ -77,6 +71,14 @@ const onCancel = useOnCancel(form);//取消表單按鈕(清空表單資料並關
         <el-radio :value="'female'">女</el-radio>
         <el-radio :value="'other'">不願透露</el-radio>
       </el-radio-group>
+    </el-form-item>
+
+    <el-form-item label="地址" prop="address">
+      <el-input v-model="form.address" placeholder="可選" />
+    </el-form-item>
+
+    <el-form-item label="手機號碼" prop="phoneNumber">
+      <el-input v-model="form.phoneNumber" placeholder="可選，格式：0912345678" />
     </el-form-item>
 
     <el-form-item>
