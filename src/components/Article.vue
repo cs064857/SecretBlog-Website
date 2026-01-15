@@ -747,10 +747,10 @@ const handleOpenEditCommentModal = async (comment: any) => {
     }
   } catch (error: any) {
     console.error("取得留言編輯資料失敗:", error);
-    // 檢查是否為 HTTP 錯誤回應（後端使用 HTTP 4xx 回傳業務錯誤）
+    //檢查是否為HTTP錯誤回覆(後端使用 HTTP 4xx 回傳業務錯誤)
     const responseData = error?.response?.data;
     if (responseData && String(responseData.code) === "1011") {
-      // 留言編輯時間已過期（僅可在建立後 15 分鐘內編輯）
+      //留言編輯時間已過期(僅可在建立後15分鐘內編輯)
       ElMessageBox.alert(
         '留言編輯時間已過期，僅可在建立後 15 分鐘內編輯',
         '無法編輯',
@@ -1683,7 +1683,10 @@ const anchorList = ref<anchorInterface[]>([]);
 //將<h2>片段一</h2> 變成 <h2 id="heading-1">片段一</h2>
 const handleAnchorPoint = async function (content: string) {
   // console.log("handleAnchorPoint content:",content)
-  const headings = document.querySelectorAll('h1,h2,h3,h4,h5,h6')
+  //僅從文章內容區塊抓取標題，避免抓取留言區的標題
+  const articleContentEl = document.querySelector('.article-content')
+  if (!articleContentEl) return
+  const headings = articleContentEl.querySelectorAll('h1,h2,h3,h4,h5,h6')
   const idMap = {}; // 用來記錄 ID 出現的次數
 
 
