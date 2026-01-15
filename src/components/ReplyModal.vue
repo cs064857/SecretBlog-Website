@@ -92,7 +92,7 @@
 import { ref, computed, nextTick, onUnmounted, watch } from 'vue'
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { uploadContentImageRequest } from '@/requests/useMinioRequest'
 
 const modalVisible = ref<boolean>(false)
@@ -404,12 +404,20 @@ const handleOverlayClick = () => {
 const handleCancel = () => {
   console.log("handleCancel");
   if (content.value.trim() && !isSubmitting.value) {
-    if (confirm('您有未儲存的內容，確定要關閉嗎？')) {
-      // resetModal()
+    ElMessageBox.confirm(
+      '您有未儲存的內容，確定要關閉嗎？',
+      '提示',
+      {
+        confirmButtonText: '確定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+    ).then(() => {
       emit('close')
-    }
+    }).catch(() => {
+      //使用者取消，不執行任何操作
+    })
   } else {
-    // resetModal()
     emit('close')
   }
 }
@@ -1010,6 +1018,8 @@ const handlePaste = async (event: ClipboardEvent) => {
   border: 1px solid var(--border-subtle);
   background: rgba(255, 255, 255, 0.02);
   transition: all var(--transition-base);
+  min-height: 80px;
+
 }
 
 .toolbar-group:hover {
@@ -1115,14 +1125,16 @@ const handlePaste = async (event: ClipboardEvent) => {
    Editor Container
    ========================================== */
 .editor-container {
-  flex: 1;
+  flex: 0 0 auto;
   padding: 0 var(--space-6) var(--space-5);
   min-height: 220px;
+  height: 220px;
   overflow: hidden;
   border-top: 1px solid #e0e0e0;
   /* 設定上邊框 */
   border-bottom: 1px solid #e0e0e0;
   /* 設定下邊框 */
+  overflow-y: auto;
 }
 
 :deep(.ql-container) {
