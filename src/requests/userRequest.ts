@@ -194,3 +194,22 @@ export function getUserCommentsRequest(userId: string, routePage?: number) {
     });
 }
 
+/**
+ * 更新使用者帳號狀態(封禁/解禁)
+ */
+export function updateUserStatusRequest(userId: string, status: string) {
+    return http({
+        url: http.adornUrl(`/ums/user/${userId}/status`),
+        method: 'put',
+        params: { status }
+    }).then(({ data }: { data: R }) => {
+        if (data.code == "200") {
+            ElMessage.success(status === 'BAN' ? '封禁用戶成功' : '解禁用戶成功');
+            window.location.replace(window.location.href);
+        } else {
+            ElMessage.error(status === 'BAN' ? '封禁用戶失敗' : '解禁用戶失敗');
+        }
+        return data;
+    });
+}
+

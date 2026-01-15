@@ -58,31 +58,38 @@
 
 
 
-        <el-table-column align="right">
-          <!--          <template #header>-->
-          <!--            <el-input v-model="search" size="small" placeholder="Type to search"/>-->
-          <!--          </template>-->
+        <el-table-column align="right" label="操作">
           <template #default="scope">
-            <el-button size="small" @click="handleEdit(scope.$index, scope.row)">
-              Edit
-            </el-button>
-
-            <el-popconfirm width="220" :icon="InfoFilled" icon-color="#626AEF" title="確認是否刪除此選項？" @cancel="onCancel"
-              @confirm="handleDelete(scope.$index, scope.row)">
+            <!-- 封禁/解禁按鈕 -->
+            <el-popconfirm
+              v-if="scope.row.status === 'Normal'"
+              width="220"
+              :icon="InfoFilled"
+              icon-color="#F56C6C"
+              title="確認是否封禁此用戶？"
+              @confirm="handleBanUser(scope.row)"
+            >
               <template #reference>
                 <el-button size="small" type="danger">
-                  Delete
-                </el-button>
-              </template>
-              <template #actions="{ confirm, cancel }">
-                <el-button size="small" @click="cancel">No!</el-button>
-                <el-button type="danger" size="small" :disabled="!clicked" @click="confirm">
-                  Yes?
+                  封禁
                 </el-button>
               </template>
             </el-popconfirm>
 
-
+            <el-popconfirm
+              v-else
+              width="220"
+              :icon="InfoFilled"
+              icon-color="#67C23A"
+              title="確認是否解禁此用戶？"
+              @confirm="handleUnbanUser(scope.row)"
+            >
+              <template #reference>
+                <el-button size="small" type="success">
+                  解禁
+                </el-button>
+              </template>
+            </el-popconfirm>
           </template>
         </el-table-column>
 
@@ -205,8 +212,21 @@ const { handleEdit, handleAdd } = useHandleEdit(formTitle);
 import { InfoFilled, Search } from '@element-plus/icons-vue'
 
 import { useHandleDelete } from '@/hooks/useGenericTableHooks';
+import { updateUserStatusRequest } from '@/requests/userRequest';
 
 const { clicked, handleDelete, handleBatchDelete, onCancel, tableRef } = useHandleDelete();
+
+/**
+ * 封禁/解禁用戶
+ */
+const handleBanUser = (row: any) => {
+  updateUserStatusRequest(row.id, 'BAN');
+};
+
+const handleUnbanUser = (row: any) => {
+  updateUserStatusRequest(row.id, 'NORMAL');
+};
+
 /**
  * 刪除按鈕
  */
