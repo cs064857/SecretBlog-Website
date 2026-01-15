@@ -102,14 +102,13 @@
 
                 <div v-for="(item, key) in anchorList" :key="key">
                   <ul>
-
-                    <li>
+                    <li :class="{ 'active': activateAnchorId === item.id }">
                       <a style="text-decoration: none;" :href="'#' + item.id">
                         {{ item.id }}
                       </a>
                     </li>
                     <ul v-if="item.childern" v-for="sonItem in item.childern">
-                      <li>
+                      <li :class="{ 'active': activateAnchorId === sonItem.id }">
                         <a style="text-decoration: none;" :href="'#' + sonItem.id">
                           {{ sonItem.id }}
                         </a>
@@ -611,27 +610,27 @@ const handleClose = (done: () => void) => {
 
 
 const createArticleModalVisible = ref(false);
-  // console.log("handleOpenEditArticleModal:Article.value.amsArtTagVoList:", Article.value.amsArtTagVoList)
-  // const artTagsIdList = Article.value.amsArtTagVoList.map(articleTag => {
-  //   return articleTag.id
-  // })
-  // console.log("handleOpenEditArticleModal:artTagsIdList:", artTagsIdList)
-  // currentReplyUser.value = {
-  //   title: Article.value.title,
-  //   categoryId: String(Article.value.categoryId),
-  //   content: Article.value.content,
-  //   tagsId: artTagsIdList,
+// console.log("handleOpenEditArticleModal:Article.value.amsArtTagVoList:", Article.value.amsArtTagVoList)
+// const artTagsIdList = Article.value.amsArtTagVoList.map(articleTag => {
+//   return articleTag.id
+// })
+// console.log("handleOpenEditArticleModal:artTagsIdList:", artTagsIdList)
+// currentReplyUser.value = {
+//   title: Article.value.title,
+//   categoryId: String(Article.value.categoryId),
+//   content: Article.value.content,
+//   tagsId: artTagsIdList,
 
-  // } as editArticleInterface;
+// } as editArticleInterface;
 
-  // currentReplyUser.value = {
-  //   title: Article.value.title,
-  //   articleId: Article.value.id,
-  //   categoryId: Article.value.categoryId,
-  //   commentContent: Article.value.content,
-  //   amsArtTagsVoList: Article.value.amsArtTagsVoList,
+// currentReplyUser.value = {
+//   title: Article.value.title,
+//   articleId: Article.value.id,
+//   categoryId: Article.value.categoryId,
+//   commentContent: Article.value.content,
+//   amsArtTagsVoList: Article.value.amsArtTagsVoList,
 
-  // };
+// };
 
 const articleEditContent = ref<string>('');
 const editArticleVoLoading = ref(false);
@@ -1988,7 +1987,7 @@ onMounted(async () => {
 
 
   await handleAnchorPoint(ArticleContent.value)
-
+  setupScrollObserver();
 });
 
 
@@ -2158,6 +2157,38 @@ const handleCancelArticleBookmark = async function () {
     articleBookmarkSubmitting.value = false;
   }
 };
+
+/**
+ * 目錄高亮綁定
+ */
+const activateAnchorId = ref('')
+const setupScrollObserver = () => {
+  //觀察文章區塊範圍中的標題h1,h2等...
+  const headings = document.querySelectorAll('.article-content h1, .article-content h2, .article-content h3, .article-content h4, .article-content h5, .article-content h6');
+
+  const observer = new IntersectionObserver((entries => {
+
+    entries.forEach(entrie => {
+
+      if (entrie.isIntersecting) {//假設進到觀察區塊中
+        activateAnchorId.value = entrie.target.id;//將對應的AnchorId設置成啟用
+      }
+
+    })
+
+  }), {
+    //設定觀察區域，忽略視窗上方20%和下方60%，只監測中間區域
+    rootMargin: '-20% 0px -60% 0px',
+    threshold: 0
+  })
+
+  headings.forEach(heading => {
+    //開始觀察文章標題h1,h2等...
+    observer.observe(heading);
+  })
+
+}
+
 </script>
 
 <style scoped>
@@ -2767,7 +2798,6 @@ const handleCancelArticleBookmark = async function () {
 
 /* 右側錨點區塊 */
 .art-toc__content {
-
   background-color: var(--bg-name-darkblue);
   width: 100%;
   padding: 0.5rem;
@@ -2776,6 +2806,8 @@ const handleCancelArticleBookmark = async function () {
 /* 設置錨點的顏色 */
 .art-toc__content a {
   color: #DDDDDD !important;
+  opacity: 0.5;
+
 }
 
 
@@ -2785,5 +2817,14 @@ const handleCancelArticleBookmark = async function () {
 .article-content :deep(*) {
   background-color: transparent !important;
   color: #DDDDDD !important;
+}
+
+/**
+當滑動到某個目錄區塊時，該目錄區塊的文字會變色
+*/
+.art-toc__content li.active>a {
+  opacity: 1;
+  color: var(--primary-500);
+  font-weight: 600;
 }
 </style>
