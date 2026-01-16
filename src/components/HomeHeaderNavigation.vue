@@ -203,9 +203,13 @@ const updateUserInfo = function () {
 watch(isLoggedIn, (newVal) => {
   if (newVal) {
     updateUserInfo()
+    //使用者登入後建立SSE連線
+    SseService.subscribe(testSseSuccess, testSseError)
   } else {
     avatar.value = ''
     userId.value = null
+    //使用者登出後斷開SSE連線
+    SseService.unsubscribe()
   }
 })
 import SseService from '@/utils/sseService';
@@ -224,8 +228,10 @@ onMounted(async () => {
     isMounted.value = true
   })
 
-  //掛載SSE服務
-  SseService.subscribe(testSseSuccess, testSseError)
+  //僅在使用者已登入時掛載SSE服務
+  if (isLoggedIn.value) {
+    SseService.subscribe(testSseSuccess, testSseError)
+  }
   // //測試推送
   // await setTimeout(() => {
   //     http({
