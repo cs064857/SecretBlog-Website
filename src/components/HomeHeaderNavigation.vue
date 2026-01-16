@@ -30,27 +30,41 @@ const inboxNoMore = ref(false)
 const inboxTotal = ref(0)
 const isNotificationOpen = ref(false)
 
-const loadNotifications = () => {
-  if (inboxLoading.value || inboxNoMore.value) return
-  inboxLoading.value = true
-  getInboxList({ routePage: inboxPage.value, onlyUnread: false }).then(res => {
-    if (String(res.code) === '200') {
-      const pageData = res.data;
-      if (pageData && pageData.records && pageData.records.length > 0) {
-        notifications.value.push(...pageData.records)
-        inboxPage.value++
-        if (notifications.value.length >= pageData.total) {
+const loadNotifications = (): Promise<void> => {
+  return new Promise((resolve) => {
+    if (inboxLoading.value || inboxNoMore.value) {
+      resolve()
+      return
+    }
+    inboxLoading.value = true
+    getInboxList({ routePage: inboxPage.value, onlyUnread: false }).then(res => {
+      if (String(res.code) === '200') {
+        const pageData = res.data;
+        if (pageData && pageData.records && pageData.records.length > 0) {
+          notifications.value.push(...pageData.records)
+          inboxPage.value++
+          if (notifications.value.length >= pageData.total) {
+            inboxNoMore.value = true
+          }
+        } else {
           inboxNoMore.value = true
         }
-      } else {
-        inboxNoMore.value = true
       }
-    }
-  }).catch(() => {
-    inboxNoMore.value = true
-  }).finally(() => {
-    inboxLoading.value = false
+    }).catch(() => {
+      inboxNoMore.value = true
+    }).finally(() => {
+      inboxLoading.value = false
+      resolve()
+    })
   })
+}
+
+//初始化收件匣並建立SSE連線(必須先加載收件匣完畢才能建立SSE連線)
+const initInboxAndSSE = async () => {
+  //先加載收件匣
+  await loadNotifications()
+  //收件匣加載完畢後建立SSE連線
+  SseService.subscribe(testSseSuccess, testSseError)
 }
 
 const handleNotificationShow = () => {
@@ -203,8 +217,8 @@ const updateUserInfo = function () {
 watch(isLoggedIn, (newVal) => {
   if (newVal) {
     updateUserInfo()
-    //使用者登入後建立SSE連線
-    SseService.subscribe(testSseSuccess, testSseError)
+    //使用者登入後先加載收件匣，完成後建立SSE連線
+    initInboxAndSSE()
   } else {
     avatar.value = ''
     userId.value = null
@@ -228,26 +242,10 @@ onMounted(async () => {
     isMounted.value = true
   })
 
-  //僅在使用者已登入時掛載SSE服務
+  //僅在使用者已登入時先加載收件匣，完成後建立SSE連線
   if (isLoggedIn.value) {
-    SseService.subscribe(testSseSuccess, testSseError)
+    await initInboxAndSSE()
   }
-  // //測試推送
-  // await setTimeout(() => {
-  //     http({
-  //     url: http.adornUrl('/ums/user/inbox/test-sse'),
-  //     method: 'post'
-  //     }).then(({data}:{data:R}) => {
-  //     if (data.code == 200) {
-  //         ElMessage.success("測試推送");
-  //     } else {
-  //         ElMessage.error("錯誤訊息");
-  //     }
-  // }).catch(() => {
-  //     ElMessage.error("請求出錯，請稍後再試");
-  // });
-  // }, 3000);
-
 })
 </script>
 

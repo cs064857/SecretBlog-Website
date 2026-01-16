@@ -215,15 +215,11 @@ http.interceptors.response.use(
  * 請求地址處理
  * @param {*} actionName action方法名稱
  */
-// http.adornUrl = (actionName) => {
-//   // 非生產環境 && 開啟代理, 接口前綴統一使用[/proxyApi/]前綴做代理攔截!
-//   // return (process.env.NODE_ENV !== 'production' && process.env.OPEN_PROXY ? '/proxyApi/' : window.SITE_CONFIG.baseUrl) + actionName
-//   return 'http://localhost:88/api' + actionName
-// }
-
 http.adornUrl = (actionName) => {
-  // 使用 Vite 開發代理，統一走同源 /api，避免瀏覽器 CORS
-  return '/api' + actionName
+  // 優先使用環境變數中的API地址
+  // 如果沒有定義，則回退到開發用的 /api 代理路徑
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || '/api'
+  return baseUrl + actionName
 }
 
 /**
