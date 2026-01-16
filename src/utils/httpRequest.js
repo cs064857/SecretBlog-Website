@@ -217,8 +217,7 @@ http.interceptors.response.use(
  */
 http.adornUrl = (actionName) => {
   // 優先使用環境變數中的API地址
-  // 如果沒有定義，則回退到開發用的 /api 代理路徑
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || '/api'
+  const baseUrl = import.meta.env.VITE_API_BASE_URL + '/api'
   return baseUrl + actionName
 }
 
