@@ -24,7 +24,7 @@ class SseService {
         }
         const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
         //創建新的SSE連接，連接到後端的訂閱端口
-        this.eventSource = new EventSource(`${apiBaseUrl}/ums/user/sse/subscribe`,{ withCredentials: true })
+        this.eventSource = new EventSource(`${apiBaseUrl}/api/ums/user/sse/subscribe`,{ withCredentials: true })
         this.eventSource.addEventListener('open',()=>{
             console.log('SSE連接已建立')
             this.retryCount = 0; //連接成功，重置重試次數
