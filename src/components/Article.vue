@@ -573,10 +573,9 @@ watch(artComments, (newArtComments) => {
 //   }
 //   const processedList = await Promise.all(
 //     newArtComments.map(async (item) => {
-//       const rawHTML=item.commentContent=marked.parse(item.commentContent)
-//       const sanitizedHtml=item.commentContent = DOMPurify.sanitize(rawHTML)
-//       return {...item,commentContent:sanitizedHtml}
-
+//       const rawHTML = await DOMPurify.sanitize(item.commentContent);
+//       const sanitizedHtml =  marked.parse( rawHTML|| '');
+//       return { ...item, commentContent: sanitizedHtml };
 //     })
 
 // );
@@ -1076,7 +1075,7 @@ const handleTagsChange = function (value: number) {
 
 //     // 處理標籤資料
 //     if (currentReplyUser.value.replyToUser.amsArtTagsVoList) {
-//       selectTagsValue.value = currentReplyUser.value.amsArtTagsVoList.map(
+//       selectTagsValue.value = currentReplyUser.value.replyToUser.amsArtTagsVoList.map(
 //         (item: any) => item.id
 //       );
 //     }
@@ -1277,10 +1276,8 @@ const textarea1 = ref()
 //
 //
 //     console.log("articleContentHeight:", articleContentHeight);
-//     if (articleContentHeight && articleContentHeight > 0) {
-//       if (articleContentHeight && articleContentListRef.value) {
-//         articleContentListRef.value.style.height = `${articleContentHeight + 150}px`;
-//       }
+//     if (articleContentHeight && articleContentListRef.value) {
+//       articleContentListRef.value.style.height = `${articleContentHeight + 150}px`;
 //       // articleContentObserver.disconnect(); // 停止觀察
 //     }
 //   });
@@ -1511,7 +1508,7 @@ onUnmounted(() => {// 在組件卸載後移除滾動事件監聽器
 //       if (Article.value != null) {
 //         ArticleContent.value = Article.value.content;
 //         console.log("ArticleContent.value:", ArticleContent.value);
-
+//
 //         const parser = new DOMParser();
 //         const doc = parser.parseFromString(ArticleContent.value, 'text/html');
 //         console.log("doc:", doc);
@@ -1522,20 +1519,20 @@ onUnmounted(() => {// 在組件卸載後移除滾動事件監聽器
 //         anchors.forEach(anchor => {
 //           const id = anchor.id;
 //           let title = '';
-
+//
 //           // 3. 使用正確的標題提取邏輯
 //           const nextNode = anchor.nextSibling;
 //           if (nextNode && nextNode.nodeType === Node.TEXT_NODE) {
 //             title = nextNode.textContent.trim();
 //           }
-
+//
 //           // 4. 確保 id 和 title 都有效
 //           if (id && title) {
 //             articleAnchorData.value.push({ id, title });
 //           }
 //         });
-
-
+//
+//
 //         console.log("articleAnchorData.value:", articleAnchorData.value);
 //       }
 //     }
@@ -2818,6 +2815,25 @@ const setupScrollObserver = () => {
 .article-content :deep(*) {
   background-color: transparent !important;
   color: #DDDDDD !important;
+}
+
+/* <code> 區塊 */
+.article-content :deep(code) {
+
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
+/* 塊級程式碼區塊樣式*/
+.article-content :deep(pre) {
+  background-color: var(--bg-page) !important;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  overflow-x: auto;
 }
 
 /**
