@@ -96,7 +96,7 @@
           <div class="art-toc">
 
 
-            <el-affix target=".art-sidebar--right" :offset="220">
+            <el-affix target=".art-sidebar--right" :offset="125">
 
               <div class="art-toc__content">
 
@@ -2704,7 +2704,7 @@ const setupScrollObserver = () => {
 
 .art-sidebar--right {
   background-color: var(--bg-name-darkmagenta);
-  flex: 0.5;
+  flex: 0.7;
   position: relative;
   display: flex;
   justify-content: flex-start;

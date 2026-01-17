@@ -169,7 +169,7 @@ interface UmsUserInformationDTO {
     roleId?: string;
     createAt?: Date;
     updateAt?: Date;
-    gender?: number;
+    gender?: number | string;
     birthday?: string;
     address?: string;
 }
@@ -226,9 +226,9 @@ const editAddress = ref<boolean>(false)
 /**
  * 格式化性別顯示
  */
-const formatGender = (gender: number | undefined) => {
-    if (gender === 1) return '男';
-    if (gender === 2) return '女';
+const formatGender = (gender: number | string | undefined) => {
+    if (gender === 1 || gender === 'male') return '男性';
+    if (gender === 2 || gender === 'female') return '女性';
     return '--';
 }
 
