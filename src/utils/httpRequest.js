@@ -68,7 +68,7 @@ function getCookieValue(key) {
   return null
 }
 
-function clearAuthClientState() {
+export function clearAuthClientState() {
   const isLoginStore = useIsLoginStore()
   isLoginStore.setIsLoginData(false)
 

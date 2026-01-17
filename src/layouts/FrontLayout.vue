@@ -54,6 +54,7 @@
             <div class="create-article-tag">
               <span class="create-article-title-text">標籤</span>
               <el-tree-select v-model="selectTagsValue" :data="tagsSelectData" :props="treeProps" multiple
+                filterable allow-create default-first-option
                 @change="handleTagsChange" :render-after-expand="false" style="max-width: 20vh;min-width: 20vh;"
                 value-key="id" />
             </div>
@@ -246,8 +247,35 @@ const handleCategoryChange = function (value: string) {
   selectCategoryId.value = value
 }
 
-const handleTagsChange = function (value: number) {
-  selectTagsValue.value = value
+const handleTagsChange = async function (values: any[]) {
+  //檢查是否有新創建的標籤(當傳入值不在現有標籤ID列表中時,視為新標籤名稱)
+  for (const val of values) {
+    const exists = tagsSelectData.value.some(tag => tag.id == val)
+    if (!exists) {
+      console.log("檢測到新標籤,準備創建:", val)
+      try {
+        await http({
+          url: http.adornUrl('/article/tags/create'),
+          method: 'post',
+          data: http.adornData({ name: val }, false)
+        })
+        //創建成功後,重新獲取標籤列表以同步ID
+        await getTagsList()
+        //找到新創建標籤的ID並替換目前的名稱字串
+        const newTag = tagsSelectData.value.find(tag => tag.name === val)
+        if (newTag) {
+          const index = selectTagsValue.value.indexOf(val)
+          if (index !== -1) {
+            selectTagsValue.value[index] = newTag.id
+          }
+        }
+      } catch (e) {
+        ElMessage.error(`標籤 "${val}" 創建失敗`)
+        //從選中列表中移除失敗的項目
+        selectTagsValue.value = selectTagsValue.value.filter(v => v !== val)
+      }
+    }
+  }
 }
 
 

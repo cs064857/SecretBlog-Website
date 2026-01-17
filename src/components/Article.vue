@@ -2553,9 +2553,8 @@ const setupScrollObserver = () => {
 
 .article-header {
   border: black 3px solid;
-  max-width: 92%;
-  min-width: 92%;
-  margin: 50px 50px 0 50px;
+  width: 95%;
+  margin: 50px auto 0;
   padding: 1.5rem 2rem;
   background-color: var(--bg-hex-88c847);
   border: 3px solid #d1cdcd50;
@@ -2565,7 +2564,9 @@ const setupScrollObserver = () => {
 .article-header-title {
 
   background-color: var(--bg-hex-81156a);
-
+  word-wrap: break-word;
+  word-break: break-all;
+  overflow-wrap: break-word;
 }
 
 .article-header-info {
@@ -2631,18 +2632,16 @@ const setupScrollObserver = () => {
 
 .article-title {
   border: black 3px solid;
-  max-width: 92%;
-  min-width: 92%;
-  margin: 50px 50px 0 50px;
+  width: 95%;
+  margin: 50px auto 0;
   background-color: var(--bg-hex-324222);
 
 }
 
 .article-content {
   border: black 3px solid;
-  max-width: 92%;
-  min-width: 92%;
-  margin: 0 50px 50px 50px;
+  width: 95%;
+  margin: 0 auto 50px;
   padding: 1.5rem 2rem;
   background-color: var(--bg-hex-d7e6c8);
 
@@ -2650,6 +2649,7 @@ const setupScrollObserver = () => {
   /* 不裁切內容 */
   word-wrap: break-word;
   word-break: break-all;
+  overflow-wrap: break-word;
   border: 3px solid #d1cdcd50;
   box-sizing: border-box;
   min-height: 55vh;
@@ -2667,6 +2667,7 @@ const setupScrollObserver = () => {
 .art-main {
   background-color: var(--bg-name-darkgreen);
   flex: 2.5;
+  min-width: 0;
   /* 移除視窗高度鎖定 */
   /* height: 92vh; */
 }

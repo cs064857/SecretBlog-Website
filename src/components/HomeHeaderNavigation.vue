@@ -11,6 +11,7 @@ import { getInboxList, markInboxAsRead, markAllAsRead, type UmsUserInbox } from 
 // import { on } from "events";
 import SearchHeaders from "@/components/search/SearchHeaders.vue";
 import { storeToRefs } from "pinia"; // 引入 storeToRefs
+import { clearAuthClientState } from '@/utils/httpRequest'
 
 const router = useRouter()
 const route = useRoute()
@@ -177,12 +178,9 @@ const handleSignOut = function () {
     // data: http.adornData(data, false)
   }).then(({ data }: { data: R }) => {
     if (data.code == "200") {
-      isLoginStore.setIsLoginData(false)
+      clearAuthClientState()
       ElMessage.success("成功訊息");
       sessionStorage.removeItem('jwtToken')
-
-      //登出時使jwtToken過期並且清空,
-      document.cookie = "jwtToken=; max-age=0; path=/;";
 
 
       router.push('/Home/2?page=1')
