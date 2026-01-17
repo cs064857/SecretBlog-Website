@@ -48,25 +48,28 @@
             </div>
           </div>
 
-          <!-- 編輯器區域 -->
-          <div class="editor-container">
-            <QuillEditor @paste="handlePaste" ref="quillEditor" v-model:content="content" content-type="text" :options="editorOptions"
-              placeholder="撰寫您的回覆..." @ready="onEditorReady" />
-          </div>
-
-          <!-- 貼上圖片預覽（延遲至提交時才上傳） -->
-          <div v-if="stagedImages.length" class="pasted-images-preview">
-            <div class="pasted-images-header">
-              <span class="pasted-images-title">貼上圖片預覽</span>
-              <span class="pasted-images-hint">圖片將於發表回覆時才上傳</span>
+          <!-- 可捲動的內容區域(編輯器+圖片預覽) -->
+          <div class="scrollable-content">
+            <!-- 編輯器區域 -->
+            <div class="editor-container">
+              <QuillEditor ref="quillEditor" v-model:content="content" content-type="text" :options="editorOptions"
+                placeholder="撰寫您的回覆..." @ready="onEditorReady" />
             </div>
 
-            <div class="pasted-images-grid">
-              <div v-for="img in stagedImages" :key="img.id" class="pasted-image-card">
-                <img class="pasted-image" :src="img.localUrl" :alt="img.file.name || '貼上圖片'" />
-                <div class="pasted-image-footer">
-                  <span class="pasted-image-name">{{ img.file.name || '貼上圖片' }}</span>
-                  <button class="pasted-image-remove" type="button" @click="removeStagedImage(img.id)">移除</button>
+            <!-- 貼上圖片預覽（延遲至提交時才上傳） -->
+            <div v-if="stagedImages.length" class="pasted-images-preview">
+              <div class="pasted-images-header">
+                <span class="pasted-images-title">貼上圖片預覽</span>
+                <span class="pasted-images-hint">圖片將於發表回覆時才上傳</span>
+              </div>
+
+              <div class="pasted-images-grid">
+                <div v-for="img in stagedImages" :key="img.id" class="pasted-image-card">
+                  <img class="pasted-image" :src="img.localUrl" :alt="img.file.name || '貼上圖片'" />
+                  <div class="pasted-image-footer">
+                    <span class="pasted-image-name">{{ img.file.name || '貼上圖片' }}</span>
+                    <button class="pasted-image-remove" type="button" @click="removeStagedImage(img.id)">移除</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -347,7 +350,7 @@ const insertionTools = [
   {
     name: 'quote',
     title: '引用區塊',
-    iconPath: 'M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z'
+    iconPath: 'M6 17h3l2-4V7h-6v6h3z'
   },
   {
     name: 'ul',
@@ -636,17 +639,89 @@ const isContentValid = computed(() => {
   return textContent.length > 0
 })
 
+//圖片貼上處理函數：直接監聽Quill編輯器DOM的paste事件
+const handlePasteInternal = async (event: ClipboardEvent) => {
+  const clipboardData = event.clipboardData
+  if (!clipboardData) return
+
+  const editor = quillEditor.value?.getQuill()
+  if (!editor) return
+
+  //從剪貼簿抓圖片檔案(部分瀏覽器會放在items，有些會放在files)
+  const imageFiles: File[] = []
+
+  const items = Array.from(clipboardData.items || [])
+  for (const item of items) {
+    if (item.kind === 'file' && item.type.startsWith('image/')) {
+      const f = item.getAsFile()
+      if (f) imageFiles.push(f)
+    }
+  }
+
+  //有些瀏覽器會同時在items與files提供相同圖片，避免重複插入：
+  // - 優先使用items
+  // - 若items沒拿到圖片，才從files讀取
+  if (imageFiles.length === 0) {
+    const files = Array.from(clipboardData.files || [])
+    for (const f of files) {
+      if (f.type.startsWith('image/')) imageFiles.push(f)
+    }
+  }
+
+  //沒有圖片就交給Quill預設貼上流程
+  if (imageFiles.length === 0) return
+
+  //攔截貼上，避免Quill預設把圖片轉成 base64 直接塞進內容
+  event.preventDefault()
+
+  //使用getSelection(true)強制取得目前焦點位置
+  const selection = editor.getSelection(true)
+  let insertIndex = selection ? selection.index : editor.getLength() - 1
+
+  //若剪貼簿同時有純文字，手動補上，避免preventDefault導致文字沒有貼上
+  const plainText = clipboardData.getData('text/plain')
+
+  if (plainText) {
+    editor.insertText(insertIndex, plainText)
+    insertIndex += plainText.length
+    editor.setSelection(insertIndex, 0)
+  }
+
+  //本地預覽+暫存：用blob URL先插入佔位符，提交時再替換
+  for (const file of imageFiles) {
+    const id = createStagedImageId()
+    const localUrl = URL.createObjectURL(file)
+
+    stagedImages.value.push({ id, file, localUrl })
+
+    const altText = file.name || '貼上圖片'
+    const markdown = `\n![${altText}](${localUrl})\n`
+
+    editor.insertText(insertIndex, markdown)
+    insertIndex += markdown.length
+    editor.setSelection(insertIndex, 0)
+  }
+
+  editor.focus()
+}
+
 const onEditorReady = () => {
   nextTick(() => {
     const editor = quillEditor.value?.getQuill()
     if (editor) {
       editor.focus()
 
-      // 監聽選擇變化以更新工具狀態
+      // 監聯選擇變化以更新工具狀態
       editor.on('selection-change', updateToolStates)
 
       // 監聽內容變化以同步狀態
       editor.on('text-change', updateToolStates)
+
+      //直接在Quill編輯器的DOM容器上監聽paste事件，以正確取得游標位置
+      const editorRoot = editor.root
+      if (editorRoot) {
+        editorRoot.addEventListener('paste', handlePasteInternal)
+      }
 
       // 鍵盤快捷鍵支援
       const toolbar = editor.getModule('toolbar')
@@ -732,70 +807,6 @@ if (typeof window !== 'undefined') {
   // Vue 3 的 onUnmounted
   onUnmounted(cleanup)
 }
-
-const handlePaste = async (event: ClipboardEvent) => {
-  const clipboardData = event.clipboardData
-  if (!clipboardData) return
-
-  //從剪貼簿抓圖片檔案(部分瀏覽器會放在items，有些會放在files)
-  const imageFiles: File[] = []
-
-  const items = Array.from(clipboardData.items || [])
-  for (const item of items) {
-    if (item.kind === 'file' && item.type.startsWith('image/')) {
-      const f = item.getAsFile()
-      if (f) imageFiles.push(f)
-    }
-  }
-
-  //有些瀏覽器會同時在items與files提供相同圖片，避免重複插入：
-  // - 優先使用items
-  // - 若items沒拿到圖片，才從files讀取
-  if (imageFiles.length === 0) {
-    const files = Array.from(clipboardData.files || [])
-    for (const f of files) {
-      if (f.type.startsWith('image/')) imageFiles.push(f)
-    }
-  }
-
-  //沒有圖片就交給Quill預設貼上流程
-  if (imageFiles.length === 0) return
-
-  //攔截貼上，避免Quill預設把圖片轉成 base64 直接塞進內容
-  event.preventDefault()
-
-  const editor = quillEditor.value?.getQuill()
-  if (!editor) return
-
-  //若剪貼簿同時有純文字，手動補上，避免preventDefault導致文字沒有貼上
-  const plainText = clipboardData.getData('text/plain')
-  let insertIndex = (editor.getSelection() || { index: editor.getLength(), length: 0 }).index
-
-  if (plainText) {
-    editor.insertText(insertIndex, plainText)
-    insertIndex += plainText.length
-    editor.setSelection(insertIndex, 0)
-  }
-
-  //本地預覽+暫存：用blob URL先插入佔位符，提交時再替換
-  for (const file of imageFiles) {
-    const id = createStagedImageId()
-    const localUrl = URL.createObjectURL(file)
-
-    stagedImages.value.push({ id, file, localUrl })
-
-    const altText = file.name || '貼上圖片'
-    const markdown = `\n![${altText}](${localUrl})\n`
-
-    editor.insertText(insertIndex, markdown)
-    insertIndex += markdown.length
-    editor.setSelection(insertIndex, 0)
-  }
-
-  editor.focus()
-}
-
-
 
 </script>
 
@@ -1119,6 +1130,16 @@ const handlePaste = async (event: ClipboardEvent) => {
 .help-btn:hover {
   background: var(--warning-500);
   border-color: var(--warning-500);
+}
+
+/* ==========================================
+   Scrollable Content Area
+   ========================================== */
+.scrollable-content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
 }
 
 /* ==========================================
