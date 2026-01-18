@@ -89,7 +89,8 @@
             <div class="info-item">
                 <div class="info-label">地址</div>
                 <div class="info-value">
-                    <el-input v-if="editAddress" v-model="inputAddress" placeholder="請輸入地址" class="dark-input" clearable />
+                    <el-input v-if="editAddress" v-model="inputAddress" placeholder="請輸入地址" class="dark-input"
+                        clearable />
                     <span v-else>{{ userInformation?.address || '--' }}</span>
                 </div>
                 <div class="info-action" v-if="isCurrentUser">
@@ -250,7 +251,15 @@ const handleCloseEditAvatar = function () {
 }
 const handleOpenEditGender = function () {
     if (!editGender.value) {
-        inputGender.value = userInformation.value?.gender || null
+        //將gender轉換為數字類型(處理可能為string的情況)
+        const gender = userInformation.value?.gender;
+        if (gender === 1 || gender === 'male') {
+            inputGender.value = 1;
+        } else if (gender === 2 || gender === 'female') {
+            inputGender.value = 2;
+        } else {
+            inputGender.value = null;
+        }
     }
     editGender.value = !editGender.value
 }
@@ -491,6 +500,7 @@ const handleConfirmEditAddress = function () {
 .text-white {
     color: #fff;
 }
+
 hr {
     margin: 0 !important;
 
