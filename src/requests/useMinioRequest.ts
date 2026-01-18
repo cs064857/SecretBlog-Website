@@ -65,7 +65,8 @@ export function uploadContentImageRequest(file: Blob, fileName = "image") {
         data: formData,
         headers: {
             'Content-Type': 'multipart/form-data'
-        }
+        },
+        timeout: 5 * 60 * 1000 //5分鐘超時
     }).then(({ data }: { data: R<string> }) => data);
 }
 

@@ -2836,6 +2836,16 @@ const setupScrollObserver = () => {
   overflow-x: auto;
 }
 
+/*文章內容中的圖片樣式*/
+.article-content :deep(img) {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1rem auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
 /**
 當滑動到某個目錄區塊時，該目錄區塊的文字會變色
 */

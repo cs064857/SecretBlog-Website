@@ -219,6 +219,13 @@ const handleSubmit = async () => {
   try {
     let finalContent = content.value
 
+    //檢查內容是否包含base64圖片(阻止超大資料提交)
+    const base64Pattern = /data:image\/[^;]+;base64,[A-Za-z0-9+/=]{1000,}/
+    if (base64Pattern.test(finalContent)) {
+      ElMessage.warning('偵測到內嵌圖片資料過大')
+      return
+    }
+
     //依序上傳，只處理仍存在於內容中的 blob URL
     for (const img of [...stagedImages.value]) {
       if (!finalContent.includes(img.localUrl)) {
@@ -229,19 +236,29 @@ const handleSubmit = async () => {
 
       const res = await uploadContentImageRequest(img.file, img.file.name || 'pasted-image')
 
-      if (res.code === '200' && res.data) {
+      //修正，使用寬鬆比較並確保res.data存在(包含空字串以外的值)
+      if (String(res.code) === '200' && res.data) {
         //將本地blob URL替換成後端回傳的真實URL
         finalContent = finalContent.split(img.localUrl).join(res.data)
 
         revokeStagedImageUrl(img.localUrl)
         stagedImages.value = stagedImages.value.filter(item => item.id !== img.id)
       } else {
+        console.error('圖片上傳失敗 - res:', res)
         ElMessage.error(res.msg || '圖片上傳失敗')
         return
       }
     }
 
+    //二次檢查，確認所有 blob URL 都已替換為遠端 URL
+    if (finalContent.includes('blob:')) {
+      console.error('handleSubmit: 仍有未替換的 blob URL')
+      ElMessage.error('部分圖片上傳失敗，請重新貼上圖片')
+      return
+    }
+
     content.value = finalContent
+    console.log('handleSubmit: emit submit with finalContent:', finalContent)
     emit('submit', finalContent)
   } catch (error) {
     console.error('提交前圖片上傳失敗:', error)
@@ -711,16 +728,48 @@ const onEditorReady = () => {
     if (editor) {
       editor.focus()
 
-      // 監聯選擇變化以更新工具狀態
+      //監聽選擇變化以更新工具狀態
       editor.on('selection-change', updateToolStates)
 
-      // 監聽內容變化以同步狀態
-      editor.on('text-change', updateToolStates)
+      //監聽內容變化以同步狀態，並移除任何被插入的base64圖片
+      editor.on('text-change', (delta: any, oldDelta: any, source: string) => {
+        updateToolStates()
+        
+        //防止Quill預設插入base64圖片(例如透過拖放或其他方式)
+        if (source === 'user') {
+          const currentContent = editor.getText() || ''
+          //檢測base64圖片標記
+          if (currentContent.includes('data:image/')) {
+            console.warn('偵測到base64圖片被插入，正在移除...')
+            //移除包含base64的行
+            const cleanedContent = currentContent.replace(/!\[[^\]]*\]\(data:image\/[^\)]+\)/g, '[圖片已移除，請使用貼上功能]')
+            if (cleanedContent !== currentContent) {
+              editor.setText(cleanedContent)
+              ElMessage.warning('請使用 Ctrl+V 貼上圖片，不支援拖放或直接嵌入')
+            }
+          }
+        }
+      })
 
-      //直接在Quill編輯器的DOM容器上監聽paste事件，以正確取得游標位置
+      //直接在Quill編輯器的DOM容器上監聯paste事件，以正確取得游標位置
       const editorRoot = editor.root
       if (editorRoot) {
         editorRoot.addEventListener('paste', handlePasteInternal)
+        
+        //攔截拖放事件，防止 Quill 將拖放的圖片轉成 base64
+        editorRoot.addEventListener('drop', (event: DragEvent) => {
+          const dataTransfer = event.dataTransfer
+          if (!dataTransfer) return
+          
+          const hasImage = Array.from(dataTransfer.items || []).some(
+            item => item.kind === 'file' && item.type.startsWith('image/')
+          )
+          if (hasImage) {
+            event.preventDefault()
+            event.stopPropagation()
+            ElMessage.info('請使用 Ctrl+V 貼上圖片，暫不支援拖放')
+          }
+        })
       }
 
       // 鍵盤快捷鍵支援
