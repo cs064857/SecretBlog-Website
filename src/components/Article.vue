@@ -2799,6 +2799,8 @@ const setupScrollObserver = () => {
   background-color: var(--bg-name-darkblue);
   width: 100%;
   padding: 0.5rem;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 /* 設置錨點的顏色 */
