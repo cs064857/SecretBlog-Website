@@ -13,7 +13,7 @@
         <a @click="switchMode" style="color: #C9DDFF;cursor: pointer">SingUp➔</a>
 
     </div>
-    <span>//TODO 展示功能 註冊時給予管理權限以及直接填充帳號密碼</span>
+    <span>//TODO 移除展示功能 直接填充帳號密碼</span>
 
     <hr />
     <div class="auth-container-main-external-providers">

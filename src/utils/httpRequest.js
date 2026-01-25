@@ -31,7 +31,6 @@ const AUTH_API_WHITELIST = [
   '/api/ums/user/register',
   '/api/ums/user/captcha',
   '/api/ums/user/email-verify-code',
-  '/api/ums/user/is-login',
   '/api/ums/user/forgot-password',
   '/api/ums/user/verify-reset-token',
   '/api/ums/user/reset-password',
@@ -132,15 +131,20 @@ function handleUnauthorized(triggerUrl, config) {
       redirectingToLogin = true
       window.location.href = LOGIN_PATH
     }
+  } else if (triggerUrl && triggerUrl.includes('/is-login')) {
+    // 即使跳過重導(如/is-login)，若遇到401也應確保localStorage資料同步清空
+    // clearAuthClientState 已經在函式開頭呼叫過
   }
 }
 
 function handleForbidden(triggerUrl, config) {
+  const isLoginStore = useIsLoginStore()
   const skipMessage = Boolean(config && config.skipAuthErrorMessage)
   if (skipMessage) return
 
-  // 403 表示已登入但權限不足，不應自動登出
-  if (!isOnAuthPage() && !isAuthApi(triggerUrl)) {
+  //403 表示已登入但權限不足，不應自動登出
+  //修正，若發現未登入(前端狀態已清空或失效)，則不應彈出權限不足提示，應由 401 流程處理
+  if (!isOnAuthPage() && !isAuthApi(triggerUrl) && isLoginStore.isLogin) {
     showAuthToastOnce('error', '權限不足，無法執行此操作')
   }
 }

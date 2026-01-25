@@ -6,11 +6,10 @@ import { useIsLoginStore } from "@/pinia/useIsLoginStore.js";
 export function isLoginRequest(showMsg: boolean = false) {
     const isLoginStore = useIsLoginStore();
 
-    // 這個 API 用來「查詢目前是否登入」，未登入時可能會回 401；此情境不應視為請求失敗或觸發重導。
+    // 這個 API 用來「查詢目前是否登入」，未登入時可能會回 401
     return http({
         url: http.adornUrl('/ums/user/is-login'),
         method: 'get',
-        skipAuthRedirect: true,
         skipAuthErrorMessage: true,
     }).then(({ data }: { data: R }) => {
         const code = Number((data as any)?.code)
