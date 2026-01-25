@@ -71,21 +71,13 @@ const handleDialogConfirm = function () {
 }
 // 對話框/
 // 從後端獲取分類數據
+const treeCategoryStore = useTreeCategoryStore()
 const getCategoryList = function () {
-  http({
-    url: http.adornUrl('/article/category/tree/list'),
-    method: 'get',
-    params: http.adornParams({})
-  }).then(({data}) => {
-    if (data.code == "200") {
-      console.log("data", data)
-      //將數據放入樹形控件數據源中展示
-      dataSource.value = data.data
-      //將數據放入pinia中保存,讓編輯器中的選擇器TreeSelect調用
-      useTreeCategoryStore().setTreeData(data.data)
-    } else {
-      ElMessage.error("獲取分類數據錯誤");
-    }
+  treeCategoryStore.forceRefresh().then(() => {
+    //將Pinia store中的最新資料同步到本地dataSource
+    dataSource.value = treeCategoryStore.treeData
+  }).catch(() => {
+    ElMessage.error("獲取分類數據錯誤");
   })
 }
 
