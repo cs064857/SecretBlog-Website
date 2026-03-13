@@ -1699,25 +1699,21 @@ const handleAnchorPoint = async function (content: string) {
   const articleContentEl = document.querySelector('.article-content')
   if (!articleContentEl) return
   const headings = articleContentEl.querySelectorAll('h1,h2,h3,h4,h5,h6')
-  const idMap = {}; // 用來記錄 ID 出現的次數
+  const idMap: Record<string, number> = {}; // 用來記錄 ID 出現的次數
 
-
-
-  if (!headings) return;
+  if (!headings || headings.length === 0) return;
   console.log("handleAnchorPoint headings:", headings)
-  let maxLevel = 1;
+  
+  anchorList.value = []; //解析前先清空
+  let currentRoot: { level: number, anchor: anchorInterface } | null = null;
+  
   headings.forEach(heading => {
 
     console.log("handleAnchorPoint heading.tagName", heading.tagName)//h1 h2 h3 h4 h5 h6
-
     console.log("handleAnchorPoint heading.textContent:", heading.textContent)
 
-
-
     if (!heading.id) {
-      console.log("handleAnchorPoint heading.id:", heading.id)
-
-      let id = heading.textContent.trim()
+      let id = heading.textContent?.trim() || 'heading';
       console.log("handleAnchorPoint id", id)
       if (idMap[id]) {
         // 如果 ID 已存在，次數 +1 並加上後綴
@@ -1728,45 +1724,34 @@ const handleAnchorPoint = async function (content: string) {
         idMap[id] = 1;
       }
       heading.id = id;
+    }
 
-      const anchor: anchorInterface = {
-        level: heading.tagName,
-        id: id,
-        childern: []
-      }
+    const currentLevel = parseInt(heading.tagName.substring(1));//H1->1,H2->2 H3->3 ...
+    const anchor: anchorInterface = {
+      level: heading.tagName,
+      id: heading.id,
+      childern: []
+    }
 
-
-      const currentLevel = parseInt(heading.tagName.substring(1));//H1->1,H2->2 H3->3 ...
-
-      if (currentLevel == 1) {//為最上層
-        //假設是第一層
-        anchorList.value.push(anchor)
-      } else {//不是最上層
-        //找出父節點
-        const parentAnchor = anchorList.value.find(anchor => parseInt(anchor.level.substring(1)) === (currentLevel - 1))
-        if (parentAnchor) {
-          //假設有父節點
-          //將子節點加入父節點
-          parentAnchor.childern.push(anchor)
-        } else {
-          anchorList.value.push(anchor)
+    if (!currentRoot) {
+      currentRoot = { level: currentLevel, anchor: anchor };
+      anchorList.value.push(anchor)
+    } else {
+      if (currentLevel > currentRoot.level) {
+        //將子節點加入最新的父節點
+        if (currentRoot.anchor.childern) {
+          currentRoot.anchor.childern.push(anchor)
         }
+      } else {
+        //取代為新的根節點
+        currentRoot = { level: currentLevel, anchor: anchor };
+        anchorList.value.push(anchor)
       }
-
-
-
-      // anchorMap.value.set(heading.tagName,id);// key為屬性名稱, 值為id , ex: h1、片段一
-      // console.log("handleAnchorPoint key:value", heading.tagName, ":", id)
-
-      // console.log("handleAnchorPoint heading.id", heading.id)
     }
 
   })
 
   console.log("handleAnchorPoint anchorList:", anchorList.value)
-  // console.log("handleAnchorPoint anchorMap:",anchorMap)
-
-
 }
 
 
@@ -1999,6 +1984,7 @@ onMounted(async () => {
   await getArticleAndComments();
 
 
+  await nextTick();
   await handleAnchorPoint(ArticleContent.value)
   setupScrollObserver();
 });
@@ -2093,7 +2079,6 @@ const handleCancelArticleLike = async function () {
       // Article.value = data.data;
       // ArticleContent.value = Article.value.content;
       // console.log("ArticleContent.value:", ArticleContent.value);
-      ElMessage.success("取消讚成功！");
       return data;
     }
   } catch (error) {
@@ -2180,11 +2165,24 @@ const handleCancelArticleBookmark = async function () {
  * 目錄高亮綁定
  */
 const activateAnchorId = ref('')
+let contentObserver: IntersectionObserver | null = null;
+
+onUnmounted(() => {
+  if (contentObserver) {
+    contentObserver.disconnect();
+    contentObserver = null;
+  }
+});
+
 const setupScrollObserver = () => {
+  if (contentObserver) {
+    contentObserver.disconnect();
+  }
+
   //觀察文章區塊範圍中的標題h1,h2等...
   const headings = document.querySelectorAll('.article-content h1, .article-content h2, .article-content h3, .article-content h4, .article-content h5, .article-content h6');
 
-  const observer = new IntersectionObserver((entries => {
+  contentObserver = new IntersectionObserver((entries => {
 
     entries.forEach(entrie => {
 
@@ -2202,7 +2200,7 @@ const setupScrollObserver = () => {
 
   headings.forEach(heading => {
     //開始觀察文章標題h1,h2等...
-    observer.observe(heading);
+    contentObserver!.observe(heading);
   })
 
 }
