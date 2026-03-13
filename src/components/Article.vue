@@ -520,18 +520,18 @@ const handleCommentLikes = function (commentId: string) {
       if (targetComment) {
         targetComment.likesCount = data.data;
       }
-      // 更新狀態為 0 (已點讚)
+      // 更新狀態為 1 (已點讚)
       const statusItem = commentsActionStatus.value.find(item => item.commentId == commentId);
       console.log("statusItem:", statusItem);
       if (statusItem) {
         statusItem.isLiked = 1;
+      } else {
+        commentsActionStatus.value.push({ commentId: commentId, isLiked: 1 });
       }
 
-
-
-      ElMessage.success("成功訊息");
+      ElMessage.success("點讚成功");
     } else {
-      ElMessage.error("錯誤訊息");
+      ElMessage.error("點讚失敗");
     }
   }).catch(() => {
     ElMessage.error("請求出錯，請稍後再試");
@@ -1860,6 +1860,8 @@ const handleCancelCommentLikes = async function (commentId: string) {
       console.log("statusItem:", statusItem);
       if (statusItem) {
         statusItem.isLiked = 0;
+      } else {
+        commentsActionStatus.value.push({ commentId: commentId, isLiked: 0 });
       }
 
 
