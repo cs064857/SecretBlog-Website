@@ -182,9 +182,9 @@ export function getOptionsRequest(requestPath: string) {
     })
 }
 
-export function getUserCommentsRequest(userId: string, routePage?: number) {
+export function getUserComments(userId: string | number, routePage: number) {
     return http({
-        url: http.adornUrl(`/article/user/${userId}/comments`),
+        url: http.adornUrl(`/ams/users/${userId}/comments`),
         method: 'get',
         params: http.adornParams({
             ...(routePage !== undefined && { routePage })

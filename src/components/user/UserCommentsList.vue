@@ -46,7 +46,9 @@
 import { onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { getUserCommentsRequest } from '@/requests/userRequest';
+
+import { getUserComments } from '@/requests/userRequest';
+
 import type { AmsUserCommentVo } from '@/interface/amsUserCommentVo';
 import { useInfiniteScroll, formatDate } from '@/hooks/useInfiniteScroll';
 
@@ -67,7 +69,8 @@ const fetchUserComments = async (page: number) => {
     if (!userId) return null;
 
     try {
-        const data = await getUserCommentsRequest(userId, page);
+        //直接傳字串避免JavaScript大整數精度丟失
+        const data = await getUserComments(userId, page);
 
         if (data.code === '200' && data.data) {
             if (Array.isArray(data.data)) {

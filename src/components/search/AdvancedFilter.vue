@@ -263,8 +263,9 @@ const handleTimeFilterChange = () => {
 // 獲取標籤清單
 const fetchTagsList = () => {
     http({
-        url: http.adornUrl('/article/tags/list'),
+        url: http.adornUrl('/ams/tags'),
         method: 'get',
+        params: http.adornParams({})
     }).then(({ data }: { data: R }) => {
         if (data.code === '200' || data.code === 200) {
             tagsList.value = data.data

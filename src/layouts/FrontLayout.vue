@@ -255,7 +255,7 @@ const handleTagsChange = async function (values: any[]) {
       console.log("檢測到新標籤,準備創建:", val)
       try {
         await http({
-          url: http.adornUrl('/article/tags/create'),
+          url: http.adornUrl('/ams/tags'),
           method: 'post',
           data: http.adornData({ name: val }, false)
         })
@@ -284,8 +284,9 @@ const handleTagsChange = async function (values: any[]) {
  */
 const getTagsList = function () {
   http({
-    url: http.adornUrl('/article/tags/list'),
+    url: http.adornUrl('/ams/tags'),
     method: 'get',
+    params: http.adornParams({})
   }).then(({ data }: { data: R }) => {
     if (data.code == "200") {
       tagsSelectData.value = data.data
@@ -359,7 +360,7 @@ const handleCreateArticle = function (content: string) {
   }
 
   http({
-    url: http.adornUrl('/article/save'),
+    url: http.adornUrl('/ams/articles'),
     method: 'post',
     data: http.adornData(createArticle, false)
   }).then(({ data }: { data: R }) => {

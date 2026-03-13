@@ -119,7 +119,7 @@ let categoryList = ref()
 // let categoryList=ref<TreeCategoryNode | undefined>()
 const getTreeCategoryList = function () {
   http({
-    url: http.adornUrl('/article/category/tree/list'),
+    url: http.adornUrl('/ams/categories/tree'),
     method: 'get',
     params: http.adornParams({})
   }).then(({data}) => {

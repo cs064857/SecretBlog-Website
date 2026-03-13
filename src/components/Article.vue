@@ -113,7 +113,7 @@
 
             <el-affix target=".art-sidebar--right" :offset="125">
 
-              <div class="art-toc__content">
+              <div class="art-toc__content" v-if="anchorList && anchorList.length > 0">
 
                 <div v-for="(item, key) in anchorList" :key="key">
                   <ul>
@@ -508,7 +508,7 @@ const handleCommentLikes = function (commentId: string) {
   if (commentLikeSubmittingMap.value[commentId]) return;
   commentLikeSubmittingMap.value[commentId] = true;
   http({
-    url: http.adornUrl(`/article/${articleId}/comments/${commentId}/likes`),
+    url: http.adornUrl(`/ams/articles/${articleId}/comments/${commentId}/likes`),
     method: 'post'
   }).then(({ data }: { data: R }) => {
     if (data.code == "200") {
@@ -662,7 +662,7 @@ const handleOpenEditArticleModal = async () => {
 
   try {
     const { data } = await http({
-      url: http.adornUrl(`/article/articles/${articleId}/edit`),
+      url: http.adornUrl(`/ams/articles/${articleId}/edit`),
       method: 'get',
       params: http.adornParams({})
     }) as { data: R<any> };
@@ -728,9 +728,8 @@ const handleOpenEditCommentModal = async (comment: any) => {
 
   try {
     const { data } = await http({
-      url: http.adornUrl(`/article/${articleId}/comments/${comment.commentId}/edit`),
-      method: 'get',
-      params: http.adornParams({})
+      url: http.adornUrl(`/ams/articles/${articleId}/comments/${comment.commentId}/edit`),
+      method: "get"
     }) as { data: R<any> };
 
     if (String(data.code) === "200" && data.data) {
@@ -837,7 +836,7 @@ const handleReplyComment = function (content: string) {
   }
   console.log("handleReplyComment:replyCommentData:", replyCommentData)
   http({
-    url: http.adornUrl(`/article/${articleId}/comments`),
+    url: http.adornUrl(`/ams/articles/${articleId}/comments`),
     method: 'post',
     data: http.adornData(replyCommentData, false)
   }).then(({ data }: { data: R }) => {
@@ -874,9 +873,11 @@ const handleEditComment = function (content: string) {
   }
   console.log("handleEditComment:editCommentData:", editCommentData)
   http({
-    url: http.adornUrl(`/article/${articleId}/comments`),
-    method: 'put',  // 使用 PUT 方法對應後端的 editComment 端點
-    data: http.adornData(editCommentData, false)
+    url: http.adornUrl(`/ams/comments/${currentReplyUser.value.commentId}`),
+    method: "put",
+    data: http.adornData({
+      content: content
+    }, false)
   }).then(({ data }: { data: R }) => {
     if (data.code == "200") {
 
@@ -935,7 +936,7 @@ const handleReplyArticle = function (content: string) {
   }
   console.log("handleReplyArticle:replyCommentData:", replyCommentData)
   http({
-    url: http.adornUrl(`/article/${articleId}/comments`),
+    url: http.adornUrl(`/ams/articles/${articleId}/comments`),
     method: 'post',
     data: http.adornData(replyCommentData, false)
   }).then(({ data }: { data: R }) => {
@@ -1053,7 +1054,7 @@ onMounted(() => {
    * 獲取標籤資訊
    */
   http({
-    url: http.adornUrl('/article/tags/list'),
+    url: http.adornUrl('/ams/tags'),
     method: 'get',
   }).then(({ data }: { data: R }) => {
     console.log("data", data)
@@ -1136,7 +1137,7 @@ const handleEditArticle = async function (newContent: string) {
 
   try {
     const { data } = await http({
-      url: http.adornUrl(`/article/update/${articleId}`),
+      url: http.adornUrl(`/ams/articles/${articleId}`),
       method: 'put',
       data: http.adornData(updateArticle.value, false)
     })
@@ -1562,7 +1563,7 @@ const getArticle = (async () => {
 
   try {
     const { data } = await http({
-      url: http.adornUrl(`/article/articles/${articleId}`),
+      url: http.adornUrl(`/ams/articles/${articleId}`),
       method: 'get',
       params: http.adornParams({})
     }) as { data: R };
@@ -1589,7 +1590,7 @@ const getArticle = (async () => {
 const getArtComments = async function () {
   try {
     const { data } = await http({
-      url: http.adornUrl(`/article/${articleId}/comments`),
+      url: http.adornUrl(`/ams/articles/${articleId}/comments`),
       method: 'get',
     }) as { data: R }
 
@@ -1759,7 +1760,7 @@ const handleAnchorPoint = async function (content: string) {
 const getActionHistory = async function () {
   try {
     const { data } = await http({
-      url: http.adornUrl(`/article/${articleId}/action-status`),
+      url: http.adornUrl(`/ams/articles/${articleId}/action-status`),
       method: 'get',
     }) as { data: R };
 
@@ -1786,7 +1787,7 @@ const commentsActionStatus = ref<amsCommentActionStatusInterfaceList>([]);
 const getCommentActionHistory = async function () {
   try {
     const { data } = await http({
-      url: http.adornUrl(`/article/comments/${articleId}/action-status`),
+      url: http.adornUrl(`/ams/articles/${articleId}/comments/action-status`),
       method: 'get',
     }) as { data: R };
 
@@ -1839,8 +1840,8 @@ const handleCancelCommentLikes = async function (commentId: string) {
 
   try {
     const { data } = await http({
-      url: http.adornUrl(`/article/${articleId}/comments/${commentId}/unlikes`),
-      method: 'post',
+      url: http.adornUrl(`/ams/articles/${articleId}/comments/${commentId}/likes`),
+      method: 'delete',
     }) as { data: R };
 
     console.log("handleCancelCommentLikes data:", data);
@@ -1900,8 +1901,8 @@ const handleDeleteComment = async function (commentId: string) {
     );
 
     const { data } = await http({
-      url: http.adornUrl(`/article/${articleId}/comments/${commentId}`),
-      method: 'post',
+      url: http.adornUrl(`/ams/articles/${articleId}/comments/${commentId}`),
+      method: 'delete',
     }) as { data: R };
 
     if (data.code == "200") {
@@ -1946,8 +1947,8 @@ const handleDeleteArticle = async function () {
     );
 
     const { data } = await http({
-      url: http.adornUrl(`/article/delete/${articleId}`),
-      method: 'post',
+      url: http.adornUrl(`/ams/articles/${articleId}`),
+      method: 'delete',
     }) as { data: R };
 
     if (data.code == "200") {
@@ -2029,8 +2030,8 @@ const handleArticleLike = function () {
   articleLikeSubmitting.value = true;
 
   http({
-    url: http.adornUrl(`/article/articles/${articleId}/like`),
-    method: 'get'
+    url: http.adornUrl(`/ams/articles/${articleId}/likes`),
+    method: 'post'
   }).then(({ data }: { data: R }) => {
     // console.log("handleArticleLike data:", data);
     if (data.code == "200") {
@@ -2062,8 +2063,8 @@ const handleCancelArticleLike = async function () {
 
   try {
     const { data } = await http({
-      url: http.adornUrl(`/article/articles/${articleId}/unlike`),
-      method: 'post',
+      url: http.adornUrl(`/ams/articles/${articleId}/likes`),
+      method: 'delete',
     }) as { data: R };
 
     console.log("handleCancelArticleLike data:", data);
@@ -2099,8 +2100,8 @@ const handleArticleBookmark = async function () {
 
   try {
     const { data } = await http({
-      url: http.adornUrl(`/article/articles/${articleId}/bookmark`),
-      method: 'get'
+      url: http.adornUrl(`/ams/articles/${articleId}/bookmarks`),
+      method: 'post'
     }) as { data: R };
 
     console.log("handleArticleBookmark data:", data);
@@ -2133,8 +2134,8 @@ const handleCancelArticleBookmark = async function () {
 
   try {
     const { data } = await http({
-      url: http.adornUrl(`/article/articles/${articleId}/unbookmark`),
-      method: 'post',
+      url: http.adornUrl(`/ams/articles/${articleId}/bookmarks`),
+      method: 'delete',
     }) as { data: R };
 
     console.log("handleCancelArticleBookmark data:", data);
@@ -2212,7 +2213,7 @@ const handleTranslateArticle = function(languageCode: string){
   isTranslating.value = true;
 
   http({
-    url: http.adornUrl(`/article/articles/${articleId}/translations`),
+    url: http.adornUrl(`/ams/articles/${articleId}/translations`),
     method: 'get',
     params: http.adornParams({
       languageCode: languageCode

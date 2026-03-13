@@ -76,7 +76,7 @@ const fetchBookmarkedArticles = async (page: number) => {
 
     try {
         const { data } = await http({
-            url: http.adornUrl(`/article/user/${userId}/bookmarked-articles`),
+            url: http.adornUrl(`/ams/articles/users/${userId}/bookmarked-articles`),
             method: 'get',
             params: http.adornParams({ routePage: page })
         }) as { data: R<PageData<ArtActionInter> | ArtActionInter[]> };

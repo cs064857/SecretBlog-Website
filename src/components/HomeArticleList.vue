@@ -107,8 +107,9 @@ const handleFilterTagsChange = (val: string[]) => {
 // 獲取標籤資訊
 	const getTagsList = function () {
 	  http({
-	    url: http.adornUrl('/article/tags/list'),
+	    url: http.adornUrl('/ams/tags'),
 	    method: 'get',
+	    params: http.adornParams({})
 	  }).then(({ data }: { data: R }) => {
 	    if (String(data.code) === "200") {
 	      tagsSelectData.value = data.data
@@ -171,7 +172,7 @@ const handlePageSizeChange = function (PageSize: string) {
 
   console.log("getArticles:categoryId=" + categoryId + ",routePage=" + routePage + ",tagsId=" + tagsId)
   http({
-	    url: http.adornUrl(`/article/categories/articles`),
+	    url: http.adornUrl(`/ams/articles`),
 	    method: 'get',
 	    params: http.adornParams({ routePage: routePage, categoryId: categoryId, tagsId: tagsId })
 	  }).then(({ data }: { data: R<PaginatedResponse<ArticleListItem>> }) => {

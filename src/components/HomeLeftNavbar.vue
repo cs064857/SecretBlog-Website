@@ -37,7 +37,7 @@ const getTreeCategoryList = function () {
   error.value = null
 
   http({
-    url: http.adornUrl('/article/category/tree/list'),
+    url: http.adornUrl('/ams/categories/tree'),
     method: 'get',
     params: http.adornParams({})
   }).then(({ data }) => {

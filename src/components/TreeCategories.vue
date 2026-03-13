@@ -33,7 +33,7 @@ const handleDialogConfirm = function () {
   dialogFormVisible.value = false
   if (formActions.value == 'handleDialogAddLevelOne') {
     http({
-      url: http.adornUrl('/article/category/save'),
+      url: http.adornUrl('/ams/categories'),
       method: 'post',
       data: http.adornData({parentId: 0, categoryName: form.categoryName, categoryLevel: 1}, false)
     }).then(({data}) => {
@@ -49,7 +49,7 @@ const handleDialogConfirm = function () {
       console.log("form.name:", form.categoryName)
       //執行新增分類
       http({
-        url: http.adornUrl('/article/category/save'),
+        url: http.adornUrl('/ams/categories'),
         method: 'post',
         //參數1為當前選種節點分類的id,參數2為欲添加輸入的分類名稱
         data: http.adornData({parentId: selectedData.value.id, categoryName: form.categoryName}, false)
@@ -121,7 +121,7 @@ const handleDialogEditLevelOne = function () {
   }
   // console.log("form", form);
   http({
-    url: http.adornUrl(`/article/category/${selectedData.value.id}`),
+    url: http.adornUrl(`/ams/categories/${selectedData.value.id}`),
     method: 'put',
     data: http.adornData({ categoryName: form.categoryName }, false)
   }).then(({data}: { data: R }) => {
@@ -151,8 +151,8 @@ const remove = (node: Node, data: Tree) => {
       .then(() => {
         http({
           //將該分類的id發送給後端執行刪除
-          url: http.adornUrl(`/article/category/delete/${data.id}`),
-          method: 'post',
+          url: http.adornUrl(`/ams/categories/${data.id}`),
+          method: 'delete',
           // data: http.adornData(data.id, false)
         }).then(({data}) => {
           if (data.code == "200") {
@@ -200,8 +200,9 @@ const handleDrag = function (before, after, inner) {
 
 
   http({
-    url: http.adornUrl(`/article/category/update/${beforeId}/${afterParentId}/${afterLevel}`),
-    method: 'post',
+    url: http.adornUrl(`/ams/categories/${beforeId}/hierarchy`),
+    method: 'put',
+    data: http.adornData({ afterParentId: afterParentId, afterLevel: afterLevel }, false)
   }).then(({data}) => {
     if(data.code==200){//若請求成功
       ElMessage.success("拖曳文章分類成功")

@@ -34,7 +34,7 @@ export const useTreeCategoryStore = defineStore('treeCategoryData', () => {
         loading.value = true
         try {
             const { data } = await http({
-                url: http.adornUrl('/article/category/tree/list'),
+                url: http.adornUrl('/ams/categories/tree'),
                 method: 'get',
                 params: http.adornParams({})
             })
@@ -52,7 +52,7 @@ export const useTreeCategoryStore = defineStore('treeCategoryData', () => {
         loading.value = true
         try {
             const { data } = await http({
-                url: http.adornUrl('/article/category/tree/list'),
+                url: http.adornUrl('/ams/categories/tree'),
                 method: 'get',
                 params: http.adornParams({})
             })
