@@ -52,6 +52,21 @@
 
               <div class="article-header-info-right">
 
+                <div class="article-header-info-translate">
+                  <el-dropdown trigger="click" @command="handleTranslateArticle" :disabled="isTranslating">
+                    <span class="el-dropdown-link translation-icon-wrapper" :class="{ 'translating': isTranslating }">
+                      <img src="/src/assets/translation-global-svgrepo-com.svg" class="svg-icon translation-icon" alt="翻譯" title="翻譯文章" />
+                    </span>
+                    <template #dropdown>
+                      <el-dropdown-menu>
+                        <el-dropdown-item command="en">英文 (English)</el-dropdown-item>
+                        <el-dropdown-item command="ja">日文 (日本語)</el-dropdown-item>
+                        <el-dropdown-item command="ko">韓文 (한국어)</el-dropdown-item>
+                      </el-dropdown-menu>
+                    </template>
+                  </el-dropdown>
+                </div>
+
                 <div v-if="isArticleOwner()" class="article-header-info-delete">
                   <img @click="handleDeleteArticle" class="svg-icon delete-icon"
                     src="/src/assets/trash-can-solid-full.svg" title="刪除文章">
@@ -1138,6 +1153,7 @@ const handleEditArticle = async function (newContent: string) {
       anchorList.value = [];
       await nextTick();
       await handleAnchorPoint(ArticleContent.value);
+      setupScrollObserver();
     } else {
       ElMessage.error("編輯失敗")
     }
@@ -2143,9 +2159,14 @@ const handleCancelArticleBookmark = async function () {
       Article.value.bookmarksCount = data.data;
       // 標記為未加入書籤
       isBooksMarked.value = false;
+      console.log("handleCancelArticleBookmark isBooksMarked:", isBooksMarked.value);
+
+
+      // Article.value = data.data;
+      // ArticleContent.value = Article.value.content;
+      // console.log("ArticleContent.value:", ArticleContent.value);
       ElMessage.success("移除書籤成功！");
-    } else {
-      ElMessage.error("移除書籤失敗：" + data.msg);
+      return data;
     }
   } catch (error) {
     console.error("移除書籤失敗:", error);
@@ -2182,6 +2203,41 @@ const setupScrollObserver = () => {
   headings.forEach(heading => {
     //開始觀察文章標題h1,h2等...
     observer.observe(heading);
+  })
+
+}
+
+const isTranslating = ref(false);
+
+const handleTranslateArticle = function(languageCode: string){
+  if (isTranslating.value) return;
+  isTranslating.value = true;
+
+  http({
+    url: http.adornUrl(`/article/articles/${articleId}/translations`),
+    method: 'get',
+    params: http.adornParams({
+      languageCode: languageCode
+    })
+    
+  }).then(async ({ data }: { data: R }) => {
+    if (data.code == "200") {
+      ArticleContent.value = data.data;
+      
+      // 等待 Vue 將新的 HTML 渲染到 DOM 上
+      anchorList.value = [];
+      await nextTick();
+      await handleAnchorPoint(ArticleContent.value);
+      setupScrollObserver();
+      
+      ElMessage.success("翻譯成功！");
+    } else {
+      ElMessage.error("翻譯失敗：" + data.msg);
+    }
+  }).catch(() => {
+    ElMessage.error("請求出錯，請稍後再試");
+  }).finally(() => {
+    isTranslating.value = false;
   })
 
 }
@@ -2241,6 +2297,27 @@ const setupScrollObserver = () => {
   flex: 1
 }
 
+/*
+   翻譯圖標
+*/
+.translation-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  outline: none;
+}
+
+.translating .translation-icon {
+  animation: spin 1s linear infinite;
+  opacity: 0.7;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
 
 /* ==========================================
    Reply Header
@@ -2433,13 +2510,13 @@ const setupScrollObserver = () => {
   display: flex;
   flex-direction: row;
   /* gap: 20px; */
-  background-color: var(--bg-hex-395c5c);
+  background-color: var(--bg-hex-1a1d1d);
   /* min-width: 1570px;
   max-width: 1570px;
   width: 1570px; */
   width: 100%;
   border: 0.1px solid rgb(190, 186, 186);
-  background-color: var(--bg-hex-1a1d1d);
+  box-sizing: border-box;
 }
 
 .article-comment-button {
@@ -2684,7 +2761,7 @@ const setupScrollObserver = () => {
   flex-direction: row;
   background-color: var(--bg-name-darkslategray);
   justify-content: flex-start;
-  align-content: flex-start;
+  align-content: start;
   align-items: stretch;
   /* 讓左右欄高度跟隨中間欄 */
   width: 90%;
@@ -2856,4 +2933,14 @@ const setupScrollObserver = () => {
   color: var(--primary-500);
   font-weight: 600;
 }
+/**
+翻譯按鈕
+*/
+.article-header-info-translate{
+
+  position: relative;
+  top: -5px;
+
+}
+
 </style>
