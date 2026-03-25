@@ -169,6 +169,10 @@
 
 }
 
+.main-content-area.full-width {
+    margin-left: 0;
+}
+
 
 .home-article-list {
     width: calc(100% - 18vw);

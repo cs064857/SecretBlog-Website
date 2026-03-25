@@ -245,10 +245,22 @@ onMounted(async () => {
     await initInboxAndSSE()
   }
 })
+
+/**
+ * 跳轉至AI聊天介面
+ */
+
+const handleGoToAiBot = function(){
+
+  router.push({name:"ai-bot"})
+
+}
+
 </script>
 
 <template>
   <div class="home-header-navigation">
+
 
 
     <div class="home-header-navigation-logo-container">
@@ -262,6 +274,12 @@ onMounted(async () => {
     <!-- 搜尋框區塊 - 使用 v-show 保持佈局穩定 -->
     <div class="home-header-navigation-search">
       <SearchHeaders v-if="!hideNavSearch" />
+    </div>
+
+    <div class="home-header-navigation-agent-container">
+      <img class="home-header-navigation-agent" alt="AI小助手" @click="handleGoToAiBot" src="/src/assets/robot-svgrepo-com.svg">
+
+      </img>
     </div>
 
     <div class="home-header-navigation-user-container">
@@ -402,6 +420,20 @@ onMounted(async () => {
   max-width: 600px;
   margin: 0 auto;
 }
+
+.home-header-navigation-agent-container {
+  display: flex;
+  align-items: center;
+}
+
+.home-header-navigation-agent {
+  height: 3.5rem;
+  width: auto;
+  cursor: pointer;
+
+}
+
+
 
 /* 右側用戶操作區域容器 */
 .home-header-navigation-user-container,

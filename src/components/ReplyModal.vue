@@ -1014,14 +1014,7 @@ if (typeof window !== 'undefined') {
 }
 
 .reply-modal-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--gradient-border-primary);
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  display: none; /* 隱藏上方裝飾線條 */
 }
 
 @keyframes slideUp {

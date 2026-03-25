@@ -2074,8 +2074,7 @@ const handleCancelArticleLike = async function () {
     if (data.code == "200") {
       // 更新點讚數
       Article.value.likesCount = data.data;
-      // isBooksMarked.value = data.data==1? true:false;
-      isLiked.value = data.data == 1 ? true : false;
+      isLiked.value = false;
       console.log("handleCancelArticleLike isLiked:", isLiked.value);
 
 

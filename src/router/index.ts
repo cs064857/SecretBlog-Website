@@ -20,6 +20,7 @@ import SearchLayout from "@/layouts/SearchLayout.vue";
 import HomeArticleList from "@/components/HomeArticleList.vue";
 import { store } from "@/pinia/index";
 import { useIsLoginStore } from "@/pinia/useIsLoginStore";
+import RagAssistant from "@/components/Ai/RagAssistant.vue";
 // import AuthCallback from "@/components/user/AuthCallback.vue";
 const router = createRouter({
     history: createWebHistory(),
@@ -105,6 +106,12 @@ const router = createRouter({
                     path: '/search/:keyword',
                     component: SearchLayout,
                     meta: { hideNavSearch: true } //控制是否顯示頂部搜索框
+                },
+                {
+                    name: 'ai-bot',
+                    path: '/ai-bot',
+                    component: RagAssistant,
+                    meta: { hideSidebar: true }
                 }
             ]
 

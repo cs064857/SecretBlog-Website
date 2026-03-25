@@ -15,13 +15,13 @@
 
       <div v-if="(!isLargeScreen && showMobileMenu)" class="mobile-menu-overlay" @click="showMobileMenu = false"></div>
 
-      <div v-if="isLargeScreen || showMobileMenu" class="fixed-home-left-navbar">
+      <div v-if="(isLargeScreen || showMobileMenu) && !route.meta.hideSidebar" class="fixed-home-left-navbar">
         <div class="home-left-navbar">
           <HomeLeftNavbar></HomeLeftNavbar>
         </div>
       </div>
 
-      <div class="main-content-area">
+      <div class="main-content-area" :class="{ 'full-width': route.meta.hideSidebar }">
         <router-view></router-view>
       </div>
     </div>
